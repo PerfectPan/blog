@@ -1,10 +1,9 @@
 module.exports = {
   siteMetadata: {
-    // edit below
-    title: `Gatsby Starter Personal Blog`,
-    author: `Kyle Matthews`,
-    description: `A starter personal blog with styled components, dark mode, and Netlify CMS.`,
-    siteUrl: `https://gatsby-starter-blog-demo.netlify.com/`,
+    title: `PerfectPan's Blog`,
+    author: `Yiming Pan`,
+    description: `Nothing is impossible.`,
+    siteUrl: `https://perfectpan.netlify.com/`,
     social: {
       twitter: `kylemathews`,
     },
@@ -63,8 +62,20 @@ module.exports = {
     {
       resolve: `gatsby-plugin-google-analytics`,
       options: {
-        // edit below
-        // trackingId: `ADD YOUR TRACKING ID HERE`,
+        trackingId: "158555436",
+        // Defines where to place the tracking script - `true` in the head and `false` in the body
+        head: false,
+        // Setting this parameter is optional
+        anonymize: true,
+        // Setting this parameter is also optional
+        respectDNT: true,
+        // Avoids sending pageview hits from custom paths
+        exclude: [],
+        // Delays sending pageview hits on route update (in milliseconds)
+        pageTransitionDelay: 0,
+        // Any additional optional fields
+        sampleRate: 5,
+        siteSpeedSampleRate: 10,
       },
     },
     {
