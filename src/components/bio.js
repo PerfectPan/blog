@@ -36,9 +36,8 @@ function Bio() {
             <p>
               Written by <strong>{author}</strong> who lives and works in Hangzhou China.
               {` `}
-              <a href={`https://twitter.com/${social.github}`}>
-                Welcome follow me on Github
-              </a>
+              Welcome follow me on
+              <a href={`https://github.com/${social.github}`}>Github</a>
             </p>
           </Container>
         )
