@@ -5,7 +5,7 @@ module.exports = {
     description: `Nothing is impossible.`,
     siteUrl: `https://perfectpan.netlify.com/`,
     social: {
-      twitter: `kylemathews`,
+      github: `PerfectPan`,
     },
   },
   plugins: [
