@@ -11,26 +11,60 @@ class Layout extends React.Component {
     const blogPath = `${__PATH_PREFIX__}/blog/`
     let header
 
+    const liStyle = {
+      marginLeft: `0.5rem`,
+      marginRight: `0.5rem`,
+      marginBottom: `0rem`,
+      display: `block`,
+      lineHeight: `4rem`,
+      color: `#48434f`,
+    }
+
     if (location.pathname === rootPath || location.pathname === blogPath) {
       header = (
-        <h1
+        <div
           style={{
-            ...scale(1.5),
-            marginBottom: rhythm(1.5),
-            marginTop: 0,
+            marginLeft: `24px`,
+            marginRight: `24px`,
           }}
         >
-          <Link
-            style={{
-              boxShadow: `none`,
-              textDecoration: `none`,
-              color: `inherit`,
-            }}
-            to={location.pathname === blogPath ? `/blog/` : `/`}
-          >
-            {title}
-          </Link>
-        </h1>
+          <nav>
+            <ul
+              style={{
+                listStyle: `none`,
+                margin: `0rem`,
+                display: `flex`,
+                alignSelf: `flex-end`,
+                height: `4rem`,
+              }}
+            >
+              <li style={liStyle}>
+                <Link
+                  style={{
+                    boxShadow: `none`,
+                    textDecoration: `none`,
+                    color: `inherit`,
+                  }}
+                  to={`/`}
+                >
+                  Home
+                </Link>
+              </li>
+              <li style={liStyle}>
+                <Link
+                  style={{
+                    boxShadow: `none`,
+                    textDecoration: `none`,
+                    color: `inherit`,
+                  }}
+                  to={`/blog/`}
+                >
+                  Blog
+                </Link>
+              </li>
+            </ul>
+          </nav>
+        </div>
       )
     } else {
       header = (
@@ -55,15 +89,30 @@ class Layout extends React.Component {
     }
     return (
       <Wrapper>
+        <header
+          style={{
+            position: `fixed`,
+            top: `0rem`,
+            left: `0rem`,
+            right: `0rem`,
+            height: `4rem`,
+            backgroundColor: `rgba(255,255,255,0.985)`,
+            borderBottom: `1px solid #F0F0F2`,
+            zIndex: `5`,
+          }}
+        >
+          {header}
+        </header>
         <div
           style={{
             marginLeft: `auto`,
             marginRight: `auto`,
             maxWidth: rhythm(24),
             padding: `${rhythm(1.5)} ${rhythm(3 / 4)}`,
+            marginTop: `4rem`,
           }}
         >
-          <header>{header}</header>
+          {/* <header>{header}</header> */}
           <main>{children}</main>
         </div>
         <Footer>
