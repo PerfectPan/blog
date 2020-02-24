@@ -8,8 +8,8 @@ class Box extends Component {
     const { node } = this.props
     const title = node.frontmatter.title || node.fields.slug
     const h3Style = {
-        marginBottom: rhythm(1 / 2),
-        marginTop: 0,
+      marginBottom: rhythm(1 / 2),
+      marginTop: 0,
     }
 
     return (
@@ -20,7 +20,7 @@ class Box extends Component {
           </Link>
         </h3>
         <p
-          style={{ marginBottom: rhythm(1 / 4)}}
+          style={{ marginBottom: rhythm(1 / 4) }}
           dangerouslySetInnerHTML={{
             __html: node.frontmatter.description || node.excerpt,
           }}

@@ -50,6 +50,14 @@ class Layout extends React.Component {
               </li>
             </ul>
           </nav>
+          <div className="nav-social">
+              <a href="https://github.com/PerfectPan" target="blank" className="social-icon">
+                  <img src="/github_logo.svg" title="github"/>
+              </a>
+              <a href="https://www.zhihu.com/people/pan-yi-ming-2" target="blank" className="social-icon">
+                  <img src="/zhihu_logo.svg" title="知乎"/>
+              </a>
+          </div>
         </div>
       )
     // } else {
