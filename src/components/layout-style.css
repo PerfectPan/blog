@@ -1,0 +1,36 @@
+.header-title {
+    color: white;
+    font-weight: bold;
+    background-color: black;
+    border: 10px solid black;
+    border-radius: 5px;
+}
+
+nav {
+    display: inline-block;
+    margin-left: 1rem;
+}
+
+.nav-ul {
+    list-style: none;
+    margin: 0rem;
+    display: flex;
+    align-self: flex-end;
+    height: 4rem;
+}
+
+.nav-li {
+    margin: 0rem 0.5rem;
+    display: block;
+    line-height: 4rem;
+    color: #48434f;
+}
+
+.active {
+    color: #316ECD;
+    border-bottom: 2px solid #316ECD;
+}
+
+.nav-li:hover {
+    color: #316ECD;
+}

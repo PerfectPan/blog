@@ -3,24 +3,17 @@ import { Link } from "gatsby"
 import styled from "styled-components"
 
 import { rhythm, scale } from "../utils/typography"
+import "./layout-style.css"
 
 class Layout extends React.Component {
   render() {
-    const { location, title, children } = this.props
+    const { location, children } = this.props
     const rootPath = `${__PATH_PREFIX__}/`
     const blogPath = `${__PATH_PREFIX__}/blog/`
     let header
 
-    const liStyle = {
-      marginLeft: `0.5rem`,
-      marginRight: `0.5rem`,
-      marginBottom: `0rem`,
-      display: `block`,
-      lineHeight: `4rem`,
-      color: `#48434f`,
-    }
-
-    if (location.pathname === rootPath || location.pathname === blogPath) {
+    const title = "PerfectPan";
+    // if (location.pathname === rootPath || location.pathname === blogPath) {
       header = (
         <div
           style={{
@@ -28,17 +21,10 @@ class Layout extends React.Component {
             marginRight: `24px`,
           }}
         >
+          <span className="header-title">{title}</span>
           <nav>
-            <ul
-              style={{
-                listStyle: `none`,
-                margin: `0rem`,
-                display: `flex`,
-                alignSelf: `flex-end`,
-                height: `4rem`,
-              }}
-            >
-              <li style={liStyle}>
+            <ul className="nav-ul">
+              <li className={location.pathname === rootPath ? "nav-li active" : "nav-li"}>
                 <Link
                   style={{
                     boxShadow: `none`,
@@ -50,7 +36,7 @@ class Layout extends React.Component {
                   Home
                 </Link>
               </li>
-              <li style={liStyle}>
+              <li className={location.pathname === rootPath ? "nav-li " : "nav-li active"}>
                 <Link
                   style={{
                     boxShadow: `none`,
@@ -66,27 +52,27 @@ class Layout extends React.Component {
           </nav>
         </div>
       )
-    } else {
-      header = (
-        <h3
-          style={{
-            fontFamily: `Montserrat, sans-serif`,
-            marginTop: 0,
-          }}
-        >
-          <Link
-            style={{
-              boxShadow: `none`,
-              textDecoration: `none`,
-              color: `inherit`,
-            }}
-            to={`/blog/`}
-          >
-            {title}
-          </Link>
-        </h3>
-      )
-    }
+    // } else {
+    //   header = (
+    //     <h3
+    //       style={{
+    //         fontFamily: `Montserrat, sans-serif`,
+    //         marginTop: 0,
+    //       }}
+    //     >
+    //       <Link
+    //         style={{
+    //           boxShadow: `none`,
+    //           textDecoration: `none`,
+    //           color: `inherit`,
+    //         }}
+    //         to={`/blog/`}
+    //       >
+    //         {title}
+    //       </Link>
+    //     </h3>
+    //   )
+    // }
     return (
       <Wrapper>
         <header
@@ -99,6 +85,7 @@ class Layout extends React.Component {
             backgroundColor: `rgba(255,255,255,0.985)`,
             borderBottom: `1px solid #F0F0F2`,
             zIndex: `5`,
+            boxShadow: `0px 0px 8px rgba(14, 14, 14, 0.26)`,
           }}
         >
           {header}
