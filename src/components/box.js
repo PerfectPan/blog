@@ -9,11 +9,12 @@ class Box extends Component {
     const title = node.frontmatter.title || node.fields.slug
     const h3Style = {
       marginBottom: rhythm(1 / 2),
-      marginTop: 0,
+      marginTop: `9.5rem`,
     }
 
     return (
       <div className="box-outside">
+        <div className="box-image"></div>
         <h3 style={h3Style}>
           <Link style={{ boxShadow: `none` }} to={`blog${node.fields.slug}`}>
             {title}
