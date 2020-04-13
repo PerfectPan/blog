@@ -7,7 +7,7 @@ tag:
 ---
 #### 写在前面
 
-最近在学 TypeScript, 对类型编程有点感兴趣？虽然自己可能对这方面还是一无所知．恰好发现LeetCode国区有这么道开源的[面试题](https://github.com/LeetCode-OpenSource/hire/blob/master/typescript_zh.md)，就拿过来做了下
+最近在学 TypeScript, 对类型编程有点感兴趣？虽然自己可能对这方面还是一无所知。恰好发现LeetCode国区有这么道开源的[面试题](https://github.com/LeetCode-OpenSource/hire/blob/master/typescript_zh.md)，就拿过来做了下。
 
 ---
 #### 简要题解
