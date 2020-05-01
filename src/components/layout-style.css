@@ -4,11 +4,12 @@
   background-color: black;
   border: 10px solid black;
   border-radius: 5px;
+  line-height: 4rem;
 }
 
+/* TODO: 全局样式初始化 */
 nav {
   display: inline-block;
-  margin-left: 1rem;
 }
 
 .nav-ul {
@@ -17,6 +18,7 @@ nav {
   display: flex;
   align-self: flex-end;
   height: 4rem;
+  padding-left: 0.3rem;
 }
 
 .nav-li {
@@ -38,6 +40,7 @@ nav {
 .nav-social {
   float: right;
   height: 4rem;
+  margin-left: auto;
 }
 
 .social-icon {
@@ -53,4 +56,73 @@ nav {
   position: relative;
   top: 50%;
   transform: translateY(-50%);
+}
+
+.navbar-burger {
+  cursor: pointer;
+  display: inline-block;
+  height: 4rem;
+  position: absolute;
+  right: 0;
+  width: 3.25rem;
+  margin-left: auto;
+  text-decoration: none;
+  color: #ffffff;
+  box-shadow: 0 0 0 0;
+}
+
+.navbar-burger span {
+  background-color: currentColor;
+  display: block;
+  height: 1px;
+  width: 16px;
+  left: calc(50% - 8px);
+  position: absolute;
+  transform-origin: center;
+  transition-duration: 86ms;
+  transition-property: background-color, opacity, transform;
+  transition-timing-function: ease-out;
+  color: #000;
+}
+
+.navbar-burger span:first-child {
+  top: calc(50% - 6px);
+}
+
+.navbar-burger span:nth-child(2) {
+  top: calc(50% - 1px);
+}
+
+.navbar-burger span:nth-child(3) {
+  top: calc(50% + 4px);
+}
+
+@media screen and (min-width: 1024px) {
+  .navbar-burger {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 1023px) {
+  .nav-social {
+    display: none;
+  }
+  nav {
+    display: flex;
+  }
+  .nav-ul {
+    display: block;
+    text-align: center;
+    width: 100%;
+  }
+  .nav-ul li {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  .active {
+    color: #000;
+    border: 0;
+  }
+  .inactive {
+    display: none;
+  }
 }

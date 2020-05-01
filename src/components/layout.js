@@ -1,13 +1,14 @@
-import React from "react"
+import React, { useState } from "react"
 import { Link } from "gatsby"
 import styled from "styled-components"
 
 import { rhythm, scale } from "../utils/typography"
 import "./layout-style.css"
 
-class Layout extends React.Component {
-  render() {
-    const { location, children } = this.props
+const Layout = (props) => {
+
+    const { location, children } = props
+    const [isCollapse, setIsCollapse] = useState(0);
     const rootPath = `${__PATH_PREFIX__}/`
     const blogPath = `${__PATH_PREFIX__}/blog/`
     let header
@@ -19,11 +20,17 @@ class Layout extends React.Component {
           style={{
             marginLeft: `24px`,
             marginRight: `24px`,
+            // display: `flex`
           }}
         >
           <span className="header-title">{title}</span>
+          <a className="navbar-burger" onClick={() => setIsCollapse(isCollapse^1)}>
+            <span></span>
+            <span></span>
+            <span></span>
+          </a>
           <nav>
-            <ul className="nav-ul">
+            <ul className={isCollapse ? "nav-ul" : "nav-ul inactive"}>
               <li className={location.pathname === rootPath ? "nav-li active" : "nav-li"}>
                 <Link
                   style={{
@@ -117,7 +124,7 @@ class Layout extends React.Component {
         </Footer>
       </Wrapper>
     )
-  }
+  // }
 }
 
 const Wrapper = styled.div`
