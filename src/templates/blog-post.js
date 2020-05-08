@@ -6,8 +6,7 @@ import Bio from "../components/bio"
 import Layout from "../components/layout"
 import SEO from "../components/seo"
 import { rhythm, scale } from "../utils/typography"
-import "gitalk/dist/gitalk.css"
-import GitalkComponent from "gitalk/dist/gitalk-component"
+import Utterances from "../components/Utterances"
 import "katex/dist/katex.min.css"
 import "./blog-post.css"
 class BlogPostTemplate extends React.Component {
@@ -76,22 +75,7 @@ class BlogPostTemplate extends React.Component {
             distractionFreeMode: false  // Facebook-like distraction free mode
           }}
         /> */}
-        <section
-          ref={elem => {
-            if (!elem) {
-              return
-            }
-            const scriptElem = document.createElement("script")
-            scriptElem.src = "https://utteranc.es/client.js"
-            scriptElem.async = true
-            scriptElem.crossOrigin = "anonymous"
-            scriptElem.setAttribute("repo", "PerfectPan/blog")
-            scriptElem.setAttribute("issue-term", "pathname")
-            scriptElem.setAttribute("label", "blog-comment")
-            scriptElem.setAttribute("theme", "github-light")
-            elem.appendChild(scriptElem)
-          }}
-        />
+        <Utterances slug={post.frontmatter.title} />
       </Layout>
     )
   }
