@@ -75,7 +75,7 @@ class BlogPostTemplate extends React.Component {
             distractionFreeMode: false  // Facebook-like distraction free mode
           }}
         /> */}
-        <Utterances slug={this.props.location} />
+        <Utterances slug={post.fields.slug} />
       </Layout>
     )
   }
@@ -95,6 +95,9 @@ export const pageQuery = graphql`
       id
       excerpt(pruneLength: 160)
       body
+      fields {
+        slug
+      }
       frontmatter {
         title
         date(formatString: "MMMM DD, YYYY")
