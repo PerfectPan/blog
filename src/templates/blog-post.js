@@ -6,7 +6,7 @@ import Bio from "../components/bio"
 import Layout from "../components/layout"
 import SEO from "../components/seo"
 import { rhythm, scale } from "../utils/typography"
-import 'gitalk/dist/gitalk.css'
+import "gitalk/dist/gitalk.css"
 import GitalkComponent from "gitalk/dist/gitalk-component"
 import "katex/dist/katex.min.css"
 import "./blog-post.css"
@@ -65,7 +65,7 @@ class BlogPostTemplate extends React.Component {
             )}
           </li>
         </ul>
-        <GitalkComponent
+        {/* <GitalkComponent
           options={{
             clientID: '8d23bdc32ce539382d35',
             clientSecret: '2a960e91a68a3d96c39b3e3a67148b12b98011a6',
@@ -74,6 +74,22 @@ class BlogPostTemplate extends React.Component {
             admin: ['PerfectPan'],
             id: (decodeURIComponent(post.frontmatter.title)).substring(0, 49),      // Ensure uniqueness and length less than 50
             distractionFreeMode: false  // Facebook-like distraction free mode
+          }}
+        /> */}
+        <section
+          ref={elem => {
+            if (!elem) {
+              return
+            }
+            const scriptElem = document.createElement("script")
+            scriptElem.src = "https://utteranc.es/client.js"
+            scriptElem.async = true
+            scriptElem.crossOrigin = "anonymous"
+            scriptElem.setAttribute("repo", "PerfectPan/blog")
+            scriptElem.setAttribute("issue-term", "pathname")
+            scriptElem.setAttribute("label", "blog-comment")
+            scriptElem.setAttribute("theme", "github-light")
+            elem.appendChild(scriptElem)
           }}
         />
       </Layout>
