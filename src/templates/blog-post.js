@@ -72,7 +72,7 @@ class BlogPostTemplate extends React.Component {
             repo: 'blog',
             owner: 'PerfectPan',
             admin: ['PerfectPan'],
-            id: post.frontmatter.title,      // Ensure uniqueness and length less than 50
+            id: (decodeURIComponent(post.frontmatter.title)).substring(0, 49),      // Ensure uniqueness and length less than 50
             distractionFreeMode: false  // Facebook-like distraction free mode
           }}
         />
