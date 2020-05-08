@@ -13,8 +13,8 @@ const Utterances = React.memo(({ slug }) => {
     if (utterancesRef.current) {
       el.src = "https://utteranc.es/client.js"
       el.async = true
-      el.setAttribute("repo", "crimx/blog-comments")
-      el.setAttribute("issue-term", slug)
+      el.setAttribute("repo", "PerfectPan/blog")
+      el.setAttribute("issue-term", encodeURIComponent(slug));
       el.setAttribute("label", "Comment")
       el.setAttribute("theme", "github-light")
       el.setAttribute("crossorigin", "anonymous")
