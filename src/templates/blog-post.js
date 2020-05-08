@@ -75,7 +75,7 @@ class BlogPostTemplate extends React.Component {
             distractionFreeMode: false  // Facebook-like distraction free mode
           }}
         /> */}
-        <Utterances slug={post.frontmatter.title} />
+        <Utterances slug={this.props.location} />
       </Layout>
     )
   }

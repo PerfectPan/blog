@@ -14,8 +14,8 @@ const Utterances = React.memo(({ slug }) => {
       el.src = "https://utteranc.es/client.js"
       el.async = true
       el.setAttribute("repo", "PerfectPan/blog")
-      el.setAttribute("issue-term", encodeURIComponent(slug));
-      el.setAttribute("label", "Comment")
+      el.setAttribute("issue-term", slug);
+      el.setAttribute("label", "blog-comment")
       el.setAttribute("theme", "github-light")
       el.setAttribute("crossorigin", "anonymous")
       el.onload = () => {
@@ -29,7 +29,7 @@ const Utterances = React.memo(({ slug }) => {
   }, [slug])
 
   return (
-    <section key={slug} className="section" ref={utterancesRef}>
+    <section key={slug} ref={utterancesRef}>
       {loaded || (
         <div>Cannot load comments. Please check you network.</div>
       )}
