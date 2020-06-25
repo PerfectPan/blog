@@ -4,7 +4,6 @@ import styled from "styled-components"
 
 import { rhythm, scale } from "../utils/typography"
 import "./layout-style.css"
-import Trianglify from "./Trianglify";
 
 const BigImg = styled.section`
   display: flex;
@@ -119,9 +118,23 @@ const Layout = (props) => {
           {header}
         </header>
         {
-          blogTitle && blogDate && 
+          blogTitle && blogDate ? 
             <BigImg>
-              <Trianglify title={blogTitle}></Trianglify>
+              <img 
+                src='/trianglify-lowres.png' 
+                aria-hidden='true' 
+                style={{
+                  position: `absolute`,
+                  top: `0`,
+                  left: `0`,
+                  width: `100%`,
+                  height: `100%`,
+                  objectFit: `cover`,
+                  objectPosition: `center`,
+                  zIndex: `-1000`,
+                  alt: `alt`
+                }}
+              />;
               <div
                 style={{
                   paddingTop: `9rem`,
@@ -161,6 +174,7 @@ const Layout = (props) => {
                 </a>
               </div>
             </BigImg>
+            : null
         }
         <div
           style={{
