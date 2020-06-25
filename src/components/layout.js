@@ -64,6 +64,9 @@ const Layout = (props) => {
               <a href="https://www.zhihu.com/people/pan-yi-ming-2" target="blank" className="social-icon">
                   <img src="/zhihu_logo.svg" title="知乎"/>
               </a>
+              <a href="/rss.xml" target="blank" className="social-icon">
+                  <img src="/RSS.svg" alt="RSS"/>
+              </a>
           </div>
         </div>
       )
