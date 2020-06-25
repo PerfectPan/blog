@@ -4,10 +4,20 @@ import styled from "styled-components"
 
 import { rhythm, scale } from "../utils/typography"
 import "./layout-style.css"
+import Trianglify from "./Trianglify";
+
+const BigImg = styled.section`
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-between; 
+  min-height: auto;
+  position: relative;
+`;
 
 const Layout = (props) => {
 
-    const { location, children } = props
+    const { location, children, blogTitle = "", blogDate = "" } = props
     const [isCollapse, setIsCollapse] = useState(0);
     const rootPath = `${__PATH_PREFIX__}/`
 
@@ -102,22 +112,65 @@ const Layout = (props) => {
             height: `4rem`,
             backgroundColor: `rgba(255,255,255,0.985)`,
             borderBottom: `1px solid #F0F0F2`,
-            zIndex: `5`,
+            zIndex: `11`,
             boxShadow: `0px 0px 8px rgba(14, 14, 14, 0.26)`,
           }}
         >
           {header}
         </header>
+        {
+          blogTitle && blogDate && 
+            <BigImg>
+              <Trianglify title={blogTitle}></Trianglify>
+              <div
+                style={{
+                  paddingTop: `9rem`,
+                  paddingBottom: `9rem`,
+                  zIndex: `10`,
+                  position: `relative`
+                }}
+              > 
+                <h1 style={{
+                  fontSize: `2rem`, 
+                  fontWeight: `600`,
+                  color: `#363636`,
+                  lineHeight: `1.125`,
+                  textAlign: `center`
+                }}>
+                  {blogTitle}
+                </h1>
+              </div>
+              <div
+                style={{
+                  textAlign: `center`,
+                  position: `relative`,
+                  zIndex: `10`,
+                  paddingTop: `0.5rem`,
+                  paddingBottom: `0.5rem`
+                }}
+              >
+                <a
+                  style={{
+                    display: `inline-block`,
+                    textDecoration: `none`,
+                    boxShadow: `none`,
+                    color: `#363636`,
+                  }}
+                >
+                  {blogDate}
+                </a>
+              </div>
+            </BigImg>
+        }
         <div
           style={{
             marginLeft: `auto`,
             marginRight: `auto`,
             maxWidth: rhythm(24),
-            padding: `${rhythm(1.5)} ${rhythm(3 / 4)}`,
-            marginTop: `4rem`,
+            padding: `0 ${rhythm(3 / 4)} ${rhythm(1.5)}`,
+            marginTop: `${blogTitle && blogDate ? '0' : '6rem'}`
           }}
         >
-          {/* <header>{header}</header> */}
           <main>{children}</main>
         </div>
         <Footer>

@@ -9,19 +9,22 @@ import { rhythm, scale } from "../utils/typography"
 import Utterances from "../components/Utterances"
 import "katex/dist/katex.min.css"
 import "./blog-post.css"
+import styled from "styled-components"
+
 class BlogPostTemplate extends React.Component {
   render() {
     const post = this.props.data.mdx
     const siteTitle = this.props.data.site.siteMetadata.title
     const { previous, next } = this.props.pageContext
+    const { title, date } = post.frontmatter
 
     return (
-      <Layout location={this.props.location} title={siteTitle}>
+      <Layout location={this.props.location} title={siteTitle} blogTitle={title} blogDate={date}>
         <SEO
           title={post.frontmatter.title}
           description={post.frontmatter.description || post.excerpt}
         />
-        <h1>{post.frontmatter.title}</h1>
+        {/* <h1>{post.frontmatter.title}</h1>
         <p
           style={{
             ...scale(-1 / 5),
@@ -31,7 +34,7 @@ class BlogPostTemplate extends React.Component {
           }}
         >
           {post.frontmatter.date}
-        </p>
+        </p> */}
         <MDXRenderer>{post.body}</MDXRenderer>
         <hr
           style={{
