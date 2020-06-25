@@ -10,7 +10,7 @@ const Layout = (props) => {
     const { location, children } = props
     const [isCollapse, setIsCollapse] = useState(0);
     const rootPath = `${__PATH_PREFIX__}/`
-    const blogPath = `${__PATH_PREFIX__}/blog/`
+
     let header
 
     const title = "PerfectPan";
@@ -52,7 +52,7 @@ const Layout = (props) => {
                   }}
                   to={`/blog/`}
                 >
-                  Blog
+                  blog
                 </Link>
               </li>
             </ul>

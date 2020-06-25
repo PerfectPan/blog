@@ -8,27 +8,7 @@ public_folder: assets
 collections:
   - name: Web
     label: FE
-    folder: content/fe
-    create: true
-    fields:
-      - { name: date, label: Date, widget: date }
-      - { name: title, label: Title }
-      - { name: description, label: Description }
-      - { name: tag, label: Tag, widget: list }
-      - { name: body, label: Body, widget: markdown }
-  - name: 生活琐事
-    label: Life
-    folder: content/life
-    create: true
-    fields:
-      - { name: date, label: Date, widget: date }
-      - { name: title, label: Title }
-      - { name: description, label: Description }
-      - { name: tag, label: Tag, widget: list }
-      - { name: body, label: Body, widget: markdown }
-  - name: 数据结构和算法
-    label: Algorithm
-    folder: content/algorithm
+    folder: content/blog
     create: true
     fields:
       - { name: date, label: Date, widget: date }
