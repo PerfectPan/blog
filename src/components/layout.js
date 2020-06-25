@@ -52,7 +52,7 @@ const Layout = (props) => {
                   }}
                   to={`/blog/`}
                 >
-                  blog
+                  Blog
                 </Link>
               </li>
             </ul>
