@@ -3,6 +3,7 @@ import { Link } from "gatsby"
 import styled from "styled-components"
 
 import { rhythm, scale } from "../utils/typography"
+import Trianglify from "./Trianglify";
 import "./layout-style.css"
 
 const BigImg = styled.section`
@@ -135,6 +136,7 @@ const Layout = (props) => {
                   alt: `alt`
                 }}
               />;
+              <Trianglify title={blogTitle}></Trianglify>
               <div
                 style={{
                   paddingTop: `9rem`,
