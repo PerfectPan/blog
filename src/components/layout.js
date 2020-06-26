@@ -121,7 +121,7 @@ const Layout = (props) => {
         {
           blogTitle && blogDate ? 
             <BigImg>
-              <img 
+              {/* <img 
                 src='/trianglify-lowres.png' 
                 aria-hidden='true' 
                 style={{
@@ -135,7 +135,7 @@ const Layout = (props) => {
                   zIndex: `-1000`,
                   alt: `alt`
                 }}
-              />;
+              />; */}
               <Trianglify title={blogTitle}></Trianglify>
               <div
                 style={{

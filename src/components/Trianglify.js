@@ -12,10 +12,24 @@ const Trianglify = React.memo(({ title }) => {
         width: window.innerWidth,
         height: window.innerHeight,
         seed: title
-      }).png()
+      }).toCanvas().toDataURL()
     )
   )
-  return <img src={src} aria-hidden='true' />
+  return <img 
+          src={src} 
+          aria-hidden='true' 
+          style={{
+            position: `absolute`,
+            top: `0`,
+            left: `0`,
+            width: `100%`,
+            height: `100%`,
+            objectFit: `cover`,
+            objectPosition: `center`,
+            zIndex: `-1000`,
+            alt: `alt`
+          }}
+        />
 })
 
 Trianglify.propTypes = {
