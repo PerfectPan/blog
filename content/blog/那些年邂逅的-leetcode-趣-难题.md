@@ -101,3 +101,81 @@ public:
     }
 };
 ```
+
+---
+#### 1531. 压缩字符串II
+
+**题目链接：**<https://leetcode-cn.com/problems/string-compression-ii>
+
+**题目难度：**Hard
+
+**题意：**
+
+行程长度编码 是一种常用的字符串压缩方法，它将连续的相同字符（重复 2 次或更多次）替换为字符和表示字符计数的数字（行程长度）。例如，用此方法压缩字符串 "aabccc" ，将 "aa" 替换为 "a2" ，"ccc" 替换为` "c3" 。因此压缩后的字符串变为 "a2bc3" 。
+
+注意，本问题中，压缩时没有在单个字符后附加计数 '1' 。
+
+给你一个字符串 s 和一个整数 k 。你需要从字符串 s 中删除最多 k 个字符，以使 s 的行程长度编码长度最小。
+
+请你返回删除最多 k 个字符后，s 行程长度编码的最小长度 。
+
+
+**数据范围：** 
+
+- $1 \le s.length \le 100$
+
+- $0 \le k \le s.length$
+
+- s 仅包含小写英文字母
+
+**思路：**
+
+定义 $dp[i]\[j]$ 表示考虑字符串 $[0,i]$ 的前缀，删除了 $j$ 个字符的行程长度编码的最小长度。
+
+考虑转移方程，枚举第 $i$ 个字符删或不删，如果删除的话 
+
+$$\rm dp[i]\[j]=\min(\rm dp[i]\[j],\rm dp[i-1]\[j-1])$$
+
+如果不删的话，我们从后往前枚举字符 $i$ 在末尾连续多少次，并将中间不是 $i$ 的字符删去，我们假设前者数量为 $\rm same$，后者数量为 $\rm del$，当前枚举到了 $m$，那么转移方程即为 
+
+$$\rm dp[i]\[j]=\min(\rm dp[i]\[j],\rm dp[m-1]\[j-\rm del]+cal(\rm same))$$
+
+其中 $\rm cal(\rm same)$ 为压缩后的编码数量，**不删转移的正确性有待研究，因为我们可以选择中间的一个子集来进行转移而不是连续段，但有时候就是要大但猜测一下才能过**。
+
+时间复杂度 $O(n^2k)$，其中 $n=s.length$。
+
+**代码：**
+
+```cpp
+class Solution {
+public:
+    #define INF 0x3f3f3f3f
+    int len(int k){
+        if (k <= 1) return 0;
+        else if (k > 1 && k < 10) return 1;
+        else if (k >= 10 && k < 100) return 2;
+        else return 3;
+    }
+    int getLengthOfOptimalCompression(string s, int k) {
+        int n = s.size();
+        vector<vector<int>> dp(n + 1, vector<int>(k + 1, INF));
+        dp[0][0] = 0;
+        for(int i = 1; i <= n; ++i) {
+            for(int j = 0; j <= k && j <= i; ++j) {
+                if (j > 0) dp[i][j] = min(dp[i][j], dp[i - 1][j - 1]);
+                int same = 0, del = 0;
+                for(int m = i; m >= 1; --m) {
+                    if (s[m - 1] == s[i - 1]) same++;
+                    else del++;
+                    if (j - del >= 0) {
+                        dp[i][j] = min(dp[i][j], dp[m - 1][j - del] + 1 + len(same));
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+        return dp[n][k];
+    }
+};
+```
