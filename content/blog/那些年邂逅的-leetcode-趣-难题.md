@@ -183,3 +183,75 @@ public:
     }
 };
 ```
+
+---
+#### 1536. 排布二进制网格的最少交换次数
+
+**题目链接：**<https://leetcode-cn.com/problems/minimum-swaps-to-arrange-a-binary-grid/>
+
+**题目难度：**Hard
+
+**题意：**
+
+给你一个 n x n 的二进制网格 grid，每一次操作中，你可以选择网格的 相邻两行 进行交换。
+
+一个符合要求的网格需要满足主对角线以上的格子全部都是 0 。
+
+请你返回使网格满足要求的最少操作次数，如果无法使网格符合要求，请你返回 -1 。
+
+主对角线指的是从 (1, 1) 到 (n, n) 的这些格子。
+
+**数据范围：** 
+
+- $n == grid.length$
+
+- $n == grid[i].length$
+
+- $1 \le n \le 200$
+
+- grid[i][j] 要么是 0 要么是 1 
+
+**思路：**
+
+从上到下逐行确定，假设当前考虑到第 $i$ 行，第 $0 \ldots i-1$ 行都已经确定好。按题意第 $i$ 行满足的条件为末尾连续零的个数大于等于 $n-i-1$， 那么我们考虑将 $[i \ldots n-1]$ 中的**离第 $i$ 行最近的且满足限制条件的那一行**逐行交换到第 $i$ 行。
+
+我们可以考虑假设当前有若干行都能满足第 $i$ 行，那么这些行一定都满足第 $i+1 \ldots n-1$ 的限制条件，也就是说能交换到第 $i$ 行的那些行一定也能交换到后面几行，因为随着行数的增加，限制条件越来越宽松。因此不会存在贪心地选择后，后面出现无法放置的情况。
+
+**代码：**
+
+```cpp
+class Solution {
+public:
+    int minSwaps(vector<vector<int>>& grid) {
+        int n = grid.size();
+        vector<int> pos(n, -1);
+        for (int i = 0; i < n; ++i) {
+            for (int j = n - 1; j >= 0; --j) {
+                if (grid[i][j] == 1) {
+                    pos[i] = j;
+                    break;
+                }
+            }   
+        }
+        int ans = 0;
+        for (int i = 0; i < n; ++i) {
+            int k = -1;
+            for (int j = i; j < n; ++j) {
+                if (pos[j] <= i) {
+                    ans += j - i;
+                    k = j;
+                    break;
+                }
+            }
+            if (~k) {
+                for (int j = k; j > i; --j) {
+                    swap(pos[j], pos[j - 1]);
+                }
+            } else {
+                return -1;
+            }
+        }
+        return ans;
+    }
+};
+```
