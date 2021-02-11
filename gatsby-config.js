@@ -3,7 +3,7 @@ module.exports = {
     title: `PerfectPan's Blog`,
     author: `Yiming Pan`,
     description: `Nothing is impossible.`,
-    siteUrl: `https://perfectpan.netlify.com/`,
+    siteUrl: `https://perfectpan.gtsb.io/`,
     social: {
       github: `PerfectPan`,
     },

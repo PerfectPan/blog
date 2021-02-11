@@ -5,11 +5,10 @@ import { MDXRenderer } from "gatsby-plugin-mdx"
 import Bio from "../components/bio"
 import Layout from "../components/layout"
 import SEO from "../components/seo"
-import { rhythm, scale } from "../utils/typography"
+import { rhythm } from "../utils/typography"
 import Utterances from "../components/Utterances"
 import "katex/dist/katex.min.css"
 import "./blog-post.css"
-import styled from "styled-components"
 
 class BlogPostTemplate extends React.Component {
   render() {
