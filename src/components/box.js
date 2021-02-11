@@ -16,7 +16,7 @@ class Box extends Component {
       <div className="box-outside">
         <div className="box-image"></div>
         <h3 style={h3Style}>
-          <Link style={{ boxShadow: `none` }} to={`blog${node.fields.slug}`}>
+          <Link style={{ boxShadow: `none` }} to={`/blog${node.fields.slug}`}>
             {title}
           </Link>
         </h3>
