@@ -65,10 +65,10 @@ exports.onCreateNode = ({ node, actions, getNode }) => {
   }
 }
 
-exports.modifyWebpackConfig = function(config, stage) {
+exports.onCreateWebpackConfig = function (config, stage) {
 
-  if(stage === "build-html") {
-    config._config.externals ='canvas';
+  if (stage === "build-html") {
+    config._config.externals = 'canvas';
   }
 
   return config
