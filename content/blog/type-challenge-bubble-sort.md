@@ -2,7 +2,7 @@
 
 date: 2021-05-08
 
-title: Type Challenge: 冒泡排序
+title: Type Challenge - 冒泡排序
 
 description: 用 TypeScript 类型实现冒泡排序
 
