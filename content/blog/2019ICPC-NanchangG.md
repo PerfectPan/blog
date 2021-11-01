@@ -18,27 +18,28 @@ $$
 
 按照惯例枚举 $gcd$,得 
 
-$$\sum_{d=1}^{n}\phi(d)\sum_{i=1}^{n}\sum_{j=1}^{n}\sum_{k=1}^{n}jk^2[gcd(i,j,k)==d]$$
+$$
+\sum_{d=1}^{n}\phi(d)\sum_{i=1}^{n}\sum_{j=1}^{n}\sum_{k=1}^{n}jk^2[gcd(i,j,k)==d]$$
 
 我们定义 $f(d)=\sum_{i=1}^{n}\sum_{j=1}^{n}\sum_{k=1}^{n}jk^2[gcd(i,j,k)==d]$，$g(d)$ 表示 $d|gcd(i,j,k)$ 的答案，则
 
 $$
-g(d)=\sum_{x=1}^{\lfloor\frac{n}{d}\rfloor}f(d\*x)
+g(d)=\sum_{x=1}^{\lfloor\frac{n}{d}\rfloor}f(d * x)
 $$
 
 莫比乌斯反演得到
 
 $$
-f(d)=\sum_{x=1}^{\lfloor\frac{n}{d}\rfloor}\mu(x)g(d\*x)
+f(d)=\sum_{x=1}^{\lfloor\frac{n}{d}\rfloor}\mu(x)g(d * x)
 $$
 
-其中 $g(d\* x)=\lfloor\frac{n}{d\* x}\rfloor getSum(\lfloor\frac{n}{d\* x}\rfloor) getSumSquare(\lfloor\frac{n}{d\* x}\rfloor)\* (d\* x)^3$，所以式子化为
+其中 $g(d * x)=\lfloor\frac{n}{d * x}\rfloor getSum(\lfloor\frac{n}{d * x}\rfloor) getSumSquare(\lfloor\frac{n}{d * x}\rfloor) * (d * x)^3$，所以式子化为
 
 $$
-\sum_{d=1}^{n}\phi(d)\sum_{x=1}^{\lfloor\frac{n}{d}\rfloor}\mu(x)g(d\*x)
+\sum_{d=1}^{n}\phi(d)\sum_{x=1}^{\lfloor\frac{n}{d}\rfloor}\mu(x)g(d * x)
 $$
 
-继续按照套路枚举定值 $T=d\* x$，式子化为
+继续按照套路枚举定值 $T=d * x$，式子化为
 
 $$
 \sum_{T=1}^{n}g(T)\sum_{d|T}\phi(d)\mu(\frac{T}{d})
@@ -47,10 +48,10 @@ $$
 $g(T)$ 代入得 
 
 $$
-\sum_{T=1}^{n}\lfloor\frac{n}{T}\rfloor getSum(\lfloor\frac{n}{T}\rfloor) getSumSquare(\lfloor\frac{n}{T}\rfloor)\* T^3\sum_{d|T}\phi(d)\mu(\frac{T}{d})
+\sum_{T=1}^{n}\lfloor\frac{n}{T}\rfloor getSum(\lfloor\frac{n}{T}\rfloor) getSumSquare(\lfloor\frac{n}{T}\rfloor) * T^3\sum_{d|T}\phi(d)\mu(\frac{T}{d})
 $$
 
-，后面 $\phi$ 和 $\mu$ 都是积性函数，狄利克雷卷积以后还是积性函数，可以线性筛预处理，推一下质数和质数的幂的时候对应的值是多少就好了，然后跟 $T^3$ 乘起来求一个前缀和，前面下底整除函数分块求就好了，预处理 $O(n)$，单次查询 $O(\sqrt n)$，时间复杂度 $O(n+T\sqrt n)$，注意模数不是质数，所以没法用费马小定理直接求，在 $getSumSquare(\lfloor\frac{n}{d\* x}\rfloor)$ 的时候要除 $6$，可以前面先除 $2$ 然后再用扩展欧几里得求 $3$ 和 $2^{30}$ 的逆元即可，扩欧是可以求互质的逆元的，这样就可以了。
+，后面 $\phi$ 和 $\mu$ 都是积性函数，狄利克雷卷积以后还是积性函数，可以线性筛预处理，推一下质数和质数的幂的时候对应的值是多少就好了，然后跟 $T^3$ 乘起来求一个前缀和，前面下底整除函数分块求就好了，预处理 $O(n)$，单次查询 $O(\sqrt n)$，时间复杂度 $O(n+T\sqrt n)$，注意模数不是质数，所以没法用费马小定理直接求，在 $getSumSquare(\lfloor\frac{n}{d * x}\rfloor)$ 的时候要除 $6$，可以前面先除 $2$ 然后再用扩展欧几里得求 $3$ 和 $2^{30}$ 的逆元即可，扩欧是可以求互质的逆元的，这样就可以了。
 
 ```cpp
 #include <bits/stdc++.h>
