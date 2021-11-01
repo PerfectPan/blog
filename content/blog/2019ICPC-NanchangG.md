@@ -19,7 +19,8 @@ $$
 按照惯例枚举 $gcd$,得 
 
 $$
-\sum_{d=1}^{n}\phi(d)\sum_{i=1}^{n}\sum_{j=1}^{n}\sum_{k=1}^{n}jk^2[gcd(i,j,k)==d]$$
+\sum_{d=1}^{n}\phi(d)\sum_{i=1}^{n}\sum_{j=1}^{n}\sum_{k=1}^{n}jk^2[gcd(i,j,k)==d]
+$$
 
 我们定义 $f(d)=\sum_{i=1}^{n}\sum_{j=1}^{n}\sum_{k=1}^{n}jk^2[gcd(i,j,k)==d]$，$g(d)$ 表示 $d|gcd(i,j,k)$ 的答案，则
 
