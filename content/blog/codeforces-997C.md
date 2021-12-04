@@ -27,7 +27,8 @@ $$
 我们用 $i$ 代换 $n-i$，$j$ 带换 $n-j$，则式子变成
 
 $$
-3\sum_{i=0}^{n-1}\sum_{j=0}^{n-1}\binom{n}{i}\binom{n}{j}(-1)^{i+j+1}\times 3^{ij}$$
+3\sum_{i=0}^{n-1}\sum_{j=0}^{n-1}\binom{n}{i}\binom{n}{j}(-1)^{i+j+1}\times 3^{ij}
+$$
 
 然后提出 $i$ 相关的系数，则式子变成
 
