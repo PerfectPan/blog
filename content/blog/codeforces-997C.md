@@ -21,7 +21,8 @@ $$
 我们先 $O(n)$ 算出 $i=0||j=0$ 的情况，然后剩下的式子就变成
 
 $$
-\sum_{i=1}^{n}\sum_{j=1}^{n}\binom{n}{i}\binom{n}{j}(-1)^{i+j+1}3\times 3^{(n-i)(n-j)}$$
+\sum_{i=1}^{n}\sum_{j=1}^{n}\binom{n}{i}\binom{n}{j}(-1)^{i+j+1}3\times 3^{(n-i)(n-j)}
+$$
 
 我们用 $i$ 代换 $n-i$，$j$ 带换 $n-j$，则式子变成
 
