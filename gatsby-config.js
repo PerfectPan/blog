@@ -3,7 +3,7 @@ module.exports = {
     title: `PerfectPan's Blog`,
     author: `Yiming Pan`,
     description: `Nothing is impossible.`,
-    siteUrl: `https://perfectpan.gtsb.io/`,
+    siteUrl: `http://www.perfectpan.org/`,
     social: {
       github: `PerfectPan`,
     },
