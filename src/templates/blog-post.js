@@ -7,7 +7,6 @@ import Layout from "../components/layout"
 import SEO from "../components/seo"
 import { rhythm } from "../utils/typography"
 import Utterances from "../components/Utterances"
-import "katex/dist/katex.min.css"
 import "./blog-post.css"
 
 class BlogPostTemplate extends React.Component {
