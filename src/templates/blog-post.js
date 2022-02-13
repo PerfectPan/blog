@@ -8,7 +8,6 @@ import SEO from "../components/seo"
 import { rhythm } from "../utils/typography"
 import Utterances from "../components/Utterances"
 import "./blog-post.css"
-import "katex/dist/katex.min.css"
 
 class BlogPostTemplate extends React.Component {
   render() {

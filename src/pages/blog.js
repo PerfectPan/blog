@@ -5,7 +5,6 @@ import Layout from "../components/layout"
 import SEO from "../components/seo"
 import Button from "../components/button"
 import Box from "../components/box"
-import "katex/dist/katex.min.css"
 
 class Blog extends React.Component {
   render() {

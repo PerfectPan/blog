@@ -67,7 +67,11 @@ module.exports = {
             resolve: `gatsby-remark-smartypants`,
           },
           'gatsby-remark-prismjs',
-          `gatsby-remark-katex`
+        ],
+        // https://github.com/gatsbyjs/gatsby/issues/21866#issuecomment-808524766
+        remarkPlugins: [
+          require(`remark-math`),
+          require(`remark-html-katex`)
         ],
       },
     },
