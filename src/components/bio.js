@@ -7,7 +7,7 @@
 
 import React from "react"
 import { StaticQuery, graphql } from "gatsby"
-import Image from "gatsby-image"
+import { GatsbyImage } from "gatsby-plugin-image";
 import styled from "styled-components"
 
 import { rhythm } from "../utils/typography"
@@ -20,8 +20,8 @@ function Bio() {
         const { author, social } = data.site.siteMetadata
         return (
           <Container>
-            <Image
-              fixed={data.avatar.childImageSharp.fixed}
+            <GatsbyImage
+              image={data.avatar.childImageSharp.gatsbyImageData}
               alt={author}
               style={{
                 marginRight: rhythm(1 / 2),
@@ -31,8 +31,7 @@ function Bio() {
               }}
               imgStyle={{
                 borderRadius: `50%`,
-              }}
-            />
+              }} />
             <p>
               Written by <strong>{author}</strong> who lives and works in Hangzhou China.
               {` `}
@@ -40,30 +39,27 @@ function Bio() {
               <a href={`https://github.com/${social.github}`}>Github</a>
             </p>
           </Container>
-        )
+        );
       }}
     />
-  )
+  );
 }
 
-const bioQuery = graphql`
-  query BioQuery {
-    avatar: file(absolutePath: { regex: "/profile-pic.jpg/" }) {
-      childImageSharp {
-        fixed(width: 50, height: 50) {
-          ...GatsbyImageSharpFixed
-        }
-      }
+const bioQuery = graphql`query BioQuery {
+  avatar: file(absolutePath: {regex: "/profile-pic.jpg/"}) {
+    childImageSharp {
+      gatsbyImageData(width: 50, height: 50, layout: FIXED)
     }
-    site {
-      siteMetadata {
-        author
-        social {
-          github
-        }
+  }
+  site {
+    siteMetadata {
+      author
+      social {
+        github
       }
     }
   }
+}
 `
 
 const Container = styled.div`

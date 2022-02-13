@@ -1,3 +1,5 @@
+@import "katex/dist/katex.min.css";
+
 ul {
   list-style-type: square;
   padding-left: 2.14em;
