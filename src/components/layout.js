@@ -191,6 +191,9 @@ const Layout = (props) => {
         © {new Date().getFullYear()}, Built with
           {` `}
         <a href="https://www.gatsbyjs.org">Gatsby</a>
+        <div>
+          <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备17017036号</a>
+        </div>
       </Footer>
     </Wrapper>
   )
