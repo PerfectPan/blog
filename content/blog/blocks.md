@@ -107,7 +107,7 @@ ${content}
 };
 ```
 
-从代码里可以看到打包时候 exclude 掉的库文件通过 runtime 注入的形式补上了，这样可以让业务代码体积尽可能的小，同时 runtime 是复用的，因为当你切换 Block 的时候本质上是切换 url 的 hash，不会触发整个 iframe 的重新加载，iframe 里的页面监听到 hash 发生变化了就会再向主页面去要相关的信息来完成下一次的渲染，因此差值你的业务代码包的大小。
+从代码里可以看到打包时候 exclude 掉的库文件通过 runtime 注入的形式补上了，这样可以让业务代码体积尽可能的小，同时 runtime 是复用的，因为当你切换 Block 的时候本质上是切换 url 的 hash，不会触发整个 iframe 的重新加载，iframe 里的页面监听到 hash 发生变化了就会再向主页面去要相关的信息来完成下一次的渲染，因此差值是你的业务代码包的大小。
 
 append 进 DOM 树以后，window 对象上就有 BlockBundle 这个函数了，runtime 这时候去调用执行渲染 Block 的代码就完成首次渲染了。
 
