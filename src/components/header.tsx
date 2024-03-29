@@ -7,7 +7,7 @@ export const Header = () => {
         <span className="text-white font-bold bg-black border border-10 border-black rounded-md">PerfectPan</span>
         <div className="list-none m-0 flex h-16 pl-1">
           <MenuLink href="/" name="Home" />
-          <MenuLink href="/about" name="Blog" />
+          <MenuLink href="/blog" name="Blog" />
         </div>
       </div>
     </header>
