@@ -15,8 +15,8 @@ dependencies:
     specifier: 18.3.0-canary-670811593-20240322
     version: 18.3.0-canary-670811593-20240322(react-dom@18.3.0-canary-670811593-20240322)(react@18.3.0-canary-670811593-20240322)(webpack@5.90.3)
   waku:
-    specifier: 0.20.0-beta.3
-    version: 0.20.0-beta.3(react-dom@18.3.0-canary-670811593-20240322)(react-server-dom-webpack@18.3.0-canary-670811593-20240322)(react@18.3.0-canary-670811593-20240322)
+    specifier: 0.20.0
+    version: 0.20.0(react-dom@18.3.0-canary-670811593-20240322)(react-server-dom-webpack@18.3.0-canary-670811593-20240322)(react@18.3.0-canary-670811593-20240322)
 
 devDependencies:
   '@types/react':
@@ -27,7 +27,7 @@ devDependencies:
     version: 18.2.19
   autoprefixer:
     specifier: 10.4.17
-    version: 10.4.17(postcss@8.4.35)
+    version: 10.4.17(postcss@8.4.38)
   tailwindcss:
     specifier: 3.4.1
     version: 3.4.1
@@ -1069,7 +1069,7 @@ packages:
     resolution: {integrity: sha512-PYjyFOLKQ9y57JvQ6QLo8dAgNqswh8M1RMJYdQduT6xbWSgK36P/Z/v+p888pM69jMMfS8Xd8F6I1kQ/I9HUGg==}
     dev: true
 
-  /autoprefixer@10.4.17(postcss@8.4.35):
+  /autoprefixer@10.4.17(postcss@8.4.38):
     resolution: {integrity: sha512-/cpVNRLSfhOtcGflT13P2794gVSgmPgTR+erw5ifnMLZb0UnSlkK4tquLmkd3BhA+nLo5tX8Cu0upUsGKvKbmg==}
     engines: {node: ^10 || ^12 || >=14}
     hasBin: true
@@ -1081,7 +1081,7 @@ packages:
       fraction.js: 4.3.7
       normalize-range: 0.1.2
       picocolors: 1.0.0
-      postcss: 8.4.35
+      postcss: 8.4.38
       postcss-value-parser: 4.2.0
     dev: true
 
@@ -1767,7 +1767,6 @@ packages:
       nanoid: 3.3.7
       picocolors: 1.0.0
       source-map-js: 1.2.0
-    dev: false
 
   /punycode@2.3.1:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
@@ -1931,7 +1930,6 @@ packages:
   /source-map-js@1.2.0:
     resolution: {integrity: sha512-itJW8lvSA0TXEphiRoawsCksnlf8SyvmFzIhltqAHluXd88pkCd+cXJVHTDwdCr0IzwptSm035IHQktUu1QUMg==}
     engines: {node: '>=0.10.0'}
-    dev: false
 
   /source-map-support@0.5.21:
     resolution: {integrity: sha512-uBHU3L3czsIyYXKX88fdrGovxdSCoTGDRZ6SYXtSRxLZUzHg5P/66Ht6uoUlHu9EZod+inXhKo3qQgwXUT/y1w==}
@@ -2175,8 +2173,8 @@ packages:
       fsevents: 2.3.3
     dev: false
 
-  /waku@0.20.0-beta.3(react-dom@18.3.0-canary-670811593-20240322)(react-server-dom-webpack@18.3.0-canary-670811593-20240322)(react@18.3.0-canary-670811593-20240322):
-    resolution: {integrity: sha512-RTQwGvZLHHj5lorK4QUK0m9BqFqmChMI5KgaxGp8pIIZTRcwhJh43mOW5OC+LRn+rRxM+TMhD4iobIR3puuX8Q==}
+  /waku@0.20.0(react-dom@18.3.0-canary-670811593-20240322)(react-server-dom-webpack@18.3.0-canary-670811593-20240322)(react@18.3.0-canary-670811593-20240322):
+    resolution: {integrity: sha512-X3TF6q97FSlPsJ37h/lnFxXOO1pEFkbFJr0gTiwu5w0pfvbwGs1neqkH359oSThAp/xmIK1pzlXF+02zOaY30g==}
     engines: {node: ^20.8.0 || ^18.17.0}
     hasBin: true
     peerDependencies:
