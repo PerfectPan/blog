@@ -10,6 +10,9 @@ export default {
       borderWidth: {
         '10': '10px',
       },
+      lineHeight: {
+        '16': '4rem'
+      }
     },
   },
 };

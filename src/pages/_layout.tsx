@@ -11,7 +11,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
   const data = await getData();
 
   return (
-    <div id="__waku" className="font-['Nunito']">
+    <div id="__waku">
       <meta property="description" content={data.description} />
       <link rel="icon" type="image/png" href={data.icon} />
       <Header />

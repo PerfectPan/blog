@@ -13,8 +13,8 @@ export const MenuLink = (props: MenuLinkProps) => {
   const { path } = router.value;
 
   return (
-    <div className={`flex items-center mx-2 leading-10 text-custom-gray ${path === href ? "text-active-blue border-b-2 border-active-blue" : ""} hover:text-active-blue`}>
-      <Link to={href}>{name}</Link>
+    <div className={`mx-2 leading-16 h-16 ${path === href ? "text-active-blue border-b-2 border-active-blue" : "text-custom-gray"} hover:text-active-blue`}>
+      <span className='inline-block align-middle'><Link to={href}>{name}</Link></span>
     </div>
   )
 }
