@@ -3,7 +3,7 @@ export const Footer = () => {
     <footer className="p-6 text-center">
       © {new Date().getFullYear()}, Built with
         {` `}
-      <a href="https://waku.gg">Waku</a>
+      <a className='text-blue-500' href="https://waku.gg">Waku</a>
     </footer>
   );
 };
