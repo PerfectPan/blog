@@ -15,10 +15,12 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       <meta property="description" content={data.description} />
       <link rel="icon" type="image/png" href={data.icon} />
       <Header />
-      <main className="flex min-h-svh items-center justify-center *:min-h-64 *:min-w-64">
-        {children}
-      </main>
-      <Footer />
+      <div className='flex flex-col h-screen px-6'>
+        <main className="flex flex-grow items-center justify-center *:min-h-64 *:min-w-64">
+          {children}
+        </main>
+        <Footer />
+      </div>
     </div>
   );
 };
