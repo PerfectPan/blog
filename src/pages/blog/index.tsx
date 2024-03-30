@@ -1,6 +1,6 @@
 import { Link } from 'waku';
 
-export default async function AboutPage() {
+export default async function BlogPage() {
   const data = await getData();
 
   return (
