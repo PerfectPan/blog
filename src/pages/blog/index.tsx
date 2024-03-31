@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'url';
 import { getMetaData } from '../../utils/index.js'
+import { Meta } from '../../components/meta.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,18 +12,21 @@ export default async function BlogPage() {
   const blogList = await getBlogList();
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="mx-auto w-full max-w-[80ch] pt-20 lg:pt-24">
-        {blogList.map((blog) => {
-          return <div key={blog.name}>
-            <Link to={`blog/${blog.name}`}>{blog.name}</Link>
-          </div>
-        })}
+    <>
+      <Meta title="Blog | PerfectPan's Blog" description="Blog | PerfectPan's Blog"></Meta>
+      <div className="flex flex-col gap-8">
+        <div className="mx-auto w-full max-w-[80ch] pt-20 lg:pt-24">
+          {blogList.map((blog) => {
+            return <div key={blog.name}>
+              <Link to={`blog/${blog.name}`}>{blog.name}</Link>
+            </div>
+          })}
+        </div>
+        <Link to="/" className="mt-4 inline-block underline">
+          cd ..
+        </Link>
       </div>
-      <Link to="/" className="mt-4 inline-block underline">
-        cd ..
-      </Link>
-    </div>
+    </>
   );
 };
 
