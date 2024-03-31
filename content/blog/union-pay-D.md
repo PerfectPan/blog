@@ -1,12 +1,9 @@
 ---
 date: 2019-09-17
-
 title: 银联极客高校挑战赛复赛 D 多项式
-
 description: 
-
 tag:
-	- DP
+  - DP
 ---
 
 **题目链接**：[https://nanti.jisuanke.com/t/40551](https://nanti.jisuanke.com/t/40551)

@@ -9,12 +9,14 @@
     "start": "waku start -- --with-ssr"
   },
   "dependencies": {
+    "@shikijs/rehype": "^1.2.2",
     "react": "18.3.0-canary-670811593-20240322",
     "react-dom": "18.3.0-canary-670811593-20240322",
     "react-markdown": "^9.0.1",
     "react-server-dom-webpack": "18.3.0-canary-670811593-20240322",
     "remark": "^15.0.1",
     "remark-frontmatter": "^5.0.0",
+    "shiki": "^1.2.2",
     "waku": "https://pkg.csb.dev/dai-shi/waku/commit/a9310b52/waku",
     "yaml": "^2.4.1"
   },

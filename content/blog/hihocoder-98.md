@@ -1,12 +1,9 @@
 ---
 date: 2019-04-04
-
 title: hihocoder [Offer收割]编程练习赛98 占领树节点
-
 description: 占领树节点
-
 tag:
-	- Game Theory
+  - Game Theory
 ---
 
 **题目链接**：[http://hihocoder.com/contest/offers98/problem/4](http://hihocoder.com/contest/offers98/problem/4)
