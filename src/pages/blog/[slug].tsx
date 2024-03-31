@@ -1,9 +1,11 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import Markdown from 'react-markdown';
-import frontmatter from 'remark-frontmatter';
-import rehypeShikiFromHighlighter from '@shikijs/rehype/core'
-import { getHighlighterCore } from 'shiki/core'
+import remarkFrontmatter from 'remark-frontmatter';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import rehypeShikiFromHighlighter from '@shikijs/rehype/core';
+import { getHighlighterCore } from 'shiki/core';
 import { Meta } from '../../components/meta.js';
 import { getMetaData } from '../../utils/index.js';
 
@@ -48,7 +50,7 @@ export default async function BlogArticlePage({ slug }: BlogArticlePageProps) {
         description={metadata.description}
       />
       <div className="mx-auto w-full max-w-[80ch] pt-20 lg:pt-24">
-        <Markdown remarkPlugins={[frontmatter]} rehypePlugins={[[rehypeShikiFromHighlighter, highlighter, {
+        <Markdown remarkPlugins={[remarkFrontmatter, remarkMath]} rehypePlugins={[rehypeKatex, [rehypeShikiFromHighlighter, highlighter, {
           themes: {
             light: 'vitesse-light',
             dark: 'vitesse-dark',
