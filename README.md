@@ -10,4 +10,4 @@ Powered By [Waku](https://waku.gg/)
 - [ ] Blog Info use Jotai to manage
 - [x] Blog List style optimization
 - [ ] Blog Post Page style optimization
-- [ ] react-markdown switch to raw mdx runtime
+- [x] react-markdown switch to raw mdx runtime

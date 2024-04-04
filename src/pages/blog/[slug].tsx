@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
-import Markdown from 'react-markdown';
-import remarkFrontmatter from 'remark-frontmatter';
+// @ts-expect-error no exported member
+import { compileMDX } from 'next-mdx-remote/rsc';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import rehypeShikiFromHighlighter from '@shikijs/rehype/core';
@@ -37,6 +37,26 @@ export default async function BlogArticlePage({ slug }: BlogArticlePageProps) {
   const path = `./content/blog/${fileName}`;
   const source = readFileSync(path, 'utf8');
   const metadata = await getMetaData(fileName);
+
+  const mdx = await compileMDX({
+    source,
+    components: {},
+    options: { 
+      parseFrontmatter: true, 
+      mdxOptions: {
+        remarkPlugins: [remarkMath],
+        rehypePlugins: [rehypeKatex, [rehypeShikiFromHighlighter, highlighter, {
+          themes: {
+            light: 'vitesse-light',
+            dark: 'vitesse-dark',
+          }
+        }]]
+      } 
+    },
+  });
+
+  const { content } = mdx;
+
   // const date = new Date(metadata.date).toLocaleDateString('en-US', {
   //   month: 'long',
   //   day: 'numeric',
@@ -50,12 +70,7 @@ export default async function BlogArticlePage({ slug }: BlogArticlePageProps) {
         description={metadata.description}
       />
       <div className="mx-auto w-full max-w-[80ch] pt-20 lg:pt-24">
-        <Markdown remarkPlugins={[remarkFrontmatter, remarkMath]} rehypePlugins={[rehypeKatex, [rehypeShikiFromHighlighter, highlighter, {
-          themes: {
-            light: 'vitesse-light',
-            dark: 'vitesse-dark',
-          }
-        }]]}>{source}</Markdown>
+        {content}
       </div>
     </>
   );
