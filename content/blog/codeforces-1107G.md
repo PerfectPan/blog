@@ -1,7 +1,7 @@
 ---
 date: 2018-01-30
-title: Codeforces 917B MADMAX
-description: Codeforces 917B MADMAX
+title: Codeforces 1107G Vasya and Maximum Profit
+description: Codeforces 1107G Vasya and Maximum Profit
 tag:
   - Segment Tree
 ---
