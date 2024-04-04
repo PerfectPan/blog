@@ -11,3 +11,4 @@ Powered By [Waku](https://waku.gg/)
 - [x] Blog List style optimization
 - [ ] Blog Post Page style optimization
 - [x] react-markdown switch to raw mdx runtime
+- [ ] startTransition
