@@ -1,5 +1,6 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
+import { Link } from 'waku';
 // @ts-expect-error no exported member
 import { compileMDX } from 'next-mdx-remote/rsc';
 import remarkMath from 'remark-math';
@@ -7,6 +8,7 @@ import rehypeKatex from 'rehype-katex';
 import rehypeShikiFromHighlighter from '@shikijs/rehype/core';
 import { getHighlighterCore } from 'shiki/core';
 import { Meta } from '../../components/meta.js';
+import { MDXComponents } from '../../components/mdx-runtime/index.js';
 import { getMetaData } from '../../utils/index.js';
 
 type BlogArticlePageProps = {
@@ -40,7 +42,7 @@ export default async function BlogArticlePage({ slug }: BlogArticlePageProps) {
 
   const mdx = await compileMDX({
     source,
-    components: {},
+    components: MDXComponents,
     options: { 
       parseFrontmatter: true, 
       mdxOptions: {
@@ -57,11 +59,11 @@ export default async function BlogArticlePage({ slug }: BlogArticlePageProps) {
 
   const { content } = mdx;
 
-  // const date = new Date(metadata.date).toLocaleDateString('en-US', {
-  //   month: 'long',
-  //   day: 'numeric',
-  //   year: 'numeric',
-  // });
+  const date = new Date(metadata.date).toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
 
   return (
     <>
@@ -69,8 +71,18 @@ export default async function BlogArticlePage({ slug }: BlogArticlePageProps) {
         title={`${metadata.title} | PerfectPan's Blog`}
         description={metadata.description}
       />
-      <div className="mx-auto w-full max-w-[80ch] pt-20 lg:pt-24">
-        {content}
+      <div className="mx-auto w-full max-w-[80ch] pt-24 lg:pt-32">
+        <div className="flex flex-col gap-2 m-auto mb-8">
+          <div className="text-3xl font-black">{metadata.title}</div>
+          <div className="opacity-60">{date}</div>
+        </div>
+        <div>
+          {content}
+        </div>
+        <Link to="/blog" className="mt-4 inline-block">
+          <span className="opacity-70">&gt;&nbsp;&nbsp;&nbsp;</span>
+          <span className="underline opacity-70 hover:opacity-100">cd ..</span>
+        </Link>
       </div>
     </>
   );
