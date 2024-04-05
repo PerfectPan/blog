@@ -12,11 +12,11 @@ tag:
 
 如图所示，红框框住的位置就是我们切换 Block 的地方，下面一整块是渲染这个 excalidraw 文件的结果。
 
-![images](../assets/github-blocks.png)
+![images](/images/github-blocks.png)
 
 点击红框框住的地方我们可以看到其他可以渲染这个文件类型的 Block，我们可以点击切换，同时我们可以在搜索栏上搜索 Block，可以搜文字来筛选，也可以直接贴别人 Block 代码仓库的 URL，这其实是为了能够搜索出隐藏的 Block，因为如果一个开发者想要对外暴露 Block，他就必须要在他的仓库上打一个 `github-blocks` 的标签才能被 Github 找到，但我们仍然可以通过贴 URL 的方式找到这个隐藏的 Block。
 
-![images](../assets/github-blocks-picker.png)
+![images](/images/github-blocks-picker.png)
 
 目前官方已经提供很多 Block 了，比如 Markdown Block，JSON Block，JS Sandbox Block 等等。
 ## 如何开发 Github Blocks
