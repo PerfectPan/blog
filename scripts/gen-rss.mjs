@@ -67,6 +67,4 @@ feed.addContributor({
   link: "https://example.com/johancruyff"
 });
 
-fs.writeFileSync('./dist/public/rss.xml', feed.atom1());
-
-console.log(fs.readdirSync('./dist/public'))
+fs.writeFileSync('./.vercel/output/static/rss.xml', feed.atom1());
