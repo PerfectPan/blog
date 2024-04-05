@@ -68,3 +68,5 @@ feed.addContributor({
 });
 
 fs.writeFileSync('./dist/public/rss.xml', feed.atom1());
+
+console.log(fs.readdirSync('./dist/public'))
