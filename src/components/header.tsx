@@ -13,9 +13,9 @@ export const Header = () => {
           <a href="https://github.com/PerfectPan" target="blank">
             <img src="/images/github-logo.svg" title="github" />
           </a>
-          {/* <a href="/rss.xml" target="blank" className="social-icon">
-            <img src="/RSS.svg" alt="RSS" />
-          </a> */}
+          <a href="/rss.xml" target="blank">
+            <img src="/images/rss.svg" alt="rss" />
+          </a>
         </div>
       </div>
     </header>
