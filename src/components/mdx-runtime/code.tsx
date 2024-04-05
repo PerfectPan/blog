@@ -6,10 +6,10 @@ interface CodeProps {
 
 export const Code = (props: CodeProps) => {
   return (
-    <span
-      className="-my-0.5 inline-block rounded bg-gray-900 px-1.5 py-px font-mono text-[13px] text-white/80 sm:text-base"
+    <div
+      className="mb-2 whitespace-pre-wrap w-full overflow-x-auto -my-0.5 inline-block rounded-md bg-zinc-50 p-4"
     >
       {props.children}
-    </span>
+    </div>
   );
 }

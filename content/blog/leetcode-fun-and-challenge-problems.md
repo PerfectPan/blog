@@ -5,11 +5,11 @@ description: 记录一下打 LeetCode 碰到的有趣的或者比较难的题目
 tag:
   - LeetCode
 ---
-#### 1397.找到所有好字符
+## 1397.找到所有好字符
 
 **题目链接：**[https://leetcode.cn/problems/find-all-good-strings/description/](https://leetcode.cn/problems/find-all-good-strings/description/)
 
-**题目难度：**Hard
+**题目难度：** Hard
 
 **题意：**
 
@@ -103,11 +103,11 @@ public:
 ```
 
 ---
-#### 1531. 压缩字符串II
+## 1531. 压缩字符串II
 
 **题目链接：**[https://leetcode.cn/problems/string-compression-ii/description/](https://leetcode.cn/problems/string-compression-ii/description/)
 
-**题目难度：**Hard
+**题目难度：** Hard
 
 **题意：**
 
@@ -185,11 +185,11 @@ public:
 ```
 
 ---
-#### 1536. 排布二进制网格的最少交换次数
+## 1536. 排布二进制网格的最少交换次数
 
 **题目链接：**[https://leetcode.cn/problems/minimum-swaps-to-arrange-a-binary-grid/description/](https://leetcode.cn/problems/minimum-swaps-to-arrange-a-binary-grid/description/)
 
-**题目难度：**Hard
+**题目难度：** Hard
 
 **题意：**
 
