@@ -3,6 +3,7 @@ import { Code } from './code.js';
 import { Paragraph } from './paragraph.js';
 import { Link } from './link.js';
 import { Strong } from './strong.js';
+import { OrderedList } from './ul.js';
 
 export const MDXComponents = {
   h2: H2,
@@ -10,4 +11,5 @@ export const MDXComponents = {
   a: Link,
   pre: Code,
   strong: Strong,
+  ul: OrderedList
 }
