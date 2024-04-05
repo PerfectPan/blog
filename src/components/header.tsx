@@ -9,6 +9,14 @@ export const Header = () => {
           <MenuLink href="/" name="Home" />
           <MenuLink href="/blog" name="Blog" />
         </div>
+        <div className="ml-auto flex gap-4">
+          <a href="https://github.com/PerfectPan" target="blank">
+            <img src="/images/github-logo.svg" title="github" />
+          </a>
+          {/* <a href="/rss.xml" target="blank" className="social-icon">
+            <img src="/RSS.svg" alt="RSS" />
+          </a> */}
+        </div>
       </div>
     </header>
   );
