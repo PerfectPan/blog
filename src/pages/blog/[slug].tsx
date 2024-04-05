@@ -9,6 +9,7 @@ import rehypeShikiFromHighlighter from '@shikijs/rehype/core';
 import { getHighlighterCore } from 'shiki/core';
 import { Meta } from '../../components/meta.js';
 import { MDXComponents } from '../../components/mdx-runtime/index.js';
+import { Utterances } from '../../components/utterances.js';
 import { getMetaData } from '../../utils/index.js';
 
 type BlogArticlePageProps = {
@@ -83,6 +84,7 @@ export default async function BlogArticlePage({ slug }: BlogArticlePageProps) {
           <span className="opacity-70">&gt;&nbsp;&nbsp;&nbsp;</span>
           <span className="underline opacity-70 hover:opacity-100">cd ..</span>
         </Link>
+        <Utterances slug={slug} />
       </div>
     </>
   );
