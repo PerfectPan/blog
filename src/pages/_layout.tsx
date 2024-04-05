@@ -27,7 +27,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
 
 const getData = async () => {
   const data = {
-    description: 'An internet website!',
+    description: 'PerfectPan\'s Blog',
     icon: '/images/favicon.png',
   };
 
