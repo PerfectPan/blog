@@ -42,7 +42,8 @@ blogList.forEach((blog) => {
         id: `https://perfectpan.org/blog/${path.basename(blog, '.md')}`,
         link: `https://perfectpan.org/blog/${path.basename(blog, '.md')}`,
         description: metadata.description,
-        content: source,
+        // TODO: need mdx to html, otherwise it will parse fail
+        // content: source,
         author: [
           {
             name: "PerfectPan",
