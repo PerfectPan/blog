@@ -1,70 +1,58 @@
 import fs from 'fs';
+import path from 'path';
 import { Feed } from "feed";
+import { remark } from 'remark';
+import frontmatter from 'remark-frontmatter';
+import yaml from 'yaml';
 
 const feed = new Feed({
-  title: "Feed Title",
-  description: "This is my personal feed!",
-  id: "http://example.com/",
-  link: "http://example.com/",
+  title: "PerfectPan",
+  description: "PerfectPan's Website",
+  id: "https://perfectpan.org/",
+  link: "https://perfectpan.org/",
   language: "en", // optional, used only in RSS 2.0, possible values: http://www.w3.org/TR/REC-html40/struct/dirlang.html#langcodes
-  image: "http://example.com/image.png",
-  favicon: "http://example.com/favicon.ico",
-  copyright: "All rights reserved 2013, John Doe",
-  updated: new Date(2013, 6, 14), // optional, default = today
-  generator: "awesome", // optional, default = 'Feed for Node.js'
-  feedLinks: {
-    json: "https://example.com/json",
-    atom: "https://example.com/atom"
-  },
+  copyright: "All rights reserved 2024, PerfectPan",
   author: {
-    name: "John Doe",
-    email: "johndoe@example.com",
-    link: "https://example.com/johndoe"
+    name: "PerfectPan",
+    link: "https://perfectpan.org/"
   }
 });
 
-// posts.forEach(post => {
-//   feed.addItem({
-//     title: post.title,
-//     id: post.url,
-//     link: post.url,
-//     description: post.description,
-//     content: post.content,
-//     author: [
-//       {
-//         name: "Jane Doe",
-//         email: "janedoe@example.com",
-//         link: "https://example.com/janedoe"
-//       },
-//       {
-//         name: "Joe Smith",
-//         email: "joesmith@example.com",
-//         link: "https://example.com/joesmith"
-//       }
-//     ],
-//     contributor: [
-//       {
-//         name: "Shawn Kemp",
-//         email: "shawnkemp@example.com",
-//         link: "https://example.com/shawnkemp"
-//       },
-//       {
-//         name: "Reggie Miller",
-//         email: "reggiemiller@example.com",
-//         link: "https://example.com/reggiemiller"
-//       }
-//     ],
-//     date: post.date,
-//     image: post.image
-//   });
-// });
+const blogList = fs.readdirSync('./content/blog');
 
-feed.addCategory("Technologie");
+blogList.forEach((blog) => {
+  const source = fs.readFileSync(`./content/blog/${blog}`, 'utf8');
+  let metadata = {};
+  remark()
+    .use(frontmatter)
+    .use(() => (tree) => {
+      const yamlNode = tree.children.find((node) => node.type === 'yaml');
+      if (yamlNode) {
+        const data = yaml.parse(yamlNode.value);
+        metadata = data;
+      }
+    })
+    .process(source, function(err) {
+      if (err) {
+        reject(err);
+      }
 
-feed.addContributor({
-  name: "Johan Cruyff",
-  email: "johancruyff@example.com",
-  link: "https://example.com/johancruyff"
-});
+      feed.addItem({
+        title: metadata.title,
+        id: `https://perfectpan.org/blog/${path.basename(blog, '.md')}`,
+        link: `https://perfectpan.org/blog/${path.basename(blog, '.md')}`,
+        description: metadata.description,
+        content: source,
+        author: [
+          {
+            name: "PerfectPan",
+            email: "perfectpan325@gmail.com",
+            link: "https://perfectpan.org/"
+          },
+        ],
+        date: new Date(metadata.date),
+      });
+    });
+})
 
 fs.writeFileSync('./.vercel/output/static/rss.xml', feed.atom1());

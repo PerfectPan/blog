@@ -5,9 +5,9 @@
   "private": true,
   "scripts": {
     "dev": "waku dev",
-    "build": "waku build && pnpm gen-rss",
+    "build": "waku build && pnpm gen:rss",
     "start": "waku start",
-    "gen-rss": "node ./scripts/gen-rss.mjs"
+    "gen:rss": "node ./scripts/gen-rss.mjs"
   },
   "dependencies": {
     "@shikijs/rehype": "^1.2.2",
