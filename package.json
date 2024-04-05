@@ -18,7 +18,7 @@
     "rehype-katex": "^7.0.0",
     "remark": "^15.0.1",
     "remark-frontmatter": "^5.0.0",
-    "remark-math": "^6.0.0",
+    "remark-math": "^5.0.0",
     "shiki": "^1.2.2",
     "waku": "https://pkg.csb.dev/dai-shi/waku/commit/a9310b52/waku",
     "yaml": "^2.4.1"

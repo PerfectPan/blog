@@ -7,7 +7,7 @@ tag:
 ---
 #### 1397.找到所有好字符
 
-**题目链接：**<https://leetcode-cn.com/problems/find-all-good-strings/>
+**题目链接：**[https://leetcode.cn/problems/find-all-good-strings/description/](https://leetcode.cn/problems/find-all-good-strings/description/)
 
 **题目难度：**Hard
 
@@ -105,7 +105,7 @@ public:
 ---
 #### 1531. 压缩字符串II
 
-**题目链接：**<https://leetcode-cn.com/problems/string-compression-ii>
+**题目链接：**[https://leetcode.cn/problems/string-compression-ii/description/](https://leetcode.cn/problems/string-compression-ii/description/)
 
 **题目难度：**Hard
 
@@ -187,7 +187,7 @@ public:
 ---
 #### 1536. 排布二进制网格的最少交换次数
 
-**题目链接：**<https://leetcode-cn.com/problems/minimum-swaps-to-arrange-a-binary-grid/>
+**题目链接：**[https://leetcode.cn/problems/minimum-swaps-to-arrange-a-binary-grid/description/](https://leetcode.cn/problems/minimum-swaps-to-arrange-a-binary-grid/description/)
 
 **题目难度：**Hard
 
