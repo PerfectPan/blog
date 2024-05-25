@@ -8,6 +8,7 @@ import rehypeKatex from 'rehype-katex';
 import rehypeShikiFromHighlighter from '@shikijs/rehype/core';
 import { getHighlighterCore } from 'shiki/core';
 import { Meta } from '../../components/meta.js';
+import { MDXWrapper } from '../../components/mdx-wrapper.js';
 import { MDXComponents } from '../../components/mdx-runtime/index.js';
 import { Utterances } from '../../components/utterances.js';
 import { getMetaData } from '../../utils/index.js';
@@ -77,9 +78,9 @@ export default async function BlogArticlePage({ slug }: BlogArticlePageProps) {
           <div className="text-3xl font-black">{metadata.title}</div>
           <div className="opacity-60">{date}</div>
         </div>
-        <div>
+        <MDXWrapper>
           {content}
-        </div>
+        </MDXWrapper>
         <Link to="/blog" className="mt-4 inline-block">
           <span className="opacity-70">&gt;&nbsp;&nbsp;&nbsp;</span>
           <span className="underline opacity-70 hover:opacity-100">cd ..</span>
