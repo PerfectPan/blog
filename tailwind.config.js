@@ -1,11 +1,13 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'selector',
   content: ['./src/**/*.{js,jsx,ts,tsx}'],
   theme: {
     extend: {
       colors: {
         'custom-gray': '#48434f',
-        'active-blue': '#316ecd',
+        'wash-dark': 'rgb(35, 39, 47)',
+        'shiki-dark': '#16181d'
       },
       borderWidth: {
         '10': '10px',

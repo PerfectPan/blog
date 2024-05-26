@@ -15,7 +15,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       <meta property="description" content={data.description} />
       <link rel="icon" type="image/png" href={data.icon} />
       <Header />
-      <div className='flex flex-col h-screen px-6'>
+      <div className='flex flex-col min-h-screen px-6'>
         <main className="flex flex-grow items-center justify-center *:min-h-64 *:min-w-64">
           {children}
         </main>

@@ -10,15 +10,15 @@ export default async function HomePage() {
       <div className="mt-8 text-[2.5rem] font-black">
         是个什么都不会的废物.jpg
       </div>
-      <div className="flex w-full justify-around">
-        <div className="bg-gray-50 shadow-lg leading-[5rem] flex-1 border-0 text-center cursor-pointer uppercase tracking-wider mx-1 font-semibold rounded-md mt-8">
+      <div className='flex w-full justify-around dark:text-black'>
+        <div className='bg-gray-50 shadow-lg leading-[5rem] flex-1 border-0 text-center cursor-pointer uppercase tracking-wider mx-1 font-semibold rounded-md mt-8 dark:bg-wash-dark dark:text-white dark:opacity-70'>
           <Link
             to="/blog"
           >
             Blog
           </Link>
         </div>
-        <div className="bg-gray-50 shadow-lg leading-[5rem] flex-1 border-0 text-center cursor-pointer uppercase tracking-wider mx-1 font-semibold rounded-md mt-8">
+        <div className='bg-gray-50 shadow-lg leading-[5rem] flex-1 border-0 text-center cursor-pointer uppercase tracking-wider mx-1 font-semibold rounded-md mt-8 dark:bg-wash-dark dark:text-white dark:opacity-70'>
           <a
             style={{
               boxShadow: `none`,
