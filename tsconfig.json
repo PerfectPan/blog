@@ -8,7 +8,7 @@
     "skipLibCheck": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
-    "types": ["react/experimental"],
+    "types": ["react/experimental", "@types/dom-view-transitions"],
     "jsx": "react-jsx",
     "paths": {
       "~/*": ["./src/*"]

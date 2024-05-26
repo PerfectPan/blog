@@ -11,6 +11,9 @@ dependencies:
   lodash-es:
     specifier: ^4.17.21
     version: 4.17.21
+  lucide-react:
+    specifier: ^0.379.0
+    version: 0.379.0(react@19.0.0-beta-e7d213dfb0-20240507)
   next-mdx-remote:
     specifier: ^4.4.1
     version: 4.4.1(react-dom@19.0.0-beta-e7d213dfb0-20240507)(react@19.0.0-beta-e7d213dfb0-20240507)
@@ -46,6 +49,9 @@ dependencies:
     version: 2.4.1
 
 devDependencies:
+  '@types/dom-view-transitions':
+    specifier: ^1.0.4
+    version: 1.0.4
   '@types/lodash-es':
     specifier: ^4.17.12
     version: 4.17.12
@@ -905,6 +911,10 @@ packages:
     dependencies:
       '@types/ms': 0.7.34
     dev: false
+
+  /@types/dom-view-transitions@1.0.4:
+    resolution: {integrity: sha512-oDuagM6G+xPLrLU4KeCKlr1oalMF5mJqV5pDPMDVIEaa8AkUW00i6u+5P02XCjdEEUQJC9dpnxqSLsZeAciSLQ==}
+    dev: true
 
   /@types/eslint-scope@3.7.7:
     resolution: {integrity: sha512-MzMFlSLBqNF2gcHWO0G1vP/YQyfvrxZ0bF+u7mzUdZ1/xK4A4sru+nraZz5i3iEIk1l1uyicaDVTB4QbbEkAYg==}
@@ -2041,6 +2051,14 @@ packages:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
     dependencies:
       yallist: 3.1.1
+    dev: false
+
+  /lucide-react@0.379.0(react@19.0.0-beta-e7d213dfb0-20240507):
+    resolution: {integrity: sha512-KcdeVPqmhRldldAAgptb8FjIunM2x2Zy26ZBh1RsEUcdLIvsEmbcw7KpzFYUy5BbpGeWhPu9Z9J5YXfStiXwhg==}
+    peerDependencies:
+      react: ^16.5.1 || ^17.0.0 || ^18.0.0
+    dependencies:
+      react: 19.0.0-beta-e7d213dfb0-20240507
     dev: false
 
   /markdown-extensions@1.1.1:
