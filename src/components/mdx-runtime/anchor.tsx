@@ -1,7 +1,7 @@
 'use client';
 
-import { useRouter_UNSTABLE as useRouter } from "waku";
-import { scrollTo } from "../../utils/dom.js";
+import { useRouter_UNSTABLE as useRouter } from 'waku';
+import { scrollTo } from '../../utils/dom.js';
 
 interface AnchorProps {
   anchorId: string;
@@ -21,6 +21,8 @@ export const Anchor = (props: AnchorProps) => {
         window.history.pushState('', '', `#${anchorId}`);
         scrollTo(anchorId);
       }}
-    >{anchorId}</a>
+    >
+      {anchorId}
+    </a>
   );
-}
+};

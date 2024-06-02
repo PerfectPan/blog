@@ -18,17 +18,21 @@ export const getMetaData = async (path: string) => {
   remark()
     .use(frontmatter)
     .use(() => (tree) => {
-      const yamlNode = (tree as any).children.find((node: any) => node.type === 'yaml');
+      // biome-ignore lint/suspicious/noExplicitAny: mdast node type is hard
+      const yamlNode = (tree as any).children.find(
+        // biome-ignore lint/suspicious/noExplicitAny: mdast node type is hard
+        (node: any) => node.type === 'yaml',
+      );
       if (yamlNode) {
         const data = yaml.parse(yamlNode.value);
         resolve({ ...data, name: path });
       }
     })
-    .process(source, function(err) {
+    .process(source, (err) => {
       if (err) {
         reject(err);
       }
     });
 
   return promise;
-}
+};

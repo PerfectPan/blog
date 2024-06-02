@@ -1,15 +1,15 @@
-import { readdirSync, readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
-import { Link } from 'waku';
+import rehypeShikiFromHighlighter from '@shikijs/rehype/core';
 // @ts-expect-error no exported member
 import { compileMDX } from 'next-mdx-remote/rsc';
-import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
-import rehypeShikiFromHighlighter from '@shikijs/rehype/core';
+import remarkMath from 'remark-math';
 import { getHighlighterCore } from 'shiki/core';
-import { Meta } from '../../components/meta.js';
-import { MDXWrapper } from '../../components/mdx-wrapper.js';
+import { Link } from 'waku';
 import { MDXComponents } from '../../components/mdx-runtime/index.js';
+import { MDXWrapper } from '../../components/mdx-wrapper.js';
+import { Meta } from '../../components/meta.js';
 import { Utterances } from '../../components/utterances.js';
 import { getMetaData } from '../../utils/index.js';
 
@@ -20,7 +20,7 @@ type BlogArticlePageProps = {
 const highlighter = await getHighlighterCore({
   themes: [
     import('shiki/themes/vitesse-light.mjs'),
-    import('shiki/themes/vitesse-dark.mjs')
+    import('shiki/themes/vitesse-dark.mjs'),
   ],
   langs: [
     import('shiki/langs/javascript.mjs'),
@@ -28,8 +28,8 @@ const highlighter = await getHighlighterCore({
     import('shiki/langs/html.mjs'),
     import('shiki/langs/typescript.mjs'),
   ],
-  loadWasm: import('shiki/wasm')
-})
+  loadWasm: import('shiki/wasm'),
+});
 
 export default async function BlogArticlePage({ slug }: BlogArticlePageProps) {
   const fileName = await getFileName(slug);
@@ -45,17 +45,24 @@ export default async function BlogArticlePage({ slug }: BlogArticlePageProps) {
   const mdx = await compileMDX({
     source,
     components: MDXComponents,
-    options: { 
-      parseFrontmatter: true, 
+    options: {
+      parseFrontmatter: true,
       mdxOptions: {
         remarkPlugins: [remarkMath],
-        rehypePlugins: [rehypeKatex, [rehypeShikiFromHighlighter, highlighter, {
-          themes: {
-            light: 'vitesse-light',
-            dark: 'vitesse-dark',
-          }
-        }]]
-      } 
+        rehypePlugins: [
+          rehypeKatex,
+          [
+            rehypeShikiFromHighlighter,
+            highlighter,
+            {
+              themes: {
+                light: 'vitesse-light',
+                dark: 'vitesse-dark',
+              },
+            },
+          ],
+        ],
+      },
     },
   });
 
@@ -73,17 +80,15 @@ export default async function BlogArticlePage({ slug }: BlogArticlePageProps) {
         title={`${metadata.title} | PerfectPan's Blog`}
         description={metadata.description}
       />
-      <div className="mx-auto w-full max-w-[80ch] pt-24 lg:pt-32">
-        <div className="flex flex-col gap-2 m-auto mb-8">
-          <div className="text-3xl font-black">{metadata.title}</div>
-          <div className="opacity-60">{date}</div>
+      <div className='mx-auto w-full max-w-[80ch] pt-24 lg:pt-32'>
+        <div className='flex flex-col gap-2 m-auto mb-8'>
+          <div className='text-3xl font-black'>{metadata.title}</div>
+          <div className='opacity-60'>{date}</div>
         </div>
-        <MDXWrapper>
-          {content}
-        </MDXWrapper>
-        <Link to="/blog" className="mt-4 inline-block">
-          <span className="opacity-70">&gt;&nbsp;&nbsp;&nbsp;</span>
-          <span className="underline opacity-70 hover:opacity-100">cd ..</span>
+        <MDXWrapper>{content}</MDXWrapper>
+        <Link to='/blog' className='mt-4 inline-block'>
+          <span className='opacity-70'>&gt;&nbsp;&nbsp;&nbsp;</span>
+          <span className='underline opacity-70 hover:opacity-100'>cd ..</span>
         </Link>
         <Utterances slug={slug} />
       </div>
@@ -97,7 +102,7 @@ const getFileName = async (slug: string) => {
     if (path.basename(fileName, '.md') === slug) {
       return fileName;
     }
-  };
+  }
 
   return '';
 };
@@ -114,9 +119,9 @@ export const getConfig = async () => {
 const getBlogPaths = async () => {
   const blogPaths: Array<string> = [];
 
-  readdirSync('./content/blog').forEach((fileName) => {
+  for (const fileName of readdirSync('./content/blog')) {
     blogPaths.push(path.basename(fileName, path.extname(fileName)));
-  });
+  }
 
   return blogPaths;
 };

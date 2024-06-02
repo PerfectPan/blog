@@ -11,8 +11,10 @@ export const MenuLink = (props: MenuLinkProps) => {
   return (
     <div className='mx-2 h-16 flex items-center'>
       <span className='inline-block align-middle'>
-        <Link to={href} className='opacity-70 hover:opacity-100'>{name}</Link>
+        <Link to={href} className='opacity-70 hover:opacity-100'>
+          {name}
+        </Link>
       </span>
     </div>
-  )
-}
+  );
+};

@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, type ReactNode } from "react";
-import { scrollTo } from "../utils/dom.js";
+import { type ReactNode, useEffect } from 'react';
+import { scrollTo } from '../utils/dom.js';
 
 interface MDXWrapperProps {
   children: ReactNode;
@@ -19,4 +19,4 @@ export const MDXWrapper = (props: MDXWrapperProps) => {
   }, []);
 
   return <div>{props.children}</div>;
-}
+};
