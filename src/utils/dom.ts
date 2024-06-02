@@ -10,7 +10,7 @@ export const scrollTo = (id: string) => {
 
     window.scrollTo({
       top: targetPosition,
-      behavior: 'smooth'
+      behavior: 'smooth',
     });
   }
 };

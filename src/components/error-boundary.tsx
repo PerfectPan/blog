@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import type { ReactNode, FunctionComponent } from 'react';
+import type { FunctionComponent, ReactNode } from 'react';
 
 interface Props {
   fallback: (error: unknown) => ReactNode;
