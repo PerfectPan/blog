@@ -5,7 +5,8 @@ import rehypeShikiFromHighlighter from '@shikijs/rehype/core';
 import { compileMDX } from 'next-mdx-remote/rsc';
 import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
-import { getHighlighterCore } from 'shiki/core';
+import { createHighlighterCore } from 'shiki/core';
+import { createOnigurumaEngine } from 'shiki/engine/oniguruma';
 import { Link } from 'waku';
 import { MDXComponents } from '../../components/mdx-runtime/index.js';
 import { MDXWrapper } from '../../components/mdx-wrapper.js';
@@ -17,7 +18,7 @@ type BlogArticlePageProps = {
   slug: string;
 };
 
-const highlighter = await getHighlighterCore({
+const highlighter = await createHighlighterCore({
   themes: [
     import('shiki/themes/vitesse-light.mjs'),
     import('shiki/themes/vitesse-dark.mjs'),
@@ -28,7 +29,7 @@ const highlighter = await getHighlighterCore({
     import('shiki/langs/html.mjs'),
     import('shiki/langs/typescript.mjs'),
   ],
-  loadWasm: import('shiki/wasm'),
+  engine: createOnigurumaEngine(() => import('shiki/wasm')),
 });
 
 export default async function BlogArticlePage({ slug }: BlogArticlePageProps) {
