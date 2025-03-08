@@ -2,7 +2,7 @@ import { Link } from 'waku';
 
 interface MenuLinkProps {
   href: string;
-  name: string;
+  name: `/${string}`;
 }
 
 export const MenuLink = (props: MenuLinkProps) => {
