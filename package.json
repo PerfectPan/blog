@@ -27,7 +27,7 @@
     "yaml": "^2.4.2"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.7.3",
+    "@biomejs/biome": "1.9.4",
     "@types/dom-view-transitions": "^1.0.4",
     "@types/lodash-es": "^4.17.12",
     "@types/react": "^19.0.0",
@@ -40,7 +40,7 @@
     "typescript": "5.3.3"
   },
   "lint-staged": {
-    "*.{mjs,js,jsx,mts,ts,tsx,css,json,md}": "pnpm biome check --apply"
+    "*.{mjs,js,jsx,mts,ts,tsx,css,json,md}": "pnpm biome check --write"
   },
   "packageManager": "pnpm@8.15.5"
 }

@@ -7,14 +7,14 @@ export default {
       colors: {
         'custom-gray': '#48434f',
         'wash-dark': 'rgb(35, 39, 47)',
-        'shiki-dark': '#16181d'
+        'shiki-dark': '#16181d',
       },
       borderWidth: {
-        '10': '10px',
+        10: '10px',
       },
       lineHeight: {
-        '16': '4rem'
-      }
+        16: '4rem',
+      },
     },
   },
 };
