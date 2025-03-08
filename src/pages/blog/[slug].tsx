@@ -7,15 +7,12 @@ import remarkMath from 'remark-math';
 import { createHighlighterCore } from 'shiki/core';
 import { createOnigurumaEngine } from 'shiki/engine/oniguruma';
 import { Link } from 'waku';
+import type { PageProps } from 'waku/router';
 import { MDXComponents } from '../../components/mdx-runtime/index.js';
 import { MDXWrapper } from '../../components/mdx-wrapper.js';
 import { Meta } from '../../components/meta.js';
 import { Utterances } from '../../components/utterances.js';
 import { getMetaData } from '../../utils/index.js';
-
-type BlogArticlePageProps = {
-  slug: string;
-};
 
 const highlighter = await createHighlighterCore({
   themes: [
@@ -31,7 +28,9 @@ const highlighter = await createHighlighterCore({
   engine: createOnigurumaEngine(() => import('shiki/wasm')),
 });
 
-export default async function BlogArticlePage({ slug }: BlogArticlePageProps) {
+export default async function BlogArticlePage({
+  slug,
+}: PageProps<'/blog/[slug]'>) {
   const fileName = await getFileName(slug);
 
   if (!fileName) {
@@ -107,15 +106,6 @@ const getFileName = async (slug: string) => {
   return '';
 };
 
-export const getConfig = async () => {
-  const blogPaths = await getBlogPaths();
-
-  return {
-    render: 'static',
-    staticPaths: blogPaths,
-  };
-};
-
 const getBlogPaths = async () => {
   const blogPaths: Array<string> = [];
 
@@ -124,4 +114,13 @@ const getBlogPaths = async () => {
   }
 
   return blogPaths;
+};
+
+export const getConfig = async () => {
+  const blogPaths = await getBlogPaths();
+
+  return {
+    render: 'static',
+    staticPaths: blogPaths,
+  };
 };

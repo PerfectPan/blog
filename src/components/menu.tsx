@@ -1,7 +1,7 @@
 import { Link } from 'waku';
 
 interface MenuLinkProps {
-  href: string;
+  href: `/${string}`;
   name: string;
 }
 

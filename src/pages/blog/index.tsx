@@ -29,7 +29,7 @@ export default async function BlogPage() {
                     className='mt-2 mb-6 opacity-70 hover:opacity-100'
                   >
                     <Link
-                      to={`blog/${blog.name}`}
+                      to={`/blog/${blog.name}`}
                       className='flex gap-2 items-center'
                     >
                       <span className='text-lg leading-[1.2em]'>

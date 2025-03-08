@@ -1,11 +1,11 @@
-@import 'https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css';
+@import "https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   html {
-    font-family: 'Merriweather','Georgia', serif;
+    font-family: "Merriweather", "Georgia", serif;
   }
 }
 
