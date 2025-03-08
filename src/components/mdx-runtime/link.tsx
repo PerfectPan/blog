@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 
 interface LinkProps {
   children?: ReactNode;
-  href: string;
+  href?: string | undefined;
 }
 
 export const Link = (props: LinkProps) => {
