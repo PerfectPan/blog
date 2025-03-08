@@ -1,7 +1,6 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import rehypeShikiFromHighlighter from '@shikijs/rehype/core';
-// @ts-expect-error no exported member
 import { compileMDX } from 'next-mdx-remote/rsc';
 import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
