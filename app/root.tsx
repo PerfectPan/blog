@@ -12,8 +12,8 @@ import {
   ScrollRestoration,
 } from '@remix-run/react';
 
-import { Footer } from './components/footer';
-import { Header } from './components/header';
+import { Footer } from './components/footer.js';
+import { Header } from './components/header.js';
 import stylesHref from './styles.css';
 
 export const loader = async (_args: LoaderFunctionArgs) => {

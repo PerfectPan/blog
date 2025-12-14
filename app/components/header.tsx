@@ -1,7 +1,7 @@
 import { Github, Rss } from 'lucide-react';
 
-import { DarkMode } from './dark-mode';
-import { MenuLink } from './menu';
+import { DarkMode } from './dark-mode.js';
+import { MenuLink } from './menu.js';
 
 export const Header = () => {
   return (

@@ -1,7 +1,7 @@
 'use client';
 
 import { type ReactNode, useEffect } from 'react';
-import { scrollTo } from '../utils/dom';
+import { scrollTo } from '../utils/dom.js';
 
 interface MDXWrapperProps {
   children?: ReactNode;

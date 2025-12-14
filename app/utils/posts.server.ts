@@ -1,8 +1,8 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { groupedByDate } from './_';
-import { getMetaData } from './markdown.server';
-import type { BlogMetaData } from './markdown.server';
+import { groupedByDate } from './_.js';
+import { getMetaData } from './markdown.server.js';
+import type { BlogMetaData } from './markdown.server.js';
 
 const BLOG_DIRECTORY = path.join(process.cwd(), 'content', 'blog');
 

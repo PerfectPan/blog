@@ -3,7 +3,7 @@ import path from 'node:path';
 import { remark } from 'remark';
 import frontmatter from 'remark-frontmatter';
 import yaml from 'yaml';
-import { withResolver } from './promise';
+import { withResolver } from './promise.js';
 
 export interface BlogMetaData {
   date: string;

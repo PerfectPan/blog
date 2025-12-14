@@ -5,8 +5,8 @@ import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
 import { createHighlighterCore } from 'shiki/core';
 import { createOnigurumaEngine } from 'shiki/engine/oniguruma';
-import { MDXComponents } from '../components/mdx-runtime';
-import { MDXWrapper } from '../components/mdx-wrapper';
+import { MDXComponents } from '../components/mdx-runtime/index.js';
+import { MDXWrapper } from '../components/mdx-wrapper.js';
 
 const highlighter = await createHighlighterCore({
   themes: [

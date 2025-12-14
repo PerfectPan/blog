@@ -1,7 +1,7 @@
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import { Link, useLoaderData } from '@remix-run/react';
-import { getBlogList } from '../utils/posts.server';
+import { getBlogList } from '../utils/posts.server.js';
 
 export const loader = async (_args: LoaderFunctionArgs) => {
   const blogList = await getBlogList();

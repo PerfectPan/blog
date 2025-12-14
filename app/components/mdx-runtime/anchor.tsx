@@ -1,6 +1,6 @@
 'use client';
 
-import { scrollTo } from '../../utils/dom';
+import { scrollTo } from '../../utils/dom.js';
 
 interface AnchorProps {
   anchorId: string;

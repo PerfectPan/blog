@@ -1,9 +1,9 @@
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import { Link, useLoaderData } from '@remix-run/react';
-import { MDXWrapper } from '../components/mdx-wrapper';
-import { Utterances } from '../components/utterances';
-import { findBlogFileName, readBlog, renderMdxToHtml } from '../utils';
+import { MDXWrapper } from '../components/mdx-wrapper.js';
+import { Utterances } from '../components/utterances.js';
+import { findBlogFileName, readBlog, renderMdxToHtml } from '../utils/index.js';
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const slug = params.slug;

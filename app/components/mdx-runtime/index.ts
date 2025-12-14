@@ -1,9 +1,9 @@
-import { Code } from './code';
-import { H2 } from './h2';
-import { Link } from './link';
-import { Paragraph } from './paragraph';
-import { Strong } from './strong';
-import { OrderedList } from './ul';
+import { Code } from './code.js';
+import { H2 } from './h2.js';
+import { Link } from './link.js';
+import { Paragraph } from './paragraph.js';
+import { Strong } from './strong.js';
+import { OrderedList } from './ul.js';
 
 export const MDXComponents = {
   h2: H2,
