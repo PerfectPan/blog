@@ -4,14 +4,17 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "waku dev",
-    "build": "waku build && pnpm gen:rss",
-    "start": "waku start",
+    "dev": "remix dev",
+    "build": "remix build && pnpm gen:rss",
+    "start": "remix-serve ./build/index.js",
     "gen:rss": "node ./scripts/gen-rss.mjs",
     "prepare": "husky"
   },
   "dependencies": {
+    "@remix-run/node": "^2.15.1",
+    "@remix-run/react": "^2.15.1",
     "@shikijs/rehype": "^3.1.0",
+    "isbot": "^4",
     "lodash-es": "^4.17.21",
     "lucide-react": "^0.479.0",
     "next-mdx-remote": "^5.0.0",
@@ -23,10 +26,11 @@
     "remark-frontmatter": "^5.0.0",
     "remark-math": "^6.0.0",
     "shiki": "^3.1.0",
-    "waku": "0.21.22",
     "yaml": "^2.4.2"
   },
   "devDependencies": {
+    "@remix-run/dev": "^2.15.1",
+    "@remix-run/serve": "^2.15.1",
     "@biomejs/biome": "1.9.4",
     "@types/dom-view-transitions": "^1.0.4",
     "@types/lodash-es": "^4.17.12",

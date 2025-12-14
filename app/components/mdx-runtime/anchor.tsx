@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter_UNSTABLE as useRouter } from 'waku';
 import { scrollTo } from '../../utils/dom.js';
 
 interface AnchorProps {
@@ -9,7 +8,6 @@ interface AnchorProps {
 
 export const Anchor = (props: AnchorProps) => {
   const { anchorId } = props;
-  const router = useRouter();
 
   return (
     <a

@@ -56,4 +56,6 @@ for (const blog of blogList) {
     });
 }
 
-fs.writeFileSync('./.vercel/output/static/rss.xml', feed.atom1());
+const rssPath = path.join('.vercel', 'output', 'static', 'rss.xml');
+fs.mkdirSync(path.dirname(rssPath), { recursive: true });
+fs.writeFileSync(rssPath, feed.atom1());
