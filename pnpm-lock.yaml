@@ -24,8 +24,8 @@ dependencies:
     specifier: ^19.0.0
     version: 19.0.0(react@19.0.0)
   react-server-dom-webpack:
-    specifier: ^19.0.2
-    version: 19.0.2(react-dom@19.0.0)(react@19.0.0)(webpack@5.103.0)
+    specifier: ^19.0.3
+    version: 19.0.3(react-dom@19.0.0)(react@19.0.0)(webpack@5.103.0)
   rehype-katex:
     specifier: ^7.0.0
     version: 7.0.0
@@ -43,7 +43,7 @@ dependencies:
     version: 3.1.0
   waku:
     specifier: 0.21.22
-    version: 0.21.22(react-dom@19.0.0)(react-server-dom-webpack@19.0.2)(react@19.0.0)(yaml@2.4.2)
+    version: 0.21.22(react-dom@19.0.0)(react-server-dom-webpack@19.0.3)(react@19.0.0)(yaml@2.4.2)
   yaml:
     specifier: ^2.4.2
     version: 2.4.2
@@ -1247,8 +1247,8 @@ packages:
     resolution: {integrity: sha512-nG96G3Wp6acyAgJqGasjODb+acrI7KltPiRxzHPXnP3NgI28bpQDRv53olbqGXbfcgF5aiiHmO3xpwEpS5Ld9g==}
     dev: false
 
-  /@types/node@25.0.0:
-    resolution: {integrity: sha512-rl78HwuZlaDIUSeUKkmogkhebA+8K1Hy7tddZuJ3D0xV8pZSfsYGTsliGUol1JPzu9EKnTxPC4L1fiWouStRew==}
+  /@types/node@25.0.2:
+    resolution: {integrity: sha512-gWEkeiyYE4vqjON/+Obqcoeffmk0NF15WSBwSs7zwVA2bAbTaE0SJ7P0WNGoJn8uE7fiaV5a7dKYIJriEqOrmA==}
     dependencies:
       undici-types: 7.16.0
     dev: false
@@ -1546,8 +1546,8 @@ packages:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
     dev: true
 
-  /baseline-browser-mapping@2.9.6:
-    resolution: {integrity: sha512-v9BVVpOTLB59C9E7aSnmIF8h7qRsFpx+A2nugVMTszEOMcfjlZMsXRm4LF23I3Z9AJxc8ANpIvzbzONoX9VJlg==}
+  /baseline-browser-mapping@2.9.7:
+    resolution: {integrity: sha512-k9xFKplee6KIio3IDbwj+uaCLpqzOwakOgmqzPezM0sFJlFKcg30vk2wOiAJtkTSfx0SSQDSe8q+mWA/fSH5Zg==}
     hasBin: true
     dev: false
 
@@ -1603,7 +1603,7 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      baseline-browser-mapping: 2.9.6
+      baseline-browser-mapping: 2.9.7
       caniuse-lite: 1.0.30001760
       electron-to-chromium: 1.5.267
       node-releases: 2.0.27
@@ -2443,7 +2443,7 @@ packages:
     resolution: {integrity: sha512-7vuh85V5cdDofPyxn58nrPjBktZo0u9x1g8WtjQol+jZDaE+fhN+cIvTj11GndBnMnyfrUOG1sZQxCdjKh+DKg==}
     engines: {node: '>= 10.13.0'}
     dependencies:
-      '@types/node': 25.0.0
+      '@types/node': 25.0.2
       merge-stream: 2.0.0
       supports-color: 8.1.1
     dev: false
@@ -3365,12 +3365,12 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: false
 
-  /react-server-dom-webpack@19.0.2(react-dom@19.0.0)(react@19.0.0)(webpack@5.103.0):
-    resolution: {integrity: sha512-niMxdagxhrZYniMzN2QqXKdfL/MOgV54V2KjDLB9TUHR+wt2BWwROzW47RQV1XihQBP0hVxcoPWmy2s1JilcUg==}
+  /react-server-dom-webpack@19.0.3(react-dom@19.0.0)(react@19.0.0)(webpack@5.103.0):
+    resolution: {integrity: sha512-Ri1trzmT2G2ZTrummbbJca306MKyXpI8l4B7j1F8jGCjykUHCaojwtXBr/luEiRSFzQRkYBkH+wabfppP3x/IQ==}
     engines: {node: '>=0.10.0'}
     peerDependencies:
-      react: ^19.0.2
-      react-dom: ^19.0.2
+      react: ^19.0.3
+      react-dom: ^19.0.3
       webpack: ^5.59.0
     dependencies:
       acorn-loose: 8.5.2
@@ -4162,7 +4162,7 @@ packages:
       fsevents: 2.3.3
     dev: false
 
-  /waku@0.21.22(react-dom@19.0.0)(react-server-dom-webpack@19.0.2)(react@19.0.0)(yaml@2.4.2):
+  /waku@0.21.22(react-dom@19.0.0)(react-server-dom-webpack@19.0.3)(react@19.0.0)(yaml@2.4.2):
     resolution: {integrity: sha512-DFWTtYXUAQVA8UmbVPtYHKB4ZkSDl/H6kTHzhikGovoQkB9Ma5mty+L2Livlyj/SBs8HhYNtVoszLaFnOl8r9A==}
     engines: {node: ^20.8.0 || ^18.17.0 || ^22.7.0}
     hasBin: true
@@ -4178,7 +4178,7 @@ packages:
       hono: 4.7.2
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
-      react-server-dom-webpack: 19.0.2(react-dom@19.0.0)(react@19.0.0)(webpack@5.103.0)
+      react-server-dom-webpack: 19.0.3(react-dom@19.0.0)(react@19.0.0)(webpack@5.103.0)
       rsc-html-stream: 0.0.4
       vite: 6.2.0(yaml@2.4.2)
     transitivePeerDependencies:
