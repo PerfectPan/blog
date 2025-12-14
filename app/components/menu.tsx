@@ -1,4 +1,4 @@
-import { Link } from 'waku';
+import { Link } from '@remix-run/react';
 
 interface MenuLinkProps {
   href: `/${string}`;

@@ -11,7 +11,7 @@
     "types": ["react/experimental", "@types/dom-view-transitions"],
     "jsx": "react-jsx",
     "paths": {
-      "~/*": ["./src/*"]
+      "~/*": ["./app/*"]
     }
   }
 }
