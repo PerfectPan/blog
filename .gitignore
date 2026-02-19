@@ -6,3 +6,5 @@ pages.gen.ts
 .vinxi
 apps/**/node_modules
 apps/**/.output
+apps/web/src/routeTree.gen.ts
+apps/cms/payload-types.ts

@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "payload dev --config ./src/payload.config.ts",
-    "build": "payload build --config ./src/payload.config.ts",
-    "start": "payload serve --config ./src/payload.config.ts",
+    "dev": "node --watch --import tsx ./src/server.ts",
+    "build": "tsc --noEmit -p tsconfig.json",
+    "start": "node --import tsx ./src/server.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "migrate:content": "tsx ./scripts/migrate-content.ts"
   },
@@ -17,12 +17,12 @@
     "dotenv": "^16.4.5",
     "gray-matter": "^4.0.3",
     "payload": "^3.37.0",
-    "pg": "^8.13.1"
+    "pg": "^8.13.1",
+    "tsx": "^4.19.2"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.13.8",
-    "tsx": "^4.19.2",
     "typescript": "^5.7.3"
   }
 }
