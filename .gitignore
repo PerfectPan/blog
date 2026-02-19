@@ -2,3 +2,7 @@ node_modules
 dist
 .vercel
 pages.gen.ts
+.output
+.vinxi
+apps/**/node_modules
+apps/**/.output

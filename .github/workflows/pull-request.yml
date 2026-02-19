@@ -24,8 +24,14 @@ jobs:
           corepack enable
           pnpm install
 
-      - name: TypeScript Check
+      - name: TypeScript Check (Legacy)
         run: pnpm tsc --noEmit
 
+      - name: TypeScript Check (Workspace)
+        run: |
+          pnpm --filter @blog/shared typecheck
+          pnpm --filter @blog/cms typecheck
+          pnpm --filter @blog/web typecheck
+
       - name: Biome Check
-        run: pnpm biome check --apply ./src
+        run: pnpm biome check --apply ./src ./apps ./packages
