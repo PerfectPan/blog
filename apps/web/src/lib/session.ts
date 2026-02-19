@@ -55,9 +55,16 @@ export async function getSessionUserFromRequest(
     return null;
   }
 
-  const session = (await auth.api.getSession({
-    headers: request.headers,
-  })) as BetterAuthSession;
+  let session: BetterAuthSession = null;
+  try {
+    session = (await auth.api.getSession({
+      headers: request.headers,
+    })) as BetterAuthSession;
+  } catch (error) {
+    // If auth storage is unavailable, keep request flow alive as guest.
+    console.error('[web] getSession failed, fallback to guest session', error);
+    return null;
+  }
 
   const user = session?.user;
   if (!user?.id || !user.email) {

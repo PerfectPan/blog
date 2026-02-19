@@ -13,6 +13,9 @@
     "lineEnding": "lf",
     "lineWidth": 80
   },
+  "files": {
+    "ignore": ["apps/web/src/routeTree.gen.ts", "apps/cms/payload-types.ts"]
+  },
   "javascript": {
     "formatter": {
       "quoteStyle": "single",
