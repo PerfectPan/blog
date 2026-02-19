@@ -1,4 +1,4 @@
-import { hash } from 'bcryptjs';
+import bcrypt from 'bcryptjs';
 import type { CollectionConfig } from 'payload';
 import { buildPublishedReadWhereForRole } from '../lib/access.js';
 
@@ -41,7 +41,7 @@ export const Posts: CollectionConfig = {
         };
         const passwordPlain = String(mutableData.passwordPlain ?? '').trim();
         if (passwordPlain) {
-          mutableData.passwordHash = await hash(passwordPlain, 10);
+          mutableData.passwordHash = await bcrypt.hash(passwordPlain, 10);
         }
 
         if (mutableData.visibility !== 'password') {

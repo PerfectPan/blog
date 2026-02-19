@@ -1,4 +1,5 @@
 import type { Role } from '@blog/shared';
+import type { Where } from 'payload';
 
 const ROLE_TO_VISIBILITY: Record<Role, string[]> = {
   member: ['public', 'member'],
@@ -6,9 +7,11 @@ const ROLE_TO_VISIBILITY: Record<Role, string[]> = {
   admin: ['public', 'member', 'vip', 'admin'],
 };
 
-export type Where = Record<string, unknown>;
+type RequestLikeWithHeaders = {
+  headers: Headers;
+};
 
-export function getRoleFromRequest(req: Request): Role | null {
+export function getRoleFromRequest(req: RequestLikeWithHeaders): Role | null {
   const roleHeader = req.headers.get('x-user-role');
   if (
     roleHeader === 'member' ||
@@ -45,7 +48,9 @@ export function buildPublishedReadWhereForRole(role: Role | null): Where {
   };
 }
 
-export function getServiceTokenFromRequest(req: Request): string {
+export function getServiceTokenFromRequest(
+  req: RequestLikeWithHeaders,
+): string {
   return (
     req.headers.get('x-service-token') ??
     req.headers.get('authorization')?.replace(/^Bearer\s+/i, '') ??

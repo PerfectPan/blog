@@ -4,7 +4,7 @@ import {
   getUnlockCookieName,
 } from '@blog/shared';
 import { createServerFn } from '@tanstack/react-start';
-import { getWebRequest } from '@tanstack/react-start/server';
+import { getRequest } from '@tanstack/react-start/server';
 import { z } from 'zod';
 import {
   fetchPostBySlugFromCms,
@@ -29,7 +29,7 @@ function toUniquePosts(posts: PostSummary[]): PostSummary[] {
 
 export const getBlogListServerFn = createServerFn({ method: 'GET' }).handler(
   async () => {
-    const request = getWebRequest();
+    const request = getRequest();
     const sessionUser = await getSessionUserFromRequest(request);
 
     let cmsPosts: PostSummary[] = [];
@@ -52,9 +52,9 @@ export const getBlogListServerFn = createServerFn({ method: 'GET' }).handler(
 );
 
 export const getBlogPostServerFn = createServerFn({ method: 'GET' })
-  .validator(z.object({ slug: z.string().min(1) }))
+  .inputValidator(z.object({ slug: z.string().min(1) }))
   .handler(async ({ data }) => {
-    const request = getWebRequest();
+    const request = getRequest();
     const sessionUser = await getSessionUserFromRequest(request);
 
     let post: PostDetail | null = null;
@@ -80,7 +80,7 @@ export const getBlogPostServerFn = createServerFn({ method: 'GET' })
   });
 
 export const verifyPostPasswordServerFn = createServerFn({ method: 'POST' })
-  .validator(
+  .inputValidator(
     z.object({
       slug: z.string().min(1),
       password: z.string().min(1),

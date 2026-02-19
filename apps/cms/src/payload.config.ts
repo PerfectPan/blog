@@ -1,6 +1,7 @@
 import { postgresAdapter } from '@payloadcms/db-postgres';
-import { compare } from 'bcryptjs';
+import bcrypt from 'bcryptjs';
 import { buildConfig } from 'payload';
+import type { PayloadRequest } from 'payload';
 import { Posts } from './collections/Posts.js';
 import { Users } from './collections/Users.js';
 import {
@@ -13,16 +14,8 @@ import { getCmsEnv } from './lib/env.js';
 const env = getCmsEnv();
 
 type PayloadDoc = Record<string, unknown>;
-
-type PayloadRequestLike = Request & {
-  routeParams?: Record<string, string | undefined>;
-  payload: {
-    find: (args: Record<string, unknown>) => Promise<{
-      docs: PayloadDoc[];
-      totalDocs: number;
-    }>;
-  };
-  json: () => Promise<unknown>;
+type RequestWithRouteParams = PayloadRequest & {
+  routeParams?: Record<string, unknown>;
 };
 
 function getAllowedOrigins(): string[] {
@@ -32,7 +25,7 @@ function getAllowedOrigins(): string[] {
     .filter(Boolean);
 }
 
-function assertServiceRequest(req: Request): Response | null {
+function assertServiceRequest(req: { headers: Headers }): Response | null {
   const serviceToken = getServiceTokenFromRequest(req);
   if (!serviceToken || serviceToken !== env.payloadServiceToken) {
     return new Response(
@@ -56,6 +49,14 @@ function assertServiceRequest(req: Request): Response | null {
   }
 
   return null;
+}
+
+function getRouteParam(
+  req: RequestWithRouteParams,
+  key: string,
+): string | undefined {
+  const value = req.routeParams?.[key];
+  return typeof value === 'string' ? value : undefined;
 }
 
 function toPostSummary(doc: PayloadDoc) {
@@ -103,7 +104,7 @@ export default buildConfig({
       path: '/web/posts',
       method: 'get',
       handler: async (req) => {
-        const request = req as PayloadRequestLike;
+        const request = req as RequestWithRouteParams;
         const denyResponse = assertServiceRequest(request);
         if (denyResponse) {
           return denyResponse;
@@ -118,9 +119,10 @@ export default buildConfig({
           sort: '-publishedAt',
           pagination: false,
         });
+        const posts = docs.docs as PayloadDoc[];
 
         return Response.json({
-          docs: docs.docs.map((doc) => toPostSummary(doc)),
+          docs: posts.map((doc) => toPostSummary(doc)),
           total: docs.totalDocs,
         });
       },
@@ -129,13 +131,13 @@ export default buildConfig({
       path: '/web/posts/:slug',
       method: 'get',
       handler: async (req) => {
-        const request = req as PayloadRequestLike;
+        const request = req as RequestWithRouteParams;
         const denyResponse = assertServiceRequest(request);
         if (denyResponse) {
           return denyResponse;
         }
 
-        const slug = request.routeParams?.slug;
+        const slug = getRouteParam(request, 'slug');
         if (!slug) {
           return new Response(JSON.stringify({ error: 'Missing slug' }), {
             status: 400,
@@ -155,7 +157,7 @@ export default buildConfig({
           limit: 1,
         });
 
-        const post = docs.docs[0];
+        const post = docs.docs[0] as PayloadDoc | undefined;
         if (!post) {
           return new Response(JSON.stringify({ error: 'Not found' }), {
             status: 404,
@@ -172,13 +174,13 @@ export default buildConfig({
       path: '/web/posts/:slug/verify-password',
       method: 'post',
       handler: async (req) => {
-        const request = req as PayloadRequestLike;
+        const request = req as RequestWithRouteParams;
         const denyResponse = assertServiceRequest(request);
         if (denyResponse) {
           return denyResponse;
         }
 
-        const slug = request.routeParams?.slug;
+        const slug = getRouteParam(request, 'slug');
         if (!slug) {
           return new Response(JSON.stringify({ error: 'Missing slug' }), {
             status: 400,
@@ -186,9 +188,12 @@ export default buildConfig({
           });
         }
 
-        const body = (await request.json().catch(() => ({}))) as {
-          password?: unknown;
-        };
+        const body =
+          typeof request.json === 'function'
+            ? ((await request.json().catch(() => ({}))) as {
+                password?: unknown;
+              })
+            : ((request.data ?? {}) as { password?: unknown });
         const password = String(body.password ?? '');
         if (!password) {
           return new Response(JSON.stringify({ error: 'Missing password' }), {
@@ -210,7 +215,7 @@ export default buildConfig({
           limit: 1,
         });
 
-        const post = docs.docs[0];
+        const post = docs.docs[0] as PayloadDoc | undefined;
         if (!post || !post.passwordHash) {
           return new Response(
             JSON.stringify({ error: 'Password protected post not found' }),
@@ -221,7 +226,7 @@ export default buildConfig({
           );
         }
 
-        const ok = await compare(password, String(post.passwordHash));
+        const ok = await bcrypt.compare(password, String(post.passwordHash));
         return Response.json({ ok });
       },
     },

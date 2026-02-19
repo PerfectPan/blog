@@ -1,3 +1,4 @@
+import type { PostSummary } from '@blog/shared';
 import { Link, createFileRoute } from '@tanstack/react-router';
 import { getBlogListServerFn } from '../../lib/blog-service.js';
 
@@ -20,7 +21,7 @@ function BlogListPage() {
       </p>
 
       <ul className='post-list'>
-        {data.posts.map((post) => (
+        {data.posts.map((post: PostSummary) => (
           <li key={post.slug}>
             <Link
               className='post-link'

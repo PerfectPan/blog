@@ -1,5 +1,5 @@
 import type { Role, SessionUser } from '@blog/shared';
-import { getWebRequest } from '@tanstack/react-start/server';
+import { getRequest } from '@tanstack/react-start/server';
 import type { Pool } from 'pg';
 import { auth } from './auth.js';
 import { getPool } from './db.js';
@@ -74,5 +74,5 @@ export async function getSessionUserFromRequest(
 }
 
 export async function getSessionUser(): Promise<SessionUser | null> {
-  return getSessionUserFromRequest(getWebRequest());
+  return getSessionUserFromRequest(getRequest());
 }

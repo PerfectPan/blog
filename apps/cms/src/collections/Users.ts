@@ -1,5 +1,5 @@
 import type { Role, UserStatus } from '@blog/shared';
-import type { CollectionConfig } from 'payload';
+import type { CollectionConfig, PayloadRequest } from 'payload';
 import { getCmsEnv } from '../lib/env.js';
 
 type UserShape = {
@@ -7,12 +7,6 @@ type UserShape = {
   email?: string;
   role?: Role;
   status?: UserStatus;
-};
-
-type UserCountRequest = {
-  payload: {
-    find: (args: Record<string, unknown>) => Promise<{ totalDocs: number }>;
-  };
 };
 
 function isAdmin(user?: UserShape | null): boolean {
@@ -23,7 +17,7 @@ function isSelf(user: UserShape | null | undefined, id: string): boolean {
   return Boolean(user?.id && user.id === id);
 }
 
-async function isFirstUser(req: UserCountRequest): Promise<boolean> {
+async function isFirstUser(req: PayloadRequest): Promise<boolean> {
   const result = await req.payload.find({
     collection: 'users',
     limit: 1,
