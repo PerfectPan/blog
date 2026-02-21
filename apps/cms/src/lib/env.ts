@@ -1,7 +1,9 @@
 import 'dotenv/config';
 
 type CmsEnv = {
-  databaseUrl: string;
+  dbDriver: 'postgres' | 'sqlite';
+  databaseUrl?: string;
+  sqliteUrl?: string;
   payloadSecret: string;
   payloadServiceToken: string;
   appsWebUrl: string;
@@ -22,9 +24,21 @@ export function getCmsEnv(): CmsEnv {
     .split(',')
     .map((item) => item.trim().toLowerCase())
     .filter(Boolean);
+  const requestedDriver = process.env.CMS_DB_DRIVER?.trim().toLowerCase();
+  const dbDriver = requestedDriver === 'sqlite' ? 'sqlite' : 'postgres';
+  const databaseUrl = process.env.DATABASE_URL;
+  const sqliteUrl = process.env.CMS_SQLITE_URL ?? 'file:./.payload/cms.sqlite';
+
+  if (dbDriver === 'postgres' && !databaseUrl) {
+    throw new Error(
+      '[cms] Missing required environment variable: DATABASE_URL',
+    );
+  }
 
   return {
-    databaseUrl: requireEnv('DATABASE_URL'),
+    dbDriver,
+    databaseUrl,
+    sqliteUrl,
     payloadSecret: requireEnv('PAYLOAD_SECRET'),
     payloadServiceToken: requireEnv('PAYLOAD_SERVICE_TOKEN'),
     appsWebUrl: requireEnv('APPS_WEB_URL'),

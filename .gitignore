@@ -4,6 +4,13 @@ dist
 pages.gen.ts
 .output
 .vinxi
+.next
+.playwright-cli
+.env
+*.tsbuildinfo
+apps/**/.env
 apps/**/node_modules
 apps/**/.output
+apps/**/.next
+apps/**/.payload
 apps/cms/payload-types.ts

@@ -1,4 +1,5 @@
 import { postgresAdapter } from '@payloadcms/db-postgres';
+import { sqliteAdapter } from '@payloadcms/db-sqlite';
 import bcrypt from 'bcryptjs';
 import { buildConfig } from 'payload';
 import type { PayloadRequest } from 'payload';
@@ -85,6 +86,24 @@ function toPostDetail(doc: PayloadDoc) {
   };
 }
 
+function getDatabaseAdapter() {
+  if (env.dbDriver === 'sqlite') {
+    return sqliteAdapter({
+      client: {
+        url: env.sqliteUrl ?? 'file:./.payload/cms.sqlite',
+      },
+      // Local dev convenience to auto-sync schema.
+      push: true,
+    });
+  }
+
+  return postgresAdapter({
+    pool: {
+      connectionString: env.databaseUrl,
+    },
+  });
+}
+
 export default buildConfig({
   secret: env.payloadSecret,
   serverURL: env.payloadPublicUrl,
@@ -93,11 +112,7 @@ export default buildConfig({
   admin: {
     user: Users.slug,
   },
-  db: postgresAdapter({
-    pool: {
-      connectionString: env.databaseUrl,
-    },
-  }),
+  db: getDatabaseAdapter(),
   collections: [Users, Posts],
   endpoints: [
     {
