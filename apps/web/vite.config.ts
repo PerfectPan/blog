@@ -4,5 +4,6 @@ import { defineConfig } from 'vite';
 import tsConfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
+  publicDir: '../../public',
   plugins: [tsConfigPaths(), tanstackStart(), viteReact()],
 });

@@ -21,17 +21,20 @@ export const Route = createRootRoute({
       },
       {
         name: 'description',
-        content: "PerfectPan's Blog with role-based access",
+        content: "PerfectPan's Blog",
       },
     ],
+    links: [{ rel: 'icon', href: '/images/favicon.png', type: 'image/png' }],
   }),
   errorComponent: ({ error }) => (
     <RootDocument>
       <AppLayout>
-        <div className='card'>
-          <h2>Request Failed</h2>
-          <p className='meta'>{String(error)}</p>
-          <Link to='/blog'>Back to blog</Link>
+        <div className='mx-auto w-full max-w-[80ch] pt-24 lg:pt-32'>
+          <h2 className='mb-4 text-3xl'>Request Failed</h2>
+          <p className='mb-4 opacity-70'>{String(error)}</p>
+          <Link to='/blog' className='opacity-70 hover:opacity-100'>
+            Back to blog
+          </Link>
         </div>
       </AppLayout>
     </RootDocument>
@@ -39,10 +42,12 @@ export const Route = createRootRoute({
   notFoundComponent: () => (
     <RootDocument>
       <AppLayout>
-        <div className='card'>
-          <h2>404 Not Found</h2>
-          <p className='meta'>你闯入了无人之境...</p>
-          <Link to='/blog'>Back to blog</Link>
+        <div className='mx-auto w-full max-w-[80ch] pt-24 lg:pt-32'>
+          <h2 className='mb-4 text-3xl'>404 Not Found</h2>
+          <p className='mb-4 opacity-70'>你闯入了无人之境...</p>
+          <Link to='/blog' className='opacity-70 hover:opacity-100'>
+            Back to blog
+          </Link>
         </div>
       </AppLayout>
     </RootDocument>

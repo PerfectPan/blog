@@ -1,206 +1,39 @@
 @import "katex/dist/katex.min.css";
 @import "highlight.js/styles/github-dark.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --bg: #f5f3ef;
-  --panel: #fffdfa;
-  --text: #1d1f25;
-  --muted: #5f6470;
-  --line: #ded8ce;
-  --accent: #d04f2a;
-  --accent-soft: #fbe3dd;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  min-height: 100vh;
-  font-family: "IBM Plex Sans", "PingFang SC", "Noto Sans SC", sans-serif;
-  color: var(--text);
-  background: radial-gradient(circle at 10% 10%, #fff6df 0, transparent 38%),
-    radial-gradient(circle at 80% 20%, #ffe4df 0, transparent 40%),
-    linear-gradient(180deg, #fffaf1 0%, #f2ece3 70%, #ebe2d8 100%);
-}
-
-a {
-  color: inherit;
-}
-
-.app-shell {
-  min-height: 100vh;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-}
-
-.site-header {
-  border-bottom: 1px solid var(--line);
-  background: color-mix(in oklab, var(--panel) 90%, #ffffff);
-  backdrop-filter: blur(8px);
-  position: sticky;
-  top: 0;
-  z-index: 20;
-}
-
-.site-header__inner {
-  margin: 0 auto;
-  max-width: 960px;
-  padding: 1rem 1.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.site-title {
-  font-size: 1.1rem;
-  letter-spacing: 0.04em;
-  font-weight: 800;
-  text-decoration: none;
-}
-
-.site-nav {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.site-nav__item {
-  padding: 0.4rem 0.65rem;
-  border-radius: 999px;
-  text-decoration: none;
-  color: var(--muted);
-}
-
-.site-nav__item:hover {
-  color: var(--text);
-  background: var(--accent-soft);
-}
-
-.site-main {
-  width: 100%;
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 2rem 1.25rem 4rem;
-}
-
-.site-footer {
-  border-top: 1px solid var(--line);
-  color: var(--muted);
-  font-size: 0.875rem;
-  padding: 1rem 1.25rem;
-  text-align: center;
-}
-
-.hero {
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  padding: 1.5rem;
-  background: var(--panel);
-}
-
-.hero h1 {
-  margin: 0 0 0.75rem;
-  font-size: clamp(1.6rem, 4vw, 2.6rem);
-}
-
-.card {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 1rem;
-}
-
-.post-list {
-  list-style: none;
-  margin: 1rem 0 0;
-  padding: 0;
-  display: grid;
-  gap: 0.75rem;
-}
-
-.post-link {
-  display: block;
-  text-decoration: none;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 0.9rem;
-  background: color-mix(in oklab, var(--panel) 92%, #fff);
-}
-
-.post-link:hover {
-  border-color: var(--accent);
-}
-
-.meta {
-  color: var(--muted);
-  font-size: 0.875rem;
-}
-
-.status-chip {
-  display: inline-block;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 0.2rem 0.6rem;
-  font-size: 0.75rem;
-  margin-left: 0.5rem;
-  color: var(--muted);
-}
-
-.auth-form,
-.unlock-form {
-  display: grid;
-  gap: 0.75rem;
-  max-width: 420px;
-}
-
-.auth-form input,
-.unlock-form input {
-  width: 100%;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 0.7rem 0.8rem;
-  background: #fff;
-}
-
-.btn {
-  border: 1px solid transparent;
-  border-radius: 10px;
-  padding: 0.68rem 0.9rem;
-  cursor: pointer;
-  background: var(--accent);
-  color: #fff;
-  font-weight: 700;
-}
-
-.btn.secondary {
-  background: transparent;
-  color: var(--text);
-  border-color: var(--line);
-}
-
-.markdown-body {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  padding: 1.3rem;
-  line-height: 1.8;
-}
-
-.markdown-body pre {
-  overflow: auto;
-  border-radius: 10px;
-  padding: 0.9rem;
-}
-
-@media (max-width: 760px) {
-  .site-header__inner {
-    flex-direction: column;
-    align-items: flex-start;
+@layer base {
+  html {
+    font-family: "Merriweather", "Georgia", serif;
   }
+}
 
-  .site-nav {
-    flex-wrap: wrap;
-  }
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 9999;
+}
+
+::view-transition-new(root) {
+  z-index: 1;
+}
+
+.dark::view-transition-old(root) {
+  z-index: 1;
+}
+
+.dark::view-transition-new(root) {
+  z-index: 9999;
+}
+
+/* https://shiki.style/guide/dual-themes */
+html.dark .shiki,
+html.dark .shiki span {
+  color: var(--shiki-dark) !important;
 }

@@ -1,9 +1,18 @@
 import { canAccessVisibility } from '@blog/shared';
-import { createFileRoute, notFound, redirect } from '@tanstack/react-router';
+import {
+  Link,
+  createFileRoute,
+  notFound,
+  redirect,
+} from '@tanstack/react-router';
 import { Markdown } from '../../components/markdown.js';
+import { Utterances } from '../../components/utterances.js';
 import { getBlogPostServerFn } from '../../lib/blog-service.js';
 
 export const Route = createFileRoute('/blog/$slug')({
+  head: () => ({
+    meta: [{ title: "Blog | PerfectPan's Blog" }],
+  }),
   loader: async ({ params }) => {
     const data = await getBlogPostServerFn({ data: { slug: params.slug } });
     const post = data.post;
@@ -41,17 +50,24 @@ function BlogDetailPage() {
     return null;
   }
 
+  const date = new Date(post.publishedAt).toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
+
   return (
-    <article>
-      <header className='card' style={{ marginBottom: '1rem' }}>
-        <h1 style={{ marginTop: 0 }}>{post.title}</h1>
-        <p className='meta'>{post.description}</p>
-        <p className='meta'>
-          {new Date(post.publishedAt).toLocaleDateString('zh-CN')}
-          <span className='status-chip'>{post.visibility}</span>
-        </p>
-      </header>
+    <div className='mx-auto w-full max-w-[80ch] pt-24 lg:pt-32'>
+      <div className='m-auto mb-8 flex flex-col gap-2'>
+        <div className='text-3xl font-black'>{post.title}</div>
+        <div className='opacity-60'>{date}</div>
+      </div>
       <Markdown content={post.contentMdx} />
-    </article>
+      <Link to='/blog' className='mt-4 inline-block'>
+        <span className='opacity-70'>&gt;&nbsp;&nbsp;&nbsp;</span>
+        <span className='underline opacity-70 hover:opacity-100'>cd ..</span>
+      </Link>
+      <Utterances slug={post.slug} />
+    </div>
   );
 }

@@ -25,18 +25,18 @@ function LoginPage() {
   const [isPending, startTransition] = useTransition();
 
   return (
-    <section className='card'>
-      <h1>登录</h1>
-      <p className='meta'>支持邮箱密码和 GitHub OAuth。</p>
+    <section className='mx-auto w-full max-w-[80ch] pt-24 lg:pt-32'>
+      <h1 className='mb-2 text-3xl font-black'>登录</h1>
+      <p className='mb-6 opacity-70'>支持邮箱密码和 GitHub OAuth。</p>
 
       {error ? (
-        <p role='alert' className='meta' style={{ color: '#b3261e' }}>
+        <p role='alert' className='mb-4 text-sm text-red-700 dark:text-red-300'>
           {error}
         </p>
       ) : null}
 
       <form
-        className='auth-form'
+        className='grid max-w-[420px] gap-3'
         method='post'
         onSubmit={(event) => {
           event.preventDefault();
@@ -57,35 +57,44 @@ function LoginPage() {
           });
         }}
       >
-        <label htmlFor='email'>Email</label>
+        <label htmlFor='email' className='font-semibold'>
+          Email
+        </label>
         <input
           id='email'
           name='email'
           type='email'
           required
           autoComplete='email'
+          className='rounded-md border border-[#d0d0d3] px-3 py-2 dark:border-slate-700 dark:bg-wash-dark'
           value={email}
           onChange={(event) => setEmail(event.target.value)}
         />
-        <label htmlFor='password'>Password</label>
+        <label htmlFor='password' className='font-semibold'>
+          Password
+        </label>
         <input
           id='password'
           name='password'
           type='password'
           required
           autoComplete='current-password'
+          className='rounded-md border border-[#d0d0d3] px-3 py-2 dark:border-slate-700 dark:bg-wash-dark'
           value={password}
           onChange={(event) => setPassword(event.target.value)}
         />
-        <button type='submit' className='btn' disabled={isPending}>
+        <button
+          type='submit'
+          className='rounded-md bg-black px-4 py-2 font-semibold text-white transition-opacity hover:opacity-90 dark:bg-neutral-900'
+          disabled={isPending}
+        >
           {isPending ? 'Signing in...' : 'Sign In'}
         </button>
       </form>
 
       <button
         type='button'
-        className='btn secondary'
-        style={{ marginTop: '0.75rem' }}
+        className='mt-3 rounded-md border border-[#d0d0d3] px-4 py-2 font-semibold transition-colors hover:bg-gray-100 dark:border-slate-700 dark:hover:bg-slate-800'
         onClick={async () => {
           setError(null);
           const result = await authClient.signIn.social({

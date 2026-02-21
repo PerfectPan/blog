@@ -17,11 +17,14 @@ export const Route = createFileRoute('/logout')({
 
 function LogoutPage() {
   return (
-    <section className='card'>
-      <h1>退出登录</h1>
-      <p className='meta'>提交后将销毁会话 Cookie。</p>
+    <section className='mx-auto w-full max-w-[80ch] pt-24 lg:pt-32'>
+      <h1 className='mb-2 text-3xl font-black'>退出登录</h1>
+      <p className='mb-6 opacity-70'>提交后将销毁会话 Cookie。</p>
       <form method='post'>
-        <button type='submit' className='btn'>
+        <button
+          type='submit'
+          className='rounded-md bg-black px-4 py-2 font-semibold text-white transition-opacity hover:opacity-90 dark:bg-neutral-900'
+        >
           Logout
         </button>
       </form>

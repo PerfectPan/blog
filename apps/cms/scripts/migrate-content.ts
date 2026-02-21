@@ -39,10 +39,13 @@ async function run() {
     const parsed = matter(raw);
     const data = parsed.data as Frontmatter;
 
+    const normalizedDescription = String(data.description ?? '').trim();
+    const normalizedTitle = String(data.title ?? slug).trim() || slug;
+
     const docData = {
       slug,
-      title: data.title ?? slug,
-      description: data.description ?? '',
+      title: normalizedTitle,
+      description: normalizedDescription || normalizedTitle,
       contentMdx: parsed.content.trim(),
       visibility: 'public' as const,
       tags: toTagItems(data.tag),

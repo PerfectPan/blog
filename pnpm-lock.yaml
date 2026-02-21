@@ -148,6 +148,9 @@ importers:
       katex:
         specifier: ^0.16.21
         version: 0.16.28
+      lucide-react:
+        specifier: ^0.479.0
+        version: 0.479.0(react@19.0.0)
       pg:
         specifier: ^8.13.1
         version: 8.18.0

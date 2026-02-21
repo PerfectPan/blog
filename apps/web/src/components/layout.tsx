@@ -1,5 +1,6 @@
-import { Link } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
+import { Footer } from './footer.js';
+import { Header } from './header.js';
 
 type AppLayoutProps = {
   children: ReactNode;
@@ -7,31 +8,14 @@ type AppLayoutProps = {
 
 export function AppLayout({ children }: AppLayoutProps) {
   return (
-    <div className='app-shell'>
-      <header className='site-header'>
-        <div className='site-header__inner'>
-          <Link to='/' className='site-title'>
-            PerfectPan Blog
-          </Link>
-          <nav className='site-nav'>
-            <Link to='/blog' className='site-nav__item'>
-              Blog
-            </Link>
-            <Link to='/login' className='site-nav__item'>
-              Login
-            </Link>
-            <Link to='/signup' className='site-nav__item'>
-              Sign Up
-            </Link>
-          </nav>
-        </div>
-      </header>
-
-      <main className='site-main'>{children}</main>
-
-      <footer className='site-footer'>
-        <span>Powered by TanStack Start + Payload</span>
-      </footer>
+    <div>
+      <Header />
+      <div className='flex min-h-screen flex-col px-6'>
+        <main className='flex flex-grow items-center justify-center *:min-h-64 *:min-w-64'>
+          {children}
+        </main>
+        <Footer />
+      </div>
     </div>
   );
 }
