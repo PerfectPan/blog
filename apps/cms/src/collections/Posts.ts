@@ -14,7 +14,7 @@ export const Posts: CollectionConfig = {
   slug: 'posts',
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'slug', 'visibility', 'updatedAt'],
+    defaultColumns: ['visibility', 'title', 'slug', 'updatedAt'],
   },
   versions: {
     drafts: true,

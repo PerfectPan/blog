@@ -1,4 +1,4 @@
-import type { PostSummary } from '@blog/shared';
+import type { PostSummary, SessionUser } from '@blog/shared';
 import { Link, createFileRoute } from '@tanstack/react-router';
 import { getBlogListServerFn } from '../../lib/blog-service.js';
 
@@ -30,6 +30,22 @@ function groupByYear(posts: PostSummary[]): BlogGroup[] {
     }));
 }
 
+function getDevScopeHint(sessionUser: SessionUser | null | undefined): string {
+  if (!sessionUser) {
+    return '当前身份：游客；可见范围：public';
+  }
+
+  if (sessionUser.role === 'admin') {
+    return '当前身份：admin；可见范围：全部已发布（含 password）';
+  }
+
+  if (sessionUser.role === 'vip') {
+    return '当前身份：vip；可见范围：public/member/vip';
+  }
+
+  return '当前身份：member；可见范围：public/member';
+}
+
 export const Route = createFileRoute('/blog/')({
   head: () => ({
     meta: [
@@ -37,17 +53,30 @@ export const Route = createFileRoute('/blog/')({
       { name: 'description', content: "Blog | PerfectPan's Blog" },
     ],
   }),
-  loader: async () => getBlogListServerFn(),
+  loader: async () => {
+    const data = await getBlogListServerFn();
+    return {
+      ...data,
+      isDev: process.env.NODE_ENV === 'development',
+    };
+  },
   component: BlogListPage,
 });
 
 function BlogListPage() {
   const data = Route.useLoaderData();
   const blogGroups = groupByYear(data.posts);
+  const showDevHint = data.isDev;
+  const devScopeHint = getDevScopeHint(data.sessionUser);
 
   return (
     <div className='flex flex-col gap-8'>
       <div className='mx-auto w-full max-w-[80ch] pt-24 lg:pt-32'>
+        {showDevHint ? (
+          <div className='mb-8 rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900'>
+            {devScopeHint}
+          </div>
+        ) : null}
         {blogGroups.map((group) => (
           <div key={group.year}>
             <div className='mb-4 text-3xl'>{group.year}</div>

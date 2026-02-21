@@ -101,6 +101,8 @@ function getDatabaseAdapter() {
     pool: {
       connectionString: env.databaseUrl,
     },
+    // Prevent interactive schema push prompts in local/dev and preserve auth tables.
+    push: false,
   });
 }
 
