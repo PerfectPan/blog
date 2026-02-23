@@ -28,7 +28,6 @@
 - `APPS_WEB_URL` (Vercel domain)
 - `COOKIE_DOMAIN` (optional)
 - `ADMIN_EMAIL_ALLOWLIST`
-- `ENABLE_MARKDOWN_FALLBACK=true` during migration
 3. Deploy.
 
 ## 3) Content Migration
@@ -45,7 +44,6 @@ pnpm migrate:content
 2. Validate auth and role permissions.
 3. Validate password-protected post unlock flow.
 4. Switch traffic to new web app.
-5. Keep markdown fallback for 1-2 release cycles, then disable.
 
 ## 5) Rollback
 

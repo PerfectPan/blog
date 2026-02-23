@@ -1,8 +1,4 @@
-import {
-  type PostDetail,
-  type PostSummary,
-  getUnlockCookieName,
-} from '@blog/shared';
+import { type PostSummary, getUnlockCookieName } from '@blog/shared';
 import { createServerFn } from '@tanstack/react-start';
 import { getRequest } from '@tanstack/react-start/server';
 import { z } from 'zod';
@@ -11,7 +7,6 @@ import {
   fetchVisiblePostsFromCms,
   verifyPostPasswordWithCms,
 } from './cms-client.js';
-import { getFallbackPostBySlug, listFallbackPosts } from './local-fallback.js';
 import { getSessionUserFromRequest } from './session.js';
 import { isUnlockCookieValid, parseCookies } from './unlock-cookie.js';
 
@@ -31,17 +26,8 @@ export const getBlogListServerFn = createServerFn({ method: 'GET' }).handler(
   async () => {
     const request = getRequest();
     const sessionUser = await getSessionUserFromRequest(request);
-
-    let cmsPosts: PostSummary[] = [];
-    try {
-      cmsPosts = await fetchVisiblePostsFromCms(sessionUser?.role);
-    } catch (error) {
-      console.error('[web] fetchVisiblePostsFromCms failed', error);
-    }
-
-    const fallbackPosts = await listFallbackPosts().catch(() => []);
     const posts = sortByPublishedDateDesc(
-      toUniquePosts([...cmsPosts, ...fallbackPosts]),
+      toUniquePosts(await fetchVisiblePostsFromCms(sessionUser?.role)),
     );
 
     return {
@@ -56,17 +42,7 @@ export const getBlogPostServerFn = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     const request = getRequest();
     const sessionUser = await getSessionUserFromRequest(request);
-
-    let post: PostDetail | null = null;
-    try {
-      post = await fetchPostBySlugFromCms(data.slug);
-    } catch (error) {
-      console.error('[web] fetchPostBySlugFromCms failed', error);
-    }
-
-    if (!post) {
-      post = await getFallbackPostBySlug(data.slug);
-    }
+    const post = await fetchPostBySlugFromCms(data.slug);
 
     const cookies = parseCookies(request?.headers.get('cookie') ?? null);
     const unlockCookie = cookies[getUnlockCookieName(data.slug)];

@@ -38,7 +38,7 @@ blog/
 2. `apps/web` 在服务端读取会话，得到用户角色
 3. `apps/web` 通过 `PAYLOAD_SERVICE_TOKEN` 调用 `apps/cms` 的 `/api/web/*`
 4. `apps/cms` 根据角色和文章状态过滤后返回数据
-5. `apps/web` 渲染页面（必要时走本地 markdown fallback）
+5. `apps/web` 渲染页面（仅使用 CMS 数据）
 
 ### 3.2 登录与会话
 
@@ -89,10 +89,10 @@ blog/
 - 迁移源：`content/blog/*.md`
 - 迁移脚本：`apps/cms/scripts/migrate-content.ts`
 
-### 5.2 当前兜底策略
+### 5.2 当前策略
 
-- `apps/web` 支持 markdown fallback（`ENABLE_MARKDOWN_FALLBACK=true`）
-- 用于迁移期兜底，稳定后建议关闭
+- `apps/web` 不再使用 markdown fallback
+- 前台文章来源统一为 Payload CMS
 
 ---
 

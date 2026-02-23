@@ -10,7 +10,6 @@ type WebEnv = {
   appsWebUrl: string;
   cookieDomain?: string;
   adminEmailAllowlist: string[];
-  enableMarkdownFallback: boolean;
 };
 
 function requireEnv(name: string): string {
@@ -19,6 +18,49 @@ function requireEnv(name: string): string {
     throw new Error(`[web] Missing required environment variable: ${name}`);
   }
   return value;
+}
+
+function stripWrappedQuotes(value: string): string {
+  const trimmed = value.trim();
+  if (trimmed.length >= 2 && trimmed.startsWith('"') && trimmed.endsWith('"')) {
+    return trimmed.slice(1, -1).trim();
+  }
+
+  return trimmed;
+}
+
+function toUrlWithProtocol(name: string, value: string): string {
+  const normalized = stripWrappedQuotes(value);
+  if (!normalized) {
+    throw new Error(`[web] Empty URL value for ${name}`);
+  }
+
+  if (/^https?:\/\//i.test(normalized)) {
+    return normalized;
+  }
+
+  const localHostPattern =
+    /^(localhost|127(?:\.\d{1,3}){3}|0\.0\.0\.0)(:\d+)?(\/.*)?$/i;
+  if (localHostPattern.test(normalized)) {
+    return `http://${normalized}`;
+  }
+
+  return `https://${normalized}`;
+}
+
+function requireUrlEnv(name: string): string {
+  const value = requireEnv(name);
+  const url = toUrlWithProtocol(name, value);
+
+  try {
+    new URL(url);
+  } catch (error) {
+    throw new Error(
+      `[web] Invalid URL value for ${name}: ${String((error as Error).message)}`,
+    );
+  }
+
+  return url;
 }
 
 export function getWebEnv(): WebEnv {
@@ -33,11 +75,9 @@ export function getWebEnv(): WebEnv {
     githubClientId: process.env.GITHUB_CLIENT_ID,
     githubClientSecret: process.env.GITHUB_CLIENT_SECRET,
     payloadServiceToken: requireEnv('PAYLOAD_SERVICE_TOKEN'),
-    payloadPublicUrl: requireEnv('PAYLOAD_PUBLIC_URL'),
-    appsWebUrl: requireEnv('APPS_WEB_URL'),
+    payloadPublicUrl: requireUrlEnv('PAYLOAD_PUBLIC_URL'),
+    appsWebUrl: requireUrlEnv('APPS_WEB_URL'),
     cookieDomain: process.env.COOKIE_DOMAIN,
     adminEmailAllowlist: allowlist,
-    enableMarkdownFallback:
-      (process.env.ENABLE_MARKDOWN_FALLBACK ?? 'true') !== 'false',
   };
 }

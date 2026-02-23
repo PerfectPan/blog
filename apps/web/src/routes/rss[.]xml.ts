@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { fetchVisiblePostsFromCms } from '../lib/cms-client.js';
 import { getWebEnv } from '../lib/env.js';
-import { listFallbackPosts } from '../lib/local-fallback.js';
 
 function escapeXml(value: string): string {
   return value
@@ -17,12 +16,7 @@ export const Route = createFileRoute('/rss.xml')({
     handlers: {
       GET: async () => {
         const env = getWebEnv();
-        const cmsPosts = await fetchVisiblePostsFromCms().catch(() => []);
-        const fallbackPosts = await listFallbackPosts().catch(() => []);
-        const map = new Map(
-          [...fallbackPosts, ...cmsPosts].map((post) => [post.slug, post]),
-        );
-        const posts = [...map.values()]
+        const posts = (await fetchVisiblePostsFromCms())
           .filter((post) => post.visibility === 'public')
           .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 

@@ -20,10 +20,7 @@ type RequestWithRouteParams = PayloadRequest & {
 };
 
 function getAllowedOrigins(): string[] {
-  return env.appsWebUrl
-    .split(',')
-    .map((item) => item.trim())
-    .filter(Boolean);
+  return env.appsWebOrigins;
 }
 
 function assertServiceRequest(req: { headers: Headers }): Response | null {
