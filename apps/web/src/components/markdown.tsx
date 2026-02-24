@@ -109,11 +109,8 @@ export function Markdown({ content }: MarkdownProps) {
           ul: ({ children }) => (
             <ul className='mb-4 ml-4 list-disc'>{children}</ul>
           ),
-          pre: ({ children, className, node: _node, ...props }) => (
-            <pre
-              className={`mb-2 -my-0.5 w-full overflow-x-auto rounded-md ${className ?? ''}`}
-              {...props}
-            >
+          pre: ({ children }) => (
+            <pre className='shiki mb-2 whitespace-pre-wrap w-full overflow-x-auto -my-0.5 inline-block rounded-md bg-zinc-50 p-4 dark:bg-shiki-dark'>
               {children}
             </pre>
           ),
