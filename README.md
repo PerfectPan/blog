@@ -5,7 +5,6 @@ This repo now contains:
 - `apps/web`: TanStack Start frontend with Better Auth.
 - `apps/cms`: Payload CMS with role-based content access.
 - `packages/shared`: shared role/visibility/access types.
-- legacy Waku implementation kept in root (`src`, `content`, etc.).
 
 ## Workspace
 
@@ -82,10 +81,3 @@ Required env keys:
 - `COOKIE_DOMAIN`
 - `APPS_WEB_URL`
 - `ADMIN_EMAIL_ALLOWLIST`
-
-## Legacy Commands
-
-- `pnpm legacy:dev`
-- `pnpm legacy:build`
-- `pnpm legacy:start`
-- `pnpm legacy:gen:rss`

@@ -8,8 +8,6 @@
 - `apps/cms`：Payload CMS（内容管理、后台管理、访问控制）
 - `packages/shared`：前后端共享类型（角色、可见性、文章结构）
 
-同时保留了旧版 Waku 代码（根目录 `src/`、`content/` 等）用于迁移兜底和回滚。
-
 ---
 
 ## 2. 目录结构
@@ -25,7 +23,7 @@ blog/
 ├─ docs/
 │  ├─ deploy-vercel-railway.md
 │  └─ architecture.md
-└─ src/                    # 旧 Waku 实现（保留）
+└─ public/                 # 站点静态资源
 ```
 
 ---
@@ -154,6 +152,7 @@ pnpm dev:web
 - Payload import map 文件需要入库：
   - `apps/cms/src/app/(payload)/admin/importMap.js`
   - 变更 admin 组件后可手动执行：`payload generate:importmap`
-- 根目录 pre-push 当前执行 `pnpm tsc --noEmit`，会覆盖 legacy + new 全仓类型检查；在完全收敛前，建议至少执行：
+- 根目录 pre-push 执行 `pnpm typecheck`（仅校验 `apps/web` + `apps/cms`）
+- 提交前建议至少执行：
   - `pnpm --filter @blog/web typecheck`
   - `pnpm --filter @blog/cms typecheck`

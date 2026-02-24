@@ -53,5 +53,5 @@ pnpm migrate:content
 
 ## 5) Rollback
 
-1. Switch DNS / Vercel project back to legacy app.
+1. Roll back to previous healthy Vercel deployment.
 2. Keep CMS data intact (no reverse sync to markdown).

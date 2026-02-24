@@ -5,7 +5,7 @@
 ## 1. 项目定位
 
 - 这是一个博客 monorepo：`apps/web`（TanStack Start）+ `apps/cms`（Payload）+ `packages/shared`。
-- 旧 Waku 代码仍在根目录保留，用于迁移期兜底，不应随意删除。
+- 旧 Waku 代码已移除；当前仅维护 monorepo 新架构。
 
 ## 2. 必须遵守的约束
 
@@ -83,5 +83,5 @@ pnpm --filter @blog/cms typecheck
 
 ## 8. 已知现状
 
-- `.husky/pre-push` 当前是根级 `pnpm tsc --noEmit`，会触发 legacy 与新架构混合类型检查。
-- 在该问题彻底清理前，推送可能需要 `--no-verify`，但不能跳过分应用 typecheck 和冒烟验证。
+- `.husky/pre-push` 当前执行 `pnpm typecheck`（仅 `apps/web` + `apps/cms`）。
+- 允许在紧急情况下使用 `--no-verify`，但不能跳过分应用 typecheck 和冒烟验证。
