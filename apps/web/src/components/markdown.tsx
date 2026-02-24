@@ -93,7 +93,7 @@ export function Markdown({ content }: MarkdownProps) {
             return (
               <h2
                 id={id}
-                className='mb-6 mt-14 text-balance text-2xl leading-none font-black first:mt-0'
+                className='mb-6 mt-14 scroll-mt-20 text-balance text-2xl leading-none font-black first:mt-0'
               >
                 <a
                   href={`#${id}`}
