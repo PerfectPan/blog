@@ -69,9 +69,9 @@ export function Markdown({ content }: MarkdownProps) {
             <ul className='mb-4 ml-4 list-disc'>{children}</ul>
           ),
           pre: ({ children }) => (
-            <div className='shiki mb-2 -my-0.5 inline-block w-full overflow-x-auto whitespace-pre-wrap rounded-md bg-zinc-50 p-4 dark:bg-shiki-dark'>
+            <pre className='shiki mb-2 -my-0.5 w-full overflow-x-auto whitespace-pre-wrap rounded-md bg-zinc-50 p-4 dark:bg-shiki-dark'>
               {children}
-            </div>
+            </pre>
           ),
         }}
       >
