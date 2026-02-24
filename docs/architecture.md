@@ -22,7 +22,9 @@ blog/
 ├─ content/blog/           # 历史 markdown 文章（迁移来源）
 ├─ docs/
 │  ├─ deploy-vercel-railway.md
-│  └─ architecture.md
+│  ├─ architecture.md
+│  ├─ selection.md         # 技术选型与备选对比
+│  └─ request-flow.md      # 页面访问与权限调用链路图
 └─ public/                 # 站点静态资源
 ```
 
