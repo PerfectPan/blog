@@ -1,5 +1,4 @@
 @import "katex/dist/katex.min.css";
-@import "highlight.js/styles/github.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -36,16 +35,4 @@
 html.dark .shiki,
 html.dark .shiki span {
   color: var(--shiki-dark) !important;
-}
-
-/*
-  We render markdown fences with a custom <pre>, so hljs's `pre code.hljs`
-  selector no longer applies. Keep code blocks block-level and let parent
-  `.shiki` container control spacing/background.
-*/
-.shiki code.hljs {
-  display: block;
-  overflow-x: auto;
-  padding: 0;
-  background: transparent;
 }

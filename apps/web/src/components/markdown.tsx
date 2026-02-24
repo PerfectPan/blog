@@ -1,13 +1,42 @@
+import rehypeShikiFromHighlighter from '@shikijs/rehype/core';
 import { useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
+import { createHighlighterCore } from 'shiki/core';
+import { createOnigurumaEngine } from 'shiki/engine/oniguruma';
 
 type MarkdownProps = {
   content: string;
 };
+
+const highlighter = await createHighlighterCore({
+  themes: [
+    import('shiki/themes/vitesse-light.mjs'),
+    import('shiki/themes/vitesse-dark.mjs'),
+  ],
+  langs: [
+    import('shiki/langs/javascript.mjs'),
+    import('shiki/langs/typescript.mjs'),
+    import('shiki/langs/jsx.mjs'),
+    import('shiki/langs/tsx.mjs'),
+    import('shiki/langs/html.mjs'),
+    import('shiki/langs/css.mjs'),
+    import('shiki/langs/json.mjs'),
+    import('shiki/langs/bash.mjs'),
+    import('shiki/langs/yaml.mjs'),
+    import('shiki/langs/markdown.mjs'),
+    import('shiki/langs/cpp.mjs'),
+    import('shiki/langs/c.mjs'),
+    import('shiki/langs/go.mjs'),
+    import('shiki/langs/java.mjs'),
+    import('shiki/langs/python.mjs'),
+    import('shiki/langs/rust.mjs'),
+    import('shiki/langs/sql.mjs'),
+  ],
+  engine: createOnigurumaEngine(() => import('shiki/wasm')),
+});
 
 export function Markdown({ content }: MarkdownProps) {
   useEffect(() => {
@@ -26,7 +55,19 @@ export function Markdown({ content }: MarkdownProps) {
     <article>
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath]}
-        rehypePlugins={[rehypeKatex, rehypeHighlight]}
+        rehypePlugins={[
+          rehypeKatex,
+          [
+            rehypeShikiFromHighlighter,
+            highlighter,
+            {
+              themes: {
+                light: 'vitesse-light',
+                dark: 'vitesse-dark',
+              },
+            },
+          ],
+        ]}
         components={{
           h2: ({ children }) => {
             const id = typeof children === 'string' ? children : '';
@@ -68,8 +109,11 @@ export function Markdown({ content }: MarkdownProps) {
           ul: ({ children }) => (
             <ul className='mb-4 ml-4 list-disc'>{children}</ul>
           ),
-          pre: ({ children }) => (
-            <pre className='shiki mb-2 -my-0.5 w-full overflow-x-auto whitespace-pre-wrap rounded-md bg-zinc-50 p-4 dark:bg-shiki-dark'>
+          pre: ({ children, className, node: _node, ...props }) => (
+            <pre
+              className={`mb-2 -my-0.5 w-full overflow-x-auto rounded-md ${className ?? ''}`}
+              {...props}
+            >
               {children}
             </pre>
           ),
