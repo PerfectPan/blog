@@ -14,6 +14,12 @@ export function Header() {
           <MenuLink href='/blog' name='Blog' />
         </div>
         <div className='ml-auto flex gap-4'>
+          <a href='/login' className='opacity-70 hover:opacity-100'>
+            Login
+          </a>
+          <a href='/signup' className='opacity-70 hover:opacity-100'>
+            Sign Up
+          </a>
           <DarkMode />
           <a
             href='https://github.com/PerfectPan'
