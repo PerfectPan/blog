@@ -11,7 +11,6 @@ import {
   getServiceTokenFromRequest,
 } from './lib/access.js';
 import { getCmsEnv } from './lib/env.js';
-import { migrations } from './migrations/index.js';
 
 const env = getCmsEnv();
 
@@ -99,7 +98,6 @@ function getDatabaseAdapter() {
     pool: {
       connectionString: env.databaseUrl,
     },
-    prodMigrations: migrations,
     // Prevent interactive schema push prompts in local/dev and preserve auth tables.
     push: false,
   });

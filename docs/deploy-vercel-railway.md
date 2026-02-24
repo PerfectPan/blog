@@ -35,6 +35,12 @@
 Run once from repo root (with CMS reachable):
 
 ```bash
+pnpm --filter @blog/cms migrate:db
+```
+
+Then import markdown content:
+
+```bash
 pnpm migrate:content
 ```
 

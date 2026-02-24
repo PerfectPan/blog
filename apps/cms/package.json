@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "next dev -H 127.0.0.1 -p 4100",
     "build": "next build",
-    "start": "pnpm exec payload migrate && next start -H 0.0.0.0 -p ${PORT:-4100}",
+    "start": "next start -H 0.0.0.0 -p ${PORT:-4100}",
     "typecheck": "tsc --noEmit -p tsconfig.json",
+    "migrate:db": "pnpm exec payload migrate",
     "migrate:content": "tsx ./scripts/migrate-content.ts"
   },
   "dependencies": {
