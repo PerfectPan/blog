@@ -11,6 +11,24 @@ type MarkdownProps = {
   content: string;
 };
 
+const HEADER_HEIGHT = 64;
+const SAFE_HEIGHT = 16;
+
+function scrollToHeading(id: string) {
+  const element = document.getElementById(id);
+  if (!element) {
+    return;
+  }
+
+  const elementTop = element.getBoundingClientRect().top + window.scrollY;
+  const targetPosition = elementTop - (HEADER_HEIGHT + SAFE_HEIGHT);
+
+  window.scrollTo({
+    top: targetPosition,
+    behavior: 'smooth',
+  });
+}
+
 const highlighter = await createHighlighterCore({
   themes: [
     import('shiki/themes/vitesse-light.mjs'),
@@ -47,7 +65,7 @@ export function Markdown({ content }: MarkdownProps) {
 
     requestAnimationFrame(() => {
       const id = decodeURIComponent(hash.slice(1));
-      document.getElementById(id)?.scrollIntoView({ block: 'start' });
+      scrollToHeading(id);
     });
   }, []);
 
@@ -82,9 +100,7 @@ export function Markdown({ content }: MarkdownProps) {
                   onClick={(event) => {
                     event.preventDefault();
                     window.history.pushState('', '', `#${id}`);
-                    document
-                      .getElementById(id)
-                      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    scrollToHeading(id);
                   }}
                 >
                   {id}

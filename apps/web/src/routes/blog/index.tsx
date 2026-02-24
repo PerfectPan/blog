@@ -83,7 +83,7 @@ function BlogListPage() {
             {group.blogs.map((blog: PostSummary) => (
               <div
                 key={blog.slug}
-                className='mt-2 mb-6 opacity-70 transition-opacity hover:opacity-100'
+                className='mt-2 mb-6 opacity-70 hover:opacity-100'
               >
                 <Link
                   to='/blog/$slug'
