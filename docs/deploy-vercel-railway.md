@@ -38,6 +38,12 @@ Run once from repo root (with CMS reachable):
 pnpm --filter @blog/cms migrate:db
 ```
 
+Initialize Better Auth tables in PostgreSQL (first deploy, and after auth schema changes):
+
+```bash
+pnpm migrate:auth
+```
+
 Then import markdown content:
 
 ```bash

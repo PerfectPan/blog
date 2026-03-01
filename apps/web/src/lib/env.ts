@@ -63,6 +63,27 @@ function requireUrlEnv(name: string): string {
   return url;
 }
 
+function requireDatabaseUrlEnv(name: string): string {
+  const value = stripWrappedQuotes(requireEnv(name));
+
+  let parsed: URL;
+  try {
+    parsed = new URL(value);
+  } catch (error) {
+    throw new Error(
+      `[web] Invalid URL value for ${name}: ${String((error as Error).message)}`,
+    );
+  }
+
+  if (!/^postgres(ql)?:$/i.test(parsed.protocol)) {
+    throw new Error(
+      `[web] Invalid protocol for ${name}: expected postgres or postgresql, got ${parsed.protocol}`,
+    );
+  }
+
+  return value;
+}
+
 export function getWebEnv(): WebEnv {
   const allowlist = (process.env.ADMIN_EMAIL_ALLOWLIST ?? '')
     .split(',')
@@ -70,7 +91,7 @@ export function getWebEnv(): WebEnv {
     .filter(Boolean);
 
   return {
-    databaseUrl: requireEnv('DATABASE_URL'),
+    databaseUrl: requireDatabaseUrlEnv('DATABASE_URL'),
     betterAuthSecret: requireEnv('BETTER_AUTH_SECRET'),
     githubClientId: process.env.GITHUB_CLIENT_ID,
     githubClientSecret: process.env.GITHUB_CLIENT_SECRET,

@@ -32,6 +32,9 @@ pnpm dev:new
 # 内容迁移
 pnpm migrate:content
 
+# Better Auth 表迁移
+pnpm migrate:auth
+
 # 类型检查（当前以分应用为准）
 pnpm --filter @blog/web typecheck
 pnpm --filter @blog/cms typecheck
@@ -64,7 +67,7 @@ pnpm --filter @blog/cms typecheck
    ```
 3. Better Auth 表迁移（首次）：
    ```bash
-   pnpm dlx @better-auth/cli migrate --cwd ./apps/web --config ./src/lib/auth.ts --yes
+   pnpm migrate:auth
    ```
 
 ## 7. 提交前最低验证

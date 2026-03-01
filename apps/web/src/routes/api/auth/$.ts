@@ -1,7 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { auth } from '../../../lib/auth.js';
+import { auth, ensureAuthSchema } from '../../../lib/auth.js';
 
 async function handleAuthRequest({ request }: { request: Request }) {
+  await ensureAuthSchema();
   return auth.handler(request);
 }
 

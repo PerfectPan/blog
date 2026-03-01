@@ -13,6 +13,7 @@
     "build:web": "pnpm --filter @blog/web build",
     "build:cms": "pnpm --filter @blog/cms build",
     "build:new": "pnpm --recursive --filter @blog/web --filter @blog/cms build",
+    "migrate:auth": "pnpm --filter @blog/web migrate:auth",
     "migrate:content": "pnpm --filter @blog/cms migrate:content",
     "typecheck": "pnpm --recursive --filter @blog/web --filter @blog/cms typecheck",
     "typecheck:new": "pnpm typecheck",
