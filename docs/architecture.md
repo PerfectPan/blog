@@ -24,7 +24,8 @@ blog/
 │  ├─ deploy-vercel-railway.md
 │  ├─ architecture.md
 │  ├─ selection.md         # 技术选型与备选对比
-│  └─ request-flow.md      # 页面访问与权限调用链路图
+│  ├─ request-flow.md      # 页面访问与权限调用链路图
+│  └─ retrospectives/      # 事故复盘与改进动作
 └─ public/                 # 站点静态资源
 ```
 
@@ -158,3 +159,8 @@ pnpm dev:web
 - 提交前建议至少执行：
   - `pnpm --filter @blog/web typecheck`
   - `pnpm --filter @blog/cms typecheck`
+
+## 9. 复盘记录
+
+- 登录链路修复复盘（2026-03-01）：
+  - `docs/retrospectives/2026-03-01-auth-login-chain.md`

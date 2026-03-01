@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { authClient } from '../lib/auth-client.js';
 
 export const Route = createFileRoute('/signup')({
@@ -19,11 +19,27 @@ export const Route = createFileRoute('/signup')({
 
 function SignUpPage() {
   const navigate = useNavigate();
+  const { data: sessionData, isPending: isSessionPending } =
+    authClient.useSession();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    if (sessionData?.user?.id) {
+      navigate({ to: '/blog', replace: true });
+    }
+  }, [navigate, sessionData?.user?.id]);
+
+  if (sessionData?.user?.id || isSessionPending) {
+    return (
+      <section className='mx-auto w-full max-w-[80ch] pt-24 lg:pt-32'>
+        <p className='opacity-70'>Checking session...</p>
+      </section>
+    );
+  }
 
   return (
     <section className='mx-auto w-full max-w-[80ch] pt-24 lg:pt-32'>

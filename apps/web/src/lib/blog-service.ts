@@ -7,7 +7,7 @@ import {
   fetchVisiblePostsFromCms,
   verifyPostPasswordWithCms,
 } from './cms-client.js';
-import { getSessionUserFromRequest } from './session.js';
+import { getSessionUserFromRequest } from './session-core.js';
 import { isUnlockCookieValid, parseCookies } from './unlock-cookie.js';
 
 function sortByPublishedDateDesc(posts: PostSummary[]): PostSummary[] {
