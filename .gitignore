@@ -6,6 +6,8 @@ pages.gen.ts
 .vinxi
 .next
 .playwright-cli
+playwright-report
+test-results
 .env
 *.tsbuildinfo
 apps/**/.env

@@ -11,6 +11,9 @@ importers:
       '@biomejs/biome':
         specifier: 1.9.4
         version: 1.9.4
+      '@playwright/test':
+        specifier: ^1.58.2
+        version: 1.58.2
       autoprefixer:
         specifier: 10.4.17
         version: 10.4.17(postcss@8.5.6)
@@ -52,7 +55,7 @@ importers:
         version: 4.0.3
       next:
         specifier: 15.4.11
-        version: 15.4.11(react-dom@19.2.1)(react@19.2.1)
+        version: 15.4.11(@playwright/test@1.58.2)(react-dom@19.2.1)(react@19.2.1)
       payload:
         specifier: ^3.37.0
         version: 3.77.0(graphql@16.12.0)(typescript@5.8.2)
@@ -2300,7 +2303,7 @@ packages:
       graphql-http: 1.22.4(graphql@16.12.0)
       graphql-playground-html: 1.6.30
       http-status: 2.1.0
-      next: 15.4.11(react-dom@19.2.1)(react@19.2.1)
+      next: 15.4.11(@playwright/test@1.58.2)(react-dom@19.2.1)(react@19.2.1)
       path-to-regexp: 6.3.0
       payload: 3.77.0(graphql@16.12.0)(typescript@5.8.2)
       qs-esm: 7.0.2
@@ -2343,7 +2346,7 @@ packages:
       date-fns: 4.1.0
       dequal: 2.0.3
       md5: 2.3.0
-      next: 15.4.11(react-dom@19.2.1)(react@19.2.1)
+      next: 15.4.11(@playwright/test@1.58.2)(react-dom@19.2.1)(react@19.2.1)
       object-to-formdata: 4.5.1
       payload: 3.77.0(graphql@16.12.0)(typescript@5.8.2)
       qs-esm: 7.0.2
@@ -2374,6 +2377,13 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
+
+  /@playwright/test@1.58.2:
+    resolution: {integrity: sha512-akea+6bHYBBfA9uQqSYmlJXn61cTa+jbO87xVLCWbTqbWadRVmhxlXATaOjOgcBaWU4ePo0wB41KMFv3o35IXA==}
+    engines: {node: '>=18'}
+    hasBin: true
+    dependencies:
+      playwright: 1.58.2
 
   /@rolldown/pluginutils@1.0.0-beta.40:
     resolution: {integrity: sha512-s3GeJKSQOwBlzdUrj4ISjJj5SfSh+aqn0wjOar4Bx95iV1ETI7F6S/5hLcfAxZ9kXDcyrAkxPlqmd1ZITttf+w==}
@@ -4251,6 +4261,13 @@ packages:
     resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
     dev: true
 
+  /fsevents@2.3.2:
+    resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
+    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
+    os: [darwin]
+    requiresBuild: true
+    optional: true
+
   /fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
@@ -5449,7 +5466,7 @@ packages:
     engines: {node: ^20.0.0 || >=22.0.0}
     dev: false
 
-  /next@15.4.11(react-dom@19.2.1)(react@19.2.1):
+  /next@15.4.11(@playwright/test@1.58.2)(react-dom@19.2.1)(react@19.2.1):
     resolution: {integrity: sha512-IJRyXal45mIsshZI5XJne/intjusslUP1F+FHVBIyMGEqbYtIq1Irdx5vdWBBg58smviPDycmDeV6txsfkv1RQ==}
     engines: {node: ^18.18.0 || ^19.8.0 || >= 20.0.0}
     hasBin: true
@@ -5471,6 +5488,7 @@ packages:
         optional: true
     dependencies:
       '@next/env': 15.4.11
+      '@playwright/test': 1.58.2
       '@swc/helpers': 0.5.15
       caniuse-lite: 1.0.30001702
       postcss: 8.4.31
@@ -5907,6 +5925,20 @@ packages:
     resolution: {integrity: sha512-saLsH7WeYYPiD25LDuLRRY/i+6HaPYr6G1OUlN39otzkSTxKnubR9RTxS3/Kk50s1g2JTgFwWQDQyplC5/SHZg==}
     engines: {node: '>= 6'}
     dev: true
+
+  /playwright-core@1.58.2:
+    resolution: {integrity: sha512-yZkEtftgwS8CsfYo7nm0KE8jsvm6i/PTgVtB8DL726wNf6H2IMsDuxCpJj59KDaxCtSnrWan2AeDqM7JBaultg==}
+    engines: {node: '>=18'}
+    hasBin: true
+
+  /playwright@1.58.2:
+    resolution: {integrity: sha512-vA30H8Nvkq/cPBnNw4Q8TWz1EJyqgpuinBcHET0YVJVFldr8JDNiU9LaWAE1KqSkRYazuaBhTpB5ZzShOezQ6A==}
+    engines: {node: '>=18'}
+    hasBin: true
+    dependencies:
+      playwright-core: 1.58.2
+    optionalDependencies:
+      fsevents: 2.3.2
 
   /pluralize@8.0.0:
     resolution: {integrity: sha512-Nc3IT5yHzflTfbjgqWcCPpo7DaKy4FnpB0l/zCAW0Tc7jxAiuqSxHasntB3D7887LSrA93kDJ9IXovxJYxyLCA==}

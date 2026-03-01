@@ -15,11 +15,14 @@
     "build:new": "pnpm --recursive --filter @blog/web --filter @blog/cms build",
     "migrate:auth": "pnpm --filter @blog/web migrate:auth",
     "migrate:content": "pnpm --filter @blog/cms migrate:content",
+    "test:e2e": "playwright test",
+    "test:e2e:logout": "playwright test tests/e2e/auth-logout.spec.ts",
     "typecheck": "pnpm --recursive --filter @blog/web --filter @blog/cms typecheck",
     "typecheck:new": "pnpm typecheck",
     "prepare": "husky"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@biomejs/biome": "1.9.4",
     "autoprefixer": "10.4.17",
     "husky": "^9.0.11",
