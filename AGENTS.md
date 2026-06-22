@@ -4,87 +4,70 @@
 
 ## 1. 项目定位
 
-- 这是一个博客 monorepo：`apps/web`（TanStack Start）+ `apps/cms`（Payload）+ `packages/shared`。
-- 旧 Waku 代码已移除；当前仅维护 monorepo 新架构。
+- 单人博客，**全量运行在 Cloudflare 上、$0/月**。
+- `apps/web`（TanStack Start）部署为 **Cloudflare Worker**；`packages/shared` 放共享类型。
+- 文章是 `content/blog` 下的 **git markdown**，构建期内联（无 CMS、无内容数据库）。
+- 登录与角色用 **Better Auth + Cloudflare D1**。
+- 旧架构已移除：Waku、Payload CMS、Postgres、Vercel adapter 都不再维护。
 
 ## 2. 必须遵守的约束
 
-1. 路由兼容性不可破坏：
-   - `/blog`
-   - `/blog/:slug`
-2. 权限裁决必须在服务端做，前端只做展示。
-3. `PAYLOAD_SERVICE_TOKEN` 绝不能暴露给浏览器。
-4. CMS 与前台登录态是两套体系，不能混用。
-5. Payload admin import map 需要入库，不要忽略：
-   - `apps/cms/src/app/(payload)/admin/importMap.js`
+1. 路由兼容性不可破坏：`/blog`、`/blog/:slug`。
+2. 权限裁决必须在服务端做（route loader 里），前端只做展示。
+3. `BETTER_AUTH_SECRET` 绝不能进客户端包，只走 `wrangler secret` / `.dev.vars`。
+4. worker 体积必须守住 Workers 免费版 **3 MiB gzip** 上限——这是 $0 的命根子。
+   每次改动后用 `wrangler deploy -c dist/server/wrangler.json --dry-run` 看 gzip 数。
+5. 文章可见性分级靠 frontmatter 的 `visibility` 字段，默认 `public`。
 
 ## 3. 常用命令
 
 ```bash
-# 安装
 pnpm install
 
 # 本地开发
-pnpm dev:cms
-pnpm dev:web
-pnpm dev:new
+pnpm dev                              # vite dev
+pnpm --filter @blog/web preview       # wrangler dev（真实 worker 运行时）
 
-# 内容迁移
-pnpm migrate:content
+# D1 迁移
+pnpm --filter @blog/web db:migrate:local
+pnpm --filter @blog/web db:migrate     # 远端
 
-# Better Auth 表迁移
-pnpm migrate:auth
+# 类型检查
+pnpm typecheck
 
-# 类型检查（当前以分应用为准）
-pnpm --filter @blog/web typecheck
-pnpm --filter @blog/cms typecheck
+# 部署（或用 /deploy skill）
+pnpm deploy
 ```
 
-## 4. 环境变量关键点
+## 4. 环境变量 / 绑定关键点
 
-- `apps/cms/.env` 与 `apps/web/.env` 中以下值必须一致：
-  - `DATABASE_URL`
-  - `PAYLOAD_SERVICE_TOKEN`
-  - `APPS_WEB_URL` / `PAYLOAD_PUBLIC_URL`（按真实域名）
-- 默认使用 PostgreSQL。
-- `ADMIN_EMAIL_ALLOWLIST` 用于首个 admin 自动提升。
+- 绑定：`DB`（D1，数据库名 `blog`，已 provision），`ASSETS`（静态资源）。
+- 变量：`APPS_WEB_URL`（`wrangler.jsonc` 的 `[vars]`）。
+- 密钥：`BETTER_AUTH_SECRET`（必需）、`GITHUB_CLIENT_ID/SECRET`（可选）。
+- 本地：`apps/web/.dev.vars`（从 `.dev.vars.example` 复制）。
 
 ## 5. 数据与权限
 
-- 角色：`member | vip | admin`
-- 文章可见性：`public | member | vip | admin | password`
-- 文章发布后前台是否可见，取决于：
-  - `_status`（published/draft）
-  - `visibility`
-  - 当前用户角色 / 解锁 cookie
+- 角色：`member | vip | admin`，存在 D1 的 `user.role`。
+- 文章可见性：`public | member | vip | admin | password`。
+- 首个 admin 自动提升：`ADMIN_EMAIL_ALLOWLIST` 命中且当前无 admin 时提升。
+- password 文章走 `/unlock/:slug` + 签名 HttpOnly cookie（24h）。
 
-## 6. 运行与发布注意事项
+## 6. 发布注意事项
 
-1. `apps/cms/src/payload.config.ts` 中 Postgres 使用 `push: false`，避免开发时交互式删表。
-2. 若改了 admin 组件映射，手动生成 import map：
-   ```bash
-   pnpm --filter @blog/cms exec payload generate:importmap
-   ```
-3. Better Auth 表迁移（首次）：
-   ```bash
-   pnpm migrate:auth
-   ```
+1. Better Auth 的 D1 schema 是版本化迁移（`apps/web/migrations/`），**不在请求期建表**。
+   改了 schema 要 `db:migrate` 应用到远端。
+2. 部署产物里 `dist/server/wrangler.json` 由 `@cloudflare/vite-plugin` 生成，
+   `wrangler deploy` 用它。
+3. push 到 `master` 会触发 `.github/workflows/deploy.yml` 自动部署。
 
 ## 7. 提交前最低验证
 
-至少执行：
-
 ```bash
-pnpm --filter @blog/web typecheck
-pnpm --filter @blog/cms typecheck
+pnpm typecheck
+pnpm biome check ./apps ./packages
+pnpm --filter @blog/web build
+pnpm --filter @blog/web exec wrangler deploy -c dist/server/wrangler.json --dry-run  # 守 3 MiB
 ```
 
-并进行基础冒烟：
-
-- `http://127.0.0.1:3000/blog`
-- `http://127.0.0.1:4100/admin/login`
-
-## 8. 已知现状
-
-- `.husky/pre-push` 当前执行 `pnpm typecheck`（仅 `apps/web` + `apps/cms`）。
-- 允许在紧急情况下使用 `--no-verify`，但不能跳过分应用 typecheck 和冒烟验证。
+冒烟：`/`、`/blog`、`/blog/:slug`、`/projects`。
