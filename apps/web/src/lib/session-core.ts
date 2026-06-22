@@ -1,8 +1,7 @@
 import type { Role, SessionUser } from '@blog/shared';
 import { getRequest } from '@tanstack/react-start/server';
-import type { Pool } from 'pg';
 import { auth } from './auth.js';
-import { getPool } from './db.js';
+import { getD1 } from './db.js';
 import { getWebEnv } from './env.js';
 
 type BetterAuthSession = {
@@ -14,10 +13,8 @@ type BetterAuthSession = {
 } | null;
 
 const env = getWebEnv();
-const pool = getPool();
 
 async function maybePromoteFirstAdmin(
-  db: Pool,
   sessionUser: SessionUser,
 ): Promise<SessionUser> {
   const allowlist = env.adminEmailAllowlist;
@@ -26,20 +23,21 @@ async function maybePromoteFirstAdmin(
   }
 
   try {
-    const adminResult = await db.query<{ count: string }>(
-      'SELECT COUNT(*)::text AS count FROM "user" WHERE "role" = $1',
-      ['admin'],
-    );
+    const db = getD1();
+    const adminRow = await db
+      .prepare('SELECT COUNT(*) AS count FROM "user" WHERE "role" = ?')
+      .bind('admin')
+      .first<{ count: number }>();
 
-    const count = Number.parseInt(adminResult.rows[0]?.count ?? '0', 10);
+    const count = Number(adminRow?.count ?? 0);
     if (count > 0) {
       return sessionUser;
     }
 
-    await db.query('UPDATE "user" SET "role" = $1 WHERE "id" = $2', [
-      'admin',
-      sessionUser.id,
-    ]);
+    await db
+      .prepare('UPDATE "user" SET "role" = ? WHERE "id" = ?')
+      .bind('admin', sessionUser.id)
+      .run();
 
     return { ...sessionUser, role: 'admin' };
   } catch (error) {
@@ -77,7 +75,7 @@ export async function getSessionUserFromRequest(
     role: user.role ?? 'member',
   };
 
-  return maybePromoteFirstAdmin(pool, sessionUser);
+  return maybePromoteFirstAdmin(sessionUser);
 }
 
 export async function getSessionUser(): Promise<SessionUser | null> {

@@ -40,10 +40,10 @@ export const Route = createFileRoute('/unlock/$slug')({
           });
         }
 
-        const { verifyPostPasswordWithCms } = await import(
-          '../../lib/cms-client.js'
+        const { verifyPostPassword } = await import(
+          '../../lib/content-service.js'
         );
-        const isValid = await verifyPostPasswordWithCms(slug, password);
+        const isValid = verifyPostPassword(slug, password);
         if (!isValid) {
           recordUnlockFailure(slug, ip);
           return Response.redirect(

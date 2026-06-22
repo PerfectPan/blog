@@ -1,12 +1,17 @@
-import { type PostSummary, getUnlockCookieName } from '@blog/shared';
+import {
+  type PostSummary,
+  type Role,
+  canAccessVisibility,
+  getUnlockCookieName,
+} from '@blog/shared';
 import { createServerFn } from '@tanstack/react-start';
 import { getRequest } from '@tanstack/react-start/server';
 import { z } from 'zod';
 import {
-  fetchPostBySlugFromCms,
-  fetchVisiblePostsFromCms,
-  verifyPostPasswordWithCms,
-} from './cms-client.js';
+  getAllPublishedPosts,
+  getPostBySlug,
+  verifyPostPassword,
+} from './content-service.js';
 import { getSessionUserFromRequest } from './session-core.js';
 import { isUnlockCookieValid, parseCookies } from './unlock-cookie.js';
 
@@ -14,12 +19,14 @@ function sortByPublishedDateDesc(posts: PostSummary[]): PostSummary[] {
   return [...posts].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 }
 
-function toUniquePosts(posts: PostSummary[]): PostSummary[] {
-  const map = new Map<string, PostSummary>();
-  for (const post of posts) {
-    map.set(post.slug, post);
+/** A post shows up in the list if the viewer's role can access its visibility. */
+function isListedFor(post: PostSummary, role?: Role | null): boolean {
+  if (post.visibility === 'password') {
+    // Password posts are listed only to admins; everyone else reaches them via
+    // a direct link + the unlock flow.
+    return role === 'admin';
   }
-  return [...map.values()];
+  return canAccessVisibility(post.visibility, role ?? null);
 }
 
 export const getBlogListServerFn = createServerFn({ method: 'GET' }).handler(
@@ -27,7 +34,9 @@ export const getBlogListServerFn = createServerFn({ method: 'GET' }).handler(
     const request = getRequest();
     const sessionUser = await getSessionUserFromRequest(request);
     const posts = sortByPublishedDateDesc(
-      toUniquePosts(await fetchVisiblePostsFromCms(sessionUser?.role)),
+      getAllPublishedPosts().filter((post) =>
+        isListedFor(post, sessionUser?.role),
+      ),
     );
 
     return {
@@ -42,7 +51,7 @@ export const getBlogPostServerFn = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     const request = getRequest();
     const sessionUser = await getSessionUserFromRequest(request);
-    const post = await fetchPostBySlugFromCms(data.slug);
+    const post = getPostBySlug(data.slug);
 
     const cookies = parseCookies(request?.headers.get('cookie') ?? null);
     const unlockCookie = cookies[getUnlockCookieName(data.slug)];
@@ -63,5 +72,5 @@ export const verifyPostPasswordServerFn = createServerFn({ method: 'POST' })
     }),
   )
   .handler(async ({ data }) => {
-    return verifyPostPasswordWithCms(data.slug, data.password);
+    return verifyPostPassword(data.slug, data.password);
   });
