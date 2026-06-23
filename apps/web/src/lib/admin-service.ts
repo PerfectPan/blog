@@ -3,6 +3,7 @@ import {
   type PostVisibility,
   type SessionUser,
 } from '@blog/shared';
+import { redirect } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import { getRequest } from '@tanstack/react-start/server';
 import { z } from 'zod';
@@ -12,10 +13,12 @@ import { getSessionUserFromRequest } from './session-core.js';
 async function requireAdmin(): Promise<SessionUser> {
   const sessionUser = await getSessionUserFromRequest(getRequest());
   if (!sessionUser) {
-    throw new Response('Authentication required', { status: 401 });
+    // Not logged in -> send to the login page.
+    throw redirect({ to: '/login' });
   }
   if (sessionUser.role !== 'admin') {
-    throw new Response('Forbidden', { status: 403 });
+    // Logged in but not an admin -> bounce home (no admin content leaks).
+    throw redirect({ to: '/' });
   }
   return sessionUser;
 }
