@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 
 type MenuLinkProps = {
-  href: '/' | '/blog' | '/projects';
+  href: '/' | '/blog' | '/projects' | '/admin';
   name: string;
 };
 

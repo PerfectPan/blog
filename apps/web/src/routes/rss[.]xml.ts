@@ -16,7 +16,7 @@ export const Route = createFileRoute('/rss.xml')({
     handlers: {
       GET: async () => {
         const env = getWebEnv();
-        const posts = getAllPublishedPosts()
+        const posts = (await getAllPublishedPosts())
           .filter((post) => post.visibility === 'public')
           .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 

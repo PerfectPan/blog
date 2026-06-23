@@ -33,10 +33,9 @@ export const getBlogListServerFn = createServerFn({ method: 'GET' }).handler(
   async () => {
     const request = getRequest();
     const sessionUser = await getSessionUserFromRequest(request);
+    const allPosts = await getAllPublishedPosts();
     const posts = sortByPublishedDateDesc(
-      getAllPublishedPosts().filter((post) =>
-        isListedFor(post, sessionUser?.role),
-      ),
+      allPosts.filter((post) => isListedFor(post, sessionUser?.role)),
     );
 
     return {
@@ -51,7 +50,7 @@ export const getBlogPostServerFn = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     const request = getRequest();
     const sessionUser = await getSessionUserFromRequest(request);
-    const post = getPostBySlug(data.slug);
+    const post = await getPostBySlug(data.slug);
 
     const cookies = parseCookies(request?.headers.get('cookie') ?? null);
     const unlockCookie = cookies[getUnlockCookieName(data.slug)];
@@ -72,5 +71,5 @@ export const verifyPostPasswordServerFn = createServerFn({ method: 'POST' })
     }),
   )
   .handler(async ({ data }) => {
-    return verifyPostPassword(data.slug, data.password);
+    return await verifyPostPassword(data.slug, data.password);
   });

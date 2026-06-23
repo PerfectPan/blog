@@ -6,36 +6,26 @@ import {
   type PostVisibility,
 } from '@blog/shared';
 import matter from 'gray-matter';
+import { getD1 } from './db.js';
 
 /**
- * Git-backed content source.
+ * Two content sources, merged:
  *
- * Posts live as markdown files in the repo's `content/blog/` directory and are
- * inlined at build time via Vite's `import.meta.glob`. There is no CMS and no
- * database read on the content path — adding a post is `git add` + push.
+ * 1. Legacy markdown in `content/blog/*.md`, inlined at build time. Read-only.
+ * 2. Admin-managed posts in the D1 `post` table (created/edited via /admin).
  *
- * Per-post access control is preserved and driven entirely by frontmatter:
- *
- *   ---
- *   title: ...
- *   date: 2024-01-02
- *   description: ...
- *   tag: [TypeScript]
- *   visibility: public | member | vip | admin | password   # default: public
- *   password: "hunter2"   # only used when visibility === 'password'
- *   status: published | draft                                # default: published
- *   ---
+ * A D1 row with the same slug overrides its markdown counterpart, so the admin
+ * UI can edit legacy posts too. Per-post visibility/password gating is the same
+ * for both sources.
  */
 
-// Eagerly inline every markdown file under content/blog as a raw string.
-// Path is relative to this file: apps/web/src/lib -> repo root is ../../../../
+// --- Source 1: legacy markdown (parsed once at module load) -----------------
+
 const rawModules = import.meta.glob('../../../../content/blog/*.md', {
   query: '?raw',
   import: 'default',
   eager: true,
 }) as Record<string, string>;
-
-type ParsedPost = PostDetail;
 
 function slugFromPath(filePath: string): string {
   const file = filePath.split('/').pop() ?? filePath;
@@ -79,10 +69,9 @@ function toTags(value: unknown): string[] {
   return [];
 }
 
-// Internal full record keeps the plaintext password for server-side verify.
-type PostRecord = ParsedPost & { readonly password?: string };
+type PostRecord = PostDetail & { readonly password?: string };
 
-const ALL_POSTS: PostRecord[] = Object.entries(rawModules)
+const MARKDOWN_POSTS: PostRecord[] = Object.entries(rawModules)
   .map(([filePath, raw]) => {
     const parsed = matter(raw);
     const data = parsed.data as Record<string, unknown>;
@@ -106,6 +95,71 @@ const ALL_POSTS: PostRecord[] = Object.entries(rawModules)
     } satisfies PostRecord;
   })
   .filter((post) => post.status === 'published');
+
+// --- Source 2: D1 posts -----------------------------------------------------
+
+type PostRow = {
+  slug: string;
+  title: string;
+  description: string;
+  body: string;
+  visibility: string;
+  password: string | null;
+  status: string;
+  tags: string;
+  publishedAt: string;
+};
+
+function rowToRecord(row: PostRow): PostRecord {
+  const visibility = normalizeVisibility(row.visibility);
+  let tags: string[] = [];
+  try {
+    const parsed = JSON.parse(row.tags) as unknown;
+    tags = Array.isArray(parsed) ? parsed.map(String) : [];
+  } catch {
+    tags = [];
+  }
+
+  return {
+    slug: row.slug,
+    title: row.title,
+    description: row.description,
+    publishedAt: row.publishedAt,
+    visibility,
+    tags,
+    contentMdx: row.body,
+    status: normalizeStatus(row.status),
+    passwordEnabled: visibility === 'password',
+    password:
+      visibility === 'password' ? (row.password ?? undefined) : undefined,
+  };
+}
+
+async function getD1Posts(): Promise<PostRecord[]> {
+  try {
+    const result = await getD1()
+      .prepare(
+        'SELECT slug, title, description, body, visibility, password, status, tags, publishedAt FROM "post"',
+      )
+      .all<PostRow>();
+    return (result.results ?? []).map(rowToRecord);
+  } catch (error) {
+    console.error('[web] D1 post query failed, markdown only', error);
+    return [];
+  }
+}
+
+/** Merge D1 over markdown (D1 wins on slug), published only. */
+async function getMergedPosts(): Promise<PostRecord[]> {
+  const bySlug = new Map<string, PostRecord>();
+  for (const post of MARKDOWN_POSTS) {
+    bySlug.set(post.slug, post);
+  }
+  for (const post of await getD1Posts()) {
+    bySlug.set(post.slug, post);
+  }
+  return [...bySlug.values()].filter((post) => post.status === 'published');
+}
 
 function toSummary(post: PostRecord): PostSummary {
   return {
@@ -133,19 +187,24 @@ function toDetail(post: PostRecord): PostDetail {
 }
 
 /** All published posts as summaries (visibility filtering happens upstream). */
-export function getAllPublishedPosts(): PostSummary[] {
-  return ALL_POSTS.map(toSummary);
+export async function getAllPublishedPosts(): Promise<PostSummary[]> {
+  return (await getMergedPosts()).map(toSummary);
 }
 
 /** A single published post by slug, or null. */
-export function getPostBySlug(slug: string): PostDetail | null {
-  const post = ALL_POSTS.find((item) => item.slug === slug);
+export async function getPostBySlug(slug: string): Promise<PostDetail | null> {
+  const posts = await getMergedPosts();
+  const post = posts.find((item) => item.slug === slug);
   return post ? toDetail(post) : null;
 }
 
-/** Constant-time-ish plaintext password check for `visibility: password` posts. */
-export function verifyPostPassword(slug: string, password: string): boolean {
-  const post = ALL_POSTS.find((item) => item.slug === slug);
+/** Plaintext password check for `visibility: password` posts. */
+export async function verifyPostPassword(
+  slug: string,
+  password: string,
+): Promise<boolean> {
+  const posts = await getMergedPosts();
+  const post = posts.find((item) => item.slug === slug);
   if (!post || post.visibility !== 'password' || !post.password) {
     return false;
   }
