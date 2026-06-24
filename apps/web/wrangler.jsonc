@@ -5,7 +5,8 @@
   "compatibility_flags": ["nodejs_compat"],
   "main": "src/server.tsx",
   "vars": {
-    "APPS_WEB_URL": "https://blog-web.workers.dev"
+    "APPS_WEB_URL": "https://blog-web.perfectpan325.workers.dev",
+    "ADMIN_EMAIL_ALLOWLIST": "perfectpan325@gmail.com"
   },
   "assets": {
     "directory": "./dist/client",
