@@ -11,15 +11,25 @@ test('admin can create a post that appears on the blog', async ({ page }) => {
   const slug = 'e2e-admin-post';
   const title = 'E2E admin post';
 
-  // 1. Log in.
-  await page.goto('/login', { waitUntil: 'domcontentloaded' });
+  // 1. Sign up (autoSignIn logs us straight in). If the account already exists
+  //    from a previous run, fall back to logging in.
+  await page.goto('/signup', { waitUntil: 'domcontentloaded' });
+  await page.locator('#name').fill('Claude Verify');
   await page.locator('#email').fill(ADMIN_EMAIL);
   await page.locator('#password').fill(ADMIN_PASSWORD);
   await page.locator('form button[type="submit"]').click();
-  // Wait until logged in (header shows a Logout link).
-  await expect(page.getByRole('link', { name: /logout/i })).toBeVisible({
-    timeout: 15000,
-  });
+
+  const loggedIn = page.getByRole('link', { name: /logout/i });
+  try {
+    await expect(loggedIn).toBeVisible({ timeout: 8000 });
+  } catch {
+    // Account exists already — log in instead.
+    await page.goto('/login', { waitUntil: 'domcontentloaded' });
+    await page.locator('#email').fill(ADMIN_EMAIL);
+    await page.locator('#password').fill(ADMIN_PASSWORD);
+    await page.locator('form button[type="submit"]').click();
+    await expect(loggedIn).toBeVisible({ timeout: 15000 });
+  }
 
   // 2. Visit /blog once to trigger first-admin promotion, then open the editor.
   // The server-side admin guard reads the (now promoted) role from D1.

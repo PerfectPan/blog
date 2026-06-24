@@ -1,6 +1,6 @@
 import { POST_VISIBILITIES } from '@blog/shared';
 import { useRouter } from '@tanstack/react-router';
-import { useState } from 'react';
+import { useReducer, useState } from 'react';
 import {
   type AdminPost,
   deletePostServerFn,
@@ -10,6 +10,43 @@ import {
 function todayIso(): string {
   // Avoid Date.now()-style nondeterminism concerns: a plain date string is fine.
   return new Date().toISOString();
+}
+
+// The editable form fields, kept as one object driven by a reducer instead of
+// a dozen separate useState hooks. `tags` is the raw comma-separated string;
+// it's split into an array on submit.
+type FormState = {
+  slug: string;
+  title: string;
+  description: string;
+  tags: string;
+  visibility: AdminPost['visibility'];
+  password: string;
+  status: AdminPost['status'];
+  publishedAt: string;
+  body: string;
+};
+
+type FormAction = {
+  [K in keyof FormState]: { field: K; value: FormState[K] };
+}[keyof FormState];
+
+function formReducer(state: FormState, action: FormAction): FormState {
+  return { ...state, [action.field]: action.value };
+}
+
+function toFormState(post: AdminPost): FormState {
+  return {
+    slug: post.slug,
+    title: post.title,
+    description: post.description,
+    tags: post.tags.join(', '),
+    visibility: post.visibility,
+    password: post.password,
+    status: post.status,
+    publishedAt: post.publishedAt.slice(0, 10),
+    body: post.body,
+  };
 }
 
 const EMPTY: AdminPost = {
@@ -35,20 +72,18 @@ export function PostEditor({
   mode: 'new' | 'edit';
 }) {
   const router = useRouter();
-  const start = initial ?? EMPTY;
-  const [slug, setSlug] = useState(start.slug);
-  const [title, setTitle] = useState(start.title);
-  const [description, setDescription] = useState(start.description);
-  const [tags, setTags] = useState(start.tags.join(', '));
-  const [visibility, setVisibility] = useState(start.visibility);
-  const [password, setPassword] = useState(start.password);
-  const [status, setStatus] = useState(start.status);
-  const [publishedAt, setPublishedAt] = useState(
-    start.publishedAt.slice(0, 10),
+  const [fields, dispatch] = useReducer(
+    formReducer,
+    initial ?? EMPTY,
+    toFormState,
   );
-  const [body, setBody] = useState(start.body);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
+  // Typed field setter: `setField('title', value)` stays exhaustive over keys.
+  function setField<K extends keyof FormState>(field: K, value: FormState[K]) {
+    dispatch({ field, value } as FormAction);
+  }
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -57,18 +92,18 @@ export function PostEditor({
     try {
       await upsertPostServerFn({
         data: {
-          slug,
-          title,
-          description,
-          body,
-          visibility,
-          password,
-          status,
-          tags: tags
+          slug: fields.slug,
+          title: fields.title,
+          description: fields.description,
+          body: fields.body,
+          visibility: fields.visibility,
+          password: fields.password,
+          status: fields.status,
+          tags: fields.tags
             .split(',')
             .map((tag) => tag.trim())
             .filter(Boolean),
-          publishedAt: new Date(publishedAt).toISOString(),
+          publishedAt: new Date(fields.publishedAt).toISOString(),
         },
       });
       await router.navigate({ to: '/admin' });
@@ -80,12 +115,12 @@ export function PostEditor({
   }
 
   async function onDelete() {
-    if (!confirm(`删除文章 “${slug}”？`)) {
+    if (!confirm(`删除文章 “${fields.slug}”？`)) {
       return;
     }
     setSaving(true);
     try {
-      await deletePostServerFn({ data: { slug } });
+      await deletePostServerFn({ data: { slug: fields.slug } });
       await router.navigate({ to: '/admin' });
     } catch (err) {
       setError(String(err instanceof Error ? err.message : err));
@@ -105,8 +140,8 @@ export function PostEditor({
         <span className='font-semibold'>Title</span>
         <input
           className={inputClass}
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
+          value={fields.title}
+          onChange={(event) => setField('title', event.target.value)}
           required
         />
       </label>
@@ -115,8 +150,8 @@ export function PostEditor({
         <span className='font-semibold'>Slug</span>
         <input
           className={inputClass}
-          value={slug}
-          onChange={(event) => setSlug(event.target.value)}
+          value={fields.slug}
+          onChange={(event) => setField('slug', event.target.value)}
           placeholder='my-post'
           disabled={mode === 'edit'}
           required
@@ -127,8 +162,8 @@ export function PostEditor({
         <span className='font-semibold'>Description</span>
         <input
           className={inputClass}
-          value={description}
-          onChange={(event) => setDescription(event.target.value)}
+          value={fields.description}
+          onChange={(event) => setField('description', event.target.value)}
         />
       </label>
 
@@ -137,8 +172,8 @@ export function PostEditor({
           <span className='font-semibold'>Tags（逗号分隔）</span>
           <input
             className={inputClass}
-            value={tags}
-            onChange={(event) => setTags(event.target.value)}
+            value={fields.tags}
+            onChange={(event) => setField('tags', event.target.value)}
           />
         </label>
         <label className='grid gap-1'>
@@ -146,8 +181,8 @@ export function PostEditor({
           <input
             type='date'
             className={inputClass}
-            value={publishedAt}
-            onChange={(event) => setPublishedAt(event.target.value)}
+            value={fields.publishedAt}
+            onChange={(event) => setField('publishedAt', event.target.value)}
             required
           />
         </label>
@@ -158,9 +193,12 @@ export function PostEditor({
           <span className='font-semibold'>Visibility</span>
           <select
             className={inputClass}
-            value={visibility}
+            value={fields.visibility}
             onChange={(event) =>
-              setVisibility(event.target.value as typeof visibility)
+              setField(
+                'visibility',
+                event.target.value as FormState['visibility'],
+              )
             }
           >
             {POST_VISIBILITIES.map((value) => (
@@ -174,20 +212,22 @@ export function PostEditor({
           <span className='font-semibold'>Status</span>
           <select
             className={inputClass}
-            value={status}
-            onChange={(event) => setStatus(event.target.value as typeof status)}
+            value={fields.status}
+            onChange={(event) =>
+              setField('status', event.target.value as FormState['status'])
+            }
           >
             <option value='published'>published</option>
             <option value='draft'>draft</option>
           </select>
         </label>
-        {visibility === 'password' ? (
+        {fields.visibility === 'password' ? (
           <label className='grid gap-1'>
             <span className='font-semibold'>Password</span>
             <input
               className={inputClass}
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              value={fields.password}
+              onChange={(event) => setField('password', event.target.value)}
             />
           </label>
         ) : null}
@@ -197,8 +237,8 @@ export function PostEditor({
         <span className='font-semibold'>Body（Markdown）</span>
         <textarea
           className={`${inputClass} min-h-[360px] font-mono text-sm`}
-          value={body}
-          onChange={(event) => setBody(event.target.value)}
+          value={fields.body}
+          onChange={(event) => setField('body', event.target.value)}
         />
       </label>
 
