@@ -1,5 +1,9 @@
 # 技术选型说明（2026-02）
 
+> ⚠️ **历史归档**：本文是 2026-02 的选型对比（当时还含 Payload / Vercel / Railway 等
+> 备选）。最终结论已变——砍掉 Payload、换 Cloudflare D1、迁到 Workers。当前选型决策见
+> `docs/plans/2026-06-22-cloudflare-migration-design.md`。保留本文仅供历史参考。
+
 ## 1. 目标与约束
 
 当前博客系统的核心需求是：

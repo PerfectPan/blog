@@ -58,10 +58,34 @@ pnpm --filter @blog/web exec wrangler deploy -c dist/server/wrangler.json
 
 ## 6. Smoke test (confirm it actually serves)
 
+Production is `https://perfectpan.org` (the Worker Custom Domain). Verify the
+real routes (no `/healthz` route exists — use these):
+
 ```bash
-curl -fsS https://<deployed-url>/healthz   # if a health route exists
-curl -fsS https://<deployed-url>/blog | head -c 300
+# each should be HTTP 200 with no x-vercel-* header (proves the Worker, not Vercel)
+for p in / /blog /projects /login; do
+  curl -sI "https://perfectpan.org$p" | grep -iE "^(HTTP|server|x-vercel)"
+done
+curl -sI "https://perfectpan.org/api/auth/get-session" | grep -iE "^HTTP"   # 200
+# www must 301 to the apex, path preserved:
+curl -sI "https://www.perfectpan.org/blog" | grep -iE "^(HTTP|location)"     # 301 -> perfectpan.org/blog
 ```
 
 Also click through: `/`, `/blog`, `/blog/<slug>`, `/projects`, and a login.
-Report the deployed URL and what you verified. Only then is the deploy done.
+Report what you verified. Only then is the deploy done.
+
+## 7. Custom domains (managed by wrangler, not the dashboard)
+
+`perfectpan.org` and `www.perfectpan.org` are **Worker Custom Domains** declared
+in `apps/web/wrangler.jsonc` (`routes` → `custom_domain: true`). They attach
+automatically on `wrangler deploy` — do **not** wire them up in the dashboard.
+
+Known gotcha when binding/switching a hostname: Worker Custom Domains require the
+hostname to have **no existing DNS record**, otherwise deploy fails with
+`409 / code 100117: already has externally managed DNS records`. The `wrangler login`
+OAuth token has **no `dns:edit`** scope, so you cannot clear it yourself — delete the
+conflicting A/AAAA/CNAME records (apex + www) in the dashboard first, then redeploy;
+Cloudflare recreates the records + cert (the zone's Universal SSL already covers
+`perfectpan.org` / `*.perfectpan.org`, so HTTPS is immediate). The `www → apex` 301
+is handled **inside the worker** (`apps/web/src/server.tsx`), not via a Cloudflare
+Redirect Rule (the token lacks `rulesets:write` too).

@@ -63,11 +63,22 @@ Workers 免费版上限: 3 MiB  →  约 58% 占用，留 ~1.75 MiB 余量
 - 验证通过：`pnpm typecheck` ✓、`biome check` ✓、`pnpm --filter @blog/web build` ✓、
   `wrangler deploy --dry-run` ✓（体积 1.28 MiB、`env.DB` 绑定解析正常）。
 
-## 尚未做（需要真实上线迭代，刻意留给人确认）
+## 状态（2026-06-27 更新）
 
-- **生产 `wrangler deploy` + 冒烟**：发布站点属外向操作，未擅自执行。上线步骤见 `/deploy` skill 与 README。
-  上线前需 `wrangler secret put BETTER_AUTH_SECRET`（GitHub OAuth 可选）。
-- **运行时端到端验证**：dry-run 验证了打包与绑定，但 Better Auth on D1 的登录/会话全链路
-  需真实部署后点一遍（登录、注册、角色、password 文章解锁）。
-- **GitHub Actions 部署所需 secret**：仓库需配 `CLOUDFLARE_API_TOKEN`。
+- ✅ **生产已上线**：`perfectpan.org` 作为 Worker Custom Domain 绑定到 `blog-web`，
+  `APPS_WEB_URL` 已切到 `https://perfectpan.org`；`www → apex` 301 在 worker 入口实现；
+  `workers.dev` 路由关闭；旧 Vercel 站已被取代（DNS 不再指向它）。
+- ✅ **冒烟通过**：`/`、`/blog`、`/projects`、`/login`、`/api/auth/get-session` 均 200
+  且无 `x-vercel-*` 头；`www.perfectpan.org/blog` → 301 `perfectpan.org/blog`。
+- ⚠️ **绑定域名踩的坑**（已留档在 `docs/architecture.md` §7.1）：Worker Custom Domain
+  要求主机名下无现存 DNS 记录，否则报 `409 / code 100117`；`wrangler login` 的 OAuth
+  token 没有 `dns:edit`，得在 dashboard 先删掉 apex + www 的旧记录再部署。
+
+## 尚未做
+
+- **CI 自动部署尚未激活**：本迁移分支（`worktree-cloudflare-migration`）还没合进
+  `master`，所以 `deploy.yml` / `pull-request.yml`（触发于 master）从未真正跑过；
+  当前是手动 `wrangler deploy`。激活需：合分支到 master + 仓库配 `CLOUDFLARE_API_TOKEN` secret。
+- **运行时登录全链路**：路由与 auth API 已验证 200，但 Better Auth on D1 的完整点击流
+  （注册、登录、角色、password 文章解锁）仍待用真实账号点一遍。
 - **重新设计**：等 Claude design 导出（TSX/截图）后单独迭代。
