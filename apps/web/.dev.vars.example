@@ -1,0 +1,17 @@
+# Local dev secrets for `wrangler dev` (copy to .dev.vars, which is gitignored).
+# In production these are set via `wrangler secret put <NAME>` instead.
+
+# Required: HMAC key for Better Auth sessions + signed unlock cookies.
+# Generate one with: openssl rand -base64 32
+BETTER_AUTH_SECRET=""
+
+# Public origin of the site (also set as a [vars] entry in wrangler.jsonc for prod).
+APPS_WEB_URL="http://127.0.0.1:8787"
+
+# Optional: GitHub OAuth. Leave unset to disable the GitHub sign-in button.
+GITHUB_CLIENT_ID=""
+GITHUB_CLIENT_SECRET=""
+
+# Optional: cookie domain (e.g. ".example.com") and first-admin allowlist.
+COOKIE_DOMAIN=""
+ADMIN_EMAIL_ALLOWLIST=""

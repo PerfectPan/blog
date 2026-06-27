@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { fetchVisiblePostsFromCms } from '../lib/cms-client.js';
+import { getAllPublishedPosts } from '../lib/content-service.js';
 import { getWebEnv } from '../lib/env.js';
 
 function escapeXml(value: string): string {
@@ -16,7 +16,7 @@ export const Route = createFileRoute('/rss.xml')({
     handlers: {
       GET: async () => {
         const env = getWebEnv();
-        const posts = (await fetchVisiblePostsFromCms())
+        const posts = (await getAllPublishedPosts())
           .filter((post) => post.visibility === 'public')
           .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 

@@ -14,7 +14,12 @@
     "lineWidth": 80
   },
   "files": {
-    "ignore": ["apps/web/src/routeTree.gen.ts", "apps/cms/payload-types.ts"]
+    "ignore": [
+      "**/dist/**",
+      "**/.wrangler/**",
+      "apps/web/src/routeTree.gen.ts",
+      "apps/web/worker-configuration.d.ts"
+    ]
   },
   "javascript": {
     "formatter": {

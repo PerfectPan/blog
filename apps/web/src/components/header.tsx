@@ -32,6 +32,10 @@ export function Header() {
         <div className='m-0 flex list-none items-center pl-1'>
           <MenuLink href='/' name='Home' />
           <MenuLink href='/blog' name='Blog' />
+          <MenuLink href='/projects' name='Projects' />
+          {sessionUser?.role === 'admin' ? (
+            <MenuLink href='/admin' name='Admin' />
+          ) : null}
         </div>
         <div className='ml-auto flex items-center gap-2 sm:gap-3'>
           {sessionUser ? (

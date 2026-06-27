@@ -6,8 +6,11 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
-    "start": "node ./scripts/start-server.mjs",
-    "migrate:auth": "node ./scripts/migrate-auth.mjs",
+    "preview": "wrangler dev",
+    "deploy": "vite build && wrangler deploy",
+    "cf-typegen": "wrangler types",
+    "db:migrate:local": "wrangler d1 migrations apply blog --local",
+    "db:migrate": "wrangler d1 migrations apply blog --remote",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
@@ -19,8 +22,9 @@
     "dotenv": "^17.3.1",
     "gray-matter": "^4.0.3",
     "katex": "^0.16.21",
+    "kysely": "^0.28.5",
+    "kysely-d1": "^0.4.0",
     "lucide-react": "^0.479.0",
-    "pg": "^8.13.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-markdown": "^9.1.0",
@@ -31,12 +35,15 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.42.1",
+    "@cloudflare/workers-types": "^4.20260621.1",
     "@vitejs/plugin-react": "^5.1.4",
     "@types/node": "^22.13.8",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "typescript": "^5.7.3",
     "vite": "^7.3.1",
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite-tsconfig-paths": "^5.1.4",
+    "wrangler": "^4.103.0"
   }
 }

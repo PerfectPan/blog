@@ -15,4 +15,9 @@ apps/**/node_modules
 apps/**/.output
 apps/**/.next
 apps/**/.payload
-apps/cms/payload-types.ts
+# Cloudflare / wrangler
+.wrangler
+apps/**/.wrangler
+.dev.vars
+apps/**/.dev.vars
+apps/web/worker-configuration.d.ts

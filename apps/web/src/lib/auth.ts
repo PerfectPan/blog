@@ -1,19 +1,24 @@
 import type { Role } from '@blog/shared';
 import { type BetterAuthOptions, betterAuth } from 'better-auth';
-import { getMigrations } from 'better-auth/db';
 import { tanstackStartCookies } from 'better-auth/tanstack-start';
-import { getPool } from './db.js';
+import { Kysely } from 'kysely';
+import { D1Dialect } from 'kysely-d1';
+import { getD1 } from './db.js';
 import { getWebEnv } from './env.js';
 
 const env = getWebEnv();
-const pool = getPool();
+
+// Better Auth talks to D1 through Kysely's D1 dialect.
+const kysely = new Kysely<Record<string, unknown>>({
+  dialect: new D1Dialect({ database: getD1() }),
+});
 
 const githubEnabled = Boolean(env.githubClientId && env.githubClientSecret);
 
 const authOptions = {
   secret: env.betterAuthSecret,
   baseURL: env.appsWebUrl,
-  database: pool,
+  database: { db: kysely, type: 'sqlite' },
   plugins: [tanstackStartCookies()],
   trustedOrigins: [env.appsWebUrl],
   emailAndPassword: {
@@ -42,31 +47,11 @@ const authOptions = {
 
 export const auth = betterAuth(authOptions);
 
-let authSchemaReady: Promise<void> | undefined;
-
+/**
+ * No-op on D1: the Better Auth schema is applied as a versioned D1 migration
+ * (`pnpm exec wrangler d1 migrations apply`), not at request time. Kept as an
+ * async function so call sites (the auth route handler) don't need to change.
+ */
 export function ensureAuthSchema(): Promise<void> {
-  if (authSchemaReady) {
-    return authSchemaReady;
-  }
-
-  authSchemaReady = (async () => {
-    const migrations = await getMigrations(authOptions);
-    const createCount = migrations.toBeCreated.length;
-    const alterCount = migrations.toBeAdded.length;
-
-    if (createCount === 0 && alterCount === 0) {
-      return;
-    }
-
-    console.info(
-      `[auth] Applying Better Auth schema changes (create=${createCount}, alter=${alterCount})`,
-    );
-    await migrations.runMigrations();
-    console.info('[auth] Better Auth schema migration complete');
-  })().catch((error) => {
-    authSchemaReady = undefined;
-    throw error;
-  });
-
-  return authSchemaReady;
+  return Promise.resolve();
 }
