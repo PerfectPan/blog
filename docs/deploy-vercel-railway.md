@@ -1,5 +1,9 @@
 # Deploy Guide (Vercel + Railway)
 
+> ⚠️ **历史归档（2026-02 旧栈）**：本文描述的 Vercel + Railway + PostgreSQL 部署已被
+> 废弃。当前站点全量跑在 Cloudflare（Worker + D1），部署方式见 `README.md` 的 Deploy
+> 小节、`/deploy` skill、以及 `docs/architecture.md`。保留本文仅供历史参考。
+
 ## 1) Railway
 
 1. Create PostgreSQL service.
