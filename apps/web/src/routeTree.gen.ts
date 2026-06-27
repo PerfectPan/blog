@@ -14,6 +14,7 @@ import { Route as RssDotxmlRouteImport } from './routes/rss[.]xml'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as LogoutRouteImport } from './routes/logout'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as HealthzRouteImport } from './routes/healthz'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BlogIndexRouteImport } from './routes/blog/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
@@ -46,6 +47,11 @@ const LogoutRoute = LogoutRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HealthzRoute = HealthzRouteImport.update({
+  id: '/healthz',
+  path: '/healthz',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -91,6 +97,7 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/healthz': typeof HealthzRoute
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
   '/projects': typeof ProjectsRoute
@@ -106,6 +113,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/healthz': typeof HealthzRoute
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
   '/projects': typeof ProjectsRoute
@@ -122,6 +130,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/healthz': typeof HealthzRoute
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
   '/projects': typeof ProjectsRoute
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/healthz'
     | '/login'
     | '/logout'
     | '/projects'
@@ -154,6 +164,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/healthz'
     | '/login'
     | '/logout'
     | '/projects'
@@ -169,6 +180,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/healthz'
     | '/login'
     | '/logout'
     | '/projects'
@@ -185,6 +197,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  HealthzRoute: typeof HealthzRoute
   LoginRoute: typeof LoginRoute
   LogoutRoute: typeof LogoutRoute
   ProjectsRoute: typeof ProjectsRoute
@@ -234,6 +247,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/healthz': {
+      id: '/healthz'
+      path: '/healthz'
+      fullPath: '/healthz'
+      preLoaderRoute: typeof HealthzRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -297,6 +317,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  HealthzRoute: HealthzRoute,
   LoginRoute: LoginRoute,
   LogoutRoute: LogoutRoute,
   ProjectsRoute: ProjectsRoute,
