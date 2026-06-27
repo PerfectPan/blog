@@ -7,6 +7,11 @@ import { redirect } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import { getRequest } from '@tanstack/react-start/server';
 import { z } from 'zod';
+import {
+  type PostRecord,
+  getMarkdownPostBaseBySlug,
+  getMarkdownPostsBase,
+} from './content-service.js';
 import { getD1 } from './db.js';
 import { getSessionUserFromRequest } from './session-core.js';
 
@@ -23,6 +28,8 @@ async function requireAdmin(): Promise<SessionUser> {
   return sessionUser;
 }
 
+export type PostSource = 'markdown' | 'd1';
+
 export type AdminPost = {
   slug: string;
   title: string;
@@ -33,6 +40,8 @@ export type AdminPost = {
   status: 'draft' | 'published';
   tags: string[];
   publishedAt: string;
+  /** Where this post lives: `markdown` = read-only base file, `d1` = managed row. */
+  source: PostSource;
 };
 
 type AdminRow = {
@@ -71,6 +80,22 @@ function rowToAdminPost(row: AdminRow): AdminPost {
     status: row.status === 'draft' ? 'draft' : 'published',
     tags,
     publishedAt: row.publishedAt,
+    source: 'd1',
+  };
+}
+
+function markdownRecordToAdminPost(record: PostRecord): AdminPost {
+  return {
+    slug: record.slug,
+    title: record.title,
+    description: record.description,
+    body: record.contentMdx,
+    visibility: record.visibility,
+    password: record.password ?? '',
+    status: record.status,
+    tags: record.tags,
+    publishedAt: record.publishedAt,
+    source: 'markdown',
   };
 }
 
@@ -82,16 +107,32 @@ export const ensureAdminServerFn = createServerFn({ method: 'GET' }).handler(
   },
 );
 
-/** List every D1 post (including drafts) for the admin table. */
+/**
+ * List every post for the admin table, merging both sources:
+ *   - D1-managed posts (including drafts) — `source: 'd1'`
+ *   - read-only markdown base posts (`content/blog/*.md`) — `source: 'markdown'`
+ * A D1 row with the same slug as a markdown file wins (and hides the markdown
+ * entry), so editing a legacy post replaces it rather than duplicating it.
+ */
 export const listAdminPostsServerFn = createServerFn({ method: 'GET' }).handler(
   async () => {
     await requireAdmin();
     const result = await getD1()
       .prepare(
-        'SELECT slug, title, description, body, visibility, password, status, tags, publishedAt FROM "post" ORDER BY "publishedAt" DESC',
+        'SELECT slug, title, description, body, visibility, password, status, tags, publishedAt FROM "post"',
       )
       .all<AdminRow>();
-    return { posts: (result.results ?? []).map(rowToAdminPost) };
+    const d1Posts = (result.results ?? []).map(rowToAdminPost);
+    const d1Slugs = new Set(d1Posts.map((post) => post.slug));
+
+    const markdownPosts = getMarkdownPostsBase()
+      .filter((record) => !d1Slugs.has(record.slug))
+      .map(markdownRecordToAdminPost);
+
+    const posts = [...d1Posts, ...markdownPosts].sort((a, b) =>
+      b.publishedAt.localeCompare(a.publishedAt),
+    );
+    return { posts };
   },
 );
 
@@ -99,13 +140,19 @@ export const getAdminPostServerFn = createServerFn({ method: 'GET' })
   .inputValidator(z.object({ slug: z.string().min(1) }))
   .handler(async ({ data }) => {
     await requireAdmin();
+    // D1 row wins; fall back to the read-only markdown base so legacy posts can
+    // be opened for editing (saving then creates a D1 override).
     const row = await getD1()
       .prepare(
         'SELECT slug, title, description, body, visibility, password, status, tags, publishedAt FROM "post" WHERE "slug" = ?',
       )
       .bind(data.slug)
       .first<AdminRow>();
-    return { post: row ? rowToAdminPost(row) : null };
+    if (row) {
+      return { post: rowToAdminPost(row) };
+    }
+    const markdown = getMarkdownPostBaseBySlug(data.slug);
+    return { post: markdown ? markdownRecordToAdminPost(markdown) : null };
   });
 
 const upsertSchema = z.object({

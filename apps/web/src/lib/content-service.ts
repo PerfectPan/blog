@@ -69,7 +69,7 @@ function toTags(value: unknown): string[] {
   return [];
 }
 
-type PostRecord = PostDetail & { readonly password?: string };
+export type PostRecord = PostDetail & { readonly password?: string };
 
 const MARKDOWN_POSTS: PostRecord[] = Object.entries(rawModules)
   .map(([filePath, raw]) => {
@@ -209,4 +209,19 @@ export async function verifyPostPassword(
     return false;
   }
   return post.password === password;
+}
+
+// --- Admin helpers ----------------------------------------------------------
+// The admin list/edit views need to see the read-only markdown base too (the
+// legacy `content/blog/*.md` posts), so an admin can browse every article and
+// open a markdown post for editing (which then creates a D1 override on save).
+
+/** Every parsed markdown post (read-only base, includes body + tags). */
+export function getMarkdownPostsBase(): PostRecord[] {
+  return MARKDOWN_POSTS;
+}
+
+/** A single markdown base post by slug (no published-only filter). */
+export function getMarkdownPostBaseBySlug(slug: string): PostRecord | null {
+  return MARKDOWN_POSTS.find((post) => post.slug === slug) ?? null;
 }
