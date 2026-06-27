@@ -25,7 +25,7 @@
     "typescript": "^5.7.3"
   },
   "lint-staged": {
-    "*.{mjs,js,jsx,mts,ts,tsx,css,json,md}": "pnpm biome check --write"
+    "*.{mjs,js,jsx,mts,ts,tsx,css,json}": "pnpm biome check --write"
   },
   "packageManager": "pnpm@8.15.5"
 }
