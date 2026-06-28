@@ -1,4 +1,5 @@
 import {
+  type PostDetail,
   type PostSummary,
   type Role,
   canAccessVisibility,
@@ -29,6 +30,13 @@ function isListedFor(post: PostSummary, role?: Role | null): boolean {
   return canAccessVisibility(post.visibility, role ?? null);
 }
 
+/** Return the post without its body, so restricted content is never shipped to
+ *  an unauthorized caller (route loaders also guard, but server fns are directly
+ *  invocable over RPC, so the data layer must enforce this too). */
+function withoutBody(post: PostDetail): PostDetail {
+  return { ...post, contentMdx: '' };
+}
+
 export const getBlogListServerFn = createServerFn({ method: 'GET' }).handler(
   async () => {
     const request = getRequest();
@@ -52,15 +60,30 @@ export const getBlogPostServerFn = createServerFn({ method: 'GET' })
     const sessionUser = await getSessionUserFromRequest(request);
     const post = await getPostBySlug(data.slug);
 
-    const cookies = parseCookies(request?.headers.get('cookie') ?? null);
-    const unlockCookie = cookies[getUnlockCookieName(data.slug)];
-    const unlocked = isUnlockCookieValid(data.slug, unlockCookie);
+    if (!post) {
+      return { sessionUser, post: null, unlocked: false };
+    }
 
-    return {
-      sessionUser,
-      post,
-      unlocked,
-    };
+    // Enforce visibility at the data layer. The route loader also redirects/
+    // 403s, but this server fn is reachable over RPC, so the body must not be
+    // returned to a caller who isn't allowed to read it.
+    if (post.visibility === 'password') {
+      const cookies = parseCookies(request?.headers.get('cookie') ?? null);
+      const unlocked =
+        sessionUser?.role === 'admin' ||
+        isUnlockCookieValid(data.slug, cookies[getUnlockCookieName(data.slug)]);
+      return {
+        sessionUser,
+        post: unlocked ? post : withoutBody(post),
+        unlocked,
+      };
+    }
+
+    if (!canAccessVisibility(post.visibility, sessionUser?.role ?? null)) {
+      return { sessionUser, post: withoutBody(post), unlocked: false };
+    }
+
+    return { sessionUser, post, unlocked: false };
   });
 
 export const verifyPostPasswordServerFn = createServerFn({ method: 'POST' })
