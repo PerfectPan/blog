@@ -2,7 +2,6 @@ import type { PostVisibility } from '@blog/shared';
 import { Link, createFileRoute } from '@tanstack/react-router';
 import {
   type AdminPost,
-  type PostSource,
   listAdminPostsServerFn,
 } from '../../lib/admin-service.js';
 
@@ -22,29 +21,8 @@ const visibilityStyles: Record<PostVisibility, string> = {
     'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
 };
 
-function SourceBadge({ source }: { source: PostSource }) {
-  return source === 'markdown' ? (
-    <span
-      title='来自 content/blog/*.md，只读；编辑保存后转为 D1 覆盖'
-      className='rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-slate-600 ring-1 ring-inset ring-slate-300 dark:text-slate-300 dark:ring-slate-600'
-    >
-      MD
-    </span>
-  ) : (
-    <span
-      title='D1 数据库中的文章'
-      className='rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
-    >
-      DB
-    </span>
-  );
-}
-
 function AdminListPage() {
   const { posts } = Route.useLoaderData();
-  const markdownCount = posts.filter(
-    (post: AdminPost) => post.source === 'markdown',
-  ).length;
   const draftCount = posts.filter(
     (post: AdminPost) => post.status === 'draft',
   ).length;
@@ -56,7 +34,6 @@ function AdminListPage() {
           <h1 className='text-2xl font-black'>文章管理</h1>
           <p className='mt-1 text-sm opacity-60'>
             共 {posts.length} 篇
-            {markdownCount > 0 ? ` · ${markdownCount} 篇来自 markdown` : ''}
             {draftCount > 0 ? ` · ${draftCount} 篇草稿` : ''}
           </p>
         </div>
@@ -97,7 +74,6 @@ function AdminListPage() {
                   </div>
                 </div>
                 <div className='flex flex-wrap items-center justify-end gap-1.5'>
-                  <SourceBadge source={post.source} />
                   <span
                     className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${visibilityStyles[post.visibility]}`}
                   >

@@ -59,7 +59,6 @@ const EMPTY: AdminPost = {
   status: 'published',
   tags: [],
   publishedAt: todayIso(),
-  source: 'd1',
 };
 
 const card =
@@ -85,8 +84,6 @@ export function PostEditor({
   );
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-
-  const editingMarkdown = mode === 'edit' && initial?.source === 'markdown';
 
   function setField<K extends keyof FormState>(field: K, value: FormState[K]) {
     dispatch({ field, value } as FormAction);
@@ -140,13 +137,6 @@ export function PostEditor({
           className='rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300'
         >
           {error}
-        </p>
-      ) : null}
-
-      {editingMarkdown ? (
-        <p className='rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200'>
-          这是一篇来自 <code>content/blog/*.md</code> 的只读文章。编辑并保存后，
-          会以同名 slug 在 D1 中创建覆盖记录，前台将显示你的修改。
         </p>
       ) : null}
 
