@@ -1,0 +1,76 @@
+name: Weekly D1 backup
+
+# Weekly off-site backup of the production `blog` D1.
+# - Runs weekly (+ manual). Exports the DB, hashes the dump, and compares to the
+#   last stored hash in R2 (`latest.sha256`); uploads only when something
+#   changed, so quiet weeks cost ~nothing.
+# - Stored in a *private* R2 bucket `blog-backups` (the dump contains the auth
+#   tables — password hashes + emails — so it must never be public).
+# - Needs `CLOUDFLARE_API_TOKEN` with D1 read + R2 read/write. Old backups are
+#   pruned by an R2 lifecycle rule on the bucket (delete after N days).
+
+on:
+  schedule:
+    - cron: '17 3 * * 1' # Mondays 03:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: d1-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install
+        run: |
+          corepack enable
+          pnpm install --frozen-lockfile
+
+      - name: Export D1 + decide whether it changed
+        id: decide
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          pnpm --filter @blog/web exec wrangler d1 export blog --remote --output dump.sql
+
+          NEW_HASH="$(sha256sum dump.sql | cut -d' ' -f1)"
+          echo "new_hash=$NEW_HASH" >> "$GITHUB_OUTPUT"
+          echo "date=$(date -u +%Y%m%d)" >> "$GITHUB_OUTPUT"
+
+          PREV_HASH=""
+          if pnpm --filter @blog/web exec wrangler r2 object get blog-backups/latest.sha256 --remote --file old.sha 2>/dev/null; then
+            PREV_HASH="$(cat old.sha)"
+          fi
+          echo "prev_hash=$PREV_HASH" >> "$GITHUB_OUTPUT"
+
+          if [ "$PREV_HASH" = "$NEW_HASH" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload new backup
+        if: steps.decide.outputs.changed == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          echo "${{ steps.decide.outputs.new_hash }}" > new.sha
+          pnpm --filter @blog/web exec wrangler r2 object put "blog-backups/dump-${{ steps.decide.outputs.date }}.sql" --file dump.sql --remote
+          pnpm --filter @blog/web exec wrangler r2 object put blog-backups/latest.sha256 --file new.sha --remote
+          echo "Uploaded dump-${{ steps.decide.outputs.date }}.sql (sha256 ${{ steps.decide.outputs.new_hash }})"
+
+      - name: Skip (unchanged)
+        if: steps.decide.outputs.changed != 'true'
+        run: echo "No changes since last backup; skipped upload."
