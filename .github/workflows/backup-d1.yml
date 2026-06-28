@@ -38,6 +38,7 @@ jobs:
 
       - name: Export D1 + decide whether it changed
         id: decide
+        working-directory: apps/web
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
@@ -62,6 +63,7 @@ jobs:
 
       - name: Upload new backup
         if: steps.decide.outputs.changed == 'true'
+        working-directory: apps/web
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
