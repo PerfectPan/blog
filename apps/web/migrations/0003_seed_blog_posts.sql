@@ -1,7 +1,6 @@
 -- One-time seed: import the legacy content/blog/*.md into the D1 post
 -- table so the blog is D1-driven (the .md files are removed afterwards).
 -- Idempotent via ON CONFLICT DO NOTHING.
-BEGIN TRANSACTION;
 INSERT INTO "post" ("slug","title","description","body","visibility","password","status","tags","publishedAt","createdAt","updatedAt") VALUES ('2016-jisuan', '2016 计蒜之道 初赛 第一场  青云的机房组网方案（困难）', '2016 计蒜之道 初赛 第一场  青云的机房组网方案（困难）', '**题目链接**：[https://nanti.jisuanke.com/t/11135](https://nanti.jisuanke.com/t/11135)
 
 **题意**：略。
@@ -7242,4 +7241,3 @@ int main(){
 	return 0;
 }
 ```', 'public', NULL, 'published', '["DP","DFS"]', '2019-04-16T00:00:00.000Z', '2026-06-28T04:00:45.348Z', '2026-06-28T04:00:45.348Z') ON CONFLICT("slug") DO NOTHING;
-COMMIT;
