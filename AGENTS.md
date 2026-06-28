@@ -2,6 +2,9 @@
 
 本文件给在本仓库工作的 agent / 工程师使用，目标是减少误操作并统一交付标准。
 
+> **架构单点真相 = `docs/architecture.md`**（含数据模型 / 两层权限 / 安全 / 备份 / agent 速查 §13）。
+> 本文件侧重流程与约束；架构细节以那份文档为准。
+
 ## 1. 项目定位
 
 - 单人博客，**全量运行在 Cloudflare 上、$0/月**。
@@ -71,3 +74,12 @@ pnpm --filter @blog/web exec wrangler deploy -c dist/server/wrangler.json --dry-
 ```
 
 冒烟：`/`、`/blog`、`/blog/:slug`、`/projects`。
+
+## 8. 提交与 PR 规范
+
+- **commit message 与 PR 标题一律用 conventional commits + 英文**：`type(scope): imperative subject`，
+  例如 `fix(web): ...`、`feat(web): ...`、`ci: ...`、`docs: ...`、`chore: ...`。**不要写中文标题**
+  （正文描述可中文）。`type` 取最主导的那类（安全修优先 `fix`）。
+- PR 标题由 `.github/workflows/pr-title.yml`（`amannn/action-semantic-pull-request`）自动校验，
+  不符合 conventional 格式会标红；如需"拦死"在 GitHub 设置里把它设为必需检查。
+- 一个 PR 尽量单一关注点；混合时标题用主导类型，其余在正文说明。
