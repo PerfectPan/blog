@@ -6,20 +6,20 @@ import {
   deletePostServerFn,
   upsertPostServerFn,
 } from '../lib/admin-service.js';
+import { MarkdownEditor } from './markdown-editor.js';
+import { TagInput } from './tag-input.js';
 
 function todayIso(): string {
-  // Avoid Date.now()-style nondeterminism concerns: a plain date string is fine.
   return new Date().toISOString();
 }
 
-// The editable form fields, kept as one object driven by a reducer instead of
-// a dozen separate useState hooks. `tags` is the raw comma-separated string;
-// it's split into an array on submit.
+// Editable form fields, kept as one object driven by a reducer. `tags` is a
+// real string[] now (the TagInput manages add/remove); no comma-splitting.
 type FormState = {
   slug: string;
   title: string;
   description: string;
-  tags: string;
+  tags: string[];
   visibility: AdminPost['visibility'];
   password: string;
   status: AdminPost['status'];
@@ -40,7 +40,7 @@ function toFormState(post: AdminPost): FormState {
     slug: post.slug,
     title: post.title,
     description: post.description,
-    tags: post.tags.join(', '),
+    tags: post.tags,
     visibility: post.visibility,
     password: post.password,
     status: post.status,
@@ -61,8 +61,13 @@ const EMPTY: AdminPost = {
   publishedAt: todayIso(),
 };
 
+const card =
+  'rounded-lg border border-[#e6e6ea] bg-black/[0.015] p-4 dark:border-slate-700 dark:bg-white/[0.02]';
+
 const inputClass =
-  'w-full rounded-md border border-[#d0d0d3] px-3 py-2 dark:border-slate-700 dark:bg-wash-dark';
+  'w-full rounded-md border border-[#d0d0d3] bg-white px-3 py-2 text-sm transition-colors focus:border-black/60 focus:outline-none dark:border-slate-600 dark:bg-wash-dark dark:focus:border-slate-400';
+
+const labelClass = 'mb-1 block text-sm font-semibold';
 
 export function PostEditor({
   initial,
@@ -80,7 +85,6 @@ export function PostEditor({
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  // Typed field setter: `setField('title', value)` stays exhaustive over keys.
   function setField<K extends keyof FormState>(field: K, value: FormState[K]) {
     dispatch({ field, value } as FormAction);
   }
@@ -99,10 +103,7 @@ export function PostEditor({
           visibility: fields.visibility,
           password: fields.password,
           status: fields.status,
-          tags: fields.tags
-            .split(',')
-            .map((tag) => tag.trim())
-            .filter(Boolean),
+          tags: fields.tags,
           publishedAt: new Date(fields.publishedAt).toISOString(),
         },
       });
@@ -129,124 +130,134 @@ export function PostEditor({
   }
 
   return (
-    <form onSubmit={onSubmit} className='grid gap-4'>
+    <form onSubmit={onSubmit} className='grid gap-5'>
       {error ? (
-        <p role='alert' className='text-sm text-red-700 dark:text-red-300'>
+        <p
+          role='alert'
+          className='rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300'
+        >
           {error}
         </p>
       ) : null}
 
-      <label className='grid gap-1'>
-        <span className='font-semibold'>Title</span>
-        <input
-          className={inputClass}
-          value={fields.title}
-          onChange={(event) => setField('title', event.target.value)}
-          required
-        />
-      </label>
-
-      <label className='grid gap-1'>
-        <span className='font-semibold'>Slug</span>
-        <input
-          className={inputClass}
-          value={fields.slug}
-          onChange={(event) => setField('slug', event.target.value)}
-          placeholder='my-post'
-          disabled={mode === 'edit'}
-          required
-        />
-      </label>
-
-      <label className='grid gap-1'>
-        <span className='font-semibold'>Description</span>
-        <input
-          className={inputClass}
-          value={fields.description}
-          onChange={(event) => setField('description', event.target.value)}
-        />
-      </label>
-
-      <div className='grid gap-4 sm:grid-cols-2'>
-        <label className='grid gap-1'>
-          <span className='font-semibold'>Tags（逗号分隔）</span>
+      <section className={`${card} grid gap-4`}>
+        <label className='grid'>
+          <span className={labelClass}>标题</span>
           <input
             className={inputClass}
-            value={fields.tags}
-            onChange={(event) => setField('tags', event.target.value)}
-          />
-        </label>
-        <label className='grid gap-1'>
-          <span className='font-semibold'>Published date</span>
-          <input
-            type='date'
-            className={inputClass}
-            value={fields.publishedAt}
-            onChange={(event) => setField('publishedAt', event.target.value)}
+            value={fields.title}
+            onChange={(event) => setField('title', event.target.value)}
+            placeholder='文章标题'
             required
           />
         </label>
-      </div>
 
-      <div className='grid gap-4 sm:grid-cols-3'>
-        <label className='grid gap-1'>
-          <span className='font-semibold'>Visibility</span>
-          <select
-            className={inputClass}
-            value={fields.visibility}
-            onChange={(event) =>
-              setField(
-                'visibility',
-                event.target.value as FormState['visibility'],
-              )
-            }
-          >
-            {POST_VISIBILITIES.map((value) => (
-              <option key={value} value={value}>
-                {value}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className='grid gap-1'>
-          <span className='font-semibold'>Status</span>
-          <select
-            className={inputClass}
-            value={fields.status}
-            onChange={(event) =>
-              setField('status', event.target.value as FormState['status'])
-            }
-          >
-            <option value='published'>published</option>
-            <option value='draft'>draft</option>
-          </select>
-        </label>
-        {fields.visibility === 'password' ? (
-          <label className='grid gap-1'>
-            <span className='font-semibold'>Password</span>
+        <div className='grid gap-4 sm:grid-cols-2'>
+          <label className='grid'>
+            <span className={labelClass}>Slug</span>
             <input
               className={inputClass}
-              value={fields.password}
-              onChange={(event) => setField('password', event.target.value)}
+              value={fields.slug}
+              onChange={(event) => setField('slug', event.target.value)}
+              placeholder='my-post'
+              disabled={mode === 'edit'}
+              required
             />
           </label>
-        ) : null}
-      </div>
+          <label className='grid'>
+            <span className={labelClass}>发布日期</span>
+            <input
+              type='date'
+              className={inputClass}
+              value={fields.publishedAt}
+              onChange={(event) => setField('publishedAt', event.target.value)}
+              required
+            />
+          </label>
+        </div>
 
-      <label className='grid gap-1'>
-        <span className='font-semibold'>Body（Markdown）</span>
-        <textarea
-          className={`${inputClass} min-h-[360px] font-mono text-sm`}
+        <label className='grid'>
+          <span className={labelClass}>摘要</span>
+          <textarea
+            className={`${inputClass} min-h-[64px] resize-y`}
+            value={fields.description}
+            onChange={(event) => setField('description', event.target.value)}
+            placeholder='一句话描述这篇文章'
+            rows={2}
+          />
+        </label>
+      </section>
+
+      <section className={`${card} grid gap-4`}>
+        <div>
+          <span className={labelClass}>标签</span>
+          <TagInput
+            value={fields.tags}
+            onChange={(tags) => setField('tags', tags)}
+            placeholder='输入后回车添加，例如：ICPC'
+          />
+        </div>
+
+        <div className='grid gap-4 sm:grid-cols-3'>
+          <label className='grid'>
+            <span className={labelClass}>可见性</span>
+            <select
+              className={inputClass}
+              value={fields.visibility}
+              onChange={(event) =>
+                setField(
+                  'visibility',
+                  event.target.value as FormState['visibility'],
+                )
+              }
+            >
+              {POST_VISIBILITIES.map((value) => (
+                <option key={value} value={value}>
+                  {value}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className='grid'>
+            <span className={labelClass}>状态</span>
+            <select
+              className={inputClass}
+              value={fields.status}
+              onChange={(event) =>
+                setField('status', event.target.value as FormState['status'])
+              }
+            >
+              <option value='published'>published</option>
+              <option value='draft'>draft</option>
+            </select>
+          </label>
+          {fields.visibility === 'password' ? (
+            <label className='grid'>
+              <span className={labelClass}>密码</span>
+              <input
+                className={inputClass}
+                value={fields.password}
+                onChange={(event) => setField('password', event.target.value)}
+                placeholder='访问密码'
+              />
+            </label>
+          ) : null}
+        </div>
+      </section>
+
+      <section className='grid gap-2'>
+        <span className={labelClass}>正文（Markdown）</span>
+        <MarkdownEditor
           value={fields.body}
-          onChange={(event) => setField('body', event.target.value)}
+          onChange={(body) => setField('body', body)}
         />
-      </label>
+      </section>
 
       <div className='flex items-center gap-3'>
         <button
           type='submit'
           disabled={saving}
-          className='rounded-md bg-black px-4 py-2 font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50 dark:bg-neutral-900'
+          className='rounded-md bg-black px-5 py-2 font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50 dark:bg-neutral-900'
         >
           {saving ? '保存中…' : '保存'}
         </button>

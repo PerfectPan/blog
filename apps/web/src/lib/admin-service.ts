@@ -82,16 +82,19 @@ export const ensureAdminServerFn = createServerFn({ method: 'GET' }).handler(
   },
 );
 
-/** List every D1 post (including drafts) for the admin table. */
+/** List every post (including drafts) for the admin table. */
 export const listAdminPostsServerFn = createServerFn({ method: 'GET' }).handler(
   async () => {
     await requireAdmin();
     const result = await getD1()
       .prepare(
-        'SELECT slug, title, description, body, visibility, password, status, tags, publishedAt FROM "post" ORDER BY "publishedAt" DESC',
+        'SELECT slug, title, description, body, visibility, password, status, tags, publishedAt FROM "post"',
       )
       .all<AdminRow>();
-    return { posts: (result.results ?? []).map(rowToAdminPost) };
+    const posts = (result.results ?? [])
+      .map(rowToAdminPost)
+      .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+    return { posts };
   },
 );
 
