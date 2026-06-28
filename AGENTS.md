@@ -9,18 +9,19 @@
 
 - 单人博客，**全量运行在 Cloudflare 上、$0/月**。
 - `apps/web`（TanStack Start）部署为 **Cloudflare Worker**；`packages/shared` 放共享类型。
-- 文章是 `content/blog` 下的 **git markdown**，构建期内联（无 CMS、无内容数据库）。
+- 文章存在 **D1 `post` 表**（由 `/admin` 管理；历史 markdown 已一次性迁入 D1，`content/blog` 源文件已删）。无 CMS、无外部内容数据库。
 - 登录与角色用 **Better Auth + Cloudflare D1**。
-- 旧架构已移除：Waku、Payload CMS、Postgres、Vercel adapter 都不再维护。
+- 旧架构已移除：Waku、Payload CMS、Postgres、Vercel adapter、构建期内联 markdown / `gray-matter` 都不再维护。
 
 ## 2. 必须遵守的约束
 
 1. 路由兼容性不可破坏：`/blog`、`/blog/:slug`。
-2. 权限裁决必须在服务端做（route loader 里），前端只做展示。
+2. 权限裁决必须在**两层**服务端做：route loader（UX/状态码）+ 数据层 server fn。
+   server fn 可被直接 RPC 调用，**鉴权必须在 handler 内部**，不能只靠 loader（见 `docs/architecture.md` §6）。前端只做展示。
 3. `BETTER_AUTH_SECRET` 绝不能进客户端包，只走 `wrangler secret` / `.dev.vars`。
 4. worker 体积必须守住 Workers 免费版 **3 MiB gzip** 上限——这是 $0 的命根子。
    每次改动后用 `wrangler deploy -c dist/server/wrangler.json --dry-run` 看 gzip 数。
-5. 文章可见性分级靠 frontmatter 的 `visibility` 字段，默认 `public`。
+5. 文章可见性分级靠 `post.visibility` 字段（`public | member | vip | admin | password`），默认 `public`。
 
 ## 3. 常用命令
 
