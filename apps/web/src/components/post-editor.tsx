@@ -62,10 +62,10 @@ const EMPTY: AdminPost = {
 };
 
 const card =
-  'rounded-lg border border-[#e6e6ea] bg-black/[0.015] p-4 dark:border-slate-700 dark:bg-white/[0.02]';
+  'rounded-lg border border-slate-200 bg-black/[0.015] p-4 dark:border-slate-700 dark:bg-white/[0.02]';
 
 const inputClass =
-  'w-full rounded-md border border-[#d0d0d3] bg-white px-3 py-2 text-sm transition-colors focus:border-black/60 focus:outline-none dark:border-slate-600 dark:bg-wash-dark dark:focus:border-slate-400';
+  'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm transition-colors focus:border-black/60 focus:outline-none dark:border-slate-600 dark:bg-wash-dark dark:focus:border-slate-400';
 
 const labelClass = 'mb-1 block text-sm font-semibold';
 

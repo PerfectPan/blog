@@ -21,7 +21,7 @@ export function Header() {
   const sessionUser = sessionData?.user ?? null;
 
   return (
-    <header className='fixed left-0 top-0 right-0 z-10 border-b border-[#F0F0F2] bg-[rgba(255,255,255,0.9)] shadow-md backdrop-blur dark:border-slate-300/10 dark:bg-[rgba(15,23,42,0.9)]'>
+    <header className='fixed left-0 top-0 right-0 z-10 border-b border-slate-200 bg-white/90 shadow-md backdrop-blur dark:border-slate-300/10 dark:bg-slate-900/90'>
       <div className='mx-4 flex h-16 items-center sm:mx-6'>
         <Link
           to='/'
@@ -39,7 +39,7 @@ export function Header() {
         </div>
         <div className='ml-auto flex items-center gap-2 sm:gap-3'>
           {sessionUser ? (
-            <div className='hidden items-center gap-2 rounded-full border border-[#d0d0d3] px-3 py-1 text-xs text-gray-700 md:flex dark:border-slate-600 dark:text-slate-200'>
+            <div className='hidden items-center gap-2 rounded-full border border-slate-300 px-3 py-1 text-xs text-gray-700 md:flex dark:border-slate-600 dark:text-slate-200'>
               <UserRound size={14} className='opacity-70' />
               <span className='max-w-[220px] truncate'>
                 {sessionUser.email}
@@ -52,7 +52,7 @@ export function Header() {
           {sessionUser ? (
             <Link
               to='/logout'
-              className='inline-flex items-center gap-1 rounded-md border border-[#d0d0d3] px-2 py-1 text-sm opacity-85 transition-opacity hover:opacity-100 dark:border-slate-600'
+              className='inline-flex items-center gap-1 rounded-md border border-slate-300 px-2 py-1 text-sm opacity-85 transition-opacity hover:opacity-100 dark:border-slate-600'
             >
               <LogOut size={14} />
               <span className='hidden sm:inline'>Logout</span>

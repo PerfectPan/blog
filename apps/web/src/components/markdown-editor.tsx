@@ -116,8 +116,8 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
   }
 
   return (
-    <div className='overflow-hidden rounded-md border border-[#d0d0d3] dark:border-slate-700'>
-      <div className='flex flex-wrap items-center gap-1 border-b border-[#e6e6ea] bg-black/[0.02] px-2 py-1.5 dark:border-slate-700 dark:bg-white/[0.03]'>
+    <div className='overflow-hidden rounded-md border border-slate-300 dark:border-slate-700'>
+      <div className='flex flex-wrap items-center gap-1 border-b border-slate-200 bg-black/[0.02] px-2 py-1.5 dark:border-slate-700 dark:bg-white/[0.03]'>
         <ToolButton label='加粗' onClick={() => wrap('**', '**')}>
           <Bold size={16} />
         </ToolButton>
@@ -191,7 +191,7 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
             spellCheck={false}
             className={`h-full resize-none bg-white px-3 py-3 font-mono text-sm leading-6 outline-none dark:bg-wash-dark dark:text-slate-100 ${
               mode === 'split'
-                ? 'border-b lg:border-b-0 lg:border-r border-[#e6e6ea] dark:border-slate-700'
+                ? 'border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-slate-700'
                 : ''
             }`}
             placeholder='在这里写下 Markdown 正文…'
@@ -238,7 +238,7 @@ function ToolButton({
 }
 
 function Divider() {
-  return <span className='mx-1 h-5 w-px bg-[#e6e6ea] dark:bg-slate-600' />;
+  return <span className='mx-1 h-5 w-px bg-slate-200 dark:bg-slate-600' />;
 }
 
 function ModeButton({

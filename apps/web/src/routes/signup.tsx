@@ -84,7 +84,7 @@ function SignUpPage() {
           type='text'
           required
           autoComplete='name'
-          className='rounded-md border border-[#d0d0d3] px-3 py-2 dark:border-slate-700 dark:bg-wash-dark'
+          className='rounded-md border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-wash-dark'
           value={name}
           onChange={(event) => setName(event.target.value)}
         />
@@ -97,7 +97,7 @@ function SignUpPage() {
           type='email'
           required
           autoComplete='email'
-          className='rounded-md border border-[#d0d0d3] px-3 py-2 dark:border-slate-700 dark:bg-wash-dark'
+          className='rounded-md border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-wash-dark'
           value={email}
           onChange={(event) => setEmail(event.target.value)}
         />
@@ -110,7 +110,7 @@ function SignUpPage() {
           type='password'
           required
           autoComplete='new-password'
-          className='rounded-md border border-[#d0d0d3] px-3 py-2 dark:border-slate-700 dark:bg-wash-dark'
+          className='rounded-md border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-wash-dark'
           value={password}
           onChange={(event) => setPassword(event.target.value)}
         />
