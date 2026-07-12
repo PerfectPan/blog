@@ -24,3 +24,9 @@ test-results
 
 # OS
 .DS_Store
+
+# Stale local artifacts: abandoned CMS, removed Vercel integration, agent worktrees
+.vercel
+apps/**/.vercel
+apps/cms/
+.claude/worktrees/
