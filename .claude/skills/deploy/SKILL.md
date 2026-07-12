@@ -87,13 +87,13 @@ Cloudflare recreates the records + cert (the zone's Universal SSL already covers
 is handled **inside the worker** (`apps/web/src/server.tsx`), not via a Cloudflare
 Redirect Rule (the token lacks `rulesets:write` too).
 
-## 8. Manual deploy vs CI deploy — do not let them diverge
+## 8. Manual deploy vs Workers Builds — do not let them diverge
 
 - `wrangler deploy` (this skill) deploys your **local** code.
-- CI (`deploy.yml`) deploys **`master`**.
+- Workers Builds (Cloudflare's Git integration) deploys **`master`** on every push.
 
 These can silently diverge. If you deploy manually with code that is not yet on
-`master`, **the next push to `master` reverts production** — CI redeploys
+`master`, **the next push to `master` reverts production** — Workers Builds redeploys
 `master`'s (older) code over your manual deploy. This exact regression happened
 2026-06-27: a manual `perfectpan.org` deploy was overwritten by a CI deploy of a
 `master` that still lacked the domain config (`APPS_WEB_URL` reverted to

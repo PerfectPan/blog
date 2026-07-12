@@ -67,8 +67,10 @@ Code blocks get shiki highlighting; `$math$` via KaTeX. **Do not** add new
 
 ## Deploy
 
-Push to `master` → GitHub Actions applies D1 migrations, builds, and runs
-`wrangler deploy`. To deploy by hand, use the `/deploy` skill or:
+Push to `master` → **Cloudflare Workers Builds** (CF Git integration) builds and
+deploys the Worker (`wrangler deploy`), and posts a per-PR preview URL. D1
+migrations are applied by a separate GitHub Action (`migrate.yml`) on the same
+push. To deploy by hand, use the `/deploy` skill or:
 
 ```bash
 pnpm --filter @blog/web exec wrangler secret put BETTER_AUTH_SECRET   # once
