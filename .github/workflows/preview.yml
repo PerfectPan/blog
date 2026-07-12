@@ -1,20 +1,25 @@
 name: Preview Deploy
 
-# Deploy a per-PR preview version of the Worker and post its URL on the PR.
+# Deploy a standalone, fully-running preview Worker per PR and post its URL.
 #
-# Workers Builds handles production deploys on `master`, but it cannot form a
-# *.workers.dev preview alias for dependabot's `dependabot/...` branch names
-# (slashes are invalid in a DNS label), so it never posts a preview link on
-# those PRs. This workflow fills that gap with a PR-number alias that works for
-# every branch, and comments the clickable URL on the PR.
+# Why a standalone Worker (not `wrangler versions upload --preview-alias`):
+# versions uploaded via a GitHub Actions API token are *not* exposed as a
+# serving preview URL (only Cloudflare's Workers Builds integration can do
+# that). A real `wrangler deploy` of a separate Worker always serves, for any
+# branch name — including dependabot's `dependabot/...` (slashes/underscores
+# that Workers Builds can't alias into a DNS label). This gives every PR a
+# clickable, Vercel-style preview URL.
 #
 # Recommended: disable Workers Builds' "non-production branch builds"
 # (dashboard → blog-web → Settings → Builds) so this is the sole preview
 # mechanism; Workers Builds then only deploys `master` (production).
+#
+# The preview Worker shares the production D1 (`blog`) — reads are safe; admin
+# writes on a preview hit prod, but previews are for viewing, not editing.
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, closed]
 
 permissions:
   contents: read
@@ -26,7 +31,7 @@ concurrency:
 
 jobs:
   preview:
-    if: github.event.pull_request.head.ref != 'master'
+    if: github.event.action != 'closed' && github.event.pull_request.head.ref != 'master'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -44,11 +49,39 @@ jobs:
 
       - run: pnpm --filter @blog/web build
 
-      # Upload a preview version (NOT promoted to production) with a stable,
-      # PR-numbered alias → https://pr-<N>-blog-web.perfectpan325.workers.dev.
-      # The version inherits blog-web's secrets/bindings, so it renders fully.
-      - name: Upload preview version
-        run: pnpm --filter @blog/web exec wrangler versions upload -c dist/server/wrangler.json --preview-alias pr-${{ github.event.pull_request.number }}
+      # Derive a standalone preview config from the BUILT wrangler.json: unique
+      # name per PR, workers.dev on, no routes (perfectpan.org is owned by the
+      # prod Worker), APPS_WEB_URL pointed at the preview origin so better-auth
+      # trusts it (otherwise the SSR session fetch 500s every route).
+      - name: Generate preview config
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          node <<'EOF'
+          const fs = require('fs');
+          const cfg = JSON.parse(fs.readFileSync('apps/web/dist/server/wrangler.json', 'utf8'));
+          const name = `blog-web-pr-${process.env.PR_NUMBER}`;
+          const url = `https://${name}.perfectpan325.workers.dev`;
+          cfg.name = name;
+          cfg.topLevelName = name;
+          cfg.workers_dev = true;
+          delete cfg.routes;
+          cfg.vars = { ...(cfg.vars || {}), APPS_WEB_URL: url };
+          fs.writeFileSync('apps/web/dist/server/wrangler.preview.json', JSON.stringify(cfg, null, 2));
+          console.log(`preview URL: ${url}`);
+          EOF
+
+      - name: Deploy preview Worker
+        run: pnpm --filter @blog/web exec wrangler deploy -c dist/server/wrangler.preview.json
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+      # BETTER_AUTH_SECRET is required at init (getWebEnv throws without it →
+      # 500 on every route). A throwaway random value is fine: password verify
+      # is bcrypt/secret-independent; the secret only signs preview sessions.
+      - name: Set BETTER_AUTH_SECRET on preview Worker
+        run: |
+          printf '%s' "$(openssl rand -hex 32)" | pnpm --filter @blog/web exec wrangler secret put BETTER_AUTH_SECRET -c dist/server/wrangler.preview.json
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
@@ -57,13 +90,13 @@ jobs:
         with:
           script: |
             const num = context.payload.pull_request.number;
-            const url = `https://pr-${num}-blog-web.perfectpan325.workers.dev`;
+            const url = `https://blog-web-pr-${num}.perfectpan325.workers.dev`;
             const marker = '<!-- preview-deploy -->';
-            const body = `${marker}### 🌐 Preview deploy\n\n${url}\n\n_(public; auto-updated on every push)_`;
+            const body = `${marker}### 🌐 Preview deploy\n\n${url}\n\n_(public; rebuilt on every push)_`;
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner, repo: context.repo.repo, issue_number: num,
             });
-            const existing = comments.find((c) => c.body.includes(marker));
+            const existing = comments.find((c) => c.body && c.body.includes(marker));
             if (existing) {
               await github.rest.issues.updateComment({
                 owner: context.repo.owner, repo: context.repo.repo, comment_id: existing.id, body,
@@ -73,3 +106,25 @@ jobs:
                 owner: context.repo.owner, repo: context.repo.repo, issue_number: num, body,
               });
             }
+
+  cleanup:
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Delete preview Worker
+        run: echo y | pnpm --filter @blog/web exec wrangler delete --name blog-web-pr-${{ github.event.pull_request.number }} --force
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
