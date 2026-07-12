@@ -160,8 +160,9 @@ pnpm --filter @blog/web dev                            # vite dev
   配置（dashboard → blog-web → Settings → Builds）：root dir `apps/web`、build
   `pnpm install --frozen-lockfile && pnpm build`、deploy `npx wrangler deploy -c dist/server/wrangler.json`、
   non-prod deploy `npx wrangler versions upload -c dist/server/wrangler.json`。
-- **D1 迁移**：`.github/workflows/migrate.yml`（push `master` 触发）→ `wrangler d1 migrations
-  apply blog --remote`，用仓库 secret（有 D1 权限）。与 Workers Builds 并行触发，迁移幂等。
+- **D1 迁移**：`.github/workflows/migrate.yml`（push `master` **且 `apps/web/migrations/**` 有变化时**
+  触发；另支持手动 `workflow_dispatch`）→ `wrangler d1 migrations apply blog --remote`，用仓库
+  secret（有 D1 权限）。与 Workers Builds 并行触发，迁移幂等（无新文件即 no-op）。
 - **PR 门**：`.github/workflows/pull-request.yml` → typecheck + biome + test + build + 体积守门。
 - **手动**：`/deploy` skill 或 `pnpm --filter @blog/web exec wrangler deploy -c dist/server/wrangler.json`。
   **别让手动部署和 Workers Builds 分叉**——手动发本地代码、Workers Builds 发 `master`，不一致时

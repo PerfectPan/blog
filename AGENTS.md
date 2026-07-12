@@ -65,7 +65,8 @@ pnpm deploy
    `wrangler deploy` 用它。
 3. **主部署通道是 Cloudflare Workers Builds**（CF Git 集成）：push `master` 自动 build + 部署，
    PR 分支自动出 preview URL。**D1 迁移**由 `.github/workflows/migrate.yml`（push `master` 触发）
-   单独跑（Workers Builds 的 token 无 D1 权限）。手动 `/deploy` 后务必 push，否则和 Workers Builds 分叉。
+   单独跑（仅 `migrations/` 有变化时触发，另可手动 `workflow_dispatch`；Workers Builds 的 token 无 D1 权限）。
+   手动 `/deploy` 后务必 push，否则和 Workers Builds 分叉。
 
 ## 7. 提交前最低验证
 

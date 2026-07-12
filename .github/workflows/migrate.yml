@@ -3,6 +3,8 @@ name: D1 Migrations
 on:
   push:
     branches: [ master ]
+    paths:
+      - 'apps/web/migrations/**'
   workflow_dispatch:
 
 # Serialize migration runs — they are idempotent, but don't race two of them.
