@@ -97,8 +97,8 @@ importers:
         specifier: ^4.20260621.1
         version: 4.20260621.1
       '@types/node':
-        specifier: ^22.13.8
-        version: 22.13.10
+        specifier: ^26.1.1
+        version: 26.1.1
       '@types/react':
         specifier: ^19.2.17
         version: 19.2.17
@@ -113,7 +113,7 @@ importers:
         version: 5.8.2
       vite:
         specifier: ^7.3.5
-        version: 7.3.5(@types/node@22.13.10)
+        version: 7.3.5(@types/node@26.1.1)
       vite-tsconfig-paths:
         specifier: ^5.1.4
         version: 5.1.4(typescript@5.8.2)(vite@7.3.5)
@@ -720,7 +720,7 @@ packages:
       '@cloudflare/unenv-preset': 2.16.1(unenv@2.0.0-rc.24)(workerd@1.20260708.1)
       miniflare: 4.20260708.1
       unenv: 2.0.0-rc.24
-      vite: 7.3.5(@types/node@22.13.10)
+      vite: 7.3.5(@types/node@26.1.1)
       wrangler: 4.110.0(@cloudflare/workers-types@4.20260621.1)
       ws: 8.21.0
     transitivePeerDependencies:
@@ -2005,7 +2005,7 @@ packages:
       pathe: 2.0.3
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
-      vite: 7.3.5(@types/node@22.13.10)
+      vite: 7.3.5(@types/node@26.1.1)
     transitivePeerDependencies:
       - '@farmfe/core'
       - '@rspack/core'
@@ -2089,7 +2089,7 @@ packages:
       '@tanstack/router-utils': 1.162.2
       chokidar: 5.0.0
       unplugin: 3.3.0(vite@7.3.5)
-      vite: 7.3.5(@types/node@22.13.10)
+      vite: 7.3.5(@types/node@26.1.1)
       zod: 4.4.3
     transitivePeerDependencies:
       - '@farmfe/core'
@@ -2162,7 +2162,7 @@ packages:
       srvx: 0.11.22
       tinyglobby: 0.2.17
       ufo: 1.6.4
-      vite: 7.3.5(@types/node@22.13.10)
+      vite: 7.3.5(@types/node@26.1.1)
       vitefu: 1.1.3(vite@7.3.5)
       xmlbuilder2: 4.0.3
       zod: 4.4.3
@@ -2289,10 +2289,10 @@ packages:
     resolution: {integrity: sha512-nG96G3Wp6acyAgJqGasjODb+acrI7KltPiRxzHPXnP3NgI28bpQDRv53olbqGXbfcgF5aiiHmO3xpwEpS5Ld9g==}
     dev: false
 
-  /@types/node@22.13.10:
-    resolution: {integrity: sha512-I6LPUvlRH+O6VRUqYOcMudhaIdUVWfsjnZavnsraHvpBwaEyMN29ry+0UVJhImYL16xsscu0aske3yA+uPOWfw==}
+  /@types/node@26.1.1:
+    resolution: {integrity: sha512-nxAkRSVkN1Y0JC1W8ky/fTfkGsMmcrRsbx+3XoZE+rMOX71kLYTV7fLXpqud1GpbpP5TuffXFqfX7fH2GgZREw==}
     dependencies:
-      undici-types: 6.20.0
+      undici-types: 8.3.0
 
   /@types/react-dom@19.2.3(@types/react@19.2.17):
     resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
@@ -2331,7 +2331,7 @@ packages:
       '@rolldown/pluginutils': 1.0.0-rc.3
       '@types/babel__core': 7.20.5
       react-refresh: 0.18.0
-      vite: 7.3.5(@types/node@22.13.10)
+      vite: 7.3.5(@types/node@26.1.1)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -4211,6 +4211,12 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
+  /nanoid@3.3.16:
+    resolution: {integrity: sha512-bzlKTyNJ7+LdGIIwy8ijFpIqEQIvafahV7eYykJ8Cvh42EdJeODoJ6gUJXpQJvej1BddH8OqTXZNE/KfbWAu8Q==}
+    engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
+    hasBin: true
+    dev: true
+
   /nanostores@1.4.0:
     resolution: {integrity: sha512-i0tloweeudshAEuddpDxcg9Ik6pkPfVsHIgKyf143JrgG7/MOh0+q7BypdLXZPoOP7fOYt1eTcwGkyiVmhJFkA==}
     engines: {node: ^20.0.0 || >=22.0.0}
@@ -4450,7 +4456,7 @@ packages:
     resolution: {integrity: sha512-J7EF+8X+CzRPaJPOv9Ck2wNWJvGnnl3PcNPAdGg6GTLjyVpyQ0yATMSXRFRV01BviT/9Gwuc3rjEyJbDJG9a4w==}
     engines: {node: ^10 || ^12 || >=14}
     dependencies:
-      nanoid: 3.3.15
+      nanoid: 3.3.16
       picocolors: 1.1.1
       source-map-js: 1.2.1
     dev: true
@@ -5054,8 +5060,8 @@ packages:
     resolution: {integrity: sha512-JFNbkD1Svwe0KvGi8GOeLcP4kAWQ609twvCdcHxq1oSL8svv39ZuSvajcD8B+5D0eL4+s1Is2D/O6KN3qcTeRA==}
     dev: false
 
-  /undici-types@6.20.0:
-    resolution: {integrity: sha512-Ny6QZ2Nju20vw1SRHe3d9jVu6gJ+4e3+MMpqu7pqE5HT6WsTSlce++GQmK5UXS8mzV8DSYHrQH+Xrf2jVcuKNg==}
+  /undici-types@8.3.0:
+    resolution: {integrity: sha512-j375ScV60dom+YkPFIfTLcOiPxkN/buHz5GobjLhixFuANaNs3C9l4GmrWqejgXWJ7BbJcFYpTEUkS1Ge8bpZQ==}
 
   /undici@7.28.0:
     resolution: {integrity: sha512-cRZYrTDwWznlnRiPjggAGxZXanty6M8RV1ff8Wm4LWXBp7/IG8v5DnOm74DtUBp9OONpK75YlPnIjQqX0dBDtA==}
@@ -5174,7 +5180,7 @@ packages:
     dependencies:
       '@jridgewell/remapping': 2.3.5
       picomatch: 4.0.5
-      vite: 7.3.5(@types/node@22.13.10)
+      vite: 7.3.5(@types/node@26.1.1)
       webpack-virtual-modules: 0.6.2
     dev: false
 
@@ -5257,7 +5263,7 @@ packages:
       debug: 4.3.4
       globrex: 0.1.2
       tsconfck: 3.1.6(typescript@5.8.2)
-      vite: 7.3.5(@types/node@22.13.10)
+      vite: 7.3.5(@types/node@26.1.1)
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -5312,7 +5318,7 @@ packages:
     optionalDependencies:
       fsevents: 2.3.3
 
-  /vite@7.3.5(@types/node@22.13.10):
+  /vite@7.3.5(@types/node@26.1.1):
     resolution: {integrity: sha512-KuOaNhcnGFN2zIPGA7wRmzF+lJA1sea7rHq17aiJ++9lzY1WWG6Jpwqwe1KNbRVPIqHmr8GLYx7jbrQcN/7/ww==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
@@ -5352,7 +5358,7 @@ packages:
       yaml:
         optional: true
     dependencies:
-      '@types/node': 22.13.10
+      '@types/node': 26.1.1
       esbuild: 0.27.7
       fdir: 6.5.0(picomatch@4.0.4)
       picomatch: 4.0.4
@@ -5370,7 +5376,7 @@ packages:
       vite:
         optional: true
     dependencies:
-      vite: 7.3.5(@types/node@22.13.10)
+      vite: 7.3.5(@types/node@26.1.1)
     dev: false
 
   /vitest@3.2.7:
