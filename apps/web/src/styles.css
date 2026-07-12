@@ -42,5 +42,6 @@
 /* https://shiki.style/guide/dual-themes */
 html.dark .shiki,
 html.dark .shiki span {
+  /* biome-ignore lint/complexity/noImportantStyles: shiki dual-theme must override the inline light-mode color variables. */
   color: var(--shiki-dark) !important;
 }

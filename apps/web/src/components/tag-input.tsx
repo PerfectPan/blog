@@ -46,6 +46,7 @@ export function TagInput({ value, onChange, placeholder }: TagInputProps) {
   }
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: click-to-focus convenience; the enclosed <input> is the keyboard-accessible control.
     <div
       onMouseDown={(event) => {
         // Focus the input when pressing anywhere on the field (not on a chip).

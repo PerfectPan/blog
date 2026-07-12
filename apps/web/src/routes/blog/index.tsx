@@ -1,5 +1,5 @@
 import type { PostSummary, SessionUser } from '@blog/shared';
-import { Link, createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import { getBlogListServerFn } from '../../lib/blog-service.js';
 
 type BlogGroup = {

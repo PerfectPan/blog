@@ -116,7 +116,7 @@ export async function getAllPublishedPosts(): Promise<PostSummary[]> {
 /** A single published post by slug, or null. */
 export async function getPostBySlug(slug: string): Promise<PostDetail | null> {
   const post = (await getPosts()).find((item) => item.slug === slug);
-  if (!post || post.status !== 'published') {
+  if (post?.status !== 'published') {
     return null;
   }
   return toDetail(post);
@@ -128,7 +128,7 @@ export async function verifyPostPassword(
   password: string,
 ): Promise<boolean> {
   const post = (await getPosts()).find((item) => item.slug === slug);
-  if (!post || post.visibility !== 'password' || !post.password) {
+  if (post?.visibility !== 'password' || !post?.password) {
     return false;
   }
   return post.password === password;

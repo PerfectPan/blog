@@ -1,4 +1,4 @@
-import { Link, createFileRoute, notFound } from '@tanstack/react-router';
+import { createFileRoute, Link, notFound } from '@tanstack/react-router';
 import { PostEditor } from '../../components/post-editor.js';
 import { getAdminPostServerFn } from '../../lib/admin-service.js';
 

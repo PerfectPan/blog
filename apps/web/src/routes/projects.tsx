@@ -1,4 +1,4 @@
-import { Link, createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import { ExternalLink, Github } from 'lucide-react';
 import { PROJECTS, type Project } from '../lib/projects.js';
 

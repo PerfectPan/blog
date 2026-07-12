@@ -1,5 +1,5 @@
 import type { PostVisibility } from '@blog/shared';
-import { Link, createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import {
   type AdminPost,
   listAdminPostsServerFn,

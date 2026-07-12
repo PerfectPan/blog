@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
-  PASSWORD_UNLOCK_COOKIE_PREFIX,
   canAccessVisibility,
   getUnlockCookieName,
   isRoleAtLeast,
+  PASSWORD_UNLOCK_COOKIE_PREFIX,
 } from './access.js';
 import type { PostVisibility, Role } from './types.js';
 
