@@ -46,18 +46,12 @@ export const PROJECTS: Project[] = [
     demo: 'https://ocvm.vercel.app',
   },
   {
-    name: 'rss-summary',
+    name: 'agent-presence',
     description:
-      '每日 GitHub Home Feed + RSS 摘要工具 —— 聚合、enrich、按 usefulness 排序后输出 Markdown 简报。',
-    tags: ['TypeScript', 'Playwright', 'RSS'],
-    repo: 'https://github.com/PerfectPan/rss-summary',
-  },
-  {
-    name: 'registry-backend',
-    description:
-      '兼容 shadcn CLI 的 registry 后端 —— 跑在 Cloudflare Workers + Supabase 上，带语义搜索与同步。',
-    tags: ['Cloudflare Workers', 'Supabase', 'shadcn'],
-    repo: 'https://github.com/PerfectPan/registry-backend',
+      '把本地编码 agent（Codex / Claude Code / Gemini CLI 等）的在线状态与 token 用量同步到飞书签名链接预览。',
+    tags: ['TypeScript', 'CLI', 'Feishu'],
+    repo: 'https://github.com/PerfectPan/agent-presence',
+    demo: 'https://agent-presence.vercel.app',
   },
   {
     name: 'base64',
