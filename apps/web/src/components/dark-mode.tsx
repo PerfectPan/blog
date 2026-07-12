@@ -10,7 +10,7 @@ type ViewTransitionDocument = Document & {
 
 export function DarkMode() {
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (isDarkMode) {
@@ -68,17 +68,14 @@ export function DarkMode() {
   };
 
   return (
-    <div
+    <button
+      type='button'
       ref={ref}
-      className='cursor-pointer'
+      aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+      className='inline-flex cursor-pointer items-center opacity-70 transition-opacity hover:opacity-100'
       onClick={onTrigger}
-      onKeyDown={onTrigger}
     >
-      {isDarkMode ? (
-        <Moon size={24} className='opacity-70 hover:opacity-100' />
-      ) : (
-        <Sun size={24} className='opacity-70 hover:opacity-100' />
-      )}
-    </div>
+      {isDarkMode ? <Moon size={24} /> : <Sun size={24} />}
+    </button>
   );
 }

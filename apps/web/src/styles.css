@@ -7,6 +7,14 @@
   html {
     font-family: "Merriweather", "Georgia", serif;
   }
+
+  /* Visible focus only for keyboard / AT navigation — mouse clicks stay clean.
+     currentColor adapts to each element's text color in both light and dark. */
+  :focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
 }
 
 ::view-transition-old(root),
@@ -34,5 +42,6 @@
 /* https://shiki.style/guide/dual-themes */
 html.dark .shiki,
 html.dark .shiki span {
+  /* biome-ignore lint/complexity/noImportantStyles: shiki dual-theme must override the inline light-mode color variables. */
   color: var(--shiki-dark) !important;
 }

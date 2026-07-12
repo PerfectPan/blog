@@ -46,6 +46,7 @@ export function TagInput({ value, onChange, placeholder }: TagInputProps) {
   }
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: click-to-focus convenience; the enclosed <input> is the keyboard-accessible control.
     <div
       onMouseDown={(event) => {
         // Focus the input when pressing anywhere on the field (not on a chip).
@@ -54,7 +55,7 @@ export function TagInput({ value, onChange, placeholder }: TagInputProps) {
           inputRef.current?.focus();
         }
       }}
-      className='flex cursor-text flex-wrap items-center gap-1.5 rounded-md border border-[#d0d0d3] px-2 py-1.5 transition-colors focus-within:border-black/60 dark:border-slate-700 dark:bg-wash-dark dark:focus-within:border-slate-400'
+      className='flex cursor-text flex-wrap items-center gap-1.5 rounded-md border border-slate-300 px-2 py-1.5 transition-colors focus-within:border-black/60 dark:border-slate-700 dark:bg-wash-dark dark:focus-within:border-slate-400'
     >
       {value.map((tag) => (
         <span

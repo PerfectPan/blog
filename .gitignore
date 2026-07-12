@@ -1,23 +1,26 @@
+# Dependencies
 node_modules
-dist
-.vercel
-pages.gen.ts
-.output
-.vinxi
-.next
-.playwright-cli
-playwright-report
-test-results
-.env
-*.tsbuildinfo
-apps/**/.env
 apps/**/node_modules
-apps/**/.output
-apps/**/.next
-apps/**/.payload
+
+# Build output
+dist
+*.tsbuildinfo
+
 # Cloudflare / wrangler
 .wrangler
 apps/**/.wrangler
+apps/web/worker-configuration.d.ts
+
+# Local env / secrets
+.env
+apps/**/.env
 .dev.vars
 apps/**/.dev.vars
-apps/web/worker-configuration.d.ts
+
+# Test artifacts
+.playwright-cli
+playwright-report
+test-results
+
+# OS
+.DS_Store

@@ -1,4 +1,4 @@
-import { Link, createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/')({
   head: () => ({
@@ -14,23 +14,12 @@ function HomePage() {
       <div className='mt-8 text-[2.5rem] font-black'>
         是个什么都不会的废物.jpg
       </div>
-      <div className='flex w-full justify-around dark:text-black'>
-        <div className='mx-1 mt-8 flex-1 cursor-pointer rounded-md border-0 bg-gray-50 text-center font-semibold uppercase tracking-wider leading-[5rem] shadow-lg dark:bg-wash-dark dark:text-white dark:opacity-70'>
+      <div className='flex w-full justify-around'>
+        <div className='mx-1 mt-8 flex-1 rounded-md bg-slate-100 text-center font-semibold uppercase tracking-wider leading-[5rem] shadow-md transition-shadow hover:shadow-lg dark:bg-wash-dark dark:text-white dark:opacity-80'>
           <Link to='/blog'>Blog</Link>
         </div>
-        <div className='mx-1 mt-8 flex-1 cursor-pointer rounded-md border-0 bg-gray-50 text-center font-semibold uppercase tracking-wider leading-[5rem] shadow-lg dark:bg-wash-dark dark:text-white dark:opacity-70'>
-          <a
-            style={{
-              boxShadow: 'none',
-              textDecoration: 'none',
-              color: 'inherit',
-            }}
-            target='_blank'
-            rel='noreferrer'
-            href='https://github.com/PerfectPan'
-          >
-            Project
-          </a>
+        <div className='mx-1 mt-8 flex-1 rounded-md bg-slate-100 text-center font-semibold uppercase tracking-wider leading-[5rem] shadow-md transition-shadow hover:shadow-lg dark:bg-wash-dark dark:text-white dark:opacity-80'>
+          <Link to='/projects'>Projects</Link>
         </div>
       </div>
     </div>

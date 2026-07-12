@@ -82,7 +82,7 @@ function LoginPage() {
           type='email'
           required
           autoComplete='email'
-          className='rounded-md border border-[#d0d0d3] px-3 py-2 dark:border-slate-700 dark:bg-wash-dark'
+          className='rounded-md border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-wash-dark'
           value={email}
           onChange={(event) => setEmail(event.target.value)}
         />
@@ -95,7 +95,7 @@ function LoginPage() {
           type='password'
           required
           autoComplete='current-password'
-          className='rounded-md border border-[#d0d0d3] px-3 py-2 dark:border-slate-700 dark:bg-wash-dark'
+          className='rounded-md border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-wash-dark'
           value={password}
           onChange={(event) => setPassword(event.target.value)}
         />
@@ -110,7 +110,7 @@ function LoginPage() {
 
       <button
         type='button'
-        className='mt-3 rounded-md border border-[#d0d0d3] px-4 py-2 font-semibold transition-colors hover:bg-gray-100 dark:border-slate-700 dark:hover:bg-slate-800'
+        className='mt-3 rounded-md border border-slate-300 px-4 py-2 font-semibold transition-colors hover:bg-gray-100 dark:border-slate-700 dark:hover:bg-slate-800'
         onClick={async () => {
           setError(null);
           const result = await authClient.signIn.social({

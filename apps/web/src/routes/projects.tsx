@@ -1,4 +1,4 @@
-import { Link, createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import { ExternalLink, Github } from 'lucide-react';
 import { PROJECTS, type Project } from '../lib/projects.js';
 
@@ -33,7 +33,7 @@ function ProjectsPage() {
         {projects.map((project) => (
           <article
             key={project.name}
-            className='flex flex-col rounded-lg border border-[#e6e6ea] bg-white/60 p-5 transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-wash-dark'
+            className='flex flex-col rounded-lg border border-slate-200 bg-white/60 p-5 transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-wash-dark'
           >
             <div className='mb-1 flex items-center gap-2'>
               <h2 className='text-lg font-semibold'>{project.name}</h2>
@@ -50,7 +50,7 @@ function ProjectsPage() {
               {project.tags.map((tag) => (
                 <span
                   key={tag}
-                  className='rounded-md border border-[#e6e6ea] px-2 py-[2px] text-[11px] opacity-70 dark:border-slate-700'
+                  className='rounded-md border border-slate-200 px-2 py-[2px] text-[11px] opacity-70 dark:border-slate-700'
                 >
                   {tag}
                 </span>

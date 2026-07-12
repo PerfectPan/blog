@@ -1,0 +1,37 @@
+# Keep dependencies and GitHub Actions current. Weekly cadence; minor/patch
+# bumps are grouped to cut PR noise, majors land individually so they get a
+# real review. Commit messages follow the repo's conventional-commit convention.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps)"
+      include: scope
+    groups:
+      patch:
+        update-types: ["patch"]
+      dev-minor:
+        dependency-type: development
+        update-types: ["minor"]
+      prod-minor:
+        dependency-type: production
+        update-types: ["minor"]
+    ignore:
+      # Major bumps are handled by @biomejs/biome and pnpm/engine migrations
+      # deliberately — leave them for explicit review rather than auto-PRs.
+      - dependency-name: "@biomejs/biome"
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(ci)"
+      include: scope

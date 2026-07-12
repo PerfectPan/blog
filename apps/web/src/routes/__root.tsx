@@ -1,9 +1,9 @@
 import {
+  createRootRoute,
   HeadContent,
   Link,
   Outlet,
   Scripts,
-  createRootRoute,
 } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import { AppLayout } from '../components/layout.js';

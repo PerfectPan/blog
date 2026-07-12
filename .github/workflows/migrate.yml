@@ -1,0 +1,43 @@
+name: D1 Migrations
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'apps/web/migrations/**'
+  workflow_dispatch:
+
+# Serialize migration runs — they are idempotent, but don't race two of them.
+concurrency:
+  group: d1-migrations
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Production build + deploy is handled by Cloudflare Workers Builds (the
+      # CF Git integration), whose auto-generated token has no D1 permission.
+      # D1 migrations therefore stay in this Action, using the repo secret that
+      # does. Idempotent: a no-op when there are no new migration files.
+      - name: Apply D1 migrations (remote)
+        run: pnpm --filter @blog/web exec wrangler d1 migrations apply blog --remote
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

@@ -1,5 +1,5 @@
 import type { PostVisibility } from '@blog/shared';
-import { Link, createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import {
   type AdminPost,
   listAdminPostsServerFn,
@@ -46,16 +46,16 @@ function AdminListPage() {
       </div>
 
       {posts.length === 0 ? (
-        <div className='rounded-lg border border-dashed border-[#d0d0d3] px-6 py-16 text-center text-sm opacity-70 dark:border-slate-700'>
+        <div className='rounded-lg border border-dashed border-slate-300 px-6 py-16 text-center text-sm opacity-70 dark:border-slate-700'>
           还没有文章。点 “+ 新建文章” 写第一篇吧。
         </div>
       ) : (
-        <div className='overflow-hidden rounded-lg border border-[#e6e6ea] dark:border-slate-700'>
-          <div className='hidden grid-cols-[1fr_auto] items-center gap-4 border-b border-[#e6e6ea] bg-black/[0.02] px-4 py-2 text-xs font-semibold tracking-wide opacity-60 sm:grid dark:border-slate-700 dark:bg-white/[0.03]'>
+        <div className='overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700'>
+          <div className='hidden grid-cols-[1fr_auto] items-center gap-4 border-b border-slate-200 bg-black/[0.02] px-4 py-2 text-xs font-semibold tracking-wide opacity-60 sm:grid dark:border-slate-700 dark:bg-white/[0.03]'>
             <span>标题 / slug</span>
             <span>属性</span>
           </div>
-          <ul className='divide-y divide-[#e6e6ea] dark:divide-slate-700'>
+          <ul className='divide-y divide-slate-200 dark:divide-slate-700'>
             {posts.map((post: AdminPost) => (
               <li
                 key={post.slug}

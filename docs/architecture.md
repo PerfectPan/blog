@@ -61,8 +61,8 @@ www → 301 apex ─┘        ├─ ASSETS  = dist/client 静态资源
 - **迁移 `0003`**：把 75 篇历史 `content/blog/*.md` 一次性导入 `post`（幂等
   `ON CONFLICT DO NOTHING`，**不带事务包裹**——75 行的 `BEGIN…COMMIT` 会触发远端
   `SQLITE_TOOBIG`）。这条迁移本身就是「上线内容快照」。
-- 迁移由 `deploy.yml` 在部署前 `wrangler d1 migrations apply blog --remote` 应用；本地用
-  `--local`。
+- 迁移由 `migrate.yml` 在部署时 `wrangler d1 migrations apply blog --remote` 应用（Workers Builds
+  的 token 无 D1 权限，迁移单独跑）；本地用 `--local`。
 
 ## 5. 核心请求链路
 
@@ -153,13 +153,22 @@ pnpm --filter @blog/web dev                            # vite dev
 
 ## 12. 部署
 
-- **CI（push `master`）**：`.github/workflows/deploy.yml` → 迁移 D1（`--remote`）→ 构建 →
-  `wrangler deploy` → 冒烟（`/healthz`、`/`、`/blog`）。
-- **PR 门**：`.github/workflows/pull-request.yml` → typecheck + biome + build + 体积守门。
-- **手动**：`/deploy` skill。**别让手动部署和 CI 分叉**——手动部署发的是本地代码，CI 发的是
-  `master`，不一致时下次 push master 会回滚生产；手动部署后务必 commit→push→merge。
-- **必需生产配置**：secret `BETTER_AUTH_SECRET`；var `APPS_WEB_URL`（已在 `wrangler.jsonc`）；
-  D1 绑定 `DB`（已 provision）。可选 `GITHUB_CLIENT_ID/SECRET`。
+- **主部署通道 = Cloudflare Workers Builds（CF Git 集成）**：push 到 `master` → 自动
+  `pnpm build` + `wrangler deploy -c dist/server/wrangler.json`，新版本自动提升为 Active
+  Deployment。**PR 分支**自动出 **preview URL**（`<branch>-blog-web.<subdomain>.workers.dev`，
+  评论到 PR）。Workers Builds 用自动生成的 token，**没有 D1 权限**。
+  配置（dashboard → blog-web → Settings → Builds）：root dir `apps/web`、build
+  `pnpm install --frozen-lockfile && pnpm build`、deploy `npx wrangler deploy -c dist/server/wrangler.json`、
+  non-prod deploy `npx wrangler versions upload -c dist/server/wrangler.json`。
+- **D1 迁移**：`.github/workflows/migrate.yml`（push `master` **且 `apps/web/migrations/**` 有变化时**
+  触发；另支持手动 `workflow_dispatch`）→ `wrangler d1 migrations apply blog --remote`，用仓库
+  secret（有 D1 权限）。与 Workers Builds 并行触发，迁移幂等（无新文件即 no-op）。
+- **PR 门**：`.github/workflows/pull-request.yml` → typecheck + biome + test + build + 体积守门。
+- **手动**：`/deploy` skill 或 `pnpm --filter @blog/web exec wrangler deploy -c dist/server/wrangler.json`。
+  **别让手动部署和 Workers Builds 分叉**——手动发本地代码、Workers Builds 发 `master`，不一致时
+  下次 push master 会回滚生产；手动部署后务必 commit→push→merge。
+- **必需生产配置**：secret `BETTER_AUTH_SECRET`（运行时 secret，Workers Builds 部署不清掉）；
+  var `APPS_WEB_URL`（已在 `wrangler.jsonc`）；D1 绑定 `DB`（已 provision）。可选 `GITHUB_CLIENT_ID/SECRET`。
 - **Custom Domain 由 `wrangler.jsonc` 的 `routes` 管理**（apex + www）。换域名坑：Custom Domain
   要求该主机名下无现存 DNS 记录，否则 `409 / code 100117`，而 OAuth token 无 `dns:edit`——
   需先在 dashboard 删掉冲突记录再部署。
