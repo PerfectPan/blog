@@ -15,7 +15,7 @@ jobs:
       # so it stays in sync without a hardcoded version. Installing pnpm before
       # setup-node lets setup-node's `cache: pnpm` find it.
       - name: Set up pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         with:
           run_install: false
 
