@@ -76,3 +76,13 @@ jobs:
           TEST_EXIT=$?
           kill "$DEV_PID" 2>/dev/null || true
           exit "$TEST_EXIT"
+
+      - name: Upload Playwright artifacts (screenshots/traces)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-e2e
+          path: |
+            test-results/
+            playwright-report/
+          if-no-files-found: ignore

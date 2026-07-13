@@ -11,5 +11,6 @@ export default defineConfig({
     baseURL: process.env.E2E_BASE_URL ?? 'http://127.0.0.1:3000',
     channel: 'chrome',
     trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
   },
 });
