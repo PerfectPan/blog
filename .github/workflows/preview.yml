@@ -31,7 +31,13 @@ concurrency:
 
 jobs:
   preview:
-    if: github.event.action != 'closed' && github.event.pull_request.head.ref != 'master'
+    # Dependabot-triggered pull_request runs do NOT receive repository
+    # secrets, so CLOUDFLARE_API_TOKEN is empty there and the deploy would
+    # fail. Skip cleanly (neutral) instead of erroring. To enable previews on
+    # dependabot PRs, add CLOUDFLARE_API_TOKEN to the repo's *Dependabot*
+    # secret store (Settings → Secrets → Dependabot) — that scope IS passed
+    # to dependabot-triggered runs.
+    if: github.event.action != 'closed' && github.event.pull_request.head.ref != 'master' && secrets.CLOUDFLARE_API_TOKEN != ''
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
