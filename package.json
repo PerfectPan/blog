@@ -35,5 +35,12 @@
   "lint-staged": {
     "*.{mjs,js,jsx,mts,ts,tsx,css,json}": "pnpm biome check --write"
   },
-  "packageManager": "pnpm@8.15.5"
+  "packageManager": "pnpm@10.34.5",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "workerd",
+      "sharp"
+    ]
+  }
 }
