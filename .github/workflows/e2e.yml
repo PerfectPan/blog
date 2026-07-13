@@ -3,8 +3,9 @@ name: E2E Regression
 # Per-PR E2E regression against an ISOLATED local workerd + fresh local D1 —
 # NOT the preview. The suite writes (signup + create-post), and the preview
 # shares production D1, so running it there would pollute prod. Instead: build
-# the branch, boot the built Worker via `wrangler dev --local`, apply migrations
-# to an empty local D1, then run Playwright against it.
+# the branch, derive a local config with APPS_WEB_URL pointed at the local
+# origin (so better-auth trusts the browser Origin), boot it via
+# `wrangler dev --local`, then run Playwright against it.
 
 on:
   pull_request:
@@ -41,9 +42,30 @@ jobs:
       - name: Install Playwright (Chrome)
         run: pnpm exec playwright install --with-deps chrome
 
+      # Derive a local config from the BUILT wrangler.json with the local origin
+      # baked into vars. APPS_WEB_URL must be 127.0.0.1:8787 so better-auth's
+      # trustedOrigins accept the browser's Origin header (the built config's
+      # perfectpan.org value would otherwise yield "Invalid origin"). Putting it
+      # in the config (not .dev.vars) avoids var-override ambiguity.
+      - name: Generate local E2E config
+        run: |
+          node <<'EOF'
+          const fs = require('fs');
+          const crypto = require('crypto');
+          const cfg = JSON.parse(fs.readFileSync('apps/web/dist/server/wrangler.json', 'utf8'));
+          cfg.vars = {
+            ...(cfg.vars || {}),
+            APPS_WEB_URL: 'http://127.0.0.1:8787',
+            ADMIN_EMAIL_ALLOWLIST: 'claude-verify@example.com',
+            BETTER_AUTH_SECRET: crypto.randomBytes(32).toString('hex'),
+          };
+          fs.writeFileSync('apps/web/dist/server/wrangler.e2e.json', JSON.stringify(cfg, null, 2));
+          console.log('wrote apps/web/dist/server/wrangler.e2e.json');
+          EOF
+
       - name: Apply local D1 migrations
         working-directory: apps/web
-        run: pnpm exec wrangler d1 migrations apply blog --local -c dist/server/wrangler.json
+        run: pnpm exec wrangler d1 migrations apply blog --local -c dist/server/wrangler.e2e.json
 
       - name: Boot local Worker + run E2E
         working-directory: apps/web
@@ -51,13 +73,8 @@ jobs:
           E2E_BASE_URL: http://127.0.0.1:8787
         run: |
           set -uo pipefail
-          # Local dev vars (random session secret; GitHub login left disabled —
-          # the tests authenticate with email/password). Written next to the
-          # BUILT config (dist/server/), which is the root `wrangler dev -c`
-          # reads .dev.vars from.
-          printf 'BETTER_AUTH_SECRET="%s"\nAPPS_WEB_URL="http://127.0.0.1:8787"\nADMIN_EMAIL_ALLOWLIST="claude-verify@example.com"\n' "$(openssl rand -hex 32)" > dist/server/.dev.vars
-          # Boot the built Worker on a local D1, in the background.
-          pnpm exec wrangler dev -c dist/server/wrangler.json --port 8787 --local > /tmp/wrangler.log 2>&1 &
+          # Boot the built Worker (local config, local D1) in the background.
+          pnpm exec wrangler dev -c dist/server/wrangler.e2e.json --port 8787 --local > /tmp/wrangler.log 2>&1 &
           DEV_PID=$!
           # Wait for readiness (poll /healthz).
           ready=0
