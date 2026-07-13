@@ -1,0 +1,76 @@
+name: E2E Regression
+
+# Per-PR E2E regression against an ISOLATED local workerd + fresh local D1 —
+# NOT the preview. The suite writes (signup + create-post), and the preview
+# shares production D1, so running it there would pollute prod. Instead: build
+# the branch, boot the built Worker via `wrangler dev --local`, apply migrations
+# to an empty local D1, then run Playwright against it.
+
+on:
+  pull_request:
+    branches: [ master ]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build Worker
+        run: pnpm --filter @blog/web build
+
+      - name: Install Playwright (Chrome)
+        run: pnpm exec playwright install --with-deps chrome
+
+      - name: Apply local D1 migrations
+        working-directory: apps/web
+        run: pnpm exec wrangler d1 migrations apply blog --local -c dist/server/wrangler.json
+
+      - name: Boot local Worker + run E2E
+        working-directory: apps/web
+        env:
+          E2E_BASE_URL: http://127.0.0.1:8787
+        run: |
+          set -uo pipefail
+          # Local dev vars (random session secret; GitHub login left disabled —
+          # the tests authenticate with email/password).
+          printf 'BETTER_AUTH_SECRET="%s"\nAPPS_WEB_URL="http://127.0.0.1:8787"\nADMIN_EMAIL_ALLOWLIST="claude-verify@example.com"\n' "$(openssl rand -hex 32)" > .dev.vars
+          # Boot the built Worker on a local D1, in the background.
+          pnpm exec wrangler dev -c dist/server/wrangler.json --port 8787 --local > /tmp/wrangler.log 2>&1 &
+          DEV_PID=$!
+          # Wait for readiness (poll /healthz).
+          ready=0
+          for i in $(seq 1 60); do
+            if curl -sf http://127.0.0.1:8787/healthz >/dev/null; then ready=1; echo "worker ready"; break; fi
+            sleep 2
+          done
+          if [ "$ready" -ne 1 ]; then
+            echo "::error::local Worker did not become ready in 120s"
+            echo "----- wrangler dev log -----"; cat /tmp/wrangler.log
+            kill "$DEV_PID" 2>/dev/null || true
+            exit 1
+          fi
+          # Run the suite (root package script).
+          pnpm --filter blog test:e2e
+          TEST_EXIT=$?
+          kill "$DEV_PID" 2>/dev/null || true
+          exit "$TEST_EXIT"
