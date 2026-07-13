@@ -91,6 +91,10 @@ jobs:
           # Run the suite (root package script).
           pnpm --filter blog test:e2e
           TEST_EXIT=$?
+          if [ "$TEST_EXIT" -ne 0 ]; then
+            echo "----- wrangler dev log (tail, for origin/trustedOrigins diagnostics) -----"
+            tail -80 /tmp/wrangler.log
+          fi
           kill "$DEV_PID" 2>/dev/null || true
           exit "$TEST_EXIT"
 
