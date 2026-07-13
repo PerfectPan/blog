@@ -52,8 +52,10 @@ jobs:
         run: |
           set -uo pipefail
           # Local dev vars (random session secret; GitHub login left disabled —
-          # the tests authenticate with email/password).
-          printf 'BETTER_AUTH_SECRET="%s"\nAPPS_WEB_URL="http://127.0.0.1:8787"\nADMIN_EMAIL_ALLOWLIST="claude-verify@example.com"\n' "$(openssl rand -hex 32)" > .dev.vars
+          # the tests authenticate with email/password). Written next to the
+          # BUILT config (dist/server/), which is the root `wrangler dev -c`
+          # reads .dev.vars from.
+          printf 'BETTER_AUTH_SECRET="%s"\nAPPS_WEB_URL="http://127.0.0.1:8787"\nADMIN_EMAIL_ALLOWLIST="claude-verify@example.com"\n' "$(openssl rand -hex 32)" > dist/server/.dev.vars
           # Boot the built Worker on a local D1, in the background.
           pnpm exec wrangler dev -c dist/server/wrangler.json --port 8787 --local > /tmp/wrangler.log 2>&1 &
           DEV_PID=$!
