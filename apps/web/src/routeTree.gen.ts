@@ -21,6 +21,7 @@ import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as UnlockSlugRouteImport } from './routes/unlock/$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog/$slug'
 import { Route as AdminNewRouteImport } from './routes/admin/new'
+import { Route as AdminCommentsRouteImport } from './routes/admin/comments'
 import { Route as AdminSlugRouteImport } from './routes/admin/$slug'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
@@ -84,6 +85,11 @@ const AdminNewRoute = AdminNewRouteImport.update({
   path: '/admin/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminCommentsRoute = AdminCommentsRouteImport.update({
+  id: '/admin/comments',
+  path: '/admin/comments',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminSlugRoute = AdminSlugRouteImport.update({
   id: '/admin/$slug',
   path: '/admin/$slug',
@@ -104,6 +110,7 @@ export interface FileRoutesByFullPath {
   '/rss.xml': typeof RssDotxmlRoute
   '/signup': typeof SignupRoute
   '/admin/$slug': typeof AdminSlugRoute
+  '/admin/comments': typeof AdminCommentsRoute
   '/admin/new': typeof AdminNewRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/unlock/$slug': typeof UnlockSlugRoute
@@ -120,6 +127,7 @@ export interface FileRoutesByTo {
   '/rss.xml': typeof RssDotxmlRoute
   '/signup': typeof SignupRoute
   '/admin/$slug': typeof AdminSlugRoute
+  '/admin/comments': typeof AdminCommentsRoute
   '/admin/new': typeof AdminNewRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/unlock/$slug': typeof UnlockSlugRoute
@@ -137,6 +145,7 @@ export interface FileRoutesById {
   '/rss.xml': typeof RssDotxmlRoute
   '/signup': typeof SignupRoute
   '/admin/$slug': typeof AdminSlugRoute
+  '/admin/comments': typeof AdminCommentsRoute
   '/admin/new': typeof AdminNewRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/unlock/$slug': typeof UnlockSlugRoute
@@ -155,6 +164,7 @@ export interface FileRouteTypes {
     | '/rss.xml'
     | '/signup'
     | '/admin/$slug'
+    | '/admin/comments'
     | '/admin/new'
     | '/blog/$slug'
     | '/unlock/$slug'
@@ -171,6 +181,7 @@ export interface FileRouteTypes {
     | '/rss.xml'
     | '/signup'
     | '/admin/$slug'
+    | '/admin/comments'
     | '/admin/new'
     | '/blog/$slug'
     | '/unlock/$slug'
@@ -187,6 +198,7 @@ export interface FileRouteTypes {
     | '/rss.xml'
     | '/signup'
     | '/admin/$slug'
+    | '/admin/comments'
     | '/admin/new'
     | '/blog/$slug'
     | '/unlock/$slug'
@@ -204,6 +216,7 @@ export interface RootRouteChildren {
   RssDotxmlRoute: typeof RssDotxmlRoute
   SignupRoute: typeof SignupRoute
   AdminSlugRoute: typeof AdminSlugRoute
+  AdminCommentsRoute: typeof AdminCommentsRoute
   AdminNewRoute: typeof AdminNewRoute
   BlogSlugRoute: typeof BlogSlugRoute
   UnlockSlugRoute: typeof UnlockSlugRoute
@@ -298,6 +311,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminNewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/comments': {
+      id: '/admin/comments'
+      path: '/admin/comments'
+      fullPath: '/admin/comments'
+      preLoaderRoute: typeof AdminCommentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/$slug': {
       id: '/admin/$slug'
       path: '/admin/$slug'
@@ -324,6 +344,7 @@ const rootRouteChildren: RootRouteChildren = {
   RssDotxmlRoute: RssDotxmlRoute,
   SignupRoute: SignupRoute,
   AdminSlugRoute: AdminSlugRoute,
+  AdminCommentsRoute: AdminCommentsRoute,
   AdminNewRoute: AdminNewRoute,
   BlogSlugRoute: BlogSlugRoute,
   UnlockSlugRoute: UnlockSlugRoute,

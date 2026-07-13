@@ -37,12 +37,20 @@ function AdminListPage() {
             {draftCount > 0 ? ` · ${draftCount} 篇草稿` : ''}
           </p>
         </div>
-        <Link
-          to='/admin/new'
-          className='rounded-md bg-black px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 dark:bg-neutral-900'
-        >
-          + 新建文章
-        </Link>
+        <div className='flex items-center gap-4'>
+          <Link
+            to='/admin/comments'
+            className='text-sm opacity-70 transition-opacity hover:opacity-100'
+          >
+            评论审核
+          </Link>
+          <Link
+            to='/admin/new'
+            className='rounded-md bg-black px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 dark:bg-neutral-900'
+          >
+            + 新建文章
+          </Link>
+        </div>
       </div>
 
       {posts.length === 0 ? (
