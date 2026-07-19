@@ -87,3 +87,13 @@ pnpm --filter @blog/web exec wrangler deploy -c dist/server/wrangler.json --dry-
 - PR 标题由 `.github/workflows/pr-title.yml`（`amannn/action-semantic-pull-request`）自动校验，
   不符合 conventional 格式会标红；如需"拦死"在 GitHub 设置里把它设为必需检查。
 - 一个 PR 尽量单一关注点；混合时标题用主导类型，其余在正文说明。
+
+## 9. 回归与合并纪律（硬约定）
+
+> 起因：曾把一个布局改动在「只看 CI 绿、没看实际渲染」的情况下直接合并，线上 max-width 被撑坏。以下为避免重犯。
+
+1. **合并前必须回归验证，尤其视觉/布局/交互改动。** CI 绿（typecheck/build/size）只证明能编译、体积没超，**不证明渲染或行为正确**。
+   - 视觉/布局类：在 PR 的 **preview deploy**（或本地 `pnpm dev`）上**用浏览器逐页看实际渲染**——布局、对齐、max-width、响应式，逐项确认。不要凭「代码看起来对」就合并。
+   - 逻辑/数据类：跑相关流程或测试确认行为。
+2. **默认不自动合并，等用户批准。** 完成 + 回归验证后，把结果（实测数据 / 截图 / preview URL）交给用户，**等明确批准**再 `gh pr merge`。一次「你都帮我做了」**不等于**永久授权自动合并。
+3. **合并后回归出问题，立刻回滚。** 优先 `git revert` 回到上一个已知可用状态，再重新修；不要在生产环境「一边坏一边猜」。
