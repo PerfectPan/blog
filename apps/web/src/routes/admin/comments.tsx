@@ -38,7 +38,8 @@ function AdminCommentsPage() {
   const [comments, setComments] = useState<Comment[]>(initial);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [slugQuery, setSlugQuery] = useState('');
-  const [busy, setBusy] = useState<string | null>(null);
+  const [busy, setBusy] = useState<Set<string>>(() => new Set());
+  const [error, setError] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const needle = slugQuery.trim().toLowerCase();
@@ -54,7 +55,8 @@ function AdminCommentsPage() {
   }, [comments, statusFilter, slugQuery]);
 
   async function setStatus(id: string, status: CommentStatus) {
-    setBusy(id);
+    setError(null);
+    setBusy((prev) => new Set(prev).add(id));
     try {
       await setCommentStatusServerFn({ data: { id, status } });
       setComments((prev) =>
@@ -62,10 +64,14 @@ function AdminCommentsPage() {
           comment.id === id ? { ...comment, status } : comment,
         ),
       );
-    } catch {
-      // status change failed; leave list as-is
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '操作失败，请重试');
     } finally {
-      setBusy(null);
+      setBusy((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
     }
   }
 
@@ -73,14 +79,19 @@ function AdminCommentsPage() {
     if (!window.confirm('永久删除这条评论？此操作不可恢复。')) {
       return;
     }
-    setBusy(id);
+    setError(null);
+    setBusy((prev) => new Set(prev).add(id));
     try {
       await deleteCommentServerFn({ data: { id } });
       setComments((prev) => prev.filter((comment) => comment.id !== id));
-    } catch {
-      // deletion failed; leave list as-is
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '删除失败，请重试');
     } finally {
-      setBusy(null);
+      setBusy((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
     }
   }
 
@@ -117,6 +128,8 @@ function AdminCommentsPage() {
           className='ml-auto w-48 rounded-md border border-zinc-300 bg-transparent px-2 py-1 text-xs outline-none focus:border-zinc-400 dark:border-zinc-600'
         />
       </div>
+
+      {error ? <p className='mb-3 text-sm text-red-500'>{error}</p> : null}
 
       {filtered.length === 0 ? (
         <div className='rounded-lg border border-dashed border-slate-300 px-6 py-16 text-center text-sm opacity-70 dark:border-slate-700'>
@@ -157,7 +170,7 @@ function AdminCommentsPage() {
                 {comment.status !== 'hidden' ? (
                   <button
                     type='button'
-                    disabled={busy === comment.id}
+                    disabled={busy.has(comment.id)}
                     onClick={() => setStatus(comment.id, 'hidden')}
                     className='opacity-70 hover:opacity-100 disabled:opacity-40'
                   >
@@ -167,7 +180,7 @@ function AdminCommentsPage() {
                 {comment.status !== 'spam' ? (
                   <button
                     type='button'
-                    disabled={busy === comment.id}
+                    disabled={busy.has(comment.id)}
                     onClick={() => setStatus(comment.id, 'spam')}
                     className='text-amber-600/80 hover:text-amber-600 disabled:opacity-40'
                   >
@@ -177,7 +190,7 @@ function AdminCommentsPage() {
                 {comment.status !== 'visible' ? (
                   <button
                     type='button'
-                    disabled={busy === comment.id}
+                    disabled={busy.has(comment.id)}
                     onClick={() => setStatus(comment.id, 'visible')}
                     className='text-emerald-600/80 hover:text-emerald-600 disabled:opacity-40'
                   >
@@ -186,7 +199,7 @@ function AdminCommentsPage() {
                 ) : null}
                 <button
                   type='button'
-                  disabled={busy === comment.id}
+                  disabled={busy.has(comment.id)}
                   onClick={() => remove(comment.id)}
                   className='ml-auto text-red-500/70 hover:text-red-500 disabled:opacity-40'
                 >

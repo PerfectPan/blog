@@ -6,6 +6,7 @@ import {
   canAccessComments,
   canManageComment,
   getUnlockCookieName,
+  isCommentVisibleTo,
   ROLES,
   type Role,
   type SessionUser,
@@ -14,7 +15,7 @@ import { redirect } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import { getRequest } from '@tanstack/react-start/server';
 import { z } from 'zod';
-import { getPostBySlug } from './content-service.js';
+import { getPostVisibilityBySlug } from './content-service.js';
 import { getD1 } from './db.js';
 import { getSessionUserFromRequest } from './session-core.js';
 import { isUnlockCookieValid, parseCookies } from './unlock-cookie.js';
@@ -64,13 +65,13 @@ async function canViewerAccessPostSlug(
   slug: string,
   sessionUser: SessionUser | null,
 ): Promise<boolean> {
-  const post = await getPostBySlug(slug);
-  if (!post) {
+  const visibility = await getPostVisibilityBySlug(slug);
+  if (!visibility) {
     return false;
   }
 
   let unlocked = false;
-  if (post.visibility === 'password') {
+  if (visibility === 'password') {
     const request = getRequest();
     const cookies = parseCookies(request?.headers.get('cookie') ?? null);
     unlocked =
@@ -78,11 +79,7 @@ async function canViewerAccessPostSlug(
       isUnlockCookieValid(slug, cookies[getUnlockCookieName(slug)]);
   }
 
-  return canAccessComments(
-    post.visibility,
-    sessionUser?.role ?? null,
-    unlocked,
-  );
+  return canAccessComments(visibility, sessionUser?.role ?? null, unlocked);
 }
 
 type CommentRow = {
@@ -149,8 +146,6 @@ const TOP_LEVEL_ADMIN_SQL = `
 const COUNT_PUBLIC_SQL = `SELECT COUNT(*) AS "total" FROM "comment" WHERE "slug" = ? AND "parentId" IS NULL AND "status" = 'visible'`;
 const COUNT_ADMIN_SQL = `SELECT COUNT(*) AS "total" FROM "comment" WHERE "slug" = ? AND "parentId" IS NULL`;
 
-const REPLY_FILTER_VISIBLE = `AND c."status" = 'visible'`;
-
 const getCommentsInput = z.object({
   slug: z.string().min(1).max(120),
   offset: z.number().int().min(0).default(0),
@@ -185,6 +180,8 @@ export const getCommentsServerFn = createServerFn({ method: 'GET' })
 
     // Replies for the fetched top-level comments (one level deep). Placeholder
     // list is built from the count only — ids are still bound, never interpolated.
+    // A single static query (no admin/public branch); visibility is filtered in
+    // TS via isCommentVisibleTo below, so the rule has one home in packages/shared.
     const repliesByParent = new Map<string, CommentRow[]>();
     if (topRows.length > 0) {
       const ids = topRows.map((row) => row.id);
@@ -192,7 +189,7 @@ export const getCommentsServerFn = createServerFn({ method: 'GET' })
       const replySql = `
         SELECT ${COMMENT_COLUMNS}
         FROM "comment" c LEFT JOIN "user" u ON u."id" = c."userId"
-        WHERE c."parentId" IN (${placeholders}) ${isAdmin ? '' : REPLY_FILTER_VISIBLE}
+        WHERE c."parentId" IN (${placeholders})
         ORDER BY c."createdAt" ASC`;
       const replyResult = await db
         .prepare(replySql)
@@ -210,9 +207,11 @@ export const getCommentsServerFn = createServerFn({ method: 'GET' })
 
     const comments: CommentThread[] = topRows.map((row) => {
       const comment = toComment(row, sessionUser);
-      const replies = (repliesByParent.get(comment.id) ?? []).map((r) =>
-        toComment(r, sessionUser),
-      );
+      const replies = (repliesByParent.get(comment.id) ?? [])
+        .filter((r) =>
+          isCommentVisibleTo(normalizeStatus(r.status), sessionUser?.role),
+        )
+        .map((r) => toComment(r, sessionUser));
       return { ...comment, replies };
     });
 
@@ -241,38 +240,41 @@ export const createCommentServerFn = createServerFn({ method: 'POST' })
 
     const db = getD1();
 
-    // Depth ≤ 1: a reply's parent must exist, belong to the same post, and
-    // itself be top-level (parentId IS NULL).
+    // Depth ≤ 1: a reply's parent must exist, belong to the same post, be
+    // top-level (parentId IS NULL), and be visible — replies only attach to
+    // visible parents, so a hidden/spam parent can't gain fresh replies.
     if (data.parentId) {
       const parent = await db
-        .prepare('SELECT "slug", "parentId" FROM "comment" WHERE "id" = ?')
+        .prepare(
+          'SELECT "slug", "parentId", "status" FROM "comment" WHERE "id" = ?',
+        )
         .bind(data.parentId)
-        .first<{ slug: string; parentId: string | null }>();
-      if (!parent || parent.slug !== data.slug || parent.parentId !== null) {
+        .first<{ slug: string; parentId: string | null; status: string }>();
+      if (
+        !parent ||
+        parent.slug !== data.slug ||
+        parent.parentId !== null ||
+        parent.status !== 'visible'
+      ) {
         throw new Error('回复目标无效');
       }
     }
 
-    // Rate limit: at most one comment per user per cooldown window. Backed by
-    // D1 (shared state), so it works across isolates — unlike an in-process Map.
-    const last = await db
-      .prepare(
-        'SELECT "createdAt" FROM "comment" WHERE "userId" = ? ORDER BY "createdAt" DESC LIMIT 1',
-      )
-      .bind(sessionUser.id)
-      .first<{ createdAt: string }>();
-    if (last?.createdAt) {
-      const elapsedMs = Date.now() - new Date(last.createdAt).getTime();
-      if (elapsedMs < COMMENT_COOLDOWN_MS) {
-        throw new Error('评论太快了，请稍后再试');
-      }
-    }
-
+    // Rate limit + insert as one atomic statement: the row only lands if no
+    // comment from this user is newer than the cooldown cutoff. This closes the
+    // SELECT-then-INSERT ToCToU race (two concurrent posts both passing) and any
+    // NaN/empty-createdAt parsing hazard — the cutoff is computed here, not read
+    // back from a stored row.
     const now = new Date().toISOString();
+    const cutoff = new Date(Date.now() - COMMENT_COOLDOWN_MS).toISOString();
     const id = crypto.randomUUID();
-    await db
+    const insertResult = await db
       .prepare(
-        'INSERT INTO "comment" ("id","slug","userId","parentId","body","status","createdAt","updatedAt") VALUES (?,?,?,?,?,?,?,?)',
+        `INSERT INTO "comment" ("id","slug","userId","parentId","body","status","createdAt","updatedAt")
+         SELECT ?, ?, ?, ?, ?, ?, ?, ?
+         WHERE NOT EXISTS (
+           SELECT 1 FROM "comment" WHERE "userId" = ? AND "createdAt" > ?
+         )`,
       )
       .bind(
         id,
@@ -283,8 +285,14 @@ export const createCommentServerFn = createServerFn({ method: 'POST' })
         'visible',
         now,
         now,
+        sessionUser.id,
+        cutoff,
       )
       .run();
+
+    if (insertResult.meta.changes !== 1) {
+      throw new Error('评论太快了，请稍后再试');
+    }
 
     const userRow = await db
       .prepare('SELECT "name", "image" FROM "user" WHERE "id" = ?')
@@ -318,19 +326,28 @@ export const deleteCommentServerFn = createServerFn({ method: 'POST' })
     const db = getD1();
 
     const row = await db
-      .prepare('SELECT "userId" FROM "comment" WHERE "id" = ?')
+      .prepare('SELECT "userId", "slug" FROM "comment" WHERE "id" = ?')
       .bind(data.id)
-      .first<{ userId: string }>();
+      .first<{ userId: string; slug: string }>();
     if (!row) {
       throw new Error('评论不存在');
     }
     if (!canManageComment(row.userId, sessionUser)) {
       throw new Error('无权删除该评论');
     }
+    // §6: re-check the post's visibility too. The author must still be allowed
+    // to read the post — server fns are RPC-reachable, so the route gate alone
+    // isn't enough (a post raised to admin-only after a comment was left must
+    // not be mutated over RPC by someone who can no longer read it).
+    if (!(await canViewerAccessPostSlug(row.slug, sessionUser))) {
+      throw new Error('无权删除该评论');
+    }
 
+    // Cascade: deleting a top-level comment also removes its replies, so they
+    // don't linger as orphans (D1 ships with foreign_keys=OFF, so no FK cascade).
     await db
-      .prepare('DELETE FROM "comment" WHERE "id" = ?')
-      .bind(data.id)
+      .prepare('DELETE FROM "comment" WHERE "id" = ? OR "parentId" = ?')
+      .bind(data.id, data.id)
       .run();
     return { ok: true };
   });

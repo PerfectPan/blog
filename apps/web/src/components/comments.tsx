@@ -2,7 +2,7 @@
 
 import type { Comment, CommentThread, SessionUser } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import {
   createCommentServerFn,
   deleteCommentServerFn,
@@ -14,6 +14,7 @@ type CommentsProps = {
   slug: string;
   initialComments: CommentThread[];
   initialHasMore: boolean;
+  initialTotal: number;
   sessionUser: SessionUser | null;
 };
 
@@ -139,7 +140,7 @@ type CommentItemProps = {
   onDelete: (id: string) => Promise<void>;
   replyingTo: string | null;
   setReplyingTo: (id: string | null) => void;
-  replySubmitting: string | null;
+  replySubmitting: Set<string>;
 };
 
 function CommentItem({
@@ -161,11 +162,9 @@ function CommentItem({
     if (!window.confirm('删除这条评论？')) {
       return;
     }
-    try {
-      await onDelete(thread.id);
-    } catch {
-      // deletion errors are surfaced by the parent; swallow the re-throw here
-    }
+    // onDelete (the parent handleDelete) catches its own errors and surfaces
+    // them via topError, so it does not throw — no swallow, no unhandled reject.
+    await onDelete(thread.id);
   }
 
   return (
@@ -184,7 +183,7 @@ function CommentItem({
         <div className='ml-10'>
           <Composer
             placeholder={`回复 @${thread.author.name}…`}
-            submitting={replySubmitting === thread.id}
+            submitting={replySubmitting.has(thread.id)}
             onSubmit={(body) => onReply(thread.id, body)}
             compact
           />
@@ -285,19 +284,18 @@ export function Comments({
   slug,
   initialComments,
   initialHasMore,
+  initialTotal,
   sessionUser,
 }: CommentsProps) {
   const [threads, setThreads] = useState<CommentThread[]>(initialComments);
   const [hasMore, setHasMore] = useState(initialHasMore);
+  const [total, setTotal] = useState(initialTotal);
   const [submitting, setSubmitting] = useState(false);
   const [topError, setTopError] = useState<string | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
-  const [replySubmitting, setReplySubmitting] = useState<string | null>(null);
-
-  const totalCount = useMemo(
-    () => threads.reduce((sum, t) => sum + 1 + t.replies.length, 0),
-    [threads],
+  const [replySubmitting, setReplySubmitting] = useState<Set<string>>(
+    () => new Set(),
   );
 
   async function handleCreateTopLevel(body: string) {
@@ -308,13 +306,14 @@ export function Comments({
       });
       // Newest-first: a fresh top-level comment goes to the front.
       setThreads((prev) => [{ ...comment, replies: [] }, ...prev]);
+      setTotal((count) => count + 1);
     } finally {
       setSubmitting(false);
     }
   }
 
   async function handleReply(parentId: string, body: string) {
-    setReplySubmitting(parentId);
+    setReplySubmitting((prev) => new Set(prev).add(parentId));
     try {
       const { comment } = await createCommentServerFn({
         data: { slug, parentId, body },
@@ -328,12 +327,23 @@ export function Comments({
       );
       setReplyingTo(null);
     } finally {
-      setReplySubmitting(null);
+      setReplySubmitting((prev) => {
+        const next = new Set(prev);
+        next.delete(parentId);
+        return next;
+      });
     }
   }
 
   async function handleDelete(id: string) {
-    await deleteCommentServerFn({ data: { id } });
+    setTopError(null);
+    try {
+      await deleteCommentServerFn({ data: { id } });
+    } catch (err) {
+      setTopError(err instanceof Error ? err.message : '删除失败，请重试');
+      return;
+    }
+    const wasTopLevel = threads.some((thread) => thread.id === id);
     setThreads((prev) =>
       prev
         .map((thread) => ({
@@ -342,6 +352,9 @@ export function Comments({
         }))
         .filter((thread) => thread.id !== id),
     );
+    if (wasTopLevel) {
+      setTotal((count) => Math.max(0, count - 1));
+    }
   }
 
   async function handleLoadMore() {
@@ -352,6 +365,8 @@ export function Comments({
       });
       setThreads((prev) => [...prev, ...result.comments]);
       setHasMore(result.hasMore);
+      setTotal(result.total);
+      setTopError(null);
     } catch (err) {
       setTopError(err instanceof Error ? err.message : '加载更多失败');
     } finally {
@@ -362,10 +377,7 @@ export function Comments({
   return (
     <section className='mt-12'>
       <h2 className='mb-4 text-lg font-black'>
-        评论{' '}
-        {totalCount > 0 ? (
-          <span className='opacity-50'>({totalCount})</span>
-        ) : null}
+        评论 {total > 0 ? <span className='opacity-50'>({total})</span> : null}
       </h2>
 
       {sessionUser ? (
@@ -373,15 +385,7 @@ export function Comments({
           <Composer
             placeholder='写下你的评论…（支持 Markdown）'
             submitting={submitting}
-            onSubmit={async (body) => {
-              setTopError(null);
-              try {
-                await handleCreateTopLevel(body);
-              } catch (err) {
-                setTopError(err instanceof Error ? err.message : '评论失败');
-                throw err;
-              }
-            }}
+            onSubmit={handleCreateTopLevel}
           />
         </div>
       ) : (

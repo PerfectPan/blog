@@ -88,9 +88,11 @@ function BlogDetailPage() {
         <span className='underline opacity-70 hover:opacity-100'>cd ..</span>
       </Link>
       <Comments
+        key={post.slug}
         slug={post.slug}
         initialComments={data.comments.comments}
         initialHasMore={data.comments.hasMore}
+        initialTotal={data.comments.total}
         sessionUser={data.sessionUser}
       />
     </div>
