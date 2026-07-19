@@ -122,6 +122,29 @@ export async function getPostBySlug(slug: string): Promise<PostDetail | null> {
   return toDetail(post);
 }
 
+/**
+ * A published post's visibility by slug, or null. Hits the slug primary key
+ * (one row) instead of `getPostBySlug`'s full-table scan — for callers that
+ * only need the visibility to make an access decision (e.g. the comment gate).
+ */
+export async function getPostVisibilityBySlug(
+  slug: string,
+): Promise<PostVisibility | null> {
+  try {
+    const row = await getD1()
+      .prepare('SELECT "visibility", "status" FROM "post" WHERE "slug" = ?')
+      .bind(slug)
+      .first<{ visibility: string; status: string }>();
+    if (row?.status !== 'published') {
+      return null;
+    }
+    return normalizeVisibility(row.visibility);
+  } catch (error) {
+    console.error('[web] D1 post visibility query failed', error);
+    return null;
+  }
+}
+
 /** Plaintext password check for `visibility: password` posts. */
 export async function verifyPostPassword(
   slug: string,
