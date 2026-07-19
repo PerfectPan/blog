@@ -71,7 +71,7 @@ function BlogListPage() {
 
   return (
     <div className='flex flex-col gap-8'>
-      <div className='mx-auto w-full max-w-[80ch] pt-24 lg:pt-32'>
+      <div className='mx-auto w-full self-start max-w-[80ch] pt-24 lg:pt-32'>
         {showDevHint ? (
           <div className='mb-8 rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900'>
             {devScopeHint}

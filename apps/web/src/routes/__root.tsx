@@ -29,7 +29,7 @@ export const Route = createRootRoute({
   errorComponent: ({ error }) => (
     <RootDocument>
       <AppLayout>
-        <div className='mx-auto w-full max-w-[80ch] pt-24 lg:pt-32'>
+        <div className='mx-auto w-full self-start max-w-[80ch] pt-24 lg:pt-32'>
           <h2 className='mb-4 text-3xl'>Request Failed</h2>
           <p className='mb-4 opacity-70'>{String(error)}</p>
           <Link to='/blog' className='opacity-70 hover:opacity-100'>
@@ -42,7 +42,7 @@ export const Route = createRootRoute({
   notFoundComponent: () => (
     <RootDocument>
       <AppLayout>
-        <div className='mx-auto w-full max-w-[80ch] pt-24 lg:pt-32'>
+        <div className='mx-auto w-full self-start max-w-[80ch] pt-24 lg:pt-32'>
           <h2 className='mb-4 text-3xl'>404 Not Found</h2>
           <p className='mb-4 opacity-70'>你闯入了无人之境...</p>
           <Link to='/blog' className='opacity-70 hover:opacity-100'>

@@ -77,7 +77,7 @@ function BlogDetailPage() {
   });
 
   return (
-    <div className='mx-auto w-full max-w-[80ch] pt-24 lg:pt-32'>
+    <div className='mx-auto w-full self-start max-w-[80ch] pt-24 lg:pt-32'>
       <div className='m-auto mb-8 flex flex-col gap-2'>
         <div className='text-3xl font-black'>{post.title}</div>
         <div className='opacity-60'>{date}</div>

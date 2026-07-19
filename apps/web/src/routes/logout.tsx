@@ -29,7 +29,7 @@ function LogoutPage() {
   }, [signOut]);
 
   return (
-    <section className='mx-auto w-full max-w-[80ch] pt-24 lg:pt-32'>
+    <section className='mx-auto w-full self-start max-w-[80ch] pt-24 lg:pt-32'>
       <h1 className='mb-2 text-3xl font-black'>退出登录</h1>
       <p className='mb-6 opacity-70'>
         {isPending ? '正在退出登录...' : '已退出或退出失败，请重试。'}
