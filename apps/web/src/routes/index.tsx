@@ -9,7 +9,7 @@ export const Route = createFileRoute('/')({
 
 function HomePage() {
   return (
-    <div className='flex flex-col items-center'>
+    <div className='flex flex-1 flex-col items-center justify-center'>
       <img className='m-0' src='/images/xm.jpg' alt='' />
       <div className='mt-8 text-[2.5rem] font-black'>
         是个什么都不会的废物.jpg
