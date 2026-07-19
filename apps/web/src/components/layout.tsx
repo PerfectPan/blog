@@ -11,9 +11,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     <div>
       <Header />
       <div className='flex min-h-screen flex-col px-6'>
-        <main className='flex flex-grow items-center justify-center *:min-h-64 *:min-w-64'>
-          {children}
-        </main>
+        <main className='flex flex-grow flex-col'>{children}</main>
         <Footer />
       </div>
     </div>
