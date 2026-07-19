@@ -82,7 +82,7 @@ function UnlockPage() {
         : undefined;
 
   return (
-    <section className='mx-auto w-full max-w-[80ch] pt-24 lg:pt-32'>
+    <section className='mx-auto w-full self-start max-w-[80ch] pt-24 lg:pt-32'>
       <h1 className='mb-2 text-3xl font-black'>输入文章访问密码</h1>
       <p className='mb-6 opacity-70'>这篇文章使用了单文密码保护。</p>
 

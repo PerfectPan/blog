@@ -25,7 +25,7 @@ function ProjectsPage() {
   const projects = sortProjects(PROJECTS);
 
   return (
-    <div className='mx-auto w-full max-w-[80ch] pt-24 lg:pt-32'>
+    <div className='mx-auto w-full self-start max-w-[80ch] pt-24 lg:pt-32'>
       <h1 className='mb-2 text-3xl font-black'>Projects</h1>
       <p className='mb-8 opacity-70'>我做过的一些东西，按需更新。</p>
 

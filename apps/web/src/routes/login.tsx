@@ -34,14 +34,14 @@ function LoginPage() {
 
   if (sessionData?.user?.id || isSessionPending) {
     return (
-      <section className='mx-auto w-full max-w-[80ch] pt-24 lg:pt-32'>
+      <section className='mx-auto w-full self-start max-w-[80ch] pt-24 lg:pt-32'>
         <p className='opacity-70'>Checking session...</p>
       </section>
     );
   }
 
   return (
-    <section className='mx-auto w-full max-w-[80ch] pt-24 lg:pt-32'>
+    <section className='mx-auto w-full self-start max-w-[80ch] pt-24 lg:pt-32'>
       <h1 className='mb-2 text-3xl font-black'>登录</h1>
       <p className='mb-6 opacity-70'>支持邮箱密码和 GitHub OAuth。</p>
 
