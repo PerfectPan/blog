@@ -28,6 +28,7 @@
 | 公开博客 | `routes/blog/{index,$slug}.tsx`、`lib/blog-service.ts`、`lib/content-service.ts` |
 | 认证 | `lib/auth.ts`、`lib/auth-client.ts`、`lib/session-core.ts`、`routes/api/auth/$.ts`、`routes/{login,signup,logout}.tsx` |
 | Admin 后台 | `routes/admin/{index,new,$slug}.tsx`、`lib/admin-service.ts`、`components/{post-editor,markdown-editor,tag-input,markdown}.tsx` |
+| 评论（自建，登录 + 后置审核） | `lib/comments-service.ts`、`components/{comments,comment-markdown}.tsx`、`routes/admin/comments.tsx`；共享类型/权限纯函数 `packages/shared`（`Comment`、`canAccessComments`、`canManageComment`）。设计见 `docs/superpowers/specs/2026-07-14-self-hosted-comments-design.md` |
 | 密码文章解锁 | `routes/unlock/$slug.tsx`、`lib/unlock-cookie.ts`、`lib/unlock-rate-limit.ts` |
 | Markdown 渲染 | `components/markdown.tsx`（react-markdown + shiki + katex） |
 | D1 访问 / 迁移 | `lib/db.ts`、`apps/web/migrations/` |
@@ -41,7 +42,7 @@
 perfectpan.org ─┐
                 ├─→  Worker blog-web (Cloudflare)
 www → 301 apex ─┘        ├─ ASSETS  = dist/client 静态资源
-                         ├─ DB      = D1 "blog"（user/session/account/verification + post）
+                         ├─ DB      = D1 "blog"（user/session/account/verification + post + comment）
                          └─ (可选) GitHub OAuth secret
 ```
 
@@ -61,6 +62,11 @@ www → 301 apex ─┘        ├─ ASSETS  = dist/client 静态资源
 - **迁移 `0003`**：把 75 篇历史 `content/blog/*.md` 一次性导入 `post`（幂等
   `ON CONFLICT DO NOTHING`，**不带事务包裹**——75 行的 `BEGIN…COMMIT` 会触发远端
   `SQLITE_TOOBIG`）。这条迁移本身就是「上线内容快照」。
+- **`comment` 表**（迁移 `0004`）：`id`(PK, `crypto.randomUUID`)、`slug`、`userId`、
+  `parentId`（NULL=顶层；非空=一层回复，深度 ≤ 1，代码强制）、`body`（限制 markdown）、
+  `status`（`visible|hidden|spam`）、`createdAt`、`updatedAt`。**登录才能评论**（Better Auth）；
+  **后置审核**（默认 `visible`，admin 可隐藏/标垃圾/硬删除）；限流为原子
+  `INSERT…WHERE NOT EXISTS`（每用户 60s）。替换了原 utteranc.es。
 - 迁移由 `migrate.yml` 在部署时 `wrangler d1 migrations apply blog --remote` 应用（Workers Builds
   的 token 无 D1 权限，迁移单独跑）；本地用 `--local`。
 
