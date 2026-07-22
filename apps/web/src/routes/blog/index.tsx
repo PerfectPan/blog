@@ -166,9 +166,12 @@ function BlogListPage() {
 
   // Paginated: fill the viewport as a column — header / list(scrolls) /
   // pagination / cd / footer — so the layout never bounces between pages.
+  // A definite viewport height (calc) is what lets the flex chain resolve a
+  // bounded list region; min-h-screen + self-stretch alone don't (the column
+  // grows with content). 4.5rem ≈ footer height.
   if (paginated) {
     return (
-      <div className='flex w-full flex-col self-stretch'>
+      <div className='flex h-[calc(100dvh-4.5rem)] w-full flex-col'>
         <div
           ref={listRef}
           className='mx-auto flex min-h-0 w-full max-w-[80ch] flex-1 flex-col overflow-y-auto pt-24 lg:pt-32'
