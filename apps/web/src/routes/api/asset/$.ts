@@ -15,8 +15,9 @@ async function handleAsset({
 }): Promise<Response> {
   const { pathname } = new URL(request.url);
   const key = decodeURIComponent(pathname.replace(/^\/api\/asset\//, ''));
-  // Guard against path traversal — keys are flat under images/.
-  if (!key || !key.startsWith('images/') || key.includes('..')) {
+  // Guard against path traversal — keys are flat under images/ (an empty key
+  // fails the startsWith check, so no separate emptiness guard needed).
+  if (!key.startsWith('images/') || key.includes('..')) {
     return new Response('Not found', { status: 404 });
   }
 

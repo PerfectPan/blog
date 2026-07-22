@@ -24,7 +24,7 @@ async function handleUpload({
   // Server fns are reachable over RPC, so enforce admin at the data layer (the
   // admin editor is the only intended caller).
   const sessionUser = await getSessionUserFromRequest(request);
-  if (!sessionUser || sessionUser.role !== 'admin') {
+  if (sessionUser?.role !== 'admin') {
     return json({ error: 'unauthorized' }, 401);
   }
 
