@@ -1,3 +1,4 @@
+import plugin from 'tailwindcss/plugin';
 import tailwindcssAnimate from 'tailwindcss-animate';
 
 /** @type {import('tailwindcss').Config} */
@@ -65,5 +66,11 @@ export default {
       },
     },
   },
-  plugins: [tailwindcssAnimate],
+  plugins: [
+    tailwindcssAnimate,
+    // Devices without hover (touch): reveal hover-gated UI by default.
+    plugin(({ addVariant }) => {
+      addVariant('hover-none', '@media not (hover: hover)');
+    }),
+  ],
 };

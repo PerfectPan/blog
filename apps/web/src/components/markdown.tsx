@@ -83,12 +83,12 @@ function CodeBlock({ children }: { children?: ReactNode }) {
   }, []);
 
   return (
-    <div className='relative mb-2'>
+    <div className='group relative mb-2'>
       <button
         type='button'
         onClick={onCopy}
         aria-label='Copy code'
-        className='absolute right-2 top-2 z-10 inline-flex items-center gap-1 rounded border border-slate-300 bg-white/70 px-1.5 py-0.5 text-xs opacity-70 backdrop-blur transition-opacity hover:opacity-100 dark:border-slate-700 dark:bg-slate-900/70'
+        className='absolute right-2 top-2 z-10 inline-flex items-center gap-1 rounded border border-slate-300 bg-white/70 px-1.5 py-0.5 text-xs opacity-0 backdrop-blur transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100 hover-none:opacity-70 dark:border-slate-700 dark:bg-slate-900/70'
       >
         {copied ? <Check size={12} /> : <Copy size={12} />}
         {copied ? 'Copied' : 'Copy'}
