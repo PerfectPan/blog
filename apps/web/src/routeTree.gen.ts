@@ -9,45 +9,27 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SignupRouteImport } from './routes/signup'
-import { Route as RssDotxmlRouteImport } from './routes/rss[.]xml'
-import { Route as ProjectsRouteImport } from './routes/projects'
-import { Route as LogoutRouteImport } from './routes/logout'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as HealthzRouteImport } from './routes/healthz'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as BlogIndexRouteImport } from './routes/blog/index'
+import { Route as HealthzRouteImport } from './routes/healthz'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as LogoutRouteImport } from './routes/logout'
+import { Route as ProjectsRouteImport } from './routes/projects'
+import { Route as RssDotxmlRouteImport } from './routes/rss[.]xml'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
-import { Route as UnlockSlugRouteImport } from './routes/unlock/$slug'
-import { Route as BlogSlugRouteImport } from './routes/blog/$slug'
-import { Route as AdminNewRouteImport } from './routes/admin/new'
-import { Route as AdminCommentsRouteImport } from './routes/admin/comments'
 import { Route as AdminSlugRouteImport } from './routes/admin/$slug'
+import { Route as AdminCommentsRouteImport } from './routes/admin/comments'
+import { Route as AdminNewRouteImport } from './routes/admin/new'
+import { Route as ApiUploadRouteImport } from './routes/api/upload'
+import { Route as BlogIndexRouteImport } from './routes/blog/index'
+import { Route as BlogSlugRouteImport } from './routes/blog/$slug'
+import { Route as UnlockSlugRouteImport } from './routes/unlock/$slug'
+import { Route as ApiAssetSplatRouteImport } from './routes/api/asset/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
-const SignupRoute = SignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RssDotxmlRoute = RssDotxmlRouteImport.update({
-  id: '/rss.xml',
-  path: '/rss.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProjectsRoute = ProjectsRouteImport.update({
-  id: '/projects',
-  path: '/projects',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LogoutRoute = LogoutRouteImport.update({
-  id: '/logout',
-  path: '/logout',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HealthzRoute = HealthzRouteImport.update({
@@ -55,14 +37,29 @@ const HealthzRoute = HealthzRouteImport.update({
   path: '/healthz',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BlogIndexRoute = BlogIndexRouteImport.update({
-  id: '/blog/',
-  path: '/blog/',
+const LogoutRoute = LogoutRouteImport.update({
+  id: '/logout',
+  path: '/logout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectsRoute = ProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RssDotxmlRoute = RssDotxmlRouteImport.update({
+  id: '/rss.xml',
+  path: '/rss.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -70,19 +67,9 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/admin/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const UnlockSlugRoute = UnlockSlugRouteImport.update({
-  id: '/unlock/$slug',
-  path: '/unlock/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BlogSlugRoute = BlogSlugRouteImport.update({
-  id: '/blog/$slug',
-  path: '/blog/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminNewRoute = AdminNewRouteImport.update({
-  id: '/admin/new',
-  path: '/admin/new',
+const AdminSlugRoute = AdminSlugRouteImport.update({
+  id: '/admin/$slug',
+  path: '/admin/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminCommentsRoute = AdminCommentsRouteImport.update({
@@ -90,9 +77,34 @@ const AdminCommentsRoute = AdminCommentsRouteImport.update({
   path: '/admin/comments',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminSlugRoute = AdminSlugRouteImport.update({
-  id: '/admin/$slug',
-  path: '/admin/$slug',
+const AdminNewRoute = AdminNewRouteImport.update({
+  id: '/admin/new',
+  path: '/admin/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiUploadRoute = ApiUploadRouteImport.update({
+  id: '/api/upload',
+  path: '/api/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UnlockSlugRoute = UnlockSlugRouteImport.update({
+  id: '/unlock/$slug',
+  path: '/unlock/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAssetSplatRoute = ApiAssetSplatRouteImport.update({
+  id: '/api/asset/$',
+  path: '/api/asset/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
@@ -112,10 +124,12 @@ export interface FileRoutesByFullPath {
   '/admin/$slug': typeof AdminSlugRoute
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/new': typeof AdminNewRoute
+  '/api/upload': typeof ApiUploadRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/unlock/$slug': typeof UnlockSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
+  '/api/asset/$': typeof ApiAssetSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
@@ -129,10 +143,12 @@ export interface FileRoutesByTo {
   '/admin/$slug': typeof AdminSlugRoute
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/new': typeof AdminNewRoute
+  '/api/upload': typeof ApiUploadRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/unlock/$slug': typeof UnlockSlugRoute
   '/admin': typeof AdminIndexRoute
   '/blog': typeof BlogIndexRoute
+  '/api/asset/$': typeof ApiAssetSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
@@ -147,10 +163,12 @@ export interface FileRoutesById {
   '/admin/$slug': typeof AdminSlugRoute
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/new': typeof AdminNewRoute
+  '/api/upload': typeof ApiUploadRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/unlock/$slug': typeof UnlockSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
+  '/api/asset/$': typeof ApiAssetSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
@@ -166,10 +184,12 @@ export interface FileRouteTypes {
     | '/admin/$slug'
     | '/admin/comments'
     | '/admin/new'
+    | '/api/upload'
     | '/blog/$slug'
     | '/unlock/$slug'
     | '/admin/'
     | '/blog/'
+    | '/api/asset/$'
     | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -183,10 +203,12 @@ export interface FileRouteTypes {
     | '/admin/$slug'
     | '/admin/comments'
     | '/admin/new'
+    | '/api/upload'
     | '/blog/$slug'
     | '/unlock/$slug'
     | '/admin'
     | '/blog'
+    | '/api/asset/$'
     | '/api/auth/$'
   id:
     | '__root__'
@@ -200,10 +222,12 @@ export interface FileRouteTypes {
     | '/admin/$slug'
     | '/admin/comments'
     | '/admin/new'
+    | '/api/upload'
     | '/blog/$slug'
     | '/unlock/$slug'
     | '/admin/'
     | '/blog/'
+    | '/api/asset/$'
     | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
@@ -218,48 +242,22 @@ export interface RootRouteChildren {
   AdminSlugRoute: typeof AdminSlugRoute
   AdminCommentsRoute: typeof AdminCommentsRoute
   AdminNewRoute: typeof AdminNewRoute
+  ApiUploadRoute: typeof ApiUploadRoute
   BlogSlugRoute: typeof BlogSlugRoute
   UnlockSlugRoute: typeof UnlockSlugRoute
   AdminIndexRoute: typeof AdminIndexRoute
   BlogIndexRoute: typeof BlogIndexRoute
+  ApiAssetSplatRoute: typeof ApiAssetSplatRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/signup': {
-      id: '/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof SignupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/rss.xml': {
-      id: '/rss.xml'
-      path: '/rss.xml'
-      fullPath: '/rss.xml'
-      preLoaderRoute: typeof RssDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/projects': {
-      id: '/projects'
-      path: '/projects'
-      fullPath: '/projects'
-      preLoaderRoute: typeof ProjectsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/logout': {
-      id: '/logout'
-      path: '/logout'
-      fullPath: '/logout'
-      preLoaderRoute: typeof LogoutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/healthz': {
@@ -269,18 +267,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HealthzRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/blog/': {
-      id: '/blog/'
-      path: '/blog'
-      fullPath: '/blog/'
-      preLoaderRoute: typeof BlogIndexRouteImport
+    '/logout': {
+      id: '/logout'
+      path: '/logout'
+      fullPath: '/logout'
+      preLoaderRoute: typeof LogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projects': {
+      id: '/projects'
+      path: '/projects'
+      fullPath: '/projects'
+      preLoaderRoute: typeof ProjectsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rss.xml': {
+      id: '/rss.xml'
+      path: '/rss.xml'
+      fullPath: '/rss.xml'
+      preLoaderRoute: typeof RssDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -290,25 +309,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/unlock/$slug': {
-      id: '/unlock/$slug'
-      path: '/unlock/$slug'
-      fullPath: '/unlock/$slug'
-      preLoaderRoute: typeof UnlockSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/blog/$slug': {
-      id: '/blog/$slug'
-      path: '/blog/$slug'
-      fullPath: '/blog/$slug'
-      preLoaderRoute: typeof BlogSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/new': {
-      id: '/admin/new'
-      path: '/admin/new'
-      fullPath: '/admin/new'
-      preLoaderRoute: typeof AdminNewRouteImport
+    '/admin/$slug': {
+      id: '/admin/$slug'
+      path: '/admin/$slug'
+      fullPath: '/admin/$slug'
+      preLoaderRoute: typeof AdminSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/comments': {
@@ -318,11 +323,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCommentsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/$slug': {
-      id: '/admin/$slug'
-      path: '/admin/$slug'
-      fullPath: '/admin/$slug'
-      preLoaderRoute: typeof AdminSlugRouteImport
+    '/admin/new': {
+      id: '/admin/new'
+      path: '/admin/new'
+      fullPath: '/admin/new'
+      preLoaderRoute: typeof AdminNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/upload': {
+      id: '/api/upload'
+      path: '/api/upload'
+      fullPath: '/api/upload'
+      preLoaderRoute: typeof ApiUploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/unlock/$slug': {
+      id: '/unlock/$slug'
+      path: '/unlock/$slug'
+      fullPath: '/unlock/$slug'
+      preLoaderRoute: typeof UnlockSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/asset/$': {
+      id: '/api/asset/$'
+      path: '/api/asset/$'
+      fullPath: '/api/asset/$'
+      preLoaderRoute: typeof ApiAssetSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/$': {
@@ -346,10 +386,12 @@ const rootRouteChildren: RootRouteChildren = {
   AdminSlugRoute: AdminSlugRoute,
   AdminCommentsRoute: AdminCommentsRoute,
   AdminNewRoute: AdminNewRoute,
+  ApiUploadRoute: ApiUploadRoute,
   BlogSlugRoute: BlogSlugRoute,
   UnlockSlugRoute: UnlockSlugRoute,
   AdminIndexRoute: AdminIndexRoute,
   BlogIndexRoute: BlogIndexRoute,
+  ApiAssetSplatRoute: ApiAssetSplatRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport

@@ -113,6 +113,13 @@ export async function getAllPublishedPosts(): Promise<PostSummary[]> {
     .map(toSummary);
 }
 
+/** All published posts with their full body (for RSS full-content feeds). */
+export async function getAllPublishedPostDetails(): Promise<PostDetail[]> {
+  return (await getPosts())
+    .filter((post) => post.status === 'published')
+    .map(toDetail);
+}
+
 /** A single published post by slug, or null. */
 export async function getPostBySlug(slug: string): Promise<PostDetail | null> {
   const post = (await getPosts()).find((item) => item.slug === slug);

@@ -1,5 +1,12 @@
 import rehypeShikiFromHighlighter from '@shikijs/rehype/core';
-import { useEffect } from 'react';
+import { Check, Copy } from 'lucide-react';
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeKatex from 'rehype-katex';
 import remarkGfm from 'remark-gfm';
@@ -55,6 +62,46 @@ const highlighter = await createHighlighterCore({
   ],
   engine: createOnigurumaEngine(() => import('shiki/wasm')),
 });
+
+/**
+ * Wraps a highlighted <pre> with a Copy button. Reads the rendered textContent
+ * (post-shiki) so it works regardless of how the code was tokenized.
+ */
+function CodeBlock({ children }: { children?: ReactNode }) {
+  const preRef = useRef<HTMLPreElement>(null);
+  const [copied, setCopied] = useState(false);
+
+  const onCopy = useCallback(async () => {
+    const text = preRef.current?.textContent ?? '';
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // Clipboard unavailable (non-secure context / no permission) — no-op.
+    }
+  }, []);
+
+  return (
+    <div className='group relative mb-2'>
+      <button
+        type='button'
+        onClick={onCopy}
+        aria-label='Copy code'
+        className='absolute right-2 top-2 z-10 inline-flex items-center gap-1 rounded border border-slate-300 bg-white/70 px-1.5 py-0.5 text-xs opacity-0 backdrop-blur transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100 hover-none:opacity-70 dark:border-slate-700 dark:bg-slate-900/70'
+      >
+        {copied ? <Check size={12} /> : <Copy size={12} />}
+        {copied ? 'Copied' : 'Copy'}
+      </button>
+      <pre
+        ref={preRef}
+        className='shiki w-full overflow-x-auto whitespace-pre-wrap rounded-md bg-zinc-50 p-4 dark:bg-shiki-dark'
+      >
+        {children}
+      </pre>
+    </div>
+  );
+}
 
 export function Markdown({ content }: MarkdownProps) {
   useEffect(() => {
@@ -125,11 +172,7 @@ export function Markdown({ content }: MarkdownProps) {
           ul: ({ children }) => (
             <ul className='mb-4 ml-4 list-disc'>{children}</ul>
           ),
-          pre: ({ children }) => (
-            <pre className='shiki mb-2 whitespace-pre-wrap w-full overflow-x-auto -my-0.5 inline-block rounded-md bg-zinc-50 p-4 dark:bg-shiki-dark'>
-              {children}
-            </pre>
-          ),
+          pre: ({ children }) => <CodeBlock>{children}</CodeBlock>,
         }}
       >
         {content}

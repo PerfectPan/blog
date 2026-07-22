@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { getAllPublishedPosts } from '../lib/content-service.js';
+import { getAllPublishedPostDetails } from '../lib/content-service.js';
 import { getWebEnv } from '../lib/env.js';
 
 function escapeXml(value: string): string {
@@ -16,7 +16,7 @@ export const Route = createFileRoute('/rss.xml')({
     handlers: {
       GET: async () => {
         const env = getWebEnv();
-        const posts = (await getAllPublishedPosts())
+        const posts = (await getAllPublishedPostDetails())
           .filter((post) => post.visibility === 'public')
           .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 
@@ -27,6 +27,7 @@ export const Route = createFileRoute('/rss.xml')({
               <item>
                 <title>${escapeXml(post.title)}</title>
                 <description>${escapeXml(post.description)}</description>
+                <content:encoded>${escapeXml(post.contentMdx)}</content:encoded>
                 <link>${escapeXml(link)}</link>
                 <guid>${escapeXml(link)}</guid>
                 <pubDate>${new Date(post.publishedAt).toUTCString()}</pubDate>
@@ -36,7 +37,7 @@ export const Route = createFileRoute('/rss.xml')({
           .join('\n');
 
         const xml = `<?xml version="1.0" encoding="UTF-8"?>
-          <rss version="2.0">
+          <rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
             <channel>
               <title>PerfectPan's Blog</title>
               <link>${escapeXml(env.appsWebUrl)}</link>
