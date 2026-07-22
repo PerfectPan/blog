@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import { AppLayout } from '../components/layout.js';
+import { SearchPalette } from '../components/search-palette.js';
 import '../styles.css';
 
 export const Route = createRootRoute({
@@ -61,6 +62,7 @@ function RootComponent() {
       <AppLayout>
         <Outlet />
       </AppLayout>
+      <SearchPalette />
     </RootDocument>
   );
 }

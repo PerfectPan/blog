@@ -1,5 +1,7 @@
 import type { PostSummary, SessionUser } from '@blog/shared';
 import { createFileRoute, Link } from '@tanstack/react-router';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { z } from 'zod';
 import { getBlogListServerFn } from '../../lib/blog-service.js';
 
 type BlogGroup = {
@@ -53,8 +55,12 @@ export const Route = createFileRoute('/blog/')({
       { name: 'description', content: "Blog | PerfectPan's Blog" },
     ],
   }),
-  loader: async () => {
-    const data = await getBlogListServerFn();
+  validateSearch: z.object({
+    page: z.coerce.number().int().min(1).optional(),
+  }),
+  loaderDeps: ({ search }) => ({ page: search.page }),
+  loader: async ({ deps }) => {
+    const data = await getBlogListServerFn({ data: { page: deps.page ?? 1 } });
     return {
       ...data,
       isDev: process.env.NODE_ENV === 'development',
@@ -103,6 +109,42 @@ function BlogListPage() {
           </div>
         ))}
       </div>
+      {data.totalPages > 1 ? (
+        <nav
+          className='mx-auto flex w-full max-w-[80ch] items-center justify-center gap-6 text-sm'
+          aria-label='Pagination'
+        >
+          {data.page > 1 ? (
+            <Link
+              to='/blog'
+              search={{ page: data.page - 1 }}
+              className='inline-flex items-center gap-1 opacity-60 hover:opacity-100'
+            >
+              <ChevronLeft size={14} /> prev
+            </Link>
+          ) : (
+            <span className='inline-flex items-center gap-1 opacity-30'>
+              <ChevronLeft size={14} /> prev
+            </span>
+          )}
+          <span className='opacity-60'>
+            page {data.page} / {data.totalPages}
+          </span>
+          {data.page < data.totalPages ? (
+            <Link
+              to='/blog'
+              search={{ page: data.page + 1 }}
+              className='inline-flex items-center gap-1 opacity-60 hover:opacity-100'
+            >
+              next <ChevronRight size={14} />
+            </Link>
+          ) : (
+            <span className='inline-flex items-center gap-1 opacity-30'>
+              next <ChevronRight size={14} />
+            </span>
+          )}
+        </nav>
+      ) : null}
       <Link to='/' className='mt-4 inline-block'>
         <span className='opacity-70'>&gt;&nbsp;&nbsp;&nbsp;</span>
         <span className='underline opacity-70 hover:opacity-100'>cd ..</span>
