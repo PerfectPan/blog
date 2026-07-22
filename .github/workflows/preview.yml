@@ -92,7 +92,7 @@ jobs:
             const num = context.payload.pull_request.number;
             const url = `https://blog-web-pr-${num}.perfectpan325.workers.dev`;
             const marker = '<!-- preview-deploy -->';
-            const body = `${marker}### 🌐 Preview deploy\n\n${url}\n\n_(public; rebuilt on every push)_`;
+            const body = `${marker}\n\n### 🌐 Preview deploy\n\n${url}\n\n_(public; rebuilt on every push)_`;
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner, repo: context.repo.repo, issue_number: num,
             });
