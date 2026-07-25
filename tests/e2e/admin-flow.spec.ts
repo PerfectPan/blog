@@ -37,11 +37,15 @@ test('admin can create a post that appears on the blog', async ({ page }) => {
   await page.goto('/admin/new', { waitUntil: 'domcontentloaded' });
   await expect(page).toHaveURL(/\/admin\/new/);
 
-  // 3. Fill the editor and save.
-  await page.getByLabel('Title').fill(title);
-  await page.getByLabel('Slug').fill(slug);
+  // 3. Fill the editor and save. (Field labels are Chinese — 标题/Slug/正文 —
+  // since the admin editor was localized; the body editor has no <label>
+  // association, so locate it by placeholder.)
+  await page.getByPlaceholder('文章标题').fill(title);
+  await page.getByPlaceholder('my-post').fill(slug);
+  // The body field is the MarkdownEditor textarea (no <label> association, so
+  // locate it by its placeholder rather than by role/label).
   await page
-    .getByLabel(/Body/)
+    .getByPlaceholder(/Markdown/)
     .fill('# E2E body\n\nWritten by the Playwright admin smoke test.');
   await page.getByRole('button', { name: '保存' }).click();
 

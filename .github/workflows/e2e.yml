@@ -1,0 +1,59 @@
+name: E2E
+
+# End-to-end (Playwright) tests. The rest of CI (pull-request.yml) only runs
+# unit tests (vitest), so the auth + admin flows are covered here. Playwright's
+# webServer (playwright.config.ts) boots `pnpm dev` against an ephemeral local
+# D1 — nothing touches the production database.
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Google Chrome for Playwright
+        run: pnpm exec playwright install --with-deps chrome
+
+      - name: Apply local D1 migrations
+        run: pnpm db:migrate:local
+
+      - name: Generate ephemeral auth secret
+        # Per-run secret for the local test DB — no repo secret needed.
+        run: echo "BETTER_AUTH_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+
+      - name: Run Playwright
+        run: pnpm test:e2e
+        env:
+          # webServer (pnpm dev) inherits these; env.ts reads them.
+          APPS_WEB_URL: http://127.0.0.1:5173
+          ADMIN_EMAIL_ALLOWLIST: claude-verify@example.com
+
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
