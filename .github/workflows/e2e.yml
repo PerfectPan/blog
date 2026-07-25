@@ -15,9 +15,6 @@ concurrency:
 jobs:
   e2e:
     runs-on: ubuntu-latest
-    env:
-      APPS_WEB_URL: http://localhost:5173
-      ADMIN_EMAIL_ALLOWLIST: claude-verify@example.com
     steps:
       - uses: actions/checkout@v7
 
@@ -41,11 +38,17 @@ jobs:
       - name: Apply local D1 migrations
         run: pnpm db:migrate:local
 
-      - name: Generate ephemeral auth secret
-        run: echo "BETTER_AUTH_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+      # The @cloudflare/vite-plugin loads apps/web/.env into the worker env
+      # (shell env vars don't reach workerd's process.env), so write the test
+      # values to .env. It's gitignored — never committed.
+      - name: Write dev env
+        run: |
+          printf 'BETTER_AUTH_SECRET=%s\nAPPS_WEB_URL=http://localhost:5173\nADMIN_EMAIL_ALLOWLIST=claude-verify@example.com\n' \
+            "$(openssl rand -hex 32)" > apps/web/.env
 
       # Start the dev server in the background (visible log on failure) and wait
       # for it to serve. Playwright's webServer then reuses this server.
+      # `localhost` (not 127.0.0.1) — on Linux vite binds IPv6 ::1.
       - name: Start dev server
         run: |
           nohup pnpm dev > dev.log 2>&1 &
