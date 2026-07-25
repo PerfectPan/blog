@@ -60,11 +60,11 @@
 @layer base {
   html {
     font-family: "Merriweather", "Georgia", serif;
-    /* Themed page background so overscroll (rubber-band) at the top/bottom
-       reveals a matching color instead of the transparent/default canvas —
-       and the fixed header doesn't appear to "drag down" exposing a gap. */
+    /* Themed page background so any overscroll reveals a matching color
+       instead of the transparent/default canvas. The elastic bounce itself
+       lives on the content scroll container in layout.tsx (left at the
+       default so it rubber-bands); the header sits outside it and stays put. */
     background-color: hsl(var(--background));
-    overscroll-behavior-y: none;
   }
 
   /* Visible focus only for keyboard / AT navigation — mouse clicks stay clean.
