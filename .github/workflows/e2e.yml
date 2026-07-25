@@ -16,7 +16,7 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
     env:
-      APPS_WEB_URL: http://127.0.0.1:5173
+      APPS_WEB_URL: http://localhost:5173
       ADMIN_EMAIL_ALLOWLIST: claude-verify@example.com
     steps:
       - uses: actions/checkout@v7
@@ -50,7 +50,7 @@ jobs:
         run: |
           nohup pnpm dev > dev.log 2>&1 &
           for i in $(seq 1 60); do
-            if curl -sf http://127.0.0.1:5173/ >/dev/null; then echo "dev ready"; exit 0; fi
+            if curl -sf http://localhost:5173/ >/dev/null; then echo "dev ready"; exit 0; fi
             sleep 3
           done
           echo "::error::dev server did not come up"; cat dev.log; exit 1

@@ -3,7 +3,7 @@ import { defineConfig } from '@playwright/test';
 // Vite dev serves on :5173; allow overriding via E2E_BASE_URL (e.g. a preview
 // deploy). The webServer auto-starts `pnpm dev` so CI doesn't need a manually
 // managed server; locally it reuses one already running.
-const baseURL = process.env.E2E_BASE_URL ?? 'http://127.0.0.1:5173';
+const baseURL = process.env.E2E_BASE_URL ?? 'http://localhost:5173';
 
 export default defineConfig({
   testDir: './tests/e2e',
