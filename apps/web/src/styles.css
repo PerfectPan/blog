@@ -104,3 +104,43 @@ html.dark .shiki span {
   /* biome-ignore lint/complexity/noImportantStyles: shiki dual-theme must override the inline light-mode color variables. */
   color: var(--shiki-dark) !important;
 }
+
+/* Thin, subtle, theme-aware scrollbars (replaces the heavy default on the
+   app-shell main + any inner scroll region). Firefox via scrollbar-*; Chrome
+   via ::-webkit-scrollbar. */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(15 23 42 / 0.25) transparent;
+}
+
+html.dark {
+  scrollbar-color: rgb(148 163 184 / 0.35) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(15 23 42 / 0.25);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(15 23 42 / 0.4);
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: rgb(148 163 184 / 0.35);
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgb(148 163 184 / 0.55);
+}
