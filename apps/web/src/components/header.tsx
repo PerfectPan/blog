@@ -22,7 +22,7 @@ export function Header() {
   const sessionUser = sessionData?.user ?? null;
 
   return (
-    <header className='fixed left-0 top-0 right-0 z-10 border-b border-slate-200 bg-white/90 shadow-md backdrop-blur dark:border-slate-300/10 dark:bg-slate-900/90'>
+    <header className='border-b border-slate-200 bg-white shadow-md dark:border-slate-300/10 dark:bg-slate-900'>
       <div className='mx-4 flex h-16 items-center sm:mx-6'>
         <Link
           to='/'

@@ -18,21 +18,12 @@ type MarkdownProps = {
   content: string;
 };
 
-const HEADER_HEIGHT = 64;
-const SAFE_HEIGHT = 16;
-
 function scrollToHeading(id: string) {
-  const element = document.getElementById(id);
-  if (!element) {
-    return;
-  }
-
-  const elementTop = element.getBoundingClientRect().top + window.scrollY;
-  const targetPosition = elementTop - (HEADER_HEIGHT + SAFE_HEIGHT);
-
-  window.scrollTo({
-    top: targetPosition,
+  // scrollIntoView targets the nearest scroll container (the app-shell main),
+  // so heading anchors work without depending on window scroll.
+  document.getElementById(id)?.scrollIntoView({
     behavior: 'smooth',
+    block: 'start',
   });
 }
 
