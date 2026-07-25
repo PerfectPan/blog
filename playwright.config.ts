@@ -20,7 +20,9 @@ export default defineConfig({
   webServer: {
     command: 'pnpm dev',
     url: baseURL,
-    reuseExistingServer: !process.env.CI,
+    // CI starts its own dev server in a visible background step (so the logs are
+    // debuggable); reuse it instead of spawning a second one.
+    reuseExistingServer: true,
     timeout: 120_000,
   },
 });
