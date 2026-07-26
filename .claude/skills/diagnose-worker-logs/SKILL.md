@@ -15,7 +15,7 @@ doesn't query logs directly.
 
 Credentials live in `.cloudflare/env` (gitignored; copy from
 `.cloudflare/env.example`). Needs `CLOUDFLARE_API_TOKEN` (Account → Workers
-Observability → Read) + `CLOUDFLARE_ACCOUNT_ID`. If the file is missing or the
+Observability → Read) + `CLOUDFLARE_ACCOUNT_ID` (from `wrangler whoami`). If the file is missing or the
 API returns auth errors, tell the user to create the token — the OAuth
 `wrangler login` token **cannot** search logs (no Observability OAuth scope;
 verified 2026-07-26).
