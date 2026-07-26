@@ -14,7 +14,6 @@
     "db:migrate:local": "pnpm --filter @blog/web db:migrate:local",
     "cf-typegen": "pnpm --filter @blog/web cf-typegen",
     "lint": "biome check ./apps ./packages",
-    "logs:search": "node scripts/workers-logs.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "size": "pnpm --filter @blog/web size",

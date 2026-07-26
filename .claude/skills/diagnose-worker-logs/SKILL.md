@@ -7,8 +7,9 @@ description: Diagnose Cloudflare Worker problems on perfectpan.org — slow requ
 
 The blog is the `blog-web` Cloudflare Worker. `wrangler tail` only shows
 **live** logs. A user usually reports an incident *after* it happens, so reach
-for **Workers Observability** via `scripts/workers-logs.mjs` (wrapped as
-`pnpm logs:search`).
+for **Workers Observability** via this skill's helper,
+`scripts/workers-logs.mjs` (next to this file). **You** invoke it — the user
+doesn't query logs directly.
 
 ## 0. Preconditions
 
@@ -22,7 +23,7 @@ verified 2026-07-26).
 ## 1. Pull recent errors
 
 ```bash
-pnpm logs:search -- --errors --since 60
+node .claude/skills/diagnose-worker-logs/scripts/workers-logs.mjs --errors --since 60
 ```
 
 Narrow with `--grep <text>` (matches url + message), widen `--since <min>`,

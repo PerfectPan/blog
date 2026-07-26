@@ -1,24 +1,25 @@
-// scripts/workers-logs.mjs
-// Search historical Workers Observability logs for the blog-web Worker.
-// `wrangler` only does live `tail`; historical search needs this API + a token.
+// diagnose-worker-logs/scripts/workers-logs.mjs
+// Helper for the diagnose-worker-logs skill: search historical Workers
+// Observability logs for the blog-web Worker. `wrangler` only does live `tail`;
+// historical search needs this API + a token. Not a user-facing command — the
+// skill invokes this; humans don't query logs directly.
 //
-// Reads CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID from .cloudflare/env
-// (gitignored — copy from .cloudflare/env.example). Process env overrides.
+// Reads CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID from .cloudflare/env at the
+// repo root (gitignored — copy from .cloudflare/env.example). Process env wins.
 //
-//   pnpm logs:search                       # last 30min, all events
-//   pnpm logs:search -- --errors           # errors only
-//   pnpm logs:search -- --since 120        # last 120min
-//   pnpm logs:search -- --grep record-2019 # substring on url + message
-//   pnpm logs:search -- --worker blog-web --limit 200
+//   node .claude/skills/diagnose-worker-logs/scripts/workers-logs.mjs --errors
+//   node .claude/skills/diagnose-worker-logs/scripts/workers-logs.mjs --since 120
+//   node .claude/skills/diagnose-worker-logs/scripts/workers-logs.mjs --grep record-2019
 
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-// Walk up from cwd to find .cloudflare/env (works from repo root or apps/web).
-// Existing process.env wins over the file.
+// Walk up from THIS script's location to find the repo-root .cloudflare/env
+// (cwd-independent — the skill may run from any cwd). Existing process.env wins.
 function loadEnvFile() {
-  let dir = process.cwd();
-  for (let i = 0; i < 6; i++) {
+  let dir = dirname(fileURLToPath(import.meta.url));
+  for (let i = 0; i < 8; i++) {
     try {
       for (const line of readFileSync(
         join(dir, '.cloudflare', 'env'),
