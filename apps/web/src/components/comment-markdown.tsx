@@ -9,8 +9,8 @@ type CommentMarkdownProps = {
  * Lightweight markdown renderer for comments.
  *
  * Deliberately does NOT reuse the post-body `<Markdown>` component: that one
- * pulls in shiki (oniguruma + WASM) and katex, which would balloon this client
- * island. Comments only need inline formatting + code/links/lists, so we run
+ * pulls in shiki + katex, which would balloon this client island. Comments
+ * only need inline formatting + code/links/lists, so we run
  * react-markdown + remark-gfm with no heavy rehype plugins.
  *
  * XSS posture matches docs/architecture.md §8: no `rehype-raw` (raw HTML is
