@@ -12,7 +12,11 @@ import rehypeKatex from 'rehype-katex';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import { createHighlighterCore } from 'shiki/core';
-import { createOnigurumaEngine } from 'shiki/engine/oniguruma';
+// JS regex engine, NOT oniguruma WASM: WebAssembly.instantiate failed
+// intermittently on the Worker under memory/CPU pressure, 500-ing article SSR
+// (logs 2026-07-26 ~05:45 UTC). shiki's JS engine needs no WASM and is the
+// recommended engine for edge runtimes. Don't switch back to oniguruma.
+import { createJavaScriptRegexEngine } from 'shiki/engine/javascript';
 
 type MarkdownProps = {
   content: string;
@@ -51,7 +55,7 @@ const highlighter = await createHighlighterCore({
     import('shiki/langs/rust.mjs'),
     import('shiki/langs/sql.mjs'),
   ],
-  engine: createOnigurumaEngine(() => import('shiki/wasm')),
+  engine: createJavaScriptRegexEngine(),
 });
 
 /**

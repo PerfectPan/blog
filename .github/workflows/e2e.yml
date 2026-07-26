@@ -58,8 +58,8 @@ jobs:
           done
           echo "::error::dev server did not come up"; cat dev.log; exit 1
 
-      # Prime the dev server (first SSR hits compile shiki WASM / transforms and
-      # are slow on a cold CI worker, which made the auth tests flake with
+      # Prime the dev server (first SSR hits compile shiki grammars / transforms
+      # and are slow on a cold CI worker, which made the auth tests flake with
       # net::ERR_ABORTED). Hit each route a few times before the tests run.
       - name: Warm up dev server
         run: |
