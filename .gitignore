@@ -10,6 +10,10 @@ dist
 .wrangler
 apps/**/.wrangler
 apps/web/worker-configuration.d.ts
+# Local Cloudflare credentials for scripts/workers-logs.mjs + the
+# diagnose-worker-logs skill. Keep env.example tracked; ignore real values.
+.cloudflare/*
+!.cloudflare/env.example
 
 # Local env / secrets
 .env
