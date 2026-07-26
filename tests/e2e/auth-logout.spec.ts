@@ -6,7 +6,7 @@ function createUniqueEmail(): string {
 }
 
 test('signup then logout returns to guest header state', async ({ page }) => {
-  await page.goto('/signup');
+  await page.goto('/signup', { waitUntil: 'domcontentloaded' });
 
   await page.getByLabel('Name').fill('E2E Logout');
   await page.getByLabel('Email').fill(createUniqueEmail());

@@ -1,0 +1,89 @@
+name: E2E
+
+# End-to-end (Playwright) tests. The rest of CI (pull-request.yml) only runs
+# unit tests (vitest), so the auth + admin flows are covered here. The dev
+# server runs against an ephemeral local D1 — nothing touches production.
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Google Chrome for Playwright
+        run: pnpm exec playwright install --with-deps chrome
+
+      - name: Apply local D1 migrations
+        run: pnpm db:migrate:local
+
+      # The @cloudflare/vite-plugin loads apps/web/.env into the worker env
+      # (shell env vars don't reach workerd's process.env), so write the test
+      # values to .env. It's gitignored — never committed.
+      - name: Write dev env
+        run: |
+          printf 'BETTER_AUTH_SECRET=%s\nAPPS_WEB_URL=http://localhost:5173\nADMIN_EMAIL_ALLOWLIST=claude-verify@example.com\n' \
+            "$(openssl rand -hex 32)" > apps/web/.env
+
+      # Start the dev server in the background (visible log on failure) and wait
+      # for it to serve. Playwright's webServer then reuses this server.
+      # `localhost` (not 127.0.0.1) — on Linux vite binds IPv6 ::1.
+      - name: Start dev server
+        run: |
+          nohup pnpm dev > dev.log 2>&1 &
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:5173/ >/dev/null; then echo "dev ready"; exit 0; fi
+            sleep 3
+          done
+          echo "::error::dev server did not come up"; cat dev.log; exit 1
+
+      # Prime the dev server (first SSR hits compile shiki WASM / transforms and
+      # are slow on a cold CI worker, which made the auth tests flake with
+      # net::ERR_ABORTED). Hit each route a few times before the tests run.
+      - name: Warm up dev server
+        run: |
+          for path in / /signup /login /blog; do
+            for i in $(seq 1 8); do
+              curl -sf "http://localhost:5173$path" >/dev/null && break
+              sleep 2
+            done
+          done
+
+      - name: Run Playwright
+        run: pnpm test:e2e
+
+      - name: Upload dev server log
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: dev-log
+          path: dev.log
+
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

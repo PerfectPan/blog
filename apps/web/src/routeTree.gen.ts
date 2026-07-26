@@ -20,10 +20,12 @@ import { Route as BlogIndexRouteImport } from './routes/blog/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as UnlockSlugRouteImport } from './routes/unlock/$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog/$slug'
+import { Route as ApiUploadRouteImport } from './routes/api/upload'
 import { Route as AdminNewRouteImport } from './routes/admin/new'
 import { Route as AdminCommentsRouteImport } from './routes/admin/comments'
 import { Route as AdminSlugRouteImport } from './routes/admin/$slug'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiAssetSplatRouteImport } from './routes/api/asset/$'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -80,6 +82,11 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
   path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiUploadRoute = ApiUploadRouteImport.update({
+  id: '/api/upload',
+  path: '/api/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminNewRoute = AdminNewRouteImport.update({
   id: '/admin/new',
   path: '/admin/new',
@@ -100,6 +107,11 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAssetSplatRoute = ApiAssetSplatRouteImport.update({
+  id: '/api/asset/$',
+  path: '/api/asset/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -112,10 +124,12 @@ export interface FileRoutesByFullPath {
   '/admin/$slug': typeof AdminSlugRoute
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/new': typeof AdminNewRoute
+  '/api/upload': typeof ApiUploadRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/unlock/$slug': typeof UnlockSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
+  '/api/asset/$': typeof ApiAssetSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
@@ -129,10 +143,12 @@ export interface FileRoutesByTo {
   '/admin/$slug': typeof AdminSlugRoute
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/new': typeof AdminNewRoute
+  '/api/upload': typeof ApiUploadRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/unlock/$slug': typeof UnlockSlugRoute
   '/admin': typeof AdminIndexRoute
   '/blog': typeof BlogIndexRoute
+  '/api/asset/$': typeof ApiAssetSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
@@ -147,10 +163,12 @@ export interface FileRoutesById {
   '/admin/$slug': typeof AdminSlugRoute
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/new': typeof AdminNewRoute
+  '/api/upload': typeof ApiUploadRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/unlock/$slug': typeof UnlockSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
+  '/api/asset/$': typeof ApiAssetSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
@@ -166,10 +184,12 @@ export interface FileRouteTypes {
     | '/admin/$slug'
     | '/admin/comments'
     | '/admin/new'
+    | '/api/upload'
     | '/blog/$slug'
     | '/unlock/$slug'
     | '/admin/'
     | '/blog/'
+    | '/api/asset/$'
     | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -183,10 +203,12 @@ export interface FileRouteTypes {
     | '/admin/$slug'
     | '/admin/comments'
     | '/admin/new'
+    | '/api/upload'
     | '/blog/$slug'
     | '/unlock/$slug'
     | '/admin'
     | '/blog'
+    | '/api/asset/$'
     | '/api/auth/$'
   id:
     | '__root__'
@@ -200,10 +222,12 @@ export interface FileRouteTypes {
     | '/admin/$slug'
     | '/admin/comments'
     | '/admin/new'
+    | '/api/upload'
     | '/blog/$slug'
     | '/unlock/$slug'
     | '/admin/'
     | '/blog/'
+    | '/api/asset/$'
     | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
@@ -218,10 +242,12 @@ export interface RootRouteChildren {
   AdminSlugRoute: typeof AdminSlugRoute
   AdminCommentsRoute: typeof AdminCommentsRoute
   AdminNewRoute: typeof AdminNewRoute
+  ApiUploadRoute: typeof ApiUploadRoute
   BlogSlugRoute: typeof BlogSlugRoute
   UnlockSlugRoute: typeof UnlockSlugRoute
   AdminIndexRoute: typeof AdminIndexRoute
   BlogIndexRoute: typeof BlogIndexRoute
+  ApiAssetSplatRoute: typeof ApiAssetSplatRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
@@ -304,6 +330,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/upload': {
+      id: '/api/upload'
+      path: '/api/upload'
+      fullPath: '/api/upload'
+      preLoaderRoute: typeof ApiUploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/new': {
       id: '/admin/new'
       path: '/admin/new'
@@ -332,6 +365,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/asset/$': {
+      id: '/api/asset/$'
+      path: '/api/asset/$'
+      fullPath: '/api/asset/$'
+      preLoaderRoute: typeof ApiAssetSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -346,10 +386,12 @@ const rootRouteChildren: RootRouteChildren = {
   AdminSlugRoute: AdminSlugRoute,
   AdminCommentsRoute: AdminCommentsRoute,
   AdminNewRoute: AdminNewRoute,
+  ApiUploadRoute: ApiUploadRoute,
   BlogSlugRoute: BlogSlugRoute,
   UnlockSlugRoute: UnlockSlugRoute,
   AdminIndexRoute: AdminIndexRoute,
   BlogIndexRoute: BlogIndexRoute,
+  ApiAssetSplatRoute: ApiAssetSplatRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport

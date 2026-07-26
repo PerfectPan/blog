@@ -24,6 +24,12 @@
       "migrations_dir": "./migrations"
     }
   ],
+  "r2_buckets": [
+    {
+      "binding": "MEDIA_BUCKET",
+      "bucket_name": "blog-assets"
+    }
+  ],
   "observability": {
     "enabled": true
   }

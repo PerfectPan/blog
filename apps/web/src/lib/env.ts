@@ -7,6 +7,9 @@ type WebEnv = {
   appsWebUrl: string;
   cookieDomain?: string;
   adminEmailAllowlist: string[];
+  /** R2 public custom domain for media (e.g. https://assets.perfectpan.org).
+   *  When unset, media is served through the Worker at /api/asset/<key>. */
+  assetsBaseUrl?: string;
 };
 
 function requireEnv(name: string): string {
@@ -73,5 +76,8 @@ export function getWebEnv(): WebEnv {
     appsWebUrl: requireUrlEnv('APPS_WEB_URL'),
     cookieDomain: process.env.COOKIE_DOMAIN,
     adminEmailAllowlist: allowlist,
+    assetsBaseUrl: process.env.ASSETS_BASE_URL
+      ? stripWrappedQuotes(process.env.ASSETS_BASE_URL).replace(/\/$/, '')
+      : undefined,
   };
 }

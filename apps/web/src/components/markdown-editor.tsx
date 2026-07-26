@@ -7,6 +7,7 @@ import {
   Italic,
   Link as LinkIcon,
   List,
+  Loader2,
   Quote,
 } from 'lucide-react';
 import {
@@ -30,6 +31,7 @@ const EDITOR_HEIGHT = 'h-[460px]';
 export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
   const ref = useRef<HTMLTextAreaElement>(null);
   const [mode, setMode] = useState<Mode>('split');
+  const [uploading, setUploading] = useState(false);
   // shiki highlighting is expensive; keep the textarea snappy by deferring the
   // rendered preview a tick behind the typed text.
   const previewContent = useDeferredValue(value);
@@ -115,6 +117,51 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
     };
   }
 
+  /** Upload pasted/dropped image files to R2 and insert markdown at the caret.
+   *  Requires an admin session (the /api/upload route enforces it). */
+  async function insertImageFiles(files: File[]) {
+    const images = files.filter((file) => file.type.startsWith('image/'));
+    if (!images.length || !ref.current) {
+      return;
+    }
+    const el = ref.current;
+    let pos = el.selectionStart ?? value.length;
+    let next = value;
+    setUploading(true);
+    try {
+      for (const file of images) {
+        const form = new FormData();
+        form.append('file', file);
+        let url: string | undefined;
+        try {
+          const res = await fetch('/api/upload', {
+            method: 'POST',
+            body: form,
+          });
+          if (res.ok) {
+            const data = (await res.json()) as { url?: string };
+            url = data.url;
+          }
+        } catch {
+          // Network error / abort — skip this file, keep going.
+        }
+        if (!url) {
+          continue;
+        }
+        const alt = file.name.replace(/\.[^.]+$/, '') || 'image';
+        const md = `![${alt}](${url})`;
+        next = next.slice(0, pos) + md + next.slice(pos);
+        pos += md.length;
+      }
+      if (next !== value) {
+        onChange(next);
+        pendingSelection.current = { start: pos, end: pos };
+      }
+    } finally {
+      setUploading(false);
+    }
+  }
+
   return (
     <div className='overflow-hidden rounded-md border border-slate-300 dark:border-slate-700'>
       <div className='flex flex-wrap items-center gap-1 border-b border-slate-200 bg-black/[0.02] px-2 py-1.5 dark:border-slate-700 dark:bg-white/[0.03]'>
@@ -157,6 +204,12 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
         >
           <ImageIcon size={16} />
         </ToolButton>
+        {uploading ? (
+          <span className='ml-1 inline-flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400'>
+            <Loader2 size={12} className='animate-spin' />
+            上传中…
+          </span>
+        ) : null}
 
         <div className='ml-auto flex items-center gap-1'>
           <ModeButton
@@ -188,6 +241,29 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
             ref={ref}
             value={value}
             onChange={(event) => onChange(event.target.value)}
+            onPaste={(event) => {
+              const files = Array.from(event.clipboardData?.items ?? [])
+                .map((item) => (item.kind === 'file' ? item.getAsFile() : null))
+                .filter((file): file is File => file !== null);
+              if (files.length > 0) {
+                event.preventDefault();
+                void insertImageFiles(files);
+              }
+            }}
+            onDrop={(event) => {
+              const files = Array.from(event.dataTransfer?.files ?? []);
+              if (files.some((file) => file.type.startsWith('image/'))) {
+                event.preventDefault();
+                void insertImageFiles(files);
+              }
+            }}
+            onDragOver={(event) => {
+              if (
+                Array.from(event.dataTransfer?.types ?? []).includes('Files')
+              ) {
+                event.preventDefault();
+              }
+            }}
             spellCheck={false}
             className={`h-full resize-none bg-white px-3 py-3 font-mono text-sm leading-6 outline-none dark:bg-wash-dark dark:text-slate-100 ${
               mode === 'split'

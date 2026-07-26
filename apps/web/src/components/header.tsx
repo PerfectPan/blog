@@ -1,8 +1,9 @@
 import { Link } from '@tanstack/react-router';
-import { Github, LogOut, Rss, UserRound } from 'lucide-react';
+import { Github, LogOut, Rss, Search, UserRound } from 'lucide-react';
 import { authClient } from '../lib/auth-client.js';
 import { DarkMode } from './dark-mode.js';
 import { MenuLink } from './menu.js';
+import { searchPalette } from './search-palette-store.js';
 
 function getRoleLabel(role?: string | null): string {
   if (role === 'admin') {
@@ -21,7 +22,7 @@ export function Header() {
   const sessionUser = sessionData?.user ?? null;
 
   return (
-    <header className='fixed left-0 top-0 right-0 z-10 border-b border-slate-200 bg-white/90 shadow-md backdrop-blur dark:border-slate-300/10 dark:bg-slate-900/90'>
+    <header className='border-b border-slate-200 bg-white shadow-md dark:border-slate-300/10 dark:bg-slate-900'>
       <div className='mx-4 flex h-16 items-center sm:mx-6'>
         <Link
           to='/'
@@ -67,6 +68,14 @@ export function Header() {
               </Link>
             </>
           )}
+          <button
+            type='button'
+            aria-label='Search posts (Cmd+K)'
+            onClick={() => searchPalette.open()}
+            className='inline-flex items-center opacity-70 transition-opacity hover:opacity-100'
+          >
+            <Search size={22} />
+          </button>
           <DarkMode />
           <a
             href='https://github.com/PerfectPan'

@@ -1,9 +1,12 @@
 import {
   canAccessVisibility,
+  filterByQuery,
   getUnlockCookieName,
   type PostDetail,
   type PostSummary,
+  paginate,
   type Role,
+  SEARCH_LIMIT,
 } from '@blog/shared';
 import { createServerFn } from '@tanstack/react-start';
 import { getRequest } from '@tanstack/react-start/server';
@@ -37,21 +40,42 @@ function withoutBody(post: PostDetail): PostDetail {
   return { ...post, contentMdx: '' };
 }
 
-export const getBlogListServerFn = createServerFn({ method: 'GET' }).handler(
-  async () => {
+export const getBlogListServerFn = createServerFn({ method: 'GET' })
+  .inputValidator(z.object({ page: z.number().int().min(1).optional() }))
+  .handler(async ({ data }) => {
     const request = getRequest();
     const sessionUser = await getSessionUserFromRequest(request);
     const allPosts = await getAllPublishedPosts();
-    const posts = sortByPublishedDateDesc(
+    const visible = sortByPublishedDateDesc(
       allPosts.filter((post) => isListedFor(post, sessionUser?.role)),
     );
+    const result = paginate(visible, data?.page ?? 1);
 
     return {
       sessionUser,
-      posts,
+      posts: result.items,
+      total: result.total,
+      page: result.page,
+      pageSize: result.pageSize,
+      totalPages: result.totalPages,
     };
-  },
-);
+  });
+
+/** Top-N visible posts matching a query — powers the global Cmd+K palette.
+ *  Visibility filtering + search both happen server-side so restricted posts
+ *  never reach the client, even as search suggestions. */
+export const searchPostsServerFn = createServerFn({ method: 'GET' })
+  .inputValidator(z.object({ q: z.string() }))
+  .handler(async ({ data }) => {
+    const request = getRequest();
+    const sessionUser = await getSessionUserFromRequest(request);
+    const visible = sortByPublishedDateDesc(
+      (await getAllPublishedPosts()).filter((post) =>
+        isListedFor(post, sessionUser?.role),
+      ),
+    );
+    return filterByQuery(visible, data.q).slice(0, SEARCH_LIMIT);
+  });
 
 export const getBlogPostServerFn = createServerFn({ method: 'GET' })
   .inputValidator(z.object({ slug: z.string().min(1) }))
