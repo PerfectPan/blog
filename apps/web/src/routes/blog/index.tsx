@@ -86,8 +86,8 @@ function BlogListPage() {
   }, [data.page]);
 
   return (
-    <div className='flex flex-col gap-8 self-start'>
-      <div className='mx-auto w-full self-start max-w-[80ch] pt-8'>
+    <div className='mx-auto flex w-full max-w-[80ch] flex-col gap-8 self-start pt-8'>
+      <div className='w-full'>
         {showDevHint ? (
           <div className='mb-8 rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900'>
             {devScopeHint}
@@ -121,7 +121,7 @@ function BlogListPage() {
       </div>
       {data.totalPages > 1 ? (
         <nav
-          className='mx-auto flex w-full max-w-[80ch] items-center justify-center gap-4 text-sm sm:gap-6'
+          className='flex w-full items-center justify-center gap-4 text-sm sm:gap-6'
           aria-label='Pagination'
         >
           {data.page > 1 ? (
