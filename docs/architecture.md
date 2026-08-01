@@ -54,11 +54,15 @@ www → 301 apex ─┘        ├─ ASSETS  = dist/client 静态资源
 
 ## 4. 数据模型（D1 `blog`）
 
+- **D1**：Cloudflare 的 Serverless SQLite，Worker 经 `env.DB` 绑定访问，用
+  `prepare().bind().all()/run()` 做参数化查询。
 - **better-auth 表**（迁移 `0001`）：`user`（含 `role`：`member|vip|admin`）、`session`、
   `account`（密码 hash）、`verification`。
 - **`post` 表**（迁移 `0002`）：`slug`(PK)、`title`、`description`、`body`(markdown 正文)、
   `visibility`、`password`、`status`(`draft|published`)、`tags`(JSON 数组)、`publishedAt`、
   `createdAt`、`updatedAt`。
+  - `slug` 做主键：URL 路由直接按 slug 查文章，O(1) 主键查找，不需要先 resolve id。
+  - `tags` 存 JSON 字符串：75 篇文章 + 无标签筛选需求，拆 `post_tags` 关联表过度设计；如需做标签筛选，再补一张 `post_tag(slug, tag)` 表。
 - **迁移 `0003`**：把 75 篇历史 `content/blog/*.md` 一次性导入 `post`（幂等
   `ON CONFLICT DO NOTHING`，**不带事务包裹**——75 行的 `BEGIN…COMMIT` 会触发远端
   `SQLITE_TOOBIG`）。这条迁移本身就是「上线内容快照」。
@@ -67,10 +71,18 @@ www → 301 apex ─┘        ├─ ASSETS  = dist/client 静态资源
   `status`（`visible|hidden|spam`）、`createdAt`、`updatedAt`。**登录才能评论**（Better Auth）；
   **后置审核**（默认 `visible`，admin 可隐藏/标垃圾/硬删除）；限流为原子
   `INSERT…WHERE NOT EXISTS`（每用户 60s）。替换了原 utteranc.es。
+- better-auth 的自动建表依赖 Drizzle 驱动，D1 环境不可用；表结构手动写成 D1 迁移文件，统一走
+  wrangler migrations 管道，版本可审计、不在请求期建表。
 - 迁移由 `migrate.yml` 在部署时 `wrangler d1 migrations apply blog --remote` 应用（Workers Builds
   的 token 无 D1 权限，迁移单独跑）；本地用 `--local`。
+- **不用 ORM**（Prisma/Drizzle 等）：Worker 免费版 3 MiB gzip 上限（Prisma 引擎 ~5 MiB 直接超）；
+  业务表只有 `post` + `comment` 两张、查询不到 10 个，手写 SQL 足够。
 
 ## 5. 核心请求链路
+
+Worker 入口就是一个 `export default { fetch(request, env, ctx) }` 函数，Cloudflare 每次请求
+调用它；TanStack Start 的 `createStartHandler` 把路由匹配、loader 执行、SSR 渲染全包在这个
+fetch 里（`apps/web/src/server.tsx`）。
 
 1. Worker 入口：`www → apex` 301 判断（`server.tsx`），命中 www 才跳。
 2. TanStack Start：route loader（服务端）→ 调用 server fn → 读写 D1 → SSR。
