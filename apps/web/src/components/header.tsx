@@ -54,6 +54,7 @@ export function Header() {
           ) : (
             <Link
               to='/login'
+              data-testid='nav-login'
               className='text-[13.5px]'
               style={{ letterSpacing: '0.28em', color: 'var(--j-faded)' }}
             >
