@@ -48,7 +48,7 @@ export function Header() {
             </span>
           ) : null}
           {sessionUser ? (
-            <Link to='/logout' aria-label='Logout'>
+            <Link to='/logout' data-testid='nav-logout' aria-label='Logout'>
               <LogOut size={17} className='opacity-60 hover:opacity-100' />
             </Link>
           ) : (
