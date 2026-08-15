@@ -1,9 +1,9 @@
 import type { PostSummary, SessionUser } from '@blog/shared';
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useEffect } from 'react';
 import { z } from 'zod';
 import { getBlogListServerFn } from '../../lib/blog-service.js';
+import { tagColor } from '../../lib/tag-color.js';
 
 type BlogGroup = {
   year: string;
@@ -49,6 +49,21 @@ function getDevScopeHint(sessionUser: SessionUser | null | undefined): string {
   return '当前身份：member；可见范围：public/member';
 }
 
+const VIS_CLASS: Record<PostSummary['visibility'], string> = {
+  public: '',
+  member: 'g-vis mem',
+  vip: 'g-vis vip',
+  admin: 'g-vis adm',
+  password: 'g-vis pw',
+};
+const VIS_TEXT: Record<PostSummary['visibility'], string> = {
+  public: '',
+  member: 'MEMBER',
+  vip: 'VIP',
+  admin: 'ADMIN',
+  password: 'PASSWORD',
+};
+
 export const Route = createFileRoute('/blog/')({
   head: () => ({
     meta: [
@@ -77,88 +92,82 @@ function BlogListPage() {
   const devScopeHint = getDevScopeHint(data.sessionUser);
 
   // Conventional blog pagination: the page scrolls naturally; jump back to the
-  // top on each page change so the new page starts at its first post. (Without
-  // this, clicking "next" while scrolled to the bottom leaves the reader past a
-  // shorter page — the original "bounce".)
+  // top on each page change so the new page starts at its first post.
   // biome-ignore lint/correctness/useExhaustiveDependencies: re-run on page change, value unused in body on purpose
   useEffect(() => {
     document.querySelector('main')?.scrollTo({ top: 0 });
   }, [data.page]);
 
   return (
-    <div className='mx-auto flex w-full max-w-[80ch] flex-col gap-8 self-start pt-8'>
-      <div className='w-full'>
-        {showDevHint ? (
-          <div className='mb-8 rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900'>
-            {devScopeHint}
-          </div>
-        ) : null}
-        {blogGroups.map((group) => (
-          <div key={group.year}>
-            <div className='mb-4 text-3xl'>{group.year}</div>
-            {group.blogs.map((blog: PostSummary) => (
-              <div
-                key={blog.slug}
-                className='mt-2 mb-6 opacity-70 hover:opacity-100'
-              >
-                <Link
-                  to='/blog/$slug'
-                  params={{ slug: blog.slug }}
-                  className='flex items-center gap-2'
-                >
-                  <span className='text-lg leading-[1.2em]'>{blog.title}</span>
-                  <span className='text-sm opacity-50'>
-                    {new Date(blog.publishedAt).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                    })}
-                  </span>
-                </Link>
-              </div>
-            ))}
-          </div>
-        ))}
+    <div className='g-page'>
+      <div className='g-list-head'>
+        <h1>Blog</h1>
+        <span className='g-cnt'>
+          — {data.total} POSTS / {data.totalPages} PAGES
+        </span>
       </div>
-      {data.totalPages > 1 ? (
-        <nav
-          className='flex w-full items-center justify-center gap-4 text-sm sm:gap-6'
-          aria-label='Pagination'
-        >
-          {data.page > 1 ? (
+
+      {showDevHint ? <div className='g-devhint'>{devScopeHint}</div> : null}
+
+      {blogGroups.map((group) => (
+        <div key={group.year}>
+          <div className='g-yr'>{group.year}</div>
+          {group.blogs.map((blog: PostSummary) => (
             <Link
-              to='/blog'
-              search={{ page: data.page - 1 }}
-              className='inline-flex items-center gap-1 opacity-60 hover:opacity-100'
+              key={blog.slug}
+              to='/blog/$slug'
+              params={{ slug: blog.slug }}
+              className='g-row'
             >
-              <ChevronLeft size={14} /> prev
+              <span className='no'>№{String(data.total).padStart(3, '0')}</span>
+              <span className='t'>
+                {blog.title}
+                {blog.visibility !== 'public' ? (
+                  <span className={VIS_CLASS[blog.visibility]}>
+                    {VIS_TEXT[blog.visibility]}
+                  </span>
+                ) : null}
+              </span>
+              <span className='tags'>
+                {blog.tags.map((tag: string) => (
+                  <span
+                    key={tag}
+                    className='g-chip'
+                    style={{ color: tagColor(tag), borderColor: tagColor(tag) }}
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </span>
+              <span className='d'>
+                {new Date(blog.publishedAt).toISOString().slice(5, 10)}
+              </span>
+            </Link>
+          ))}
+        </div>
+      ))}
+
+      {data.totalPages > 1 ? (
+        <nav className='g-pager' aria-label='Pagination'>
+          {data.page > 1 ? (
+            <Link to='/blog' search={{ page: data.page - 1 }}>
+              ← prev
             </Link>
           ) : (
-            <span className='inline-flex items-center gap-1 opacity-30'>
-              <ChevronLeft size={14} /> prev
-            </span>
+            <span style={{ opacity: 0.4 }}>← prev</span>
           )}
-          <span className='opacity-60'>
-            page {data.page} / {data.totalPages}
+          <span className='cur'>
+            {data.page} / {data.totalPages}
           </span>
           {data.page < data.totalPages ? (
-            <Link
-              to='/blog'
-              search={{ page: data.page + 1 }}
-              className='inline-flex items-center gap-1 opacity-60 hover:opacity-100'
-            >
-              next <ChevronRight size={14} />
+            <Link to='/blog' search={{ page: data.page + 1 }}>
+              next →
             </Link>
           ) : (
-            <span className='inline-flex items-center gap-1 opacity-30'>
-              next <ChevronRight size={14} />
-            </span>
+            <span style={{ opacity: 0.4 }}>next →</span>
           )}
         </nav>
       ) : null}
-      <Link to='/' className='mt-4 inline-block'>
-        <span className='opacity-70'>&gt;&nbsp;&nbsp;&nbsp;</span>
-        <span className='underline opacity-70 hover:opacity-100'>cd ..</span>
-      </Link>
     </div>
   );
 }

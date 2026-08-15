@@ -34,96 +34,100 @@ function LoginPage() {
 
   if (sessionData?.user?.id || isSessionPending) {
     return (
-      <section className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-        <p className='opacity-70'>Checking session...</p>
-      </section>
+      <div className='g-page'>
+        <p className='g-hint pt-8 text-center'>Checking session…</p>
+      </div>
     );
   }
 
   return (
-    <section className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-      <h1 className='mb-2 text-3xl font-black'>登录</h1>
-      <p className='mb-6 opacity-70'>支持邮箱密码和 GitHub OAuth。</p>
+    <div className='g-page'>
+      <div className='g-auth'>
+        <div className='g-auth-head'>
+          <h1>登录</h1>
+          <span className='g-cnt'>AUTH / 01</span>
+        </div>
+        <div className='g-panel g-auth-card'>
+          <span className='g-glowline' aria-hidden='true' />
+          <form
+            method='post'
+            onSubmit={(event) => {
+              event.preventDefault();
+              setError(null);
+              startTransition(async () => {
+                const result = await authClient.signIn.email({
+                  email,
+                  password,
+                  callbackURL: '/blog',
+                });
 
-      {error ? (
-        <p role='alert' className='mb-4 text-sm text-red-700 dark:text-red-300'>
-          {error}
-        </p>
-      ) : null}
+                if (result.error) {
+                  setError(result.error.message ?? '登录失败');
+                  return;
+                }
 
-      <form
-        className='grid max-w-[420px] gap-3'
-        method='post'
-        onSubmit={(event) => {
-          event.preventDefault();
-          setError(null);
-          startTransition(async () => {
-            const result = await authClient.signIn.email({
-              email,
-              password,
-              callbackURL: '/blog',
-            });
-
-            if (result.error) {
-              setError(result.error.message ?? '登录失败');
-              return;
-            }
-
-            navigate({ to: '/blog' });
-          });
-        }}
-      >
-        <label htmlFor='email' className='font-semibold'>
-          Email
-        </label>
-        <input
-          id='email'
-          name='email'
-          type='email'
-          required
-          autoComplete='email'
-          className='rounded-md border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-wash-dark'
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-        />
-        <label htmlFor='password' className='font-semibold'>
-          Password
-        </label>
-        <input
-          id='password'
-          name='password'
-          type='password'
-          required
-          autoComplete='current-password'
-          className='rounded-md border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-wash-dark'
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-        />
-        <button
-          type='submit'
-          className='rounded-md bg-black px-4 py-2 font-semibold text-white transition-opacity hover:opacity-90 dark:bg-neutral-900'
-          disabled={isPending}
-        >
-          {isPending ? 'Signing in...' : 'Sign In'}
-        </button>
-      </form>
-
-      <button
-        type='button'
-        className='mt-3 rounded-md border border-slate-300 px-4 py-2 font-semibold transition-colors hover:bg-gray-100 dark:border-slate-700 dark:hover:bg-slate-800'
-        onClick={async () => {
-          setError(null);
-          const result = await authClient.signIn.social({
-            provider: 'github',
-            callbackURL: '/blog',
-          });
-          if (result.error) {
-            setError(result.error.message ?? 'GitHub 登录失败');
-          }
-        }}
-      >
-        Continue with GitHub
-      </button>
-    </section>
+                navigate({ to: '/blog' });
+              });
+            }}
+          >
+            <div className='g-field'>
+              <label htmlFor='email'>EMAIL</label>
+              <input
+                id='email'
+                name='email'
+                type='email'
+                required
+                autoComplete='email'
+                className='g-input'
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+              />
+            </div>
+            <div className='g-field'>
+              <label htmlFor='password'>PASSWORD</label>
+              <input
+                id='password'
+                name='password'
+                type='password'
+                required
+                autoComplete='current-password'
+                className='g-input'
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+              />
+            </div>
+            <div className='g-actions'>
+              <button
+                type='submit'
+                className='g-btn g-btn-grad'
+                disabled={isPending}
+              >
+                {isPending ? '登录中…' : '登录'}
+              </button>
+              <button
+                type='button'
+                className='g-btn'
+                onClick={async () => {
+                  setError(null);
+                  const result = await authClient.signIn.social({
+                    provider: 'github',
+                    callbackURL: '/blog',
+                  });
+                  if (result.error) {
+                    setError(result.error.message ?? 'GitHub 登录失败');
+                  }
+                }}
+              >
+                GitHub 登录
+              </button>
+            </div>
+            {error ? <p className='g-err'>{error}</p> : null}
+          </form>
+          <p className='g-aside'>
+            没有账号？<a href='/signup'>注册 →</a>
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }

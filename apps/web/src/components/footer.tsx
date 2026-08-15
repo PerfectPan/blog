@@ -1,10 +1,12 @@
+import { Link } from '@tanstack/react-router';
+
 export function Footer() {
   return (
-    <footer className='p-6 text-center'>
-      © {new Date().getFullYear()}, Built with{' '}
-      <a className='text-blue-500' href='https://tanstack.com/start/latest'>
-        TanStack Start
-      </a>
+    <footer className='g-foot'>
+      <span>PERFECTPAN.ORG — {new Date().getFullYear()}</span>
+      <Link to='/blog'>/BLOG</Link>
+      <Link to='/projects'>/PROJECTS</Link>
+      <a href='/rss.xml'>RSS ↗</a>
     </footer>
   );
 }

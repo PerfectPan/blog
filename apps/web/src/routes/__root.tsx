@@ -26,7 +26,7 @@ export const Route = createRootRoute({
       },
       {
         name: 'theme-color',
-        content: '#000000',
+        content: '#120E24',
       },
     ],
     links: [
@@ -38,12 +38,14 @@ export const Route = createRootRoute({
   errorComponent: ({ error }) => (
     <RootDocument>
       <AppLayout>
-        <div className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-          <h2 className='mb-4 text-3xl'>Request Failed</h2>
-          <p className='mb-4 opacity-70'>{String(error)}</p>
-          <Link to='/blog' className='opacity-70 hover:opacity-100'>
-            Back to blog
-          </Link>
+        <div className='g-page'>
+          <div className='g-nf'>
+            <div className='code'>500</div>
+            <p>{String(error)}</p>
+            <Link to='/blog' className='g-btn g-btn-grad'>
+              ← 回到博客
+            </Link>
+          </div>
         </div>
       </AppLayout>
     </RootDocument>
@@ -51,12 +53,14 @@ export const Route = createRootRoute({
   notFoundComponent: () => (
     <RootDocument>
       <AppLayout>
-        <div className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-          <h2 className='mb-4 text-3xl'>404 Not Found</h2>
-          <p className='mb-4 opacity-70'>你闯入了无人之境...</p>
-          <Link to='/blog' className='opacity-70 hover:opacity-100'>
-            Back to blog
-          </Link>
+        <div className='g-page'>
+          <div className='g-nf'>
+            <div className='code'>404</div>
+            <p>你驶入了没有霓虹的街区。</p>
+            <Link to='/blog' className='g-btn g-btn-grad'>
+              ← 回到博客
+            </Link>
+          </div>
         </div>
       </AppLayout>
     </RootDocument>

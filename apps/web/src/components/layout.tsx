@@ -7,21 +7,17 @@ type AppLayoutProps = {
 };
 
 /**
- * App shell. The header sits OUTSIDE the scroll container (`main`), so page
- * overscroll only rubber-bands the content — the pinned header never moves
- * (no macOS "fixed header drags on overscroll"). Window doesn't scroll; route
- * scroll reset/restore for `main` is handled by TanStack via
- * `scrollToTopSelectors: ['main']` in router.tsx.
+ * App shell (synthwave theme). Header sits OUTSIDE the scroll container
+ * (`main`). Window doesn't scroll; route scroll reset/restore for `main` is
+ * handled by TanStack via `scrollToTopSelectors: ['main']` in router.tsx.
  */
 export function AppLayout({ children }: AppLayoutProps) {
   return (
-    <div className='flex h-dvh flex-col'>
+    <div className='g-shell'>
       <Header />
-      <main className='flex-1 overflow-y-auto'>
+      <main className='g-main'>
         <div className='flex min-h-full flex-col'>
-          <div className='flex flex-grow items-center justify-center px-6 *:min-h-64 *:min-w-64'>
-            {children}
-          </div>
+          <div className='flex-grow'>{children}</div>
           <Footer />
         </div>
       </main>

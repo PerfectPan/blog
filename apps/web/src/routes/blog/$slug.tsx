@@ -1,10 +1,5 @@
 import { type CommentThread, canAccessVisibility } from '@blog/shared';
-import {
-  createFileRoute,
-  Link,
-  notFound,
-  redirect,
-} from '@tanstack/react-router';
+import { createFileRoute, notFound, redirect } from '@tanstack/react-router';
 import { Comments } from '../../components/comments.js';
 import { Markdown } from '../../components/markdown.js';
 import { getBlogPostServerFn } from '../../lib/blog-service.js';
@@ -70,23 +65,34 @@ function BlogDetailPage() {
     return null;
   }
 
-  const date = new Date(post.publishedAt).toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  });
+  const date = new Date(post.publishedAt).toISOString().slice(0, 10);
 
   return (
-    <div className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-      <div className='m-auto mb-8 flex flex-col gap-2'>
-        <div className='text-3xl font-black'>{post.title}</div>
-        <div className='opacity-60'>{date}</div>
+    <div className='g-page'>
+      <article className='g-panel g-art'>
+        <h1>{post.title}</h1>
+        <div className='meta'>
+          <span className='g-chip'>{date}</span>
+          <span className='g-chip'>{post.visibility.toUpperCase()}</span>
+          {post.tags.map((tag: string) => (
+            <span
+              key={tag}
+              className='g-chip'
+              style={{
+                color: 'var(--g-violet)',
+                borderColor: 'var(--g-violet)',
+              }}
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+        <Markdown content={post.contentMdx} />
+      </article>
+
+      <div className='g-list-head' style={{ paddingBottom: 8 }}>
+        <h1 style={{ fontSize: 16 }}>COMMENTS · {data.comments.total}</h1>
       </div>
-      <Markdown content={post.contentMdx} />
-      <Link to='/blog' className='mt-4 inline-block'>
-        <span className='opacity-70'>&gt;&nbsp;&nbsp;&nbsp;</span>
-        <span className='underline opacity-70 hover:opacity-100'>cd ..</span>
-      </Link>
       <Comments
         key={post.slug}
         slug={post.slug}
