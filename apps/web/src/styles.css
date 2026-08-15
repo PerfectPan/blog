@@ -776,6 +776,10 @@ a.th-ls-row:hover {
   /* biome-ignore lint/complexity/noImportantStyles: shiki inline light color must be overridden. */
   color: var(--t-text) !important;
 }
+.md pre.th-pre span {
+  /* biome-ignore lint/complexity/noImportantStyles: force shiki dark tokens without html.dark (SSR-safe). */
+  color: var(--shiki-dark) !important;
+}
 .md .th-pre code {
   background: none;
   padding: 0;

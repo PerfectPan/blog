@@ -104,9 +104,7 @@ function RootComponent() {
 
 function RootDocument({ children }: { children: ReactNode }) {
   return (
-    // Terminal theme is dark-native: render with .dark so existing dark:
-    // variants and shiki dual-themes apply without a client-side flash.
-    <html lang='zh-CN' className='dark'>
+    <html lang='zh-CN'>
       <head>
         <HeadContent />
       </head>
