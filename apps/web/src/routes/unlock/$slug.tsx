@@ -78,48 +78,46 @@ function UnlockPage() {
     search.error === 'missing'
       ? '请输入访问密码'
       : search.error === 'invalid'
-        ? '密码错误，请重试'
+        ? '密码错误，请重试（连续失败会触发限流）'
         : undefined;
 
   return (
-    <section className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-      <h1 className='mb-2 text-3xl font-black'>输入文章访问密码</h1>
-      <p className='mb-6 opacity-70'>这篇文章使用了单文密码保护。</p>
-
-      {errorLabel ? (
-        <p role='alert' className='mb-4 text-sm text-red-700 dark:text-red-300'>
-          {errorLabel}
-        </p>
-      ) : null}
-
-      <form method='post' className='grid max-w-[420px] gap-3'>
-        <label htmlFor='password' className='font-semibold'>
-          Password
-        </label>
-        <input
-          id='password'
-          name='password'
-          type='password'
-          required
-          className='rounded-md border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-wash-dark'
-        />
-        <button
-          type='submit'
-          className='rounded-md bg-black px-4 py-2 font-semibold text-white transition-opacity hover:opacity-90 dark:bg-neutral-900'
-        >
-          Unlock
-        </button>
-      </form>
-
-      <p className='mt-4'>
-        <Link
-          to='/blog/$slug'
-          params={{ slug }}
-          className='opacity-70 hover:opacity-100'
-        >
-          返回文章页
-        </Link>
-      </p>
-    </section>
+    <div className='c-page'>
+      <div className='c-auth'>
+        <div className='c-auth-head'>
+          <h1>解锁文章</h1>
+          <span className='c-no'>AUTH / 03</span>
+        </div>
+        <div className='c-auth-card'>
+          <div className='c-lockline'>LOCKED ENTRY</div>
+          <form method='post'>
+            <div className='c-field'>
+              <label htmlFor='password'>单文密码</label>
+              <input
+                id='password'
+                name='password'
+                type='password'
+                required
+                className='c-input'
+              />
+            </div>
+            {errorLabel ? <p className='c-err'>{errorLabel}</p> : null}
+            <div className='c-actions'>
+              <button type='submit' className='c-btn c-btn-solid'>
+                解锁
+              </button>
+              <Link
+                to='/blog/$slug'
+                params={{ slug }}
+                className='c-btn c-btn-ghost'
+              >
+                ← 返回文章
+              </Link>
+            </div>
+          </form>
+          <p className='c-aside'>验证后 24 小时内免密阅读本篇。</p>
+        </div>
+      </div>
+    </div>
   );
 }

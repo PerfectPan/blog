@@ -20,14 +20,6 @@ type CommentsProps = {
 
 const PAGE_SIZE = 20;
 
-function getInitials(name: string): string {
-  const trimmed = name.trim();
-  if (!trimmed) {
-    return '?';
-  }
-  return trimmed.slice(0, 1).toUpperCase();
-}
-
 function formatRelative(iso: string): string {
   const then = new Date(iso).getTime();
   if (Number.isNaN(then)) {
@@ -54,24 +46,6 @@ function formatRelative(iso: string): string {
     day: 'numeric',
     year: 'numeric',
   });
-}
-
-function Avatar({ name, image }: { name: string; image: string | null }) {
-  if (image) {
-    return (
-      <img
-        src={image}
-        alt={name}
-        loading='lazy'
-        className='h-8 w-8 shrink-0 rounded-full bg-zinc-100 dark:bg-zinc-800'
-      />
-    );
-  }
-  return (
-    <div className='flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-xs font-semibold text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300'>
-      {getInitials(name)}
-    </div>
-  );
 }
 
 type ComposerProps = {
@@ -107,29 +81,37 @@ function Composer({
   }
 
   return (
-    <form onSubmit={handleSubmit} className='flex flex-col gap-2'>
-      <textarea
-        value={body}
-        onChange={(event) => setBody(event.target.value)}
-        placeholder={placeholder}
-        rows={compact ? 2 : 3}
-        maxLength={2000}
-        className='w-full resize-y rounded-md border border-zinc-300 bg-transparent px-3 py-2 text-sm outline-none transition-colors focus:border-zinc-400 dark:border-zinc-600 dark:focus:border-zinc-400'
-      />
-      <div className='flex items-center justify-between gap-2'>
-        <span className='text-xs opacity-50'>
-          {remaining < 200 ? `${remaining} 字剩余` : '支持 Markdown'}
-          {error ? <span className='ml-2 text-red-500'>{error}</span> : null}
-        </span>
+    <div>
+      <form onSubmit={handleSubmit} className='c-cmt-form'>
+        <textarea
+          value={body}
+          onChange={(event) => setBody(event.target.value)}
+          placeholder={placeholder}
+          rows={compact ? 2 : 3}
+          maxLength={2000}
+        />
         <button
           type='submit'
           disabled={submitting || !body.trim()}
-          className='rounded-md bg-black px-3 py-1 text-xs font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-neutral-900'
+          style={{
+            borderLeft: '1px solid var(--c-ink)',
+            background: 'var(--c-ink)',
+            color: 'var(--c-bg)',
+            fontFamily: 'var(--c-sans)',
+            fontSize: 13,
+            fontWeight: 600,
+            padding: '0 24px',
+            cursor: 'pointer',
+          }}
         >
-          {submitting ? '发送中…' : '发送'}
+          {submitting ? '发送中…' : '评论 →'}
         </button>
-      </div>
-    </form>
+      </form>
+      <p className='c-cmt-hint mt-2 text-right'>
+        {error ? <span className='err'>{error}</span> : null}
+        {remaining < 200 ? `${remaining} 字剩余` : '支持 Markdown'}
+      </p>
+    </div>
   );
 }
 
@@ -191,7 +173,7 @@ function CommentItem({
       ) : null}
 
       {thread.replies.length > 0 ? (
-        <ul className='ml-10 flex flex-col gap-2 border-l border-zinc-200 pl-4 dark:border-zinc-700'>
+        <ul className='flex flex-col'>
           {thread.replies.map((reply) => {
             const replyCanAct =
               sessionUser != null &&
@@ -201,6 +183,7 @@ function CommentItem({
                 key={reply.id}
                 comment={reply}
                 canAct={replyCanAct}
+                canReply={false}
                 onReply={undefined}
                 onDelete={async () => {
                   if (!window.confirm('删除这条回复？')) {
@@ -232,50 +215,40 @@ function CommentView({
   onReply,
   onDelete,
 }: CommentViewProps) {
+  const isReply = comment.parentId !== null;
+
   return (
-    <div className='flex gap-3'>
-      <Avatar name={comment.author.name} image={comment.author.image} />
-      <div className='min-w-0 flex-1'>
-        <div className='flex flex-wrap items-center gap-x-2 gap-y-0.5'>
-          <span className='text-sm font-semibold'>{comment.author.name}</span>
-          {comment.author.role === 'admin' ? (
-            <span className='rounded bg-zinc-900 px-1.5 py-0.5 text-[10px] font-semibold text-white dark:bg-white dark:text-zinc-900'>
-              Author
-            </span>
-          ) : null}
-          {comment.status !== 'visible' ? (
-            <span className='rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'>
-              {comment.status}
-            </span>
-          ) : null}
-          <span className='text-xs opacity-50'>
-            {formatRelative(comment.createdAt)}
-          </span>
-        </div>
-        <div className='mt-1'>
-          <CommentMarkdown content={comment.body} />
-        </div>
-        <div className='mt-1 flex gap-3 text-xs'>
-          {canReply && onReply ? (
-            <button
-              type='button'
-              onClick={onReply}
-              className='opacity-50 transition-opacity hover:opacity-100'
-            >
-              回复
-            </button>
-          ) : null}
+    <div className={isReply ? 'c-cmt reply' : 'c-cmt'}>
+      <div className='c-cmt-h'>
+        <span className='who'>{comment.author.name}</span>
+        {comment.author.role === 'admin' ? <span>AUTHOR</span> : null}
+        {comment.status !== 'visible' ? (
+          <span style={{ color: 'var(--c-accent)' }}>{comment.status}</span>
+        ) : null}
+        <span>{formatRelative(comment.createdAt)}</span>
+      </div>
+      <div className='c-cmt-b'>
+        <CommentMarkdown content={comment.body} />
+      </div>
+      {canReply && onReply ? (
+        <div className='c-cmt-ops'>
+          <button type='button' onClick={onReply}>
+            回复
+          </button>
           {canAct ? (
-            <button
-              type='button'
-              onClick={() => onDelete()}
-              className='text-red-500/70 transition-colors hover:text-red-500'
-            >
+            <button type='button' className='del' onClick={() => onDelete()}>
               删除
             </button>
           ) : null}
         </div>
-      </div>
+      ) : null}
+      {!(canReply && onReply) && canAct ? (
+        <div className='c-cmt-ops'>
+          <button type='button' className='del' onClick={() => onDelete()}>
+            删除
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -316,7 +289,7 @@ export function Comments({
     setReplySubmitting((prev) => new Set(prev).add(parentId));
     try {
       const { comment } = await createCommentServerFn({
-        data: { slug, parentId, body },
+        data: { slug, body, parentId },
       });
       setThreads((prev) =>
         prev.map((thread) =>
@@ -375,11 +348,7 @@ export function Comments({
   }
 
   return (
-    <section className='mt-12'>
-      <h2 className='mb-4 text-lg font-black'>
-        评论 {total > 0 ? <span className='opacity-50'>({total})</span> : null}
-      </h2>
-
+    <section className='mt-2'>
       {sessionUser ? (
         <div className='mb-6'>
           <Composer
@@ -389,8 +358,8 @@ export function Comments({
           />
         </div>
       ) : (
-        <p className='mb-6 text-sm opacity-60'>
-          <Link to='/login' className='underline hover:opacity-100'>
+        <p className='mb-6 text-sm' style={{ color: 'var(--c-dim)' }}>
+          <Link to='/login' className='underline'>
             登录
           </Link>{' '}
           后即可评论。
@@ -398,28 +367,36 @@ export function Comments({
       )}
 
       {topError ? (
-        <p className='mb-4 text-sm text-red-500'>{topError}</p>
+        <p className='c-err mb-4' style={{ marginTop: 0 }}>
+          {topError}
+        </p>
       ) : null}
 
       {threads.length === 0 ? (
-        <p className='py-8 text-center text-sm opacity-50'>
+        <p
+          className='py-8 text-center text-sm'
+          style={{ color: 'var(--c-faint)' }}
+        >
           还没有评论，来抢沙发。
         </p>
       ) : (
-        <ul className='flex flex-col gap-5'>
-          {threads.map((thread) => (
-            <CommentItem
-              key={thread.id}
-              thread={thread}
-              sessionUser={sessionUser}
-              onReply={handleReply}
-              onDelete={handleDelete}
-              replyingTo={replyingTo}
-              setReplyingTo={setReplyingTo}
-              replySubmitting={replySubmitting}
-            />
-          ))}
-        </ul>
+        <>
+          <p className='c-sec-label mb-2'>TOTAL — {total}</p>
+          <ul className='flex flex-col'>
+            {threads.map((thread) => (
+              <CommentItem
+                key={thread.id}
+                thread={thread}
+                sessionUser={sessionUser}
+                onReply={handleReply}
+                onDelete={handleDelete}
+                replyingTo={replyingTo}
+                setReplyingTo={setReplyingTo}
+                replySubmitting={replySubmitting}
+              />
+            ))}
+          </ul>
+        </>
       )}
 
       {hasMore ? (
@@ -428,9 +405,9 @@ export function Comments({
             type='button'
             onClick={handleLoadMore}
             disabled={loadingMore}
-            className='text-sm opacity-60 transition-opacity hover:opacity-100 disabled:opacity-40'
+            className='c-btn c-btn-ghost'
           >
-            {loadingMore ? '加载中…' : '加载更多'}
+            {loadingMore ? '加载中…' : '加载更多 ↓'}
           </button>
         </div>
       ) : null}

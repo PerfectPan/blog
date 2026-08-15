@@ -38,12 +38,19 @@ export const Route = createRootRoute({
   errorComponent: ({ error }) => (
     <RootDocument>
       <AppLayout>
-        <div className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-          <h2 className='mb-4 text-3xl'>Request Failed</h2>
-          <p className='mb-4 opacity-70'>{String(error)}</p>
-          <Link to='/blog' className='opacity-70 hover:opacity-100'>
-            Back to blog
-          </Link>
+        <div className='c-page'>
+          <div className='c-nf'>
+            <div className='c-sec-label'>ERROR — REQUEST FAILED</div>
+            <div className='code'>
+              5<b>0</b>0
+            </div>
+            <p>{String(error)}</p>
+            <div style={{ marginTop: 26 }}>
+              <Link to='/blog' className='c-btn'>
+                ← 返回博客
+              </Link>
+            </div>
+          </div>
         </div>
       </AppLayout>
     </RootDocument>
@@ -51,12 +58,21 @@ export const Route = createRootRoute({
   notFoundComponent: () => (
     <RootDocument>
       <AppLayout>
-        <div className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-          <h2 className='mb-4 text-3xl'>404 Not Found</h2>
-          <p className='mb-4 opacity-70'>你闯入了无人之境...</p>
-          <Link to='/blog' className='opacity-70 hover:opacity-100'>
-            Back to blog
-          </Link>
+        <div className='c-page'>
+          <div className='c-nf'>
+            <div className='c-sec-label' style={{ marginBottom: 10 }}>
+              ERROR — NOT FOUND
+            </div>
+            <div className='code'>
+              4<b>0</b>4
+            </div>
+            <p>你闯入了无人之境。</p>
+            <div style={{ marginTop: 26 }}>
+              <Link to='/blog' className='c-btn'>
+                ← 返回博客
+              </Link>
+            </div>
+          </div>
         </div>
       </AppLayout>
     </RootDocument>

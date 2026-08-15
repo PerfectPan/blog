@@ -35,93 +35,110 @@ function SignUpPage() {
 
   if (sessionData?.user?.id || isSessionPending) {
     return (
-      <section className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-        <p className='opacity-70'>Checking session...</p>
-      </section>
+      <div className='c-page'>
+        <p className='c-sec-label'>Checking session…</p>
+      </div>
     );
   }
 
   return (
-    <section className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-      <h1 className='mb-2 text-3xl font-black'>注册</h1>
-      <p className='mb-6 opacity-70'>注册后默认角色为 member，可在后台升权。</p>
+    <div className='c-page'>
+      <div className='c-auth'>
+        <div className='c-auth-head'>
+          <h1>注册</h1>
+          <span className='c-no'>AUTH / 02</span>
+        </div>
+        <div className='c-auth-card'>
+          <form
+            method='post'
+            onSubmit={(event) => {
+              event.preventDefault();
+              setError(null);
+              startTransition(async () => {
+                const result = await authClient.signUp.email({
+                  email,
+                  password,
+                  name,
+                  callbackURL: '/blog',
+                });
 
-      {error ? (
-        <p role='alert' className='mb-4 text-sm text-red-700 dark:text-red-300'>
-          {error}
-        </p>
-      ) : null}
+                if (result.error) {
+                  setError(result.error.message ?? '注册失败');
+                  return;
+                }
 
-      <form
-        className='grid max-w-[420px] gap-3'
-        method='post'
-        onSubmit={(event) => {
-          event.preventDefault();
-          setError(null);
-          startTransition(async () => {
-            const result = await authClient.signUp.email({
-              email,
-              password,
-              name,
-              callbackURL: '/blog',
-            });
-
-            if (result.error) {
-              setError(result.error.message ?? '注册失败');
-              return;
-            }
-
-            navigate({ to: '/blog' });
-          });
-        }}
-      >
-        <label htmlFor='name' className='font-semibold'>
-          Name
-        </label>
-        <input
-          id='name'
-          name='name'
-          type='text'
-          required
-          autoComplete='name'
-          className='rounded-md border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-wash-dark'
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-        />
-        <label htmlFor='email' className='font-semibold'>
-          Email
-        </label>
-        <input
-          id='email'
-          name='email'
-          type='email'
-          required
-          autoComplete='email'
-          className='rounded-md border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-wash-dark'
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-        />
-        <label htmlFor='password' className='font-semibold'>
-          Password
-        </label>
-        <input
-          id='password'
-          name='password'
-          type='password'
-          required
-          autoComplete='new-password'
-          className='rounded-md border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-wash-dark'
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-        />
-        <button
-          type='submit'
-          className='rounded-md bg-black px-4 py-2 font-semibold text-white transition-opacity hover:opacity-90 dark:bg-neutral-900'
-          disabled={isPending}
-        >
-          {isPending ? 'Creating account...' : 'Sign Up'}
-        </button>
-      </form>
-    </section>
+                navigate({ to: '/blog' });
+              });
+            }}
+          >
+            <div className='c-field'>
+              <label htmlFor='name'>Name</label>
+              <input
+                id='name'
+                name='name'
+                type='text'
+                required
+                autoComplete='name'
+                className='c-input'
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+              />
+            </div>
+            <div className='c-field'>
+              <label htmlFor='email'>Email</label>
+              <input
+                id='email'
+                name='email'
+                type='email'
+                required
+                autoComplete='email'
+                className='c-input'
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+              />
+            </div>
+            <div className='c-field'>
+              <label htmlFor='password'>Password</label>
+              <input
+                id='password'
+                name='password'
+                type='password'
+                required
+                autoComplete='new-password'
+                className='c-input'
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+              />
+            </div>
+            <div className='c-actions'>
+              <button
+                type='submit'
+                className='c-btn c-btn-solid'
+                disabled={isPending}
+              >
+                {isPending ? '创建中…' : '创建账号'}
+              </button>
+              <button
+                type='button'
+                className='c-btn c-btn-ghost'
+                onClick={async () => {
+                  setError(null);
+                  const result = await authClient.signIn.social({
+                    provider: 'github',
+                    callbackURL: '/blog',
+                  });
+                  if (result.error) {
+                    setError(result.error.message ?? 'GitHub 注册失败');
+                  }
+                }}
+              >
+                GitHub 注册
+              </button>
+            </div>
+            {error ? <p className='c-err'>{error}</p> : null}
+          </form>
+        </div>
+      </div>
+    </div>
   );
 }
