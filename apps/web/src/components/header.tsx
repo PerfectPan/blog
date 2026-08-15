@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { Github, LogOut, Rss, Search, UserRound } from 'lucide-react';
 import { authClient } from '../lib/auth-client.js';
+import { DarkMode } from './dark-mode.js';
 import { searchPalette } from './search-palette-store.js';
 
 function getRoleLabel(role?: string | null): string {
@@ -60,6 +61,7 @@ export function Header() {
             </Link>
           </>
         )}
+        <DarkMode />
         <button
           type='button'
           aria-label='Search posts (Cmd+K)'

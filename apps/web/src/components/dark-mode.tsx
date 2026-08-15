@@ -13,14 +13,9 @@ export function DarkMode() {
   const ref = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-      document.body.classList.add('dark:bg-wash-dark', 'dark:text-white');
-      return;
-    }
-
-    document.documentElement.classList.remove('dark');
-    document.body.classList.remove('dark:bg-wash-dark', 'dark:text-white');
+    // The terminal theme carries its own dark palette via html.dark custom
+    // properties; no legacy body utility classes are needed.
+    document.documentElement.classList.toggle('dark', isDarkMode);
   }, [isDarkMode]);
 
   const onTrigger = async () => {
