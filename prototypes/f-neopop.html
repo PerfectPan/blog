@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>方向 F · 糖果粗野 · PerfectPan's Blog 原型</title>
+<style>
+  /* ============ tokens ============ */
+  :root {
+    --bg: #FFFDF4;        /* 奶白 */
+    --block: #FFDE59;     /* 大黄块 */
+    --ink: #141414;
+    --paper: #FFFFFF;
+    --orange: #FF6B35;
+    --violet: #7C5CFF;
+    --pink: #FF90C2;
+    --mint: #21CBA8;
+    --sky: #57B8FF;
+    --line: #141414;
+    --shadow: 5px 5px 0 #141414;
+    --shadow-sm: 3px 3px 0 #141414;
+    --sans: "Helvetica Neue", Inter, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: var(--sans); font-size: 15px; line-height: 1.75;
+    min-height: 100vh;
+    background-image: radial-gradient(rgba(20,20,20,0.06) 1.2px, transparent 1.2px);
+    background-size: 22px 22px;
+  }
+  ::selection { background: var(--block); }
+  a { color: inherit; text-decoration: none; }
+  :focus-visible { outline: 3px solid var(--violet); outline-offset: 2px; }
+
+  /* ============ prototype chrome ============ */
+  .pt-bar {
+    background: #141414; color: #9B9B9B; font-size: 12.5px;
+    padding: 0 16px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    position: sticky; top: 0; z-index: 50;
+  }
+  .pt-bar .pt-title { color: var(--block); font-weight: 700; letter-spacing: 0.06em; }
+  .pt-tab {
+    font-family: inherit; font-size: 12.5px; color: #9B9B9B; background: none;
+    border: 0; padding: 9px 10px; cursor: pointer;
+  }
+  .pt-tab:hover { color: #fff; }
+  .pt-tab.active { color: #141414; background: var(--block); font-weight: 700; }
+  .pt-links { margin-left: auto; display: flex; gap: 12px; }
+  .pt-links a { color: #6B6B6B; }
+  .pt-links a:hover { color: var(--block); }
+
+  /* ============ 通用部件 ============ */
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 22px 90px; }
+  .page[hidden] { display: none; }
+
+  .card {
+    background: var(--paper); border: 2px solid var(--line);
+    box-shadow: var(--shadow); border-radius: 2px;
+    transition: transform .1s, box-shadow .1s;
+  }
+  .card.lift:hover { transform: translate(-2px,-2px); box-shadow: 7px 7px 0 #141414; }
+
+  .sticker {
+    display: inline-block; border: 2px solid var(--line); box-shadow: var(--shadow-sm);
+    font-size: 11px; font-weight: 800; letter-spacing: 0.08em; padding: 1px 9px;
+    background: var(--paper); border-radius: 2px; white-space: nowrap;
+  }
+  .sticker.y { background: var(--block); }
+  .sticker.o { background: var(--orange); color: #fff; }
+  .sticker.v { background: var(--violet); color: #fff; }
+  .sticker.p { background: var(--pink); }
+  .sticker.m { background: var(--mint); }
+  .sticker.s { background: var(--sky); }
+  .tilt-l { transform: rotate(-2.5deg); } .tilt-r { transform: rotate(2deg); }
+
+  .btn {
+    font: inherit; font-size: 14px; font-weight: 800; cursor: pointer;
+    background: var(--paper); color: var(--ink);
+    border: 2px solid var(--line); box-shadow: var(--shadow-sm); border-radius: 2px;
+    padding: 10px 22px; transition: transform .1s, box-shadow .1s;
+  }
+  .btn:hover { transform: translate(-2px,-2px); box-shadow: 5px 5px 0 #141414; }
+  .btn:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 #141414; }
+  .btn.fill { background: var(--block); }
+  .btn.o { background: var(--orange); color: #fff; }
+
+  .h-banner {
+    display: inline-block; background: var(--ink); color: var(--block);
+    font-weight: 900; font-size: 13px; letter-spacing: 0.24em; padding: 4px 16px;
+    transform: rotate(-1.2deg);
+  }
+
+  /* ============ header ============ */
+  .site-head { padding: 30px 0 26px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .logo {
+    background: var(--ink); color: #FFFDF4; font-weight: 900; font-size: 17px;
+    padding: 8px 16px; border-radius: 2px; transform: rotate(-1.5deg);
+    box-shadow: var(--shadow-sm); display: inline-block;
+  }
+  .site-head nav { display: flex; gap: 10px; flex-wrap: wrap; }
+  .nav-chip {
+    font-size: 13px; font-weight: 800; padding: 5px 14px; border: 2px solid var(--line);
+    border-radius: 999px; background: var(--paper); box-shadow: var(--shadow-sm);
+  }
+  .nav-chip:hover { background: var(--block); }
+  .nav-chip.on { background: var(--orange); color: #fff; }
+  .site-head .tools { margin-left: auto; display: flex; gap: 10px; }
+  .tool-btn {
+    font: inherit; font-size: 12px; font-weight: 800; background: var(--paper);
+    border: 2px solid var(--line); border-radius: 2px; box-shadow: var(--shadow-sm);
+    padding: 5px 12px; cursor: pointer;
+  }
+  .tool-btn:hover { background: var(--sky); }
+
+  /* ============ HOME ============ */
+  .hero {
+    background: var(--block); border: 2px solid var(--line); box-shadow: var(--shadow);
+    border-radius: 2px; padding: 54px 44px 50px; position: relative; overflow: hidden;
+  }
+  .hero .sticker.float { position: absolute; top: 20px; right: 26px; }
+  .hero h1 {
+    font-size: clamp(40px, 7vw, 72px); font-weight: 900; line-height: 1.08; letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+  .hero h1 .stroke {
+    color: var(--bg); -webkit-text-stroke: 2.5px var(--ink); paint-order: stroke fill;
+  }
+  .hero h1 .dot { color: var(--orange); }
+  .hero p { margin-top: 18px; font-size: 16.5px; max-width: 52ch; font-weight: 500; }
+  .hero .cta { margin-top: 30px; display: flex; gap: 14px; flex-wrap: wrap; }
+  .home-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 22px; margin-top: 22px; }
+  .panel { padding: 24px 26px; }
+  .panel h3 {
+    display: inline-block; font-size: 13px; font-weight: 900; letter-spacing: 0.14em;
+    background: var(--violet); color: #fff; padding: 2px 12px; transform: rotate(-1deg); margin-bottom: 16px;
+  }
+  .panel h3.o { background: var(--orange); }
+  .rowitem { display: flex; gap: 12px; align-items: center; padding: 9px 0; border-bottom: 2px dashed rgba(20,20,20,0.16); }
+  .rowitem:last-child { border-bottom: 0; }
+  .rowitem .no { font-family: var(--mono); font-size: 11px; color: rgba(20,20,20,0.5); font-weight: 700; }
+  .rowitem .t { flex: 1; font-weight: 700; font-size: 14.5px; }
+  .rowitem .t:hover { color: var(--violet); }
+  .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 2px dashed rgba(20,20,20,0.16); }
+  .stat-row:last-child { border-bottom: 0; }
+  .stat-row b { font-size: 26px; font-weight: 900; }
+  .stat-row b.vio { color: var(--violet); } .stat-row b.org { color: var(--orange); }
+  .stat-row span { font-size: 12.5px; font-weight: 600; color: rgba(20,20,20,0.6); }
+
+  /* ============ BLOG ============ */
+  .page-head { padding: 34px 0 22px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .page-head h1 { font-size: 38px; font-weight: 900; letter-spacing: -0.02em; }
+  .filters { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+  .list-card { padding: 10px 26px 18px; }
+  .yr-band { display: flex; align-items: center; gap: 14px; padding: 22px 0 10px; }
+  .yr-band .pill { background: var(--ink); color: #FFFDF4; font-weight: 900; font-size: 13px; padding: 2px 14px; border-radius: 999px; letter-spacing: 0.1em; }
+  .yr-band::after { content: ""; flex: 1; border-top: 2px dashed rgba(20,20,20,0.2); }
+  .post-row {
+    display: grid; grid-template-columns: 52px 1fr auto auto; gap: 18px; align-items: center;
+    padding: 12px 10px; border-radius: 2px;
+  }
+  .post-row:hover { background: var(--block); outline: 2px solid var(--line); }
+  .post-row .no { font-family: var(--mono); font-size: 12px; font-weight: 700; color: rgba(20,20,20,0.55); }
+  .post-row .t { font-weight: 700; font-size: 16px; }
+  .post-row .tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .post-row .d { font-family: var(--mono); font-size: 11.5px; font-weight: 700; color: rgba(20,20,20,0.55); }
+  .pager { display: flex; gap: 10px; justify-content: center; margin-top: 24px; }
+  .pager .cur { background: var(--orange); color: #fff; }
+
+  /* ============ ARTICLE ============ */
+  .art-card { padding: 40px 46px 44px; margin-top: 8px; }
+  .art-card h1 { font-size: clamp(26px, 4vw, 38px); font-weight: 900; line-height: 1.3; letter-spacing: -0.01em; }
+  .art-meta { display: flex; gap: 10px; margin: 16px 0 8px; flex-wrap: wrap; }
+  .prose { margin-top: 26px; font-size: 16px; }
+  .prose p { margin: 18px 0; }
+  .prose h2 {
+    font-size: 20px; font-weight: 900; margin: 36px 0 12px; display: flex; gap: 12px; align-items: center;
+  }
+  .prose h2 .chip { background: var(--mint); border: 2px solid var(--line); box-shadow: var(--shadow-sm); font-size: 12px; padding: 0 10px; border-radius: 999px; }
+  .prose ul { margin: 14px 0; list-style: none; }
+  .prose li { padding: 7px 0 7px 30px; position: relative; font-weight: 500; }
+  .prose li::before { content: "★"; position: absolute; left: 2px; color: var(--orange); font-size: 13px; }
+  .prose blockquote {
+    background: var(--pink); border: 2px solid var(--line); box-shadow: var(--shadow-sm);
+    padding: 12px 20px; margin: 22px 0; font-weight: 600; border-radius: 2px; transform: rotate(-0.6deg);
+  }
+  .prose code { font-family: var(--mono); font-size: 0.85em; background: var(--block); border: 1.5px solid var(--line); border-radius: 2px; padding: 1px 6px; font-weight: 700; }
+  .prose pre {
+    font-family: var(--mono); font-size: 13px; line-height: 1.8; color: #F4F1E8;
+    background: #141414; border: 2px solid var(--line); box-shadow: var(--shadow);
+    border-radius: 2px; padding: 20px 22px; overflow-x: auto; margin: 24px 0;
+  }
+  .pre-wrap { position: relative; }
+  .pre-wrap .fname { position: absolute; top: -14px; left: 18px; background: var(--sky); border: 2px solid var(--line); font-size: 11px; font-weight: 800; padding: 0 10px; border-radius: 999px; transform: rotate(-1.5deg); }
+  .tk-c { color: #7C7C7C; } .tk-k { color: #FFDE59; } .tk-t { color: #57B8FF; }
+  .tk-s { color: #21CBA8; } .tk-f { color: #FF90C2; }
+  .cmt-card { padding: 16px 20px; margin: 14px 0; }
+  .cmt-card.reply { margin-left: 48px; background: var(--bg); }
+  .cmt-h { display: flex; gap: 12px; align-items: center; font-size: 12.5px; font-weight: 700; margin-bottom: 6px; }
+  .cmt-h .who { background: var(--violet); color: #fff; padding: 0 10px; border-radius: 999px; border: 2px solid var(--line); font-size: 11.5px; }
+  .cmt-form { display: flex; gap: 12px; margin-top: 20px; }
+  .cmt-form input[type=text] { flex: 1; }
+
+  /* ============ PROJECTS ================= */
+  .proj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  .proj-card { padding: 24px 26px; position: relative; }
+  .proj-card h2 { font-size: 19px; font-weight: 900; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .proj-card p { margin-top: 8px; font-size: 14px; color: rgba(20,20,20,0.75); }
+  .proj-card .tags { margin: 14px 0; display: flex; gap: 6px; flex-wrap: wrap; }
+  .proj-card .links { display: flex; gap: 10px; }
+
+  /* ============ forms ============ */
+  .gate { max-width: 460px; margin: 30px auto 0; }
+  .gate .card { padding: 34px 36px 36px; position: relative; }
+  .gate .badge-top { position: absolute; top: -16px; left: 26px; }
+  .gate h1 { font-size: 30px; font-weight: 900; }
+  .gate .sub { font-size: 13.5px; font-weight: 600; color: rgba(20,20,20,0.6); margin: 6px 0 22px; }
+  .field { margin: 15px 0; }
+  .field label { display: block; font-size: 12px; font-weight: 900; letter-spacing: 0.12em; margin-bottom: 5px; }
+  input[type=text], input[type=email], input[type=password], textarea, select {
+    width: 100%; font-family: var(--sans); font-size: 14.5px; font-weight: 500; color: var(--ink);
+    background: var(--bg); border: 2px solid var(--line); border-radius: 2px; padding: 10px 14px;
+    box-shadow: inset 2px 2px 0 rgba(20,20,20,0.08);
+  }
+  input:focus, textarea:focus, select:focus { outline: none; background: #fff; border-color: var(--violet); box-shadow: 3px 3px 0 var(--violet); }
+  .gate .actions { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+  .err {
+    display: inline-block; background: var(--pink); border: 2px solid var(--line); box-shadow: var(--shadow-sm);
+    font-size: 13px; font-weight: 700; padding: 6px 14px; margin-top: 16px; transform: rotate(-1deg);
+  }
+  .gate .aside { margin-top: 20px; font-size: 13.5px; font-weight: 600; }
+  .gate .aside a { color: var(--violet); text-decoration: underline; text-decoration-thickness: 2px; }
+
+  /* ============ admin ============ */
+  table.adm { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  .adm th { text-align: left; font-size: 11px; font-weight: 900; letter-spacing: 0.14em; padding: 12px 12px; border-bottom: 2.5px solid var(--line); }
+  .adm td { padding: 12px; border-bottom: 2px dashed rgba(20,20,20,0.18); font-weight: 600; }
+  .adm tbody tr:hover td { background: rgba(255,222,89,0.35); }
+  .adm td.tt { font-weight: 800; }
+  .adm .ops a { font-size: 11.5px; font-weight: 800; margin-right: 12px; }
+  .adm .ops a.del { color: var(--orange); }
+  .ed-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0 22px; }
+  textarea.draft { min-height: 300px; font-family: var(--mono); font-size: 13.5px; line-height: 1.8; }
+  .ed-foot { display: flex; gap: 12px; margin-top: 18px; flex-wrap: wrap; align-items: center; }
+  .ed-foot .stat { margin-left: auto; font-family: var(--mono); font-size: 11px; font-weight: 700; color: rgba(20,20,20,0.55); }
+
+  /* ============ 404 ============ */
+  .nf { text-align: center; padding: 70px 0 40px; }
+  .nf .code { font-size: 100px; font-weight: 900; letter-spacing: -0.03em; line-height: 1; }
+  .nf .code b { color: var(--orange); }
+  .nf p { font-weight: 700; margin: 16px 0 28px; }
+
+  /* ============ palette ============ */
+  .pal-veil { position: fixed; inset: 0; background: rgba(20,20,20,0.5); display: flex; justify-content: center; padding-top: 13vh; z-index: 100; }
+  .pal-veil[hidden] { display: none; }
+  .pal { width: min(620px, calc(100vw - 32px)); height: fit-content; background: var(--bg); border: 2px solid var(--line); box-shadow: 8px 8px 0 #141414; border-radius: 2px; overflow: hidden; }
+  .pal-in { display: flex; gap: 12px; align-items: center; padding: 14px 18px; border-bottom: 2px solid var(--line); background: var(--block); }
+  .pal-in input { background: none; border: 0; box-shadow: none; padding: 0; font-size: 15px; font-weight: 700; }
+  .pal-in input:focus { box-shadow: none; border: 0; }
+  .pal-list { max-height: 300px; overflow-y: auto; }
+  .pal-item { display: flex; gap: 14px; padding: 11px 18px; align-items: center; }
+  .pal-item .d { font-family: var(--mono); font-size: 11px; font-weight: 700; color: rgba(20,20,20,0.5); min-width: 4ch; }
+  .pal-item.sel { background: var(--block); outline: 2px solid var(--line); }
+  .pal-foot { border-top: 2px solid var(--line); padding: 8px 18px; font-size: 11px; font-weight: 700; color: rgba(20,20,20,0.55); }
+
+  @media (max-width: 860px) {
+    .home-grid, .proj-grid { grid-template-columns: 1fr; }
+    .art-card { padding: 26px 20px 30px; }
+    .post-row { grid-template-columns: 44px 1fr; }
+    .post-row .tags, .post-row .d { display: none; }
+    .site-head { padding-top: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="pt-bar">
+  <span class="pt-title">原型 · 方向 F 糖果粗野</span>
+  <nav aria-label="原型页面" style="display:flex;gap:2px;flex-wrap:wrap">
+    <button class="pt-tab active" data-target="home">首页</button>
+    <button class="pt-tab" data-target="blog">博客</button>
+    <button class="pt-tab" data-target="post">文章</button>
+    <button class="pt-tab" data-target="projects">项目</button>
+    <button class="pt-tab" data-target="login">登录</button>
+    <button class="pt-tab" data-target="signup">注册</button>
+    <button class="pt-tab" data-target="unlock">解锁</button>
+    <button class="pt-tab" data-target="admin">后台</button>
+    <button class="pt-tab" data-target="editor">编辑器</button>
+    <button class="pt-tab" data-target="404">404</button>
+  </nav>
+  <div class="pt-links"><a href="index.html">总览</a></div>
+</div>
+
+<div class="wrap">
+  <header class="site-head">
+    <span class="logo">PerfectPan</span>
+    <nav>
+      <a class="nav-chip" href="#" onclick="return false">Home</a>
+      <a class="nav-chip on" href="#" onclick="return false">Blog</a>
+      <a class="nav-chip" href="#" onclick="return false">Projects</a>
+      <a class="nav-chip" href="#" onclick="return false">Admin</a>
+    </nav>
+    <div class="tools">
+      <button class="tool-btn" onclick="document.dispatchEvent(new KeyboardEvent('keydown',{key:'k',metaKey:true}))">⌘K 搜索</button>
+      <a class="tool-btn" href="#" onclick="return false">RSS</a>
+      <a class="tool-btn" href="#" onclick="return false">GitHub</a>
+    </div>
+  </header>
+
+  <!-- ================= HOME ================= -->
+  <section class="page" data-page="home">
+    <div class="hero">
+      <span class="sticker float tilt-r">EST. 2019 ★</span>
+      <h1><span class="stroke">PERFECT</span>PAN<span class="dot">!</span></h1>
+      <p>是个什么都不会的废物.jpg —— 但博客还在更新。算法题解、TypeScript 类型体操、Cloudflare $0/月 工程实践，全在这。</p>
+      <div class="cta">
+        <a class="btn fill" href="#" onclick="return false">读博客 →</a>
+        <a class="btn" href="#" onclick="return false">看项目 →</a>
+      </div>
+    </div>
+    <div class="home-grid">
+      <div class="card lift panel">
+        <h3>LATEST 最新</h3>
+        <div class="rowitem"><span class="no">016</span><a class="t" href="#" onclick="return false">初探 Github Blocks</a><span class="sticker s">Misc</span></div>
+        <div class="rowitem"><span class="no">015</span><a class="t" href="#" onclick="return false">Type Challenge · 冒泡排序</a><span class="sticker v">TS</span></div>
+        <div class="rowitem"><span class="no">014</span><a class="t" href="#" onclick="return false">回顾 2020</a><span class="sticker p">会员</span></div>
+        <div class="rowitem"><span class="no">013</span><a class="t" href="#" onclick="return false">一些随想</a><span class="sticker">随笔</span></div>
+      </div>
+      <div class="card lift panel">
+        <h3 class="o">STATS 数据</h3>
+        <div class="stat-row"><b class="vio">16</b><span>篇文章</span></div>
+        <div class="stat-row"><b class="org">5</b><span>个开源项目</span></div>
+        <div class="stat-row"><b>$0</b><span>每月托管费</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= BLOG ================= -->
+  <section class="page" data-page="blog" hidden>
+    <div class="page-head">
+      <span class="h-banner">ALL POSTS</span>
+      <h1>博客</h1>
+      <div class="filters">
+        <span class="sticker y tilt-l">全部</span>
+        <span class="sticker">算法</span>
+        <span class="sticker v">TypeScript</span>
+        <span class="sticker p">随笔</span>
+        <span class="sticker m">工程</span>
+      </div>
+    </div>
+    <div class="card list-card">
+      <div class="yr-band"><span class="pill">2023</span></div>
+      <div class="post-row"><span class="no">016</span><span class="t">初探 Github Blocks</span><span class="tags"><span class="sticker s">Misc</span></span><span class="d">02-18</span></div>
+
+      <div class="yr-band"><span class="pill">2021</span></div>
+      <div class="post-row"><span class="no">015</span><span class="t">Type Challenge · 冒泡排序</span><span class="tags"><span class="sticker v">TS</span></span><span class="d">05-08</span></div>
+      <div class="post-row"><span class="no">014</span><span class="t">回顾 2020</span><span class="tags"><span class="sticker p">MEMBER</span></span><span class="d">02-28</span></div>
+
+      <div class="yr-band"><span class="pill">2020</span></div>
+      <div class="post-row"><span class="no">013</span><span class="t">一些随想</span><span class="tags"><span class="sticker">随笔</span></span><span class="d">08-26</span></div>
+      <div class="post-row"><span class="no">012</span><span class="t">LeetCode 中国区 TypeScript 面试题题解</span><span class="tags"><span class="sticker v">TS</span></span><span class="d">04-13</span></div>
+      <div class="post-row"><span class="no">011</span><span class="t">那些年邂逅的 LeetCode 趣/难题</span><span class="tags"><span class="sticker o">LC</span></span><span class="d">03-30</span></div>
+      <div class="post-row"><span class="no">010</span><span class="t">文档书写要点整理</span><span class="tags"><span class="sticker o">🔒 密码</span></span><span class="d">03-01</span></div>
+
+      <div class="yr-band"><span class="pill">2019</span></div>
+      <div class="post-row"><span class="no">009</span><span class="t">回顾 2019</span><span class="tags"><span class="sticker v">VIP</span></span><span class="d">12-31</span></div>
+      <div class="post-row"><span class="no">008</span><span class="t">Codeforces Round#605(Div. 3) D/E/F 题解</span><span class="tags"><span class="sticker m">DP</span><span class="sticker s">BFS</span></span><span class="d">12-14</span></div>
+      <div class="post-row"><span class="no">007</span><span class="t">Codeforces Round#603(Div. 2) E/F 题解</span><span class="tags"><span class="sticker m">DP</span><span class="sticker s">Stack</span></span><span class="d">12-01</span></div>
+      <div class="post-row"><span class="no">006</span><span class="t">银联极客高校挑战赛复赛 D 多项式</span><span class="tags"><span class="sticker m">DP</span></span><span class="d">09-17</span></div>
+      <div class="post-row"><span class="no">005</span><span class="t">Codeforces 1149B Three Religions</span><span class="tags"><span class="sticker m">DP</span><span class="sticker v">STR</span></span><span class="d">04-30</span></div>
+      <div class="post-row"><span class="no">004</span><span class="t">2019 ICPC 南昌邀请赛网络赛 G. tsy's number</span><span class="tags"><span class="sticker y">NT</span></span><span class="d">04-22</span></div>
+    </div>
+    <div class="pager">
+      <button class="btn cur">1</button><button class="btn">2</button><button class="btn">NEXT →</button>
+    </div>
+  </section>
+
+  <!-- ================= ARTICLE ================= -->
+  <section class="page" data-page="post" hidden>
+    <div class="page-head" style="padding-bottom:14px">
+      <span class="h-banner">POST №015</span>
+      <a class="btn" href="#" onclick="return false" style="margin-left:auto">← BACK</a>
+    </div>
+    <article class="card art-card">
+      <h1>Type Challenge · 冒泡排序</h1>
+      <div class="art-meta">
+        <span class="sticker v">TypeScript</span><span class="sticker">2021-05-08</span><span class="sticker m">9 min</span><span class="sticker y">PUBLIC</span>
+      </div>
+      <div class="prose">
+        <p>这题要求在类型系统里实现冒泡排序：给定一个元组 <code>T extends number[]</code>，返回排序后的元组。类型层面上没有循环，所以核心思路是把「一趟冒泡」展开成递归。</p>
+
+        <h2><span class="chip">01</span>一趟冒泡：两两比较并交换</h2>
+        <p>先写一个 <code>Pass</code>，从头到尾扫一遍，相邻逆序就交换：</p>
+
+        <div class="pre-wrap"><span class="fname">bubble.ts</span>
+<pre><span class="tk-c">// 一趟冒泡：相邻比较，逆序则交换</span>
+<span class="tk-k">type</span> <span class="tk-t">Pass</span>&lt;<span class="tk-t">T</span> <span class="tk-k">extends</span> <span class="tk-t">number</span>[]&gt; =
+  <span class="tk-t">T</span> <span class="tk-k">extends</span> [<span class="tk-k">infer</span> <span class="tk-t">A</span> <span class="tk-k">extends</span> <span class="tk-t">number</span>, <span class="tk-k">infer</span> <span class="tk-t">B</span> <span class="tk-k">extends</span> <span class="tk-t">number</span>, ...<span class="tk-k">infer</span> <span class="tk-t">R</span> <span class="tk-k">extends</span> <span class="tk-t">number</span>[]]
+    ? <span class="tk-t">A</span> <span class="tk-k">extends</span> <span class="tk-s">`${B}`</span>
+      ? [<span class="tk-t">A</span>, ...<span class="tk-t">Pass</span>&lt;[<span class="tk-t">B</span>, ...<span class="tk-t">R</span>]&gt;]
+      : [<span class="tk-t">B</span>, ...<span class="tk-t">Pass</span>&lt;[<span class="tk-t">A</span>, ...<span class="tk-t">R</span>]&gt;]
+    : <span class="tk-t">T</span>;
+
+<span class="tk-k">type</span> <span class="tk-f">BubbleSort</span>&lt;<span class="tk-t">T</span>&gt; = ...<span class="tk-c">// 一趟没交换 → 有序；否则再来一趟</span></pre>
+        </div>
+
+        <blockquote>数字比较不能直接用 <code>&lt;</code>，得转成字符串长度或逐位比较——类型体操的老朋友了。</blockquote>
+
+        <h2><span class="chip">02</span>几个细节</h2>
+        <ul>
+          <li><code>infer A extends number</code> 收窄推断结果，省掉一层条件判断；</li>
+          <li>终止条件是「这一趟没有发生任何交换」，用深度相等判断；</li>
+          <li>元组很长时记得给 TS 足够的递归深度，或者拆成小测试。</li>
+        </ul>
+        <p>完整题解在仓库 <code>type-challenges</code> 里，配合测试用例食用更佳。</p>
+      </div>
+    </article>
+
+    <div class="page-head" style="padding:34px 0 10px"><span class="h-banner">COMMENTS · 2</span></div>
+    <div class="card cmt-card">
+      <div class="cmt-h"><span class="who">alice@example.com</span><span>2021-05-09</span></div>
+      <p>Equal 判终止这个思路太优雅了，比数长度 hack 干净。</p>
+    </div>
+    <div class="card cmt-card reply">
+      <div class="cmt-h"><span class="who" style="background:var(--orange)">bob@example.com</span><span>2021-05-10</span></div>
+      <p>数长度在负数场景直接爆炸，还是深度相等稳。</p>
+    </div>
+    <form class="cmt-form" onsubmit="return false">
+      <input type="text" placeholder="说点什么……（支持 markdown）" aria-label="新评论">
+      <button class="btn fill" type="submit">评论！</button>
+    </form>
+  </section>
+
+  <!-- ================= PROJECTS ================= -->
+  <section class="page" data-page="projects" hidden>
+    <div class="page-head">
+      <span class="h-banner">PROJECTS</span>
+      <h1>项目</h1>
+    </div>
+    <div class="proj-grid">
+      <div class="card lift proj-card">
+        <h2>blog <span class="sticker y tilt-r">★ FEATURED</span></h2>
+        <p>本博客——TanStack Start 前台，全量部署在 Cloudflare Workers + D1 上。</p>
+        <div class="tags"><span class="sticker v">TanStack</span><span class="sticker s">Cloudflare</span><span class="sticker">TS</span></div>
+        <div class="links"><a class="btn" href="#" onclick="return false">CODE ↗</a><a class="btn o" href="#" onclick="return false">DEMO ↗</a></div>
+      </div>
+      <div class="card lift proj-card">
+        <h2>logseq-plugin-code-formatter <span class="sticker y tilt-l">★ FEATURED</span></h2>
+        <p>Logseq 插件——用 Prettier 一键格式化代码块，支持 JS / TS / HTML / CSS / Markdown / JSON。</p>
+        <div class="tags"><span class="sticker v">TS</span><span class="sticker">Logseq</span><span class="sticker s">Prettier</span></div>
+        <div class="links"><a class="btn" href="#" onclick="return false">CODE ↗</a></div>
+      </div>
+      <div class="card lift proj-card">
+        <h2>ocvm</h2>
+        <p>OpenClaw 版本管理器——nvm 风格的 Rust CLI，按项目安装、切换、锁定与回滚版本。</p>
+        <div class="tags"><span class="sticker m">Rust</span><span class="sticker">CLI</span></div>
+        <div class="links"><a class="btn" href="#" onclick="return false">CODE ↗</a><a class="btn o" href="#" onclick="return false">DEMO ↗</a></div>
+      </div>
+      <div class="card lift proj-card">
+        <h2>agent-presence</h2>
+        <p>把本地编码 agent 的在线状态与 token 用量同步到飞书签名链接预览。</p>
+        <div class="tags"><span class="sticker v">TS</span><span class="sticker">CLI</span><span class="sticker p">Feishu</span></div>
+        <div class="links"><a class="btn" href="#" onclick="return false">CODE ↗</a><a class="btn o" href="#" onclick="return false">DEMO ↗</a></div>
+      </div>
+      <div class="card lift proj-card">
+        <h2>base64</h2>
+        <p>Moonbit 语言实现的 Base64 编解码库，遵循 RFC 4648。</p>
+        <div class="tags"><span class="sticker m">Moonbit</span></div>
+        <div class="links"><a class="btn" href="#" onclick="return false">CODE ↗</a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= LOGIN ================= -->
+  <section class="page" data-page="login" hidden>
+    <div class="gate">
+      <div class="card lift">
+        <span class="sticker o badge-top tilt-l">LOGIN</span>
+        <h1>登录</h1>
+        <p class="sub">会友可读「会员可读」文章 · 也支持 GitHub</p>
+        <form onsubmit="return false">
+          <div class="field"><label for="f-em">邮箱 EMAIL</label><input id="f-em" type="email" placeholder="you@example.com"></div>
+          <div class="field"><label for="f-pw">密码 PASSWORD</label><input id="f-pw" type="password" placeholder="••••••••"></div>
+          <div class="actions">
+            <button class="btn fill" type="submit">登入 →</button>
+            <button class="btn" type="button">GitHub 登录</button>
+          </div>
+          <span class="err" hidden>邮箱或密码不正确！</span>
+        </form>
+        <p class="aside">还没账号？<a href="#" onclick="return false">注册一个 →</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SIGNUP ================= -->
+  <section class="page" data-page="signup" hidden>
+    <div class="gate">
+      <div class="card lift">
+        <span class="sticker v badge-top tilt-r">SIGN UP</span>
+        <h1>注册</h1>
+        <p class="sub">注册即成为 member</p>
+        <form onsubmit="return false">
+          <div class="field"><label for="f-sem">邮箱 EMAIL</label><input id="f-sem" type="email" placeholder="you@example.com"></div>
+          <div class="field"><label for="f-spw">密码 PASSWORD</label><input id="f-spw" type="password" placeholder="至少 8 位"></div>
+          <div class="field"><label for="f-spw2">确认 CONFIRM</label><input id="f-spw2" type="password" placeholder="再输一遍"></div>
+          <div class="actions">
+            <button class="btn fill" type="submit">创建账号！</button>
+            <button class="btn" type="button">GitHub 注册</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= UNLOCK ================= -->
+  <section class="page" data-page="unlock" hidden>
+    <div class="gate">
+      <div class="card lift">
+        <span class="sticker o badge-top tilt-l">🔒 LOCKED</span>
+        <h1>解锁文章</h1>
+        <p class="sub">这篇用单文密码上着锁 ・ 输对后 24 小时免密</p>
+        <form onsubmit="return false">
+          <div class="field"><label for="f-upw">文章密码</label><input id="f-upw" type="password" placeholder="••••••••" autofocus></div>
+          <span class="err">密码不对，再试试！（连错会限流）</span>
+          <div class="actions">
+            <button class="btn o" type="submit">解锁！</button>
+            <a class="btn" href="#" onclick="return false">← 返回文章</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ADMIN ================= -->
+  <section class="page" data-page="admin" hidden>
+    <div class="page-head">
+      <span class="h-banner">ADMIN</span>
+      <h1>后台</h1>
+      <div style="margin-left:auto;display:flex;gap:10px;flex-wrap:wrap">
+        <a class="btn fill" href="#" onclick="return false">＋ 新文章</a>
+        <a class="btn" href="#" onclick="return false">评论 (23)</a>
+      </div>
+    </div>
+    <div class="card" style="padding:6px 26px 16px">
+      <table class="adm">
+        <thead><tr><th>№</th><th>标题</th><th>状态</th><th>可见</th><th>更新</th><th>操作</th></tr></thead>
+        <tbody>
+          <tr><td class="d" style="font-family:var(--mono);font-size:11px;color:rgba(20,20,20,0.55)">016</td><td class="tt">初探 Github Blocks</td><td><span class="sticker m">已发布</span></td><td><span class="sticker y">public</span></td><td style="font-family:var(--mono);font-size:11px;color:rgba(20,20,20,0.55)">2023-02-18</td><td class="ops"><a href="#" onclick="return false">编辑</a><a class="del" href="#" onclick="return false">删除</a></td></tr>
+          <tr><td style="font-family:var(--mono);font-size:11px;color:rgba(20,20,20,0.55)">015</td><td class="tt">Type Challenge · 冒泡排序</td><td><span class="sticker m">已发布</span></td><td><span class="sticker y">public</span></td><td style="font-family:var(--mono);font-size:11px;color:rgba(20,20,20,0.55)">2021-05-08</td><td class="ops"><a href="#" onclick="return false">编辑</a><a class="del" href="#" onclick="return false">删除</a></td></tr>
+          <tr><td style="font-family:var(--mono);font-size:11px;color:rgba(20,20,20,0.55)">014</td><td class="tt">回顾 2020</td><td><span class="sticker m">已发布</span></td><td><span class="sticker p">member</span></td><td style="font-family:var(--mono);font-size:11px;color:rgba(20,20,20,0.55)">2021-02-28</td><td class="ops"><a href="#" onclick="return false">编辑</a><a class="del" href="#" onclick="return false">删除</a></td></tr>
+          <tr><td style="font-family:var(--mono);font-size:11px;color:rgba(20,20,20,0.55)">010</td><td class="tt">文档书写要点整理</td><td><span class="sticker m">已发布</span></td><td><span class="sticker o">password</span></td><td style="font-family:var(--mono);font-size:11px;color:rgba(20,20,20,0.55)">2020-03-01</td><td class="ops"><a href="#" onclick="return false">编辑</a><a class="del" href="#" onclick="return false">删除</a></td></tr>
+          <tr><td style="font-family:var(--mono);font-size:11px;color:rgba(20,20,20,0.55)">017</td><td class="tt">Cloudflare 迁移实录</td><td><span class="sticker">草稿</span></td><td><span class="sticker y">public</span></td><td style="font-family:var(--mono);font-size:11px;color:rgba(20,20,20,0.55)">2026-08-12</td><td class="ops"><a href="#" onclick="return false">编辑</a><a class="del" href="#" onclick="return false">删除</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= EDITOR ================= -->
+  <section class="page" data-page="editor" hidden>
+    <div class="page-head">
+      <span class="h-banner">EDITOR · NEW</span>
+      <h1>编辑器</h1>
+    </div>
+    <div class="card lift" style="padding:26px 30px 30px">
+      <form onsubmit="return false">
+        <div class="ed-grid">
+          <div class="field"><label>标题 TITLE</label><input type="text" value="Cloudflare 迁移实录"></div>
+          <div class="field"><label>SLUG</label><input type="text" value="cloudflare-migration"></div>
+          <div class="field"><label>可见性</label>
+            <select><option>public</option><option>member</option><option>vip</option><option>admin</option><option>password</option></select>
+          </div>
+          <div class="field"><label>标签 TAGS</label><input type="text" value="Cloudflare, D1, Workers"></div>
+        </div>
+        <div class="field"><label>正文 — MARKDOWN</label>
+          <textarea class="draft" spellcheck="false">## 为什么要迁
+
+Postgres 免费额度撑不住了……
+
+```ts
+export default { fetch } = ...
+```</textarea>
+        </div>
+        <div class="ed-foot">
+          <button class="btn" type="button">存草稿</button>
+          <button class="btn fill" type="button">发布！</button>
+          <span class="stat">642 字 · 3 MIN · 自动保存 12:41</span>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ================= 404 ================= -->
+  <section class="page" data-page="404" hidden>
+    <div class="nf">
+      <span class="sticker o tilt-l">PAGE NOT FOUND</span>
+      <div class="code">4<b>0</b>4</div>
+      <p>你闯入了无人之境……</p>
+      <a class="btn fill" href="#" onclick="return false">← 回到博客</a>
+    </div>
+  </section>
+
+</div>
+
+<!-- ⌘K palette -->
+<div class="pal-veil" id="pal-veil" hidden>
+  <div class="pal" role="dialog" aria-label="搜索文章">
+    <div class="pal-in">
+      <span class="sticker y">⌘K</span>
+      <input type="text" id="pal-input" placeholder="搜点什么……" aria-label="搜索">
+    </div>
+    <div class="pal-list">
+      <div class="pal-item sel"><span class="d">015</span><span style="font-weight:700">Type Challenge · 冒泡排序</span><span class="sticker v">TS</span></div>
+      <div class="pal-item"><span class="d">012</span><span style="font-weight:700">LeetCode 中国区 TypeScript 面试题题解</span><span class="sticker v">TS</span></div>
+      <div class="pal-item"><span class="d">008</span><span style="font-weight:700">Codeforces Round#605(Div. 3) D/E/F 题解</span><span class="sticker m">DP</span></div>
+      <div class="pal-item"><span class="d">005</span><span style="font-weight:700">Codeforces 1149B Three Religions</span><span class="sticker m">DP</span></div>
+    </div>
+    <div class="pal-foot">↑↓ 选择 · ↵ 打开 · ESC 关闭</div>
+  </div>
+</div>
+
+<script>
+  var tabs = document.querySelectorAll('.pt-tab');
+  var pages = document.querySelectorAll('.page');
+  function go(id) {
+    pages.forEach(function(p){ p.hidden = p.dataset.page !== id; });
+    tabs.forEach(function(t){ t.classList.toggle('active', t.dataset.target === id); });
+    window.scrollTo(0, 0);
+    history.replaceState(null, '', '#' + id);
+  }
+  tabs.forEach(function(t){ if (t.dataset.target) t.addEventListener('click', function(){ go(t.dataset.target); }); });
+  var h = location.hash.slice(1);
+  if (h && document.querySelector('.page[data-page="' + h + '"]')) go(h);
+  window.addEventListener('hashchange', function(){
+    var h = location.hash.slice(1);
+    if (h && document.querySelector('.page[data-page="' + h + '"]')) go(h);
+  });
+
+  var veil = document.getElementById('pal-veil');
+  var input = document.getElementById('pal-input');
+  document.addEventListener('keydown', function(e){
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); veil.hidden = false; input.focus(); }
+    if (e.key === 'Escape') veil.hidden = true;
+  });
+  veil.addEventListener('click', function(e){ if (e.target === veil) veil.hidden = true; });
+</script>
+</body>
+</html>

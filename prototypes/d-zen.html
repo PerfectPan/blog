@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>方向 D · 日式余白 · PerfectPan's Blog 原型</title>
+<style>
+  /* ============ tokens ============ */
+  :root {
+    --bg: #F7F8F5;        /* 青白 */
+    --surface: #FFFFFF;
+    --wash: #EFF1EC;      /* 淡青灰 */
+    --ink: #2B302B;       /* 墨绿黑 */
+    --dim: #78816F;       /* 淡墨（偏青） */
+    --faint: #A9B2A3;
+    --bamboo: #557C67;    /* 竹青（唯一强调色） */
+    --bamboo-soft: #E3EAE4;
+    --line: #E1E5DA;
+    --sans: "PingFang SC", "Hiragino Sans Kaku Gothic ProN", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --serif: "Songti SC", "Hiragino Mincho ProN", "SimSun", serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: var(--sans); font-weight: 400;
+    font-size: 15px; line-height: 2.05;
+    min-height: 100vh;
+  }
+  ::selection { background: var(--bamboo-soft); }
+  a { color: inherit; text-decoration: none; }
+  :focus-visible { outline: 1.5px solid var(--bamboo); outline-offset: 4px; }
+
+  /* ============ prototype chrome ============ */
+  .pt-bar {
+    background: #20241F; color: #8F988A; font-size: 12.5px;
+    padding: 0 16px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    position: sticky; top: 0; z-index: 50;
+  }
+  .pt-bar .pt-title { color: #A9C6B4; font-weight: 700; letter-spacing: 0.08em; }
+  .pt-tab {
+    font-family: inherit; font-size: 12.5px; color: #8F988A; background: none;
+    border: 0; padding: 9px 10px; cursor: pointer;
+  }
+  .pt-tab:hover { color: #EDF0E8; }
+  .pt-tab.active { color: #20241F; background: #A9C6B4; font-weight: 700; }
+  .pt-links { margin-left: auto; display: flex; gap: 12px; }
+  .pt-links a { color: #5C6558; }
+  .pt-links a:hover { color: #A9C6B4; }
+
+  /* ============ site frame ============ */
+  .site { max-width: 680px; margin: 0 auto; padding: 0 24px 120px; position: relative; }
+  .page[hidden] { display: none; }
+
+  /* 签名元素：右缘竖排小字 */
+  .margin-note {
+    position: fixed; right: 18px; top: 50%; transform: translateY(-50%);
+    writing-mode: vertical-rl; letter-spacing: 0.6em;
+    font-size: 10.5px; color: var(--faint); user-select: none;
+  }
+  .margin-note::before { content: ""; display: block; width: 1px; height: 46px; background: var(--line); margin: 0 auto 18px; }
+
+  /* 顶栏 */
+  .head { padding: 72px 0 8px; display: flex; align-items: baseline; gap: 18px; }
+  .head .mark { font-family: var(--serif); font-size: 19px; letter-spacing: 0.5em; font-weight: 600; }
+  .head nav { margin-left: auto; display: flex; gap: 22px; font-size: 13px; letter-spacing: 0.22em; }
+  .head nav a { color: var(--dim); }
+  .head nav a:hover { color: var(--bamboo); }
+
+  /* 间（ma）分隔 */
+  .ma { display: flex; justify-content: center; padding: 52px 0; }
+  .ma span { color: var(--faint); font-size: 12px; letter-spacing: 1.2em; padding-left: 1.2em; }
+
+  /* ============ home ============ */
+  .zen-hero { padding: 88px 0 8px; }
+  .zen-hero .since { font-size: 12px; letter-spacing: 0.5em; color: var(--faint); }
+  .zen-hero h1 {
+    font-family: var(--serif); font-weight: 600; font-size: 34px; line-height: 1.9;
+    letter-spacing: 0.12em; margin-top: 18px;
+  }
+  .zen-hero p { color: var(--dim); margin-top: 18px; max-width: 38ch; }
+  .zen-links { display: flex; gap: 56px; padding: 40px 0 0; }
+  .zen-links a { font-size: 14px; letter-spacing: 0.3em; color: var(--ink); border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+  .zen-links a:hover { color: var(--bamboo); border-color: var(--bamboo); }
+  .zen-latest { padding: 8px 0 0; }
+  .zen-latest .label, .label {
+    font-size: 11px; letter-spacing: 0.42em; color: var(--faint); margin-bottom: 10px;
+  }
+
+  /* 清单（无边界列表） */
+  .plainlist .item {
+    display: flex; align-items: baseline; gap: 20px; padding: 15px 2px;
+  }
+  .plainlist .item .t { flex: 1; font-size: 15.5px; }
+  .plainlist .item .d { font-family: var(--mono); font-size: 11.5px; color: var(--faint); white-space: nowrap; }
+  .plainlist a.item:hover .t { color: var(--bamboo); }
+  .year-quiet { font-family: var(--mono); font-size: 12px; color: var(--faint); letter-spacing: 0.3em; padding: 44px 2px 6px; }
+  .vis-quiet { font-size: 10px; letter-spacing: 0.28em; color: var(--faint); margin-left: 12px; }
+  .vis-quiet.mem { color: var(--bamboo); }
+  .vis-quiet.vip { color: #8A7BB0; }
+  .vis-quiet.pw { color: #B0705F; }
+
+  /* ============ article ============ */
+  .art h1 { font-family: var(--serif); font-size: 29px; font-weight: 600; letter-spacing: 0.06em; line-height: 1.8; }
+  .art .meta { font-family: var(--mono); font-size: 11.5px; color: var(--faint); margin-top: 12px; letter-spacing: 0.1em; }
+  .prose { margin-top: 46px; font-size: 16px; }
+  .prose p { margin: 26px 0; color: #3A403A; }
+  .prose h2 {
+    font-size: 16px; font-weight: 600; letter-spacing: 0.16em; margin: 64px 0 8px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .prose h2::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--bamboo); }
+  .prose ul { list-style: none; margin: 20px 0; }
+  .prose li { padding: 8px 0 8px 20px; position: relative; color: #3A403A; }
+  .prose li::before { content: "・"; position: absolute; left: 0; color: var(--bamboo); }
+  .prose blockquote { margin: 34px 0; padding: 4px 0 4px 24px; border-left: 1px solid var(--bamboo); color: var(--dim); font-size: 15px; }
+  .prose code { font-family: var(--mono); font-size: 0.84em; color: var(--bamboo); background: var(--wash); padding: 1px 7px; border-radius: 10px; }
+  .prose pre {
+    font-family: var(--mono); font-size: 13px; line-height: 1.9; color: #39413B;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 2px;
+    padding: 24px 26px; overflow-x: auto; margin: 30px 0;
+  }
+  .pre-wrap { position: relative; }
+  .pre-wrap .fname { position: absolute; top: -9px; left: 18px; font-family: var(--mono); font-size: 10.5px; color: var(--faint); background: var(--bg); padding: 0 8px; }
+  .tk-c { color: #9AA595; } .tk-k { color: #6E8F7C; } .tk-t { color: #4C6B5B; }
+  .tk-s { color: #8F9E6E; } .tk-f { color: #557C67; }
+
+  /* comments */
+  .cmt { padding: 22px 0; border-top: 1px solid var(--line); }
+  .cmt:first-of-type { border-top: 0; }
+  .cmt .ch { font-family: var(--mono); font-size: 11px; color: var(--faint); margin-bottom: 6px; }
+  .cmt .ch .who { color: var(--ink); }
+  .cmt.reply { margin-left: 40px; }
+  .cmt-form { display: flex; gap: 18px; border-top: 1px solid var(--line); padding-top: 26px; margin-top: 4px; }
+  .cmt-form input { flex: 1; }
+
+  /* ============ projects ============ */
+  .ware { padding: 26px 2px; }
+  .ware .name { font-size: 16px; letter-spacing: 0.06em; }
+  .ware .name .feat { font-size: 10px; letter-spacing: 0.3em; color: var(--bamboo); margin-left: 14px; }
+  .ware p { color: var(--dim); font-size: 14px; margin-top: 6px; max-width: 46ch; }
+  .ware .wlinks { margin-top: 10px; font-family: var(--mono); font-size: 12px; display: flex; gap: 20px; }
+  .ware .wlinks a { color: var(--faint); }
+  .ware .wlinks a:hover { color: var(--bamboo); }
+
+  /* ============ forms ============ */
+  .gate { max-width: 400px; margin: 40px auto 0; padding: 30px 0; }
+  .gate h1 { font-family: var(--serif); font-size: 24px; font-weight: 600; letter-spacing: 0.3em; text-align: center; }
+  .gate .sub { text-align: center; color: var(--faint); font-size: 12.5px; letter-spacing: 0.14em; margin-top: 8px; }
+  .field { margin: 34px 0; }
+  .field label { display: block; font-size: 11px; letter-spacing: 0.4em; color: var(--faint); margin-bottom: 4px; }
+  input[type=text], input[type=email], input[type=password], textarea, select {
+    width: 100%; font-family: var(--sans); font-size: 15px; color: var(--ink);
+    background: transparent; border: 0; border-bottom: 1px solid var(--line);
+    padding: 8px 2px; border-radius: 0;
+  }
+  input:focus, textarea:focus, select:focus { outline: none; border-bottom-color: var(--bamboo); }
+  .field-line { position: relative; }
+  .gate .actions { display: flex; gap: 40px; justify-content: center; margin-top: 44px; }
+  .btn {
+    font: inherit; font-size: 13px; letter-spacing: 0.34em; cursor: pointer;
+    background: none; border: 0; color: var(--ink);
+    padding: 12px 10px; border-bottom: 1px solid var(--ink);
+  }
+  .btn:hover { color: var(--bamboo); border-color: var(--bamboo); }
+  .btn.fill { background: var(--bamboo); color: #F4F7F3; border-bottom-color: var(--bamboo); padding: 12px 30px; }
+  .btn.fill:hover { background: #476856; }
+  .gate .aside { text-align: center; margin-top: 34px; font-size: 12.5px; color: var(--faint); }
+  .err { text-align: center; color: #B0705F; font-size: 13px; margin-top: 18px; letter-spacing: 0.1em; }
+  .lock-mark { text-align: center; font-family: var(--serif); font-size: 30px; color: var(--bamboo); padding: 6px 0 0; }
+
+  /* ============ admin ============ */
+  .adm-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .adm-table th { text-align: left; font-weight: 400; font-size: 10.5px; letter-spacing: 0.3em; color: var(--faint); padding: 14px 8px; border-bottom: 1px solid var(--line); }
+  .adm-table td { padding: 13px 8px; border-bottom: 1px solid var(--line); }
+  .adm-table tr:hover td { background: rgba(85,124,101,0.05); }
+  .adm-table .ops a { color: var(--faint); margin-right: 14px; font-size: 12px; }
+  .adm-table .ops a:hover { color: var(--bamboo); }
+  .st { font-size: 11px; letter-spacing: 0.2em; }
+  .st.pub { color: var(--bamboo); } .st.draft { color: var(--faint); }
+  .ed-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 40px; }
+  textarea.draft { min-height: 300px; font-size: 14px; line-height: 2.1; border-bottom: 1px solid var(--line); }
+  .ed-foot { display: flex; gap: 40px; align-items: center; margin-top: 30px; }
+  .ed-foot .stat { font-family: var(--mono); font-size: 10.5px; color: var(--faint); }
+
+  /* ============ 404 ============ */
+  .nf { text-align: center; padding: 80px 0 30px; }
+  .nf .k { font-family: var(--serif); font-size: 64px; color: var(--faint); }
+  .nf p { color: var(--dim); font-size: 13.5px; letter-spacing: 0.2em; margin-top: 18px; }
+
+  /* ============ palette ============ */
+  .pal-veil { position: fixed; inset: 0; background: rgba(43,48,43,0.18); display: flex; justify-content: center; padding-top: 16vh; z-index: 100; }
+  .pal-veil[hidden] { display: none; }
+  .pal { width: min(560px, calc(100vw - 32px)); height: fit-content; background: var(--surface); border: 1px solid var(--line); padding: 8px 0 2px; }
+  .pal-in { display: flex; gap: 14px; align-items: center; padding: 14px 22px; }
+  .pal-in input { border-bottom: 0; padding: 0; font-size: 15px; }
+  .pal-in input:focus { border-bottom: 0; }
+  .pal-list { max-height: 300px; overflow-y: auto; }
+  .pal-item { display: flex; gap: 16px; padding: 12px 22px; align-items: baseline; font-size: 14.5px; }
+  .pal-item .d { font-family: var(--mono); font-size: 11px; color: var(--faint); min-width: 6ch; }
+  .pal-item.sel .t { color: var(--bamboo); }
+  .pal-item.sel .t::after { content: " ・"; color: var(--faint); }
+  .pal-foot { border-top: 1px solid var(--line); margin-top: 6px; padding: 9px 22px; font-size: 10.5px; color: var(--faint); letter-spacing: 0.2em; }
+
+  footer.kicker { text-align: center; font-size: 11px; letter-spacing: 0.34em; color: var(--faint); padding-top: 60px; }
+
+  @media (max-width: 760px) {
+    .margin-note { display: none; }
+    .zen-links { gap: 34px; }
+    .ed-grid { grid-template-columns: 1fr; }
+    .head { padding-top: 48px; flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<div class="pt-bar">
+  <span class="pt-title">原型 · 方向 D 日式余白</span>
+  <nav aria-label="原型页面" style="display:flex;gap:2px;flex-wrap:wrap">
+    <button class="pt-tab active" data-target="home">首页</button>
+    <button class="pt-tab" data-target="blog">博客</button>
+    <button class="pt-tab" data-target="post">文章</button>
+    <button class="pt-tab" data-target="projects">项目</button>
+    <button class="pt-tab" data-target="login">登录</button>
+    <button class="pt-tab" data-target="signup">注册</button>
+    <button class="pt-tab" data-target="unlock">解锁</button>
+    <button class="pt-tab" data-target="admin">后台</button>
+    <button class="pt-tab" data-target="editor">编辑器</button>
+    <button class="pt-tab" data-target="404">404</button>
+  </nav>
+  <div class="pt-links"><a href="index.html">总览</a></div>
+</div>
+
+<aside class="margin-note" aria-hidden="true">余白 · PERFECTPAN · 二〇二六</aside>
+
+<main class="site">
+  <header class="head">
+    <span class="mark">字纸篓</span>
+    <nav>
+      <a href="#" onclick="return false">读</a>
+      <a href="#" onclick="return false">物</a>
+      <button class="pt-tab" style="color:var(--bamboo);padding:0;letter-spacing:0.22em" onclick="document.dispatchEvent(new KeyboardEvent('keydown',{key:'k',metaKey:true}))">检</button>
+    </nav>
+  </header>
+
+  <!-- ================= HOME ================= -->
+  <section class="page" data-page="home">
+    <div class="zen-hero">
+      <div class="since">二〇一九年以来</div>
+      <h1>是个什么都不会的<br>废物.jpg</h1>
+      <p>算法竞赛退役，如今写 TypeScript 与类型体操，把整站跑在 Cloudflare 的免费额度上。这里收着题解、笔记和一些不成体统的随想。</p>
+    </div>
+    <div class="ma"><span>間</span></div>
+    <div class="zen-links">
+      <a href="#" onclick="return false">读文章</a>
+      <a href="#" onclick="return false">看器物</a>
+    </div>
+    <div class="ma"><span>間</span></div>
+    <div class="zen-latest">
+      <div class="label">近 稿 三 篇</div>
+      <div class="plainlist">
+        <a class="item" href="#" onclick="return false"><span class="t">初探 Github Blocks</span><span class="d">2023 / 02</span></a>
+        <a class="item" href="#" onclick="return false"><span class="t">Type Challenge · 冒泡排序</span><span class="d">2021 / 05</span></a>
+        <a class="item" href="#" onclick="return false"><span class="t">回顾 2020</span><span class="d">2021 / 02</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= BLOG ================= -->
+  <section class="page" data-page="blog" hidden>
+    <div class="ma" style="padding-top:56px"><span>間</span></div>
+    <div class="plainlist">
+      <div class="year-quiet">2023</div>
+      <a class="item" href="#" onclick="return false"><span class="t">初探 Github Blocks</span><span class="d">02 / 18</span></a>
+
+      <div class="year-quiet">2021</div>
+      <a class="item" href="#" onclick="return false"><span class="t">Type Challenge · 冒泡排序</span><span class="d">05 / 08</span></a>
+      <a class="item" href="#" onclick="return false"><span class="t">回顾 2020<span class="vis-quiet mem">会 员</span></span><span class="d">02 / 28</span></a>
+
+      <div class="year-quiet">2020</div>
+      <a class="item" href="#" onclick="return false"><span class="t">一些随想</span><span class="d">08 / 26</span></a>
+      <a class="item" href="#" onclick="return false"><span class="t">LeetCode 中国区 TypeScript 面试题题解</span><span class="d">04 / 13</span></a>
+      <a class="item" href="#" onclick="return false"><span class="t">那些年邂逅的 LeetCode 趣/难题</span><span class="d">03 / 30</span></a>
+      <a class="item" href="#" onclick="return false"><span class="t">文档书写要点整理<span class="vis-quiet pw">密</span></span><span class="d">03 / 01</span></a>
+
+      <div class="year-quiet">2019</div>
+      <a class="item" href="#" onclick="return false"><span class="t">回顾 2019<span class="vis-quiet vip">VIP</span></span><span class="d">12 / 31</span></a>
+      <a class="item" href="#" onclick="return false"><span class="t">Codeforces Round#605(Div. 3) D/E/F 题解</span><span class="d">12 / 14</span></a>
+      <a class="item" href="#" onclick="return false"><span class="t">Codeforces Round#603(Div. 2) E/F 题解</span><span class="d">12 / 01</span></a>
+      <a class="item" href="#" onclick="return false"><span class="t">银联极客高校挑战赛复赛 D 多项式</span><span class="d">09 / 17</span></a>
+      <a class="item" href="#" onclick="return false"><span class="t">Codeforces 1149B Three Religions</span><span class="d">04 / 30</span></a>
+      <a class="item" href="#" onclick="return false"><span class="t">2019 ICPC 南昌邀请赛网络赛 G. tsy's number</span><span class="d">04 / 22</span></a>
+    </div>
+    <div class="ma"><span>次 页 へ ・ ・ ・</span></div>
+  </section>
+
+  <!-- ================= ARTICLE ================= -->
+  <section class="page" data-page="post" hidden>
+    <div class="ma" style="padding-top:56px"><span>間</span></div>
+    <article class="art">
+      <h1>Type Challenge · 冒泡排序</h1>
+      <div class="meta">2021 / 05 / 08 ・ 九分 ・ TypeScript ・ 公開</div>
+      <div class="prose">
+        <p>这题要求在类型系统里实现冒泡排序：给定一个元组 <code>T extends number[]</code>，返回排序后的元组。类型层面上没有循环，所以核心思路是把「一趟冒泡」展开成递归。</p>
+
+        <h2>一趟冒泡</h2>
+        <p>先写一个 <code>Pass</code>，从头到尾扫一遍，相邻逆序就交换：</p>
+
+        <div class="pre-wrap"><span class="fname">bubble.ts</span>
+<pre><span class="tk-c">// 一趟冒泡：相邻比较，逆序则交换</span>
+<span class="tk-k">type</span> <span class="tk-t">Pass</span>&lt;<span class="tk-t">T</span> <span class="tk-k">extends</span> <span class="tk-t">number</span>[]&gt; =
+  <span class="tk-t">T</span> <span class="tk-k">extends</span> [<span class="tk-k">infer</span> <span class="tk-t">A</span> <span class="tk-k">extends</span> <span class="tk-t">number</span>, <span class="tk-k">infer</span> <span class="tk-t">B</span> <span class="tk-k">extends</span> <span class="tk-t">number</span>, ...<span class="tk-k">infer</span> <span class="tk-t">R</span> <span class="tk-k">extends</span> <span class="tk-t">number</span>[]]
+    ? <span class="tk-t">A</span> <span class="tk-k">extends</span> <span class="tk-s">`${B}`</span>
+      ? [<span class="tk-t">A</span>, ...<span class="tk-t">Pass</span>&lt;[<span class="tk-t">B</span>, ...<span class="tk-t">R</span>]&gt;]
+      : [<span class="tk-t">B</span>, ...<span class="tk-t">Pass</span>&lt;[<span class="tk-t">A</span>, ...<span class="tk-t">R</span>]&gt;]
+    : <span class="tk-t">T</span>;
+
+<span class="tk-k">type</span> <span class="tk-f">BubbleSort</span>&lt;<span class="tk-t">T</span>&gt; = ...<span class="tk-c">// 没交换 → 有序</span></pre>
+        </div>
+
+        <blockquote>数字比较不能直接用 <code>&lt;</code>，得转成字符串长度或逐位比较——类型体操的老朋友了。</blockquote>
+
+        <h2>几个细节</h2>
+        <ul>
+          <li><code>infer A extends number</code> 收窄推断结果，省掉一层条件判断；</li>
+          <li>终止条件是「这一趟没有发生任何交换」，用深度相等判断；</li>
+          <li>元组很长时记得给 TS 足够的递归深度，或者拆成小测试。</li>
+        </ul>
+        <p>完整题解在仓库 <code>type-challenges</code> 里，配合测试用例食用更佳。</p>
+      </div>
+    </article>
+
+    <div class="ma"><span>読 者 の 声</span></div>
+    <div class="cmt">
+      <div class="ch"><span class="who">alice@example.com</span> ・ 2021 / 05 / 09</div>
+      <p>Equal 判终止这个思路太优雅了，比数长度 hack 干净。</p>
+    </div>
+    <div class="cmt reply">
+      <div class="ch"><span class="who">bob@example.com</span> ・ 2021 / 05 / 10</div>
+      <p>数长度在负数场景直接爆炸，还是深度相等稳。</p>
+    </div>
+    <form class="cmt-form" onsubmit="return false">
+      <input type="text" placeholder="静かに一言どうぞ……" aria-label="新评论">
+      <button class="btn" type="submit">投　稿</button>
+    </form>
+  </section>
+
+  <!-- ================= PROJECTS ================= -->
+  <section class="page" data-page="projects" hidden>
+    <div class="ma" style="padding-top:56px"><span>間</span></div>
+    <div class="ware">
+      <div class="name">blog<span class="feat">代表 作</span></div>
+      <p>本博客——TanStack Start 前台，全量部署在 Cloudflare Workers + D1 上。</p>
+      <div class="wlinks"><a href="#" onclick="return false">source</a><a href="#" onclick="return false">live</a></div>
+    </div>
+    <div class="ware">
+      <div class="name">logseq-plugin-code-formatter<span class="feat">代表 作</span></div>
+      <p>Logseq 插件——用 Prettier 一键格式化代码块，支持 JS / TS / HTML / CSS / Markdown / JSON。</p>
+      <div class="wlinks"><a href="#" onclick="return false">source</a></div>
+    </div>
+    <div class="ware">
+      <div class="name">ocvm</div>
+      <p>OpenClaw 版本管理器——nvm 风格的 Rust CLI，按项目安装、切换、锁定与回滚版本。</p>
+      <div class="wlinks"><a href="#" onclick="return false">source</a><a href="#" onclick="return false">live</a></div>
+    </div>
+    <div class="ware">
+      <div class="name">agent-presence</div>
+      <p>把本地编码 agent 的在线状态与 token 用量同步到飞书签名链接预览。</p>
+      <div class="wlinks"><a href="#" onclick="return false">source</a><a href="#" onclick="return false">live</a></div>
+    </div>
+    <div class="ware">
+      <div class="name">base64</div>
+      <p>Moonbit 语言实现的 Base64 编解码库，遵循 RFC 4648。</p>
+      <div class="wlinks"><a href="#" onclick="return false">source</a></div>
+    </div>
+  </section>
+
+  <!-- ================= LOGIN ================= -->
+  <section class="page" data-page="login" hidden>
+    <div class="gate">
+      <h1>登　録</h1>
+      <p class="sub">会員は「会員可読」の記事を読める</p>
+      <form onsubmit="return false">
+        <div class="field"><label for="d-em">邮 箱</label><input id="d-em" type="email" placeholder="you@example.com"></div>
+        <div class="field"><label for="d-pw">口 令</label><input id="d-pw" type="password" placeholder="・・・・・・・・"></div>
+        <div class="actions">
+          <button class="btn fill" type="submit">登　入</button>
+          <button class="btn" type="button">GitHub</button>
+        </div>
+        <p class="err" hidden>邮箱或口令不正确</p>
+      </form>
+      <p class="aside">尚未注册？<a href="#" onclick="return false" style="color:var(--bamboo)">注册</a></p>
+    </div>
+  </section>
+
+  <!-- ================= SIGNUP ================= -->
+  <section class="page" data-page="signup" hidden>
+    <div class="gate">
+      <h1>注　冊</h1>
+      <p class="sub">登録すると member になる</p>
+      <form onsubmit="return false">
+        <div class="field"><label for="d-sem">邮 箱</label><input id="d-sem" type="email" placeholder="you@example.com"></div>
+        <div class="field"><label for="d-spw">口 令</label><input id="d-spw" type="password" placeholder="至少八位"></div>
+        <div class="field"><label for="d-spw2">确 认</label><input id="d-spw2" type="password" placeholder="・・・・・・・・"></div>
+        <div class="actions">
+          <button class="btn fill" type="submit">建立账号</button>
+          <button class="btn" type="button">GitHub</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ================= UNLOCK ================= -->
+  <section class="page" data-page="unlock" hidden>
+    <div class="gate">
+      <div class="lock-mark">鍵</div>
+      <h1>解　鎖</h1>
+      <p class="sub">この記事は一言パスワードで封をされている ・ 24 時間有効</p>
+      <form onsubmit="return false">
+        <div class="field"><label for="d-upw">篇 目 口 令</label><input id="d-upw" type="password" placeholder="・・・・・・・・" autofocus></div>
+        <p class="err">口令有误，请再试</p>
+        <div class="actions">
+          <button class="btn fill" type="submit">启 封</button>
+          <a class="btn" href="#" onclick="return false">返 回</a>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ================= ADMIN ================= -->
+  <section class="page" data-page="admin" hidden>
+    <div class="ma" style="padding-top:56px"><span>間</span></div>
+    <table class="adm-table">
+      <thead><tr><th>编号</th><th>篇目</th><th>状态</th><th>可见</th><th>更新</th><th></th></tr></thead>
+      <tbody>
+        <tr><td class="d" style="font-family:var(--mono);font-size:11px;color:var(--faint)">016</td><td>初探 Github Blocks</td><td class="st pub">已刊</td><td style="font-size:12px;color:var(--dim)">公开</td><td style="font-family:var(--mono);font-size:11px;color:var(--faint)">2023-02-18</td><td class="ops"><a href="#" onclick="return false">改</a><a href="#" onclick="return false">删</a></td></tr>
+        <tr><td style="font-family:var(--mono);font-size:11px;color:var(--faint)">015</td><td>Type Challenge · 冒泡排序</td><td class="st pub">已刊</td><td style="font-size:12px;color:var(--dim)">公开</td><td style="font-family:var(--mono);font-size:11px;color:var(--faint)">2021-05-08</td><td class="ops"><a href="#" onclick="return false">改</a><a href="#" onclick="return false">删</a></td></tr>
+        <tr><td style="font-family:var(--mono);font-size:11px;color:var(--faint)">014</td><td>回顾 2020</td><td class="st pub">已刊</td><td style="font-size:12px;color:var(--dim)">会员</td><td style="font-family:var(--mono);font-size:11px;color:var(--faint)">2021-02-28</td><td class="ops"><a href="#" onclick="return false">改</a><a href="#" onclick="return false">删</a></td></tr>
+        <tr><td style="font-family:var(--mono);font-size:11px;color:var(--faint)">010</td><td>文档书写要点整理</td><td class="st pub">已刊</td><td style="font-size:12px;color:var(--dim)">密笈</td><td style="font-family:var(--mono);font-size:11px;color:var(--faint)">2020-03-01</td><td class="ops"><a href="#" onclick="return false">改</a><a href="#" onclick="return false">删</a></td></tr>
+        <tr><td style="font-family:var(--mono);font-size:11px;color:var(--faint)">017</td><td>Cloudflare 迁移实录</td><td class="st draft">草稿</td><td style="font-size:12px;color:var(--dim)">公开</td><td style="font-family:var(--mono);font-size:11px;color:var(--faint)">2026-08-12</td><td class="ops"><a href="#" onclick="return false">改</a><a href="#" onclick="return false">删</a></td></tr>
+      </tbody>
+    </table>
+    <div class="ed-foot">
+      <a class="btn" href="#" onclick="return false">新拟一篇</a>
+      <a class="btn" href="#" onclick="return false">来函（23）</a>
+    </div>
+  </section>
+
+  <!-- ================= EDITOR ================= -->
+  <section class="page" data-page="editor" hidden>
+    <div class="ma" style="padding-top:56px"><span>間</span></div>
+    <form onsubmit="return false">
+      <div class="ed-grid">
+        <div class="field"><label>篇 目</label><input type="text" value="Cloudflare 迁移实录"></div>
+        <div class="field"><label>档 名</label><input type="text" value="cloudflare-migration"></div>
+        <div class="field"><label>可 见</label>
+          <select><option>公开</option><option>会员</option><option>VIP</option><option>编者</option><option>密笈</option></select>
+        </div>
+        <div class="field"><label>栏 目</label><input type="text" value="工程, Cloudflare, D1"></div>
+      </div>
+      <div class="field"><label>正 文</label>
+        <textarea class="draft" spellcheck="false">## 为什么要迁
+
+Postgres 免费额度撑不住了……
+
+```ts
+export default { fetch } = ...
+```</textarea>
+      </div>
+      <div class="ed-foot">
+        <button class="btn" type="button">存 草 稿</button>
+        <button class="btn fill" type="button">刊 发</button>
+        <span class="stat">642 字 ・ 约 3 分 ・ 存档 12:41</span>
+      </div>
+    </form>
+  </section>
+
+  <!-- ================= 404 ================= -->
+  <section class="page" data-page="404" hidden>
+    <div class="nf">
+      <div class="k">空</div>
+      <p>此处无文 ・ <a href="#" onclick="return false" style="color:var(--bamboo)">回到目次</a></p>
+    </div>
+  </section>
+
+  <footer class="kicker">PERFECTPAN ・ 静々と更新中</footer>
+</main>
+
+<!-- 检索 palette -->
+<div class="pal-veil" id="pal-veil" hidden>
+  <div class="pal" role="dialog" aria-label="检索篇目">
+    <div class="pal-in">
+      <span style="color:var(--faint);font-size:11px;letter-spacing:0.4em">検 索</span>
+      <input type="text" id="pal-input" placeholder="静かに入力……" aria-label="检索">
+    </div>
+    <div class="pal-list">
+      <div class="pal-item sel"><span class="d">2021/05</span><span class="t">Type Challenge · 冒泡排序</span></div>
+      <div class="pal-item"><span class="d">2020/04</span><span class="t">LeetCode 中国区 TypeScript 面试题题解</span></div>
+      <div class="pal-item"><span class="d">2019/12</span><span class="t">Codeforces Round#605(Div. 3) D/E/F 题解</span></div>
+      <div class="pal-item"><span class="d">2019/04</span><span class="t">Codeforces 1149B Three Religions</span></div>
+    </div>
+    <div class="pal-foot">↑↓ 選択 ・ ↵ 開く ・ esc 閉じる</div>
+  </div>
+</div>
+
+<script>
+  var tabs = document.querySelectorAll('.pt-tab');
+  var pages = document.querySelectorAll('.page');
+  function go(id) {
+    pages.forEach(function(p){ p.hidden = p.dataset.page !== id; });
+    tabs.forEach(function(t){ t.classList.toggle('active', t.dataset.target === id); });
+    window.scrollTo(0, 0);
+    history.replaceState(null, '', '#' + id);
+  }
+  tabs.forEach(function(t){ if (t.dataset.target) t.addEventListener('click', function(){ go(t.dataset.target); }); });
+  var h = location.hash.slice(1);
+  if (h && document.querySelector('.page[data-page="' + h + '"]')) go(h);
+  window.addEventListener('hashchange', function(){
+    var h = location.hash.slice(1);
+    if (h && document.querySelector('.page[data-page="' + h + '"]')) go(h);
+  });
+
+  var veil = document.getElementById('pal-veil');
+  var input = document.getElementById('pal-input');
+  document.addEventListener('keydown', function(e){
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); veil.hidden = false; input.focus(); }
+    if (e.key === 'Escape') veil.hidden = true;
+  });
+  veil.addEventListener('click', function(e){ if (e.target === veil) veil.hidden = true; });
+</script>
+</body>
+</html>

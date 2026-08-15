@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>方向 E · 工程蓝图 · PerfectPan's Blog 原型</title>
+<style>
+  /* ============ tokens ============ */
+  :root {
+    --bp: #173E62;         /* 蓝图纸 */
+    --bp-deep: #113149;
+    --sheet: rgba(233,242,252,0.045);
+    --ink: #E8F1FA;        /* 白墨线 */
+    --dim: #9FB9D6;
+    --faint: #6D89AB;
+    --grid: rgba(232,241,250,0.07);
+    --line: rgba(232,241,250,0.28);
+    --line-soft: rgba(232,241,250,0.14);
+    --yellow: #FFC957;     /* 图纸标注黄 */
+    --cyan: #8FDCFF;       /* 链接/交互 */
+    --red: #FF8E7A;        /* 红铅笔 */
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, "PingFang SC", monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background-color: var(--bp);
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+      linear-gradient(rgba(232,241,250,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(232,241,250,0.035) 1px, transparent 1px);
+    background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 14px; line-height: 1.8;
+    min-height: 100vh;
+  }
+  ::selection { background: rgba(255,201,87,0.28); }
+  a { color: var(--cyan); text-decoration: none; }
+  a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  :focus-visible { outline: 1.5px dashed var(--yellow); outline-offset: 3px; }
+
+  /* ============ prototype chrome ============ */
+  .pt-bar {
+    background: #0C2237; color: #7C97B5; font-size: 12.5px;
+    padding: 0 16px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    position: sticky; top: 0; z-index: 50; border-bottom: 1px solid rgba(232,241,250,0.15);
+  }
+  .pt-bar .pt-title { color: var(--yellow); font-weight: 700; letter-spacing: 0.08em; }
+  .pt-tab {
+    font-family: inherit; font-size: 12.5px; color: #7C97B5; background: none;
+    border: 0; padding: 9px 10px; cursor: pointer;
+  }
+  .pt-tab:hover { color: var(--ink); }
+  .pt-tab.active { color: #0C2237; background: var(--yellow); font-weight: 700; }
+  .pt-links { margin-left: auto; display: flex; gap: 12px; }
+  .pt-links a { color: #586F8C; }
+  .pt-links a:hover { color: var(--yellow); }
+
+  /* ============ 图纸 sheet ============ */
+  .board { max-width: 1100px; margin: 0 auto; padding: 34px 22px 70px; }
+  .sheet {
+    position: relative;
+    border: 1.6px solid var(--line);
+    background: var(--sheet);
+    padding: 34px 38px 96px;
+    min-height: 60vh;
+  }
+  .sheet::before {
+    content: ""; position: absolute; inset: 5px;
+    border: 1px solid var(--line-soft); pointer-events: none;
+  }
+  /* 角标记 */
+  .tick { position: absolute; width: 14px; height: 14px; pointer-events: none; }
+  .tick::before, .tick::after { content: ""; position: absolute; background: var(--yellow); }
+  .tick::before { width: 14px; height: 2px; } .tick::after { width: 2px; height: 14px; }
+  .tick.tl { top: -1px; left: -1px; } .tick.tr { top: -1px; right: -1px; transform: scaleX(-1); }
+  .tick.bl { bottom: -1px; left: -1px; transform: scaleY(-1); } .tick.br { bottom: -1px; right: -1px; transform: scale(-1); }
+
+  .page[hidden] { display: none; }
+
+  /* 标题栏（图签） */
+  .titleblock {
+    position: absolute; right: -1.6px; bottom: -1.6px;
+    display: grid; grid-template-columns: auto auto auto;
+    border: 1.6px solid var(--line); border-right: 0; border-bottom: 0;
+    background: rgba(12,34,55,0.88);
+    font-size: 10.5px; letter-spacing: 0.14em; color: var(--dim);
+  }
+  .titleblock .cell { padding: 7px 14px; border-left: 1px solid var(--line-soft); }
+  .titleblock .cell:first-child { border-left: 0; }
+  .titleblock b { display: block; color: var(--yellow); font-weight: 600; font-size: 13px; letter-spacing: 0.06em; }
+  .titleblock .cell.wide { grid-row: span 2; display: flex; align-items: center; }
+  .titleblock .cell.wide b { font-size: 16px; }
+
+  .sheet-head {
+    display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap;
+    padding-bottom: 18px; border-bottom: 1px dashed var(--line); margin-bottom: 26px;
+  }
+  .sheet-head .dwg { font-size: 11px; letter-spacing: 0.3em; color: var(--faint); }
+  .sheet-head h1 { font-size: 25px; font-weight: 700; letter-spacing: 0.04em; }
+  .sheet-head .tools { margin-left: auto; display: flex; gap: 10px; }
+  .tool { font: inherit; font-size: 11px; letter-spacing: 0.16em; color: var(--dim); background: none; border: 1px solid var(--line-soft); padding: 4px 12px; cursor: pointer; }
+  .tool:hover { color: var(--yellow); border-color: var(--yellow); }
+
+  .lbl { font-size: 10.5px; letter-spacing: 0.3em; color: var(--faint); }
+  .rev { color: var(--yellow); }
+
+  /* ============ home ============ */
+  .cover { display: grid; grid-template-columns: 1.3fr 1fr; gap: 50px; }
+  .cover .big {
+    font-size: clamp(38px, 6vw, 62px); font-weight: 700; letter-spacing: 0.02em; line-height: 1.15;
+  }
+  .cover .big span { color: var(--yellow); }
+  .cover .sub { margin-top: 20px; color: var(--dim); max-width: 48ch; }
+  .cover .specs { margin-top: 30px; }
+  .spec-line { display: flex; gap: 16px; padding: 9px 0; border-bottom: 1px solid var(--line-soft); font-size: 12.5px; }
+  .spec-line .k { color: var(--faint); letter-spacing: 0.2em; min-width: 13ch; }
+  .spec-line .v { color: var(--ink); }
+  .cover-right { border-left: 1px dashed var(--line); padding-left: 40px; }
+  .cover-right h3 { font-size: 11px; letter-spacing: 0.3em; color: var(--yellow); margin-bottom: 12px; font-weight: 600; }
+  .idx-row { display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line-soft); align-items: baseline; }
+  .idx-row .no { color: var(--faint); font-size: 11px; min-width: 4ch; }
+  .idx-row .t { flex: 1; color: var(--ink); }
+  .idx-row .t:hover { color: var(--cyan); }
+  .open-ports { margin-top: 30px; display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn {
+    font: inherit; font-size: 12px; letter-spacing: 0.22em; cursor: pointer;
+    background: none; color: var(--ink); border: 1.4px solid var(--line);
+    padding: 10px 22px; transition: all .12s;
+  }
+  .btn:hover { border-color: var(--yellow); color: var(--yellow); text-decoration: none; }
+  .btn.fill { background: var(--yellow); border-color: var(--yellow); color: #123049; font-weight: 700; }
+  .btn.fill:hover { background: #FFD57A; }
+
+  /* ============ BOM 表（blog） ============ */
+  table.bom { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .bom th {
+    text-align: left; font-weight: 400; font-size: 10px; letter-spacing: 0.26em; color: var(--yellow);
+    padding: 10px 12px; border-bottom: 1.4px solid var(--line);
+  }
+  .bom td { padding: 10px 12px; border-bottom: 1px solid var(--line-soft); }
+  .bom tbody tr:hover td { background: rgba(143,220,255,0.06); }
+  .bom td.item { color: var(--faint); font-size: 11px; }
+  .bom td.tt a { color: var(--ink); }
+  .bom td.tt a:hover { color: var(--cyan); }
+  .bom .yr { display: flex; align-items: center; gap: 14px; padding: 24px 12px 8px; color: var(--dim); letter-spacing: 0.3em; font-size: 11px; }
+  .bom .yr::after { content: ""; flex: 1; border-top: 1px dashed var(--line-soft); }
+  .perm { font-size: 11px; letter-spacing: 0.06em; }
+  .perm.pub { color: #9BE3B4; } .perm.mem { color: var(--cyan); }
+  .perm.vip { color: #C7A6F2; } .perm.pw { color: var(--red); }
+  .bom-pager { display: flex; justify-content: center; gap: 22px; padding-top: 30px; font-size: 12px; color: var(--dim); }
+
+  /* ============ article ============ */
+  .art-head { border-bottom: 1.4px solid var(--line); padding-bottom: 20px; margin-bottom: 30px; }
+  .art-head h1 { font-size: 27px; font-weight: 700; }
+  .art-head .meta { margin-top: 10px; display: flex; gap: 22px; flex-wrap: wrap; font-size: 11px; letter-spacing: 0.2em; color: var(--dim); }
+  .prose { max-width: 72ch; }
+  .prose p { margin: 16px 0; color: #D9E6F4; }
+  .prose h2 {
+    font-size: 16px; margin: 36px 0 10px; letter-spacing: 0.08em;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .prose h2 .no { color: var(--yellow); font-size: 11px; letter-spacing: 0.24em; }
+  .prose h2::after { content: ""; flex: 1; border-top: 1px dashed var(--line-soft); }
+  .prose ul { margin: 14px 0; list-style: none; }
+  .prose li { padding: 6px 0 6px 26px; position: relative; color: #D9E6F4; }
+  .prose li::before { content: "—"; position: absolute; left: 0; color: var(--yellow); }
+  .prose blockquote { border-left: 2px solid var(--yellow); background: rgba(255,201,87,0.06); padding: 12px 20px; margin: 20px 0; color: var(--dim); }
+  .prose blockquote .who { display: block; margin-top: 6px; font-size: 10.5px; letter-spacing: 0.24em; color: var(--faint); }
+  .prose code { font-size: 0.85em; color: var(--yellow); border: 1px solid var(--line-soft); padding: 1px 6px; background: rgba(232,241,250,0.05); }
+  .prose pre {
+    position: relative; font-size: 13px; line-height: 1.8; color: #D9E6F4;
+    background: var(--bp-deep); border: 1px solid var(--line);
+    padding: 20px 22px; overflow-x: auto; margin: 22px 0;
+  }
+  .pre-wrap .fname { position: absolute; top: 0; right: 0; font-size: 10.5px; color: var(--faint); background: var(--bp); border-left: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); padding: 1px 12px; }
+  .tk-c { color: #6D89AB; } .tk-k { color: #FFC957; } .tk-t { color: #8FDCFF; }
+  .tk-s { color: #9BE3B4; } .tk-f { color: #C7A6F2; }
+
+  .cmt { border: 1px solid var(--line-soft); background: var(--sheet); margin: 12px 0; }
+  .cmt .ch { display: flex; gap: 14px; padding: 8px 16px; border-bottom: 1px dashed var(--line-soft); font-size: 11px; color: var(--dim); }
+  .cmt .ch .who { color: var(--ink); }
+  .cmt .cb { padding: 10px 16px; }
+  .cmt.reply { margin-left: 44px; border-left: 2px solid var(--yellow); }
+  .cmt-form { display: flex; gap: 12px; margin-top: 18px; }
+  .cmt-form input[type=text] { flex: 1; }
+  input[type=text], input[type=email], input[type=password], textarea, select {
+    font-family: var(--mono); font-size: 13.5px; color: var(--ink);
+    background: var(--bp-deep); border: 1px solid var(--line-soft); padding: 10px 14px; width: 100%;
+  }
+  input::placeholder, textarea::placeholder { color: var(--faint); }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--yellow); }
+
+  /* ============ projects ============ */
+  .dwg-row { display: grid; grid-template-columns: 110px 1fr auto; gap: 28px; padding: 22px 8px; border-bottom: 1px solid var(--line-soft); align-items: start; }
+  .dwg-row .no { font-size: 24px; color: var(--faint); }
+  .dwg-row .no .feat { display: block; font-size: 9px; letter-spacing: 0.3em; color: var(--yellow); margin-top: 3px; }
+  .dwg-row h2 { font-size: 17px; }
+  .dwg-row p { color: var(--dim); font-size: 13px; margin-top: 6px; max-width: 60ch; }
+  .dwg-row .links { display: flex; flex-direction: column; gap: 6px; font-size: 12px; text-align: right; }
+
+  /* ============ forms ============ */
+  .gate { max-width: 440px; margin: 26px auto 0; }
+  .gate h1 { font-size: 20px; letter-spacing: 0.14em; }
+  .gate .sub { font-size: 11px; letter-spacing: 0.2em; color: var(--dim); margin: 8px 0 24px; }
+  .field { margin: 16px 0; }
+  .field label { display: block; font-size: 10px; letter-spacing: 0.3em; color: var(--faint); margin-bottom: 6px; }
+  .gate .actions { display: flex; gap: 12px; margin-top: 24px; }
+  .err { border: 1px dashed var(--red); color: var(--red); padding: 8px 14px; font-size: 12px; margin-top: 16px; }
+
+  /* ============ admin ============ */
+  table.adm { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .adm th { text-align: left; font-size: 10px; letter-spacing: 0.26em; color: var(--yellow); font-weight: 400; padding: 10px 12px; border-bottom: 1.4px solid var(--line); }
+  .adm td { padding: 10px 12px; border-bottom: 1px solid var(--line-soft); }
+  .adm tbody tr:hover td { background: rgba(143,220,255,0.06); }
+  .adm .st { font-size: 11px; } .adm .st.pub { color: #9BE3B4; } .adm .st.draft { color: var(--faint); }
+  .adm .ops a { margin-right: 14px; font-size: 11.5px; }
+  .adm .ops a.del { color: var(--red); }
+  .ed-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0 26px; }
+  textarea.draft { min-height: 320px; line-height: 1.9; }
+  .ed-foot { display: flex; gap: 12px; margin-top: 18px; align-items: center; flex-wrap: wrap; }
+  .ed-foot .stat { margin-left: auto; font-size: 10.5px; letter-spacing: 0.14em; color: var(--faint); }
+
+  /* ============ 404 ============ */
+  .nf { text-align: center; padding: 70px 0 30px; }
+  .nf .code { font-size: 80px; font-weight: 700; color: var(--faint); letter-spacing: 0.1em; }
+  .nf .code b { color: var(--red); font-weight: 700; }
+  .nf p { color: var(--dim); margin: 14px 0 26px; font-size: 12px; letter-spacing: 0.24em; }
+
+  /* ============ palette ============ */
+  .pal-veil { position: fixed; inset: 0; background: rgba(9,26,42,0.72); display: flex; justify-content: center; padding-top: 14vh; z-index: 100; }
+  .pal-veil[hidden] { display: none; }
+  .pal { width: min(620px, calc(100vw - 32px)); height: fit-content; background: var(--bp-deep); border: 1.4px solid var(--line); }
+  .pal-in { display: flex; gap: 14px; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--line-soft); }
+  .pal-in .m { color: var(--yellow); font-size: 11px; letter-spacing: 0.3em; }
+  .pal-in input { background: none; border: 0; padding: 0; font-size: 14.5px; }
+  .pal-in input:focus { border: 0; }
+  .pal-list { max-height: 300px; overflow-y: auto; }
+  .pal-item { display: flex; gap: 16px; padding: 11px 18px; align-items: baseline; }
+  .pal-item .d { font-size: 11px; color: var(--faint); min-width: 6ch; }
+  .pal-item.sel { background: rgba(143,220,255,0.08); box-shadow: inset 2px 0 0 var(--yellow); }
+  .pal-foot { border-top: 1px solid var(--line-soft); padding: 8px 18px; font-size: 10.5px; letter-spacing: 0.14em; color: var(--faint); }
+
+  @media (max-width: 820px) {
+    .cover { grid-template-columns: 1fr; }
+    .cover-right { border-left: 0; border-top: 1px dashed var(--line); padding: 26px 0 0; }
+    .sheet { padding: 22px 18px 130px; }
+    .titleblock { grid-template-columns: auto auto; }
+    .dwg-row { grid-template-columns: 60px 1fr; }
+    .dwg-row .links { flex-direction: row; grid-column: 2; text-align: left; gap: 18px; }
+    .bom th:nth-child(3), .bom td:nth-child(3), .bom th:nth-child(4), .bom td:nth-child(4) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="pt-bar">
+  <span class="pt-title">原型 · 方向 E 工程蓝图</span>
+  <nav aria-label="原型页面" style="display:flex;gap:2px;flex-wrap:wrap">
+    <button class="pt-tab active" data-target="home">首页</button>
+    <button class="pt-tab" data-target="blog">博客</button>
+    <button class="pt-tab" data-target="post">文章</button>
+    <button class="pt-tab" data-target="projects">项目</button>
+    <button class="pt-tab" data-target="login">登录</button>
+    <button class="pt-tab" data-target="signup">注册</button>
+    <button class="pt-tab" data-target="unlock">解锁</button>
+    <button class="pt-tab" data-target="admin">后台</button>
+    <button class="pt-tab" data-target="editor">编辑器</button>
+    <button class="pt-tab" data-target="404">404</button>
+  </nav>
+  <div class="pt-links"><a href="index.html">总览</a></div>
+</div>
+
+<div class="board">
+
+  <!-- ================= HOME ================= -->
+  <section class="page" data-page="home">
+    <div class="sheet">
+      <span class="tick tl"></span><span class="tick tr"></span><span class="tick bl"></span><span class="tick br"></span>
+      <div class="sheet-head">
+        <span class="dwg">DWG NO. PP-HOME-001</span>
+        <span class="dwg">REV <span class="rev">C</span></span>
+        <div class="tools">
+          <button class="tool" onclick="document.dispatchEvent(new KeyboardEvent('keydown',{key:'k',metaKey:true}))">检索 ⌘K</button>
+          <a class="tool" href="#" onclick="return false">RSS</a>
+          <a class="tool" href="#" onclick="return false">GITHUB</a>
+        </div>
+      </div>
+
+      <div class="cover">
+        <div>
+          <div class="lbl">GENERAL ARRANGEMENT — SINCE 2019</div>
+          <div class="big" style="margin-top:14px">PERFECTPAN<span>.</span></div>
+          <p class="sub">个人博客施工图集：算法竞赛旧题解、TypeScript 类型体操、Cloudflare $0/月 工程实践，以及随想。是个什么都不会的废物.jpg —— 图纸仍在更新。</p>
+          <div class="specs">
+            <div class="spec-line"><span class="k">DOCUMENTS</span><span class="v">16 篇（2019 — 2023）</span></div>
+            <div class="spec-line"><span class="k">ASSEMBLIES</span><span class="v">5 个开源项目</span></div>
+            <div class="spec-line"><span class="k">SUBSTRATE</span><span class="v">Cloudflare Workers + D1</span></div>
+            <div class="spec-line"><span class="k">TOLERANCE</span><span class="v">$0.00 / 月</span></div>
+          </div>
+          <div class="open-ports">
+            <a class="btn fill" href="#" onclick="return false">OPEN BLOG/</a>
+            <a class="btn" href="#" onclick="return false">OPEN PROJECTS/</a>
+          </div>
+        </div>
+        <div class="cover-right">
+          <h3>LATEST INDEX</h3>
+          <div class="idx-row"><span class="no">016</span><a class="t" href="#" onclick="return false">初探 Github Blocks</a></div>
+          <div class="idx-row"><span class="no">015</span><a class="t" href="#" onclick="return false">Type Challenge · 冒泡排序</a></div>
+          <div class="idx-row"><span class="no">014</span><a class="t" href="#" onclick="return false">回顾 2020</a></div>
+          <div class="idx-row"><span class="no">013</span><a class="t" href="#" onclick="return false">一些随想</a></div>
+          <div class="idx-row"><span class="no">012</span><a class="t" href="#" onclick="return false">LeetCode 中国区 TypeScript 面试题题解</a></div>
+        </div>
+      </div>
+
+      <div class="titleblock">
+        <div class="cell wide"><b>PERFECTPAN.ORG</b></div>
+        <div class="cell">TITLE<b>总布置图</b></div>
+        <div class="cell">SCALE<b>1 : 1</b></div>
+        <div class="cell">DATE<b>2026-08-15</b></div>
+        <div class="cell">SHEET<b>1 / 1</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= BLOG ================= -->
+  <section class="page" data-page="blog" hidden>
+    <div class="sheet">
+      <span class="tick tl"></span><span class="tick tr"></span><span class="tick bl"></span><span class="tick br"></span>
+      <div class="sheet-head">
+        <span class="dwg">DWG NO. PP-BLOG-016</span>
+        <span class="dwg">REV <span class="rev">C</span></span>
+        <h1 style="margin-left:auto">BLOG — 材料清单</h1>
+      </div>
+
+      <table class="bom">
+        <thead><tr><th>ITEM</th><th>TITLE / DESCRIPTION</th><th>ACCESS</th><th>DATE</th><th>MARK</th></tr></thead>
+        <tbody>
+          <tr class="yr"><td colspan="5">— 2023 —</td></tr>
+          <tr><td class="item">016</td><td class="tt"><a href="#" onclick="return false">初探 Github Blocks</a></td><td class="perm pub">PUBLIC</td><td class="item">02-18</td><td class="item">MISC</td></tr>
+          <tr class="yr"><td colspan="5">— 2021 —</td></tr>
+          <tr><td class="item">015</td><td class="tt"><a href="#" onclick="return false">Type Challenge · 冒泡排序</a></td><td class="perm pub">PUBLIC</td><td class="item">05-08</td><td class="item">TS</td></tr>
+          <tr><td class="item">014</td><td class="tt"><a href="#" onclick="return false">回顾 2020</a></td><td class="perm mem">MEMBER</td><td class="item">02-28</td><td class="item">LIFE</td></tr>
+          <tr class="yr"><td colspan="5">— 2020 —</td></tr>
+          <tr><td class="item">013</td><td class="tt"><a href="#" onclick="return false">一些随想</a></td><td class="perm pub">PUBLIC</td><td class="item">08-26</td><td class="item">随笔</td></tr>
+          <tr><td class="item">012</td><td class="tt"><a href="#" onclick="return false">LeetCode 中国区 TypeScript 面试题题解</a></td><td class="perm pub">PUBLIC</td><td class="item">04-13</td><td class="item">TS</td></tr>
+          <tr><td class="item">011</td><td class="tt"><a href="#" onclick="return false">那些年邂逅的 LeetCode 趣/难题</a></td><td class="perm pub">PUBLIC</td><td class="item">03-30</td><td class="item">LC</td></tr>
+          <tr><td class="item">010</td><td class="tt"><a href="#" onclick="return false">文档书写要点整理</a></td><td class="perm pw">PASSWORD</td><td class="item">03-01</td><td class="item">—</td></tr>
+          <tr class="yr"><td colspan="5">— 2019 —</td></tr>
+          <tr><td class="item">009</td><td class="tt"><a href="#" onclick="return false">回顾 2019</a></td><td class="perm vip">VIP</td><td class="item">12-31</td><td class="item">LIFE</td></tr>
+          <tr><td class="item">008</td><td class="tt"><a href="#" onclick="return false">Codeforces Round#605(Div. 3) D/E/F 题解</a></td><td class="perm pub">PUBLIC</td><td class="item">12-14</td><td class="item">DP·BFS</td></tr>
+          <tr><td class="item">007</td><td class="tt"><a href="#" onclick="return false">Codeforces Round#603(Div. 2) E/F 题解</a></td><td class="perm pub">PUBLIC</td><td class="item">12-01</td><td class="item">DP·STK</td></tr>
+          <tr><td class="item">006</td><td class="tt"><a href="#" onclick="return false">银联极客高校挑战赛复赛 D 多项式</a></td><td class="perm pub">PUBLIC</td><td class="item">09-17</td><td class="item">DP</td></tr>
+          <tr><td class="item">005</td><td class="tt"><a href="#" onclick="return false">Codeforces 1149B Three Religions</a></td><td class="perm pub">PUBLIC</td><td class="item">04-30</td><td class="item">DP·STR</td></tr>
+          <tr><td class="item">004</td><td class="tt"><a href="#" onclick="return false">2019 ICPC 南昌邀请赛网络赛 G. tsy's number</a></td><td class="perm pub">PUBLIC</td><td class="item">04-22</td><td class="item">NT</td></tr>
+        </tbody>
+      </table>
+
+      <div class="bom-pager"><span>← PREV</span><span>SHEET 1 / 2</span><a href="#" onclick="return false">NEXT →</a></div>
+
+      <div class="titleblock">
+        <div class="cell wide"><b>PP-BLOG</b></div>
+        <div class="cell">TITLE<b>材料清单</b></div>
+        <div class="cell">SCALE<b>1 : 1</b></div>
+        <div class="cell">DATE<b>2026-08-15</b></div>
+        <div class="cell">SHEET<b>1 / 2</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ARTICLE ================= -->
+  <section class="page" data-page="post" hidden>
+    <div class="sheet">
+      <span class="tick tl"></span><span class="tick tr"></span><span class="tick bl"></span><span class="tick br"></span>
+      <div class="sheet-head">
+        <span class="dwg">DWG NO. PP-POST-015</span>
+        <span class="dwg">REV <span class="rev">B</span></span>
+        <div class="tools"><a class="tool" href="#" onclick="return false">← BACK TO BOM</a></div>
+      </div>
+
+      <div class="art-head">
+        <h1>Type Challenge · 冒泡排序</h1>
+        <div class="meta">
+          <span>DATE: 2021-05-08</span><span>READING: 9 MIN</span><span>MATERIAL: TYPESCRIPT</span><span class="perm pub">ACCESS: PUBLIC</span>
+        </div>
+      </div>
+
+      <div class="prose">
+        <p>这题要求在类型系统里实现冒泡排序：给定一个元组 <code>T extends number[]</code>，返回排序后的元组。类型层面上没有循环，所以核心思路是把「一趟冒泡」展开成递归。</p>
+
+        <h2><span class="no">NOTE 1</span>一趟冒泡：两两比较并交换</h2>
+        <p>先写一个 <code>Pass</code>，从头到尾扫一遍，相邻逆序就交换。它递归地消费元组的头部两个元素：</p>
+
+        <div class="pre-wrap">
+<pre><span class="fname">bubble.ts</span><span class="tk-c">// 一趟冒泡：相邻比较，逆序则交换</span>
+<span class="tk-k">type</span> <span class="tk-t">Pass</span>&lt;<span class="tk-t">T</span> <span class="tk-k">extends</span> <span class="tk-t">number</span>[]&gt; =
+  <span class="tk-t">T</span> <span class="tk-k">extends</span> [<span class="tk-k">infer</span> <span class="tk-t">A</span> <span class="tk-k">extends</span> <span class="tk-t">number</span>, <span class="tk-k">infer</span> <span class="tk-t">B</span> <span class="tk-k">extends</span> <span class="tk-t">number</span>, ...<span class="tk-k">infer</span> <span class="tk-t">R</span> <span class="tk-k">extends</span> <span class="tk-t">number</span>[]]
+    ? <span class="tk-t">A</span> <span class="tk-k">extends</span> <span class="tk-s">`${B}`</span>
+      ? [<span class="tk-t">A</span>, ...<span class="tk-t">Pass</span>&lt;[<span class="tk-t">B</span>, ...<span class="tk-t">R</span>]&gt;]
+      : [<span class="tk-t">B</span>, ...<span class="tk-t">Pass</span>&lt;[<span class="tk-t">A</span>, ...<span class="tk-t">R</span>]&gt;]
+    : <span class="tk-t">T</span>;
+
+<span class="tk-k">type</span> <span class="tk-f">BubbleSort</span>&lt;<span class="tk-t">T</span>&gt; = ...<span class="tk-c">// 一趟没交换 → 有序；否则再来一趟</span></pre>
+        </div>
+
+        <blockquote>数字比较不能直接用 <code>&lt;</code>，得转成字符串长度或逐位比较——类型体操的老朋友了。<span class="who">— NOTE</span></blockquote>
+
+        <h2><span class="no">NOTE 2</span>几个细节</h2>
+        <ul>
+          <li><code>infer A extends number</code> 收窄推断结果，省掉一层条件判断；</li>
+          <li>终止条件是「这一趟没有发生任何交换」，用深度相等判断；</li>
+          <li>元组很长时记得给 TS 足够的递归深度，或者拆成小测试。</li>
+        </ul>
+        <p>完整题解在仓库 <code>type-challenges</code> 里，配合测试用例食用更佳。</p>
+      </div>
+
+      <div class="lbl" style="margin:44px 0 6px">INSPECTION RECORD — 读者来函</div>
+      <div class="cmt">
+        <div class="ch"><span class="who">alice@example.com</span><span>2021-05-09</span></div>
+        <div class="cb"><p>Equal 判终止这个思路太优雅了，比数长度 hack 干净。</p></div>
+      </div>
+      <div class="cmt reply">
+        <div class="ch"><span class="who">bob@example.com</span><span>2021-05-10</span></div>
+        <div class="cb"><p>数长度在负数场景直接爆炸，还是深度相等稳。</p></div>
+      </div>
+      <form class="cmt-form" onsubmit="return false">
+        <input type="text" placeholder="检验意见……（支持 markdown）" aria-label="新评论">
+        <button class="btn fill" type="submit">SUBMIT</button>
+      </form>
+
+      <div class="titleblock">
+        <div class="cell wide"><b>PP-POST-015</b></div>
+        <div class="cell">TITLE<b>冒泡排序</b></div>
+        <div class="cell">SCALE<b>1 : 1</b></div>
+        <div class="cell">DATE<b>2021-05-08</b></div>
+        <div class="cell">SHEET<b>15 / 16</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PROJECTS ================= -->
+  <section class="page" data-page="projects" hidden>
+    <div class="sheet">
+      <span class="tick tl"></span><span class="tick tr"></span><span class="tick bl"></span><span class="tick br"></span>
+      <div class="sheet-head">
+        <span class="dwg">DWG NO. PP-PRJ-005</span>
+        <span class="dwg">REV <span class="rev">A</span></span>
+        <h1 style="margin-left:auto">PROJECTS — 装配图集</h1>
+      </div>
+
+      <div class="dwg-row">
+        <div class="no">05<span class="feat">FEATURED</span></div>
+        <div>
+          <h2>blog</h2>
+          <p>本博客——TanStack Start 前台，全量部署在 Cloudflare Workers + D1 上。</p>
+        </div>
+        <div class="links"><a href="#" onclick="return false">CODE ↗</a><a href="#" onclick="return false">DEMO ↗</a></div>
+      </div>
+      <div class="dwg-row">
+        <div class="no">04<span class="feat">FEATURED</span></div>
+        <div>
+          <h2>logseq-plugin-code-formatter</h2>
+          <p>Logseq 插件——用 Prettier 一键格式化代码块，支持 JS / TS / HTML / CSS / Markdown / JSON。</p>
+        </div>
+        <div class="links"><a href="#" onclick="return false">CODE ↗</a></div>
+      </div>
+      <div class="dwg-row">
+        <div class="no">03</div>
+        <div>
+          <h2>ocvm</h2>
+          <p>OpenClaw 版本管理器——nvm 风格的 Rust CLI，按项目安装、切换、锁定与回滚版本。</p>
+        </div>
+        <div class="links"><a href="#" onclick="return false">CODE ↗</a><a href="#" onclick="return false">DEMO ↗</a></div>
+      </div>
+      <div class="dwg-row">
+        <div class="no">02</div>
+        <div>
+          <h2>agent-presence</h2>
+          <p>把本地编码 agent 的在线状态与 token 用量同步到飞书签名链接预览。</p>
+        </div>
+        <div class="links"><a href="#" onclick="return false">CODE ↗</a><a href="#" onclick="return false">DEMO ↗</a></div>
+      </div>
+      <div class="dwg-row">
+        <div class="no">01</div>
+        <div>
+          <h2>base64</h2>
+          <p>Moonbit 语言实现的 Base64 编解码库，遵循 RFC 4648。</p>
+        </div>
+        <div class="links"><a href="#" onclick="return false">CODE ↗</a></div>
+      </div>
+
+      <div class="titleblock">
+        <div class="cell wide"><b>PP-PRJ</b></div>
+        <div class="cell">TITLE<b>装配图集</b></div>
+        <div class="cell">SCALE<b>1 : 1</b></div>
+        <div class="cell">DATE<b>2026-08-15</b></div>
+        <div class="cell">SHEET<b>5 / 5</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= LOGIN ================= -->
+  <section class="page" data-page="login" hidden>
+    <div class="sheet" style="max-width:520px;margin:0 auto">
+      <span class="tick tl"></span><span class="tick tr"></span><span class="tick bl"></span><span class="tick br"></span>
+      <div class="sheet-head"><span class="dwg">DWG NO. PP-AUTH-01</span><span class="dwg">REV <span class="rev">A</span></span></div>
+      <div class="gate" style="margin:0">
+        <h1>登录 / SIGN IN</h1>
+        <p class="sub">会友可读 MEMBER 图纸 · 亦支持 GITHUB OAUTH</p>
+        <form onsubmit="return false">
+          <div class="field"><label for="e-em">EMAIL</label><input id="e-em" type="email" placeholder="you@example.com"></div>
+          <div class="field"><label for="e-pw">PASSWORD</label><input id="e-pw" type="password" placeholder="••••••••"></div>
+          <div class="actions">
+            <button class="btn fill" type="submit">SIGN IN</button>
+            <button class="btn" type="button">GITHUB</button>
+          </div>
+          <p class="err" hidden>认证失败：邮箱或密码不正确</p>
+        </form>
+        <p style="margin-top:18px;font-size:12px;color:var(--dim)">尚未注册？ <a href="#" onclick="return false">SIGN UP</a></p>
+      </div>
+      <div class="titleblock">
+        <div class="cell wide"><b>PP-AUTH-01</b></div>
+        <div class="cell">TITLE<b>登录</b></div>
+        <div class="cell">SHEET<b>—</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SIGNUP ================= -->
+  <section class="page" data-page="signup" hidden>
+    <div class="sheet" style="max-width:520px;margin:0 auto">
+      <span class="tick tl"></span><span class="tick tr"></span><span class="tick bl"></span><span class="tick br"></span>
+      <div class="sheet-head"><span class="dwg">DWG NO. PP-AUTH-02</span><span class="dwg">REV <span class="rev">A</span></span></div>
+      <div class="gate" style="margin:0">
+        <h1>注册 / SIGN UP</h1>
+        <p class="sub">注册即成为 MEMBER</p>
+        <form onsubmit="return false">
+          <div class="field"><label for="e-sem">EMAIL</label><input id="e-sem" type="email" placeholder="you@example.com"></div>
+          <div class="field"><label for="e-spw">PASSWORD</label><input id="e-spw" type="password" placeholder="至少 8 位"></div>
+          <div class="field"><label for="e-spw2">CONFIRM</label><input id="e-spw2" type="password" placeholder="••••••••"></div>
+          <div class="actions">
+            <button class="btn fill" type="submit">CREATE</button>
+            <button class="btn" type="button">GITHUB</button>
+          </div>
+        </form>
+      </div>
+      <div class="titleblock">
+        <div class="cell wide"><b>PP-AUTH-02</b></div>
+        <div class="cell">TITLE<b>注册</b></div>
+        <div class="cell">SHEET<b>—</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= UNLOCK ================= -->
+  <section class="page" data-page="unlock" hidden>
+    <div class="sheet" style="max-width:520px;margin:0 auto">
+      <span class="tick tl"></span><span class="tick tr"></span><span class="tick bl"></span><span class="tick br"></span>
+      <div class="sheet-head"><span class="dwg">DWG NO. PP-AUTH-03</span><span class="dwg">REV <span class="rev">A</span></span><span class="dwg" style="color:var(--red)">STATUS: LOCKED</span></div>
+      <div class="gate" style="margin:0">
+        <h1>解锁图纸 №010</h1>
+        <p class="sub">此篇以单文密码封缄 ・ 验后 24 小时免复输入</p>
+        <form onsubmit="return false">
+          <div class="field"><label for="e-upw">POST PASSWORD</label><input id="e-upw" type="password" placeholder="••••••••" autofocus></div>
+          <p class="err">密码错误，请重试（连续失败会触发限流）</p>
+          <div class="actions">
+            <button class="btn fill" type="submit">UNLOCK</button>
+            <a class="btn" href="#" onclick="return false">← BACK</a>
+          </div>
+        </form>
+      </div>
+      <div class="titleblock">
+        <div class="cell wide"><b>PP-AUTH-03</b></div>
+        <div class="cell">TITLE<b>密笈</b></div>
+        <div class="cell">SHEET<b>—</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ADMIN ================= -->
+  <section class="page" data-page="admin" hidden>
+    <div class="sheet">
+      <span class="tick tl"></span><span class="tick tr"></span><span class="tick bl"></span><span class="tick br"></span>
+      <div class="sheet-head">
+        <span class="dwg">DWG NO. PP-ADM-000</span>
+        <span class="dwg">REV <span class="rev">D</span></span>
+        <h1 style="margin-left:auto">后台 · 图档管理</h1>
+      </div>
+
+      <table class="adm">
+        <thead><tr><th>ITEM</th><th>TITLE</th><th>STATUS</th><th>ACCESS</th><th>UPDATED</th><th>OPS</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--faint);font-size:11px">016</td><td>初探 Github Blocks</td><td class="st pub">● PUBLISHED</td><td style="font-size:11px">public</td><td style="color:var(--faint);font-size:11px">2023-02-18</td><td class="ops"><a href="#" onclick="return false">EDIT</a><a class="del" href="#" onclick="return false">DEL</a></td></tr>
+          <tr><td style="color:var(--faint);font-size:11px">015</td><td>Type Challenge · 冒泡排序</td><td class="st pub">● PUBLISHED</td><td style="font-size:11px">public</td><td style="color:var(--faint);font-size:11px">2021-05-08</td><td class="ops"><a href="#" onclick="return false">EDIT</a><a class="del" href="#" onclick="return false">DEL</a></td></tr>
+          <tr><td style="color:var(--faint);font-size:11px">014</td><td>回顾 2020</td><td class="st pub">● PUBLISHED</td><td style="font-size:11px">member</td><td style="color:var(--faint);font-size:11px">2021-02-28</td><td class="ops"><a href="#" onclick="return false">EDIT</a><a class="del" href="#" onclick="return false">DEL</a></td></tr>
+          <tr><td style="color:var(--faint);font-size:11px">010</td><td>文档书写要点整理</td><td class="st pub">● PUBLISHED</td><td style="font-size:11px">password</td><td style="color:var(--faint);font-size:11px">2020-03-01</td><td class="ops"><a href="#" onclick="return false">EDIT</a><a class="del" href="#" onclick="return false">DEL</a></td></tr>
+          <tr><td style="color:var(--faint);font-size:11px">017</td><td>Cloudflare 迁移实录</td><td class="st draft">○ DRAFT</td><td style="font-size:11px">public</td><td style="color:var(--faint);font-size:11px">2026-08-12</td><td class="ops"><a href="#" onclick="return false">EDIT</a><a class="del" href="#" onclick="return false">DEL</a></td></tr>
+        </tbody>
+      </table>
+      <div class="ed-foot" style="margin-top:24px">
+        <a class="btn fill" href="#" onclick="return false">＋ NEW DRAWING</a>
+        <a class="btn" href="#" onclick="return false">COMMENTS (23)</a>
+      </div>
+
+      <div class="titleblock">
+        <div class="cell wide"><b>PP-ADM</b></div>
+        <div class="cell">TITLE<b>图档管理</b></div>
+        <div class="cell">DATE<b>2026-08-15</b></div>
+        <div class="cell">SHEET<b>—</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= EDITOR ================= -->
+  <section class="page" data-page="editor" hidden>
+    <div class="sheet">
+      <span class="tick tl"></span><span class="tick tr"></span><span class="tick bl"></span><span class="tick br"></span>
+      <div class="sheet-head">
+        <span class="dwg">DWG NO. PP-ADM-017</span>
+        <span class="dwg">REV <span class="rev">—</span></span>
+        <h1 style="margin-left:auto">编辑器 · 制图中</h1>
+      </div>
+
+      <form onsubmit="return false">
+        <div class="ed-grid">
+          <div class="field"><label>TITLE</label><input type="text" value="Cloudflare 迁移实录"></div>
+          <div class="field"><label>SLUG</label><input type="text" value="cloudflare-migration"></div>
+          <div class="field"><label>VISIBILITY</label>
+            <select><option>public</option><option>member</option><option>vip</option><option>admin</option><option>password</option></select>
+          </div>
+          <div class="field"><label>TAGS</label><input type="text" value="Cloudflare, D1, Workers"></div>
+        </div>
+        <div class="field"><label>CONTENT — MARKDOWN</label>
+          <textarea class="draft" spellcheck="false">## 为什么要迁
+
+Postgres 免费额度撑不住了……
+
+```ts
+export default { fetch } = ...
+```</textarea>
+        </div>
+        <div class="ed-foot">
+          <button class="btn" type="button">SAVE DRAFT</button>
+          <button class="btn fill" type="button">PUBLISH</button>
+          <span class="stat">642 CHARS · 3 MIN · AUTOSAVED 12:41</span>
+        </div>
+      </form>
+
+      <div class="titleblock">
+        <div class="cell wide"><b>PP-ADM-017</b></div>
+        <div class="cell">TITLE<b>迁移实录</b></div>
+        <div class="cell">DATE<b>2026-08-12</b></div>
+        <div class="cell">SHEET<b>DRAFT</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 404 ================= -->
+  <section class="page" data-page="404" hidden>
+    <div class="sheet">
+      <span class="tick tl"></span><span class="tick tr"></span><span class="tick bl"></span><span class="tick br"></span>
+      <div class="nf">
+        <div class="lbl">ERROR — NO SUCH DRAWING</div>
+        <div class="code">4<b>0</b>4</div>
+        <p>本图集并无此图号 · 或已作废归档</p>
+        <a class="btn" href="#" onclick="return false">← BACK TO BLOG</a>
+      </div>
+      <div class="titleblock">
+        <div class="cell wide"><b>PP-404</b></div>
+        <div class="cell">TITLE<b>阙图</b></div>
+        <div class="cell">SHEET<b>—</b></div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- 检索 palette -->
+<div class="pal-veil" id="pal-veil" hidden>
+  <div class="pal" role="dialog" aria-label="搜索文章">
+    <div class="pal-in"><span class="m">检索</span><input type="text" id="pal-input" placeholder="按图号或关键词查找……" aria-label="搜索"></div>
+    <div class="pal-list">
+      <div class="pal-item sel"><span class="d">015</span><span>Type Challenge · 冒泡排序</span></div>
+      <div class="pal-item"><span class="d">012</span><span>LeetCode 中国区 TypeScript 面试题题解</span></div>
+      <div class="pal-item"><span class="d">008</span><span>Codeforces Round#605(Div. 3) D/E/F 题解</span></div>
+      <div class="pal-item"><span class="d">005</span><span>Codeforces 1149B Three Religions</span></div>
+    </div>
+    <div class="pal-foot">↑↓ SELECT · ↵ OPEN · ESC CLOSE — 权限按当前身份过滤</div>
+  </div>
+</div>
+
+<script>
+  var tabs = document.querySelectorAll('.pt-tab');
+  var pages = document.querySelectorAll('.page');
+  function go(id) {
+    pages.forEach(function(p){ p.hidden = p.dataset.page !== id; });
+    tabs.forEach(function(t){ t.classList.toggle('active', t.dataset.target === id); });
+    window.scrollTo(0, 0);
+    history.replaceState(null, '', '#' + id);
+  }
+  tabs.forEach(function(t){ if (t.dataset.target) t.addEventListener('click', function(){ go(t.dataset.target); }); });
+  var h = location.hash.slice(1);
+  if (h && document.querySelector('.page[data-page="' + h + '"]')) go(h);
+  window.addEventListener('hashchange', function(){
+    var h = location.hash.slice(1);
+    if (h && document.querySelector('.page[data-page="' + h + '"]')) go(h);
+  });
+
+  var veil = document.getElementById('pal-veil');
+  var input = document.getElementById('pal-input');
+  document.addEventListener('keydown', function(e){
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); veil.hidden = false; input.focus(); }
+    if (e.key === 'Escape') veil.hidden = true;
+  });
+  veil.addEventListener('click', function(e){ if (e.target === veil) veil.hidden = true; });
+</script>
+</body>
+</html>

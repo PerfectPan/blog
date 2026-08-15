@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>方向 G · 霓虹夜行 · PerfectPan's Blog 原型</title>
+<style>
+  /* ============ tokens ============ */
+  :root {
+    --bg: #120E24;         /* 夜紫 */
+    --bg2: #1A1433;
+    --panel: rgba(233,228,255,0.045);
+    --panel-line: rgba(233,228,255,0.13);
+    --ink: #E9E4FF;
+    --dim: #9C93C9;
+    --faint: #5E5690;
+    --pink: #FF4FD8;
+    --violet: #8B6CFF;
+    --cyan: #3EE6D2;
+    --grad: linear-gradient(92deg, #FF4FD8 0%, #8B6CFF 52%, #3EE6D2 100%);
+    --sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scrollbar-color: #3A3160 var(--bg); }
+  body {
+    background:
+      radial-gradient(1100px 500px at 85% -10%, rgba(255,79,216,0.14), transparent 60%),
+      radial-gradient(900px 500px at 10% 110%, rgba(62,230,210,0.10), transparent 60%),
+      var(--bg);
+    color: var(--ink);
+    font-family: var(--sans); font-size: 15px; line-height: 1.85;
+    min-height: 100vh;
+  }
+  /* 扫描线（很轻） */
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 90;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,0.10) 0 1px, transparent 1px 3px);
+    mix-blend-mode: multiply; opacity: 0.5;
+  }
+  ::selection { background: rgba(255,79,216,0.35); }
+  a { color: var(--cyan); text-decoration: none; }
+  a:hover { text-shadow: 0 0 12px rgba(62,230,210,0.55); }
+  :focus-visible { outline: 2px solid var(--pink); outline-offset: 3px; }
+
+  /* ============ prototype chrome ============ */
+  .pt-bar {
+    background: #0C0918; color: #7A70A8; font-size: 12.5px;
+    padding: 0 16px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    position: sticky; top: 0; z-index: 95; border-bottom: 1px solid rgba(233,228,255,0.09);
+  }
+  .pt-bar .pt-title { font-weight: 700; letter-spacing: 0.06em; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .pt-tab {
+    font-family: inherit; font-size: 12.5px; color: #7A70A8; background: none;
+    border: 0; padding: 9px 10px; cursor: pointer;
+  }
+  .pt-tab:hover { color: var(--ink); }
+  .pt-tab.active { color: #0C0918; background: linear-gradient(92deg, #FF4FD8, #8B6CFF); font-weight: 700; }
+  .pt-links { margin-left: auto; display: flex; gap: 12px; }
+  .pt-links a { color: #4E4678; text-shadow: none; }
+  .pt-links a:hover { color: var(--cyan); }
+
+  /* ============ 通用 ============ */
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 0 24px 90px; }
+  .page[hidden] { display: none; }
+
+  .gradtext {
+    background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .panel {
+    background: var(--panel); border: 1px solid var(--panel-line); border-radius: 14px;
+    backdrop-filter: blur(6px);
+  }
+  .btn {
+    font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer;
+    color: var(--ink); background: none; border: 1px solid var(--panel-line);
+    border-radius: 999px; padding: 10px 24px; transition: box-shadow .15s, border-color .15s;
+  }
+  .btn:hover { border-color: var(--cyan); box-shadow: 0 0 18px rgba(62,230,210,0.28); text-shadow: none; color: var(--cyan); }
+  .btn.grad {
+    background: var(--grad); color: #140F26; border: 0;
+  }
+  .btn.grad:hover { box-shadow: 0 0 24px rgba(255,79,216,0.45); color: #140F26; }
+  .tagchip {
+    display: inline-flex; align-items: center; font-family: var(--mono); font-size: 11px;
+    border: 1px solid var(--panel-line); border-radius: 999px; padding: 1px 11px; color: var(--dim);
+  }
+  .tagchip.pink { color: var(--pink); border-color: rgba(255,79,216,0.4); }
+  .tagchip.violet { color: var(--violet); border-color: rgba(139,108,255,0.4); }
+  .tagchip.cyan { color: var(--cyan); border-color: rgba(62,230,210,0.4); }
+
+  /* ============ header ============ */
+  .site-head { padding: 26px 0 22px; display: flex; align-items: center; gap: 26px; flex-wrap: wrap; }
+  .logo { font-size: 17px; font-weight: 800; letter-spacing: 0.06em; color: var(--ink); }
+  .logo b { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .site-head nav { display: flex; gap: 20px; font-size: 13.5px; }
+  .site-head nav a { color: var(--dim); }
+  .site-head nav a.on { color: var(--ink); border-bottom: 2px solid transparent; border-image: var(--grad) 1; padding-bottom: 2px; }
+  .site-head nav a:hover { color: var(--ink); text-shadow: none; }
+  .site-head .tools { margin-left: auto; display: flex; gap: 8px; }
+  .tool-btn {
+    font: inherit; font-size: 12px; color: var(--dim); background: none;
+    border: 1px solid var(--panel-line); border-radius: 999px; padding: 5px 14px; cursor: pointer;
+  }
+  .tool-btn:hover { color: var(--cyan); border-color: rgba(62,230,210,0.5); box-shadow: 0 0 14px rgba(62,230,210,0.2); }
+
+  /* ============ HOME ============ */
+  .hero {
+    position: relative; border: 1px solid var(--panel-line); border-radius: 18px;
+    background: linear-gradient(180deg, rgba(255,79,216,0.06), rgba(18,14,36,0) 40%), var(--panel);
+    overflow: hidden; padding: 64px 48px 150px;
+  }
+  /* 落日 */
+  .sun {
+    position: absolute; right: 84px; top: 44px; width: 150px; height: 150px; border-radius: 50%;
+    background: linear-gradient(180deg, #FFE29A 0%, #FF9A5C 34%, #FF4FD8 100%);
+    box-shadow: 0 0 60px rgba(255,79,216,0.35), 0 0 130px rgba(255,79,216,0.18);
+    animation: float 7s ease-in-out infinite;
+  }
+  .sun::before {
+    content: ""; position: absolute; inset: 0; border-radius: 50%;
+    background: repeating-linear-gradient(0deg, transparent 0 12px, var(--bg) 12px 16px);
+    mask: linear-gradient(180deg, transparent 42%, #000 46%);
+    -webkit-mask: linear-gradient(180deg, transparent 42%, #000 46%);
+  }
+  @keyframes float { 50% { transform: translateY(-8px); } }
+  /* 地平线网格 */
+  .hero::after {
+    content: ""; position: absolute; left: -24%; right: -24%; bottom: -58px; height: 130px;
+    background:
+      linear-gradient(rgba(62,230,210,0.22) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(139,108,255,0.22) 1px, transparent 1px);
+    background-size: 46px 32px, 46px 32px;
+    transform: perspective(340px) rotateX(48deg);
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000 55%);
+    mask-image: linear-gradient(180deg, transparent, #000 55%);
+    pointer-events: none;
+  }
+  .hero .kicker { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.4em; color: var(--cyan); }
+  .hero h1 {
+    margin-top: 16px; font-size: clamp(42px, 7vw, 74px); font-weight: 900; line-height: 1.06; letter-spacing: 0.01em;
+    background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 22px rgba(255,79,216,0.25));
+  }
+  .hero p { margin-top: 18px; color: var(--dim); max-width: 52ch; }
+  .hero .cta { margin-top: 30px; display: flex; gap: 14px; flex-wrap: wrap; }
+  .home-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 18px; margin-top: 18px; }
+  .hpanel { padding: 22px 26px; }
+  .hpanel h3 { font-size: 12px; letter-spacing: 0.3em; font-family: var(--mono); color: var(--pink); margin-bottom: 12px; }
+  .hpanel h3.c { color: var(--cyan); }
+  .hitem { display: flex; gap: 14px; align-items: baseline; padding: 8px 0; border-bottom: 1px dashed rgba(233,228,255,0.09); }
+  .hitem:last-child { border-bottom: 0; }
+  .hitem .no { font-family: var(--mono); font-size: 11px; color: var(--faint); }
+  .hitem .t { flex: 1; color: var(--ink); font-weight: 600; font-size: 14.5px; }
+  .hitem .t:hover { color: var(--pink); text-shadow: 0 0 12px rgba(255,79,216,0.4); }
+  .hstat { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed rgba(233,228,255,0.09); }
+  .hstat:last-child { border-bottom: 0; }
+  .hstat b { font-size: 25px; font-weight: 800; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hstat span { font-size: 12.5px; color: var(--dim); }
+
+  /* ============ BLOG ================= */
+  .page-head { padding: 36px 0 20px; display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap; }
+  .page-head h1 { font-size: 36px; font-weight: 900; }
+  .page-head .cnt { font-family: var(--mono); font-size: 11.5px; color: var(--faint); letter-spacing: 0.14em; }
+  .filters { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+  .filter { font-family: var(--mono); font-size: 11.5px; color: var(--dim); background: none; border: 1px solid var(--panel-line); border-radius: 999px; padding: 4px 14px; cursor: pointer; }
+  .filter.on { background: var(--grad); color: #140F26; border-color: transparent; font-weight: 700; }
+  .yrline { display: flex; align-items: center; gap: 16px; padding: 26px 6px 10px; font-family: var(--mono); font-size: 12px; letter-spacing: 0.4em; color: var(--faint); }
+  .yrline::after { content: ""; flex: 1; border-top: 1px dashed rgba(233,228,255,0.14); }
+  .post-row {
+    display: grid; grid-template-columns: 56px 1fr auto 84px; gap: 18px; align-items: center;
+    padding: 13px 16px; border-radius: 12px; border: 1px solid transparent;
+  }
+  a.post-row { color: var(--ink); }
+  a.post-row:hover { background: var(--panel); border-color: var(--panel-line); box-shadow: 0 0 24px rgba(139,108,255,0.12); }
+  .post-row .no { font-family: var(--mono); font-size: 12px; color: var(--faint); }
+  .post-row .t { font-weight: 600; font-size: 15.5px; }
+  .post-row .tags { display: flex; gap: 6px; justify-content: flex-end; }
+  .post-row .d { font-family: var(--mono); font-size: 11px; color: var(--faint); text-align: right; }
+  .vis { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; margin-left: 10px; }
+  .vis.mem { color: var(--cyan); } .vis.vip { color: var(--violet); } .vis.pw { color: var(--pink); }
+  .pager { display: flex; gap: 8px; justify-content: center; margin-top: 30px; }
+  .pager button { font-family: var(--mono); font-size: 12px; color: var(--dim); background: none; border: 1px solid var(--panel-line); border-radius: 8px; padding: 5px 14px; cursor: pointer; }
+  .pager .cur { background: var(--grad); color: #140F26; border-color: transparent; font-weight: 700; }
+
+  /* ============ ARTICLE ============ */
+  .art { padding: 38px 44px 44px; }
+  .art h1 { font-size: clamp(26px, 4vw, 38px); font-weight: 900; line-height: 1.3; }
+  .art .meta { display: flex; gap: 10px; margin: 16px 0 6px; flex-wrap: wrap; }
+  .prose { margin-top: 28px; max-width: 70ch; }
+  .prose p { margin: 17px 0; color: #D6CFF2; }
+  .prose h2 {
+    font-size: 20px; font-weight: 800; margin: 38px 0 12px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .prose h2 .no { font-family: var(--mono); font-size: 12px; font-weight: 400; color: var(--pink); letter-spacing: 0.2em; }
+  .prose h2::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(139,108,255,0.4), transparent); }
+  .prose ul { margin: 14px 0; list-style: none; }
+  .prose li { padding: 7px 0 7px 26px; position: relative; color: #D6CFF2; }
+  .prose li::before { content: "◈"; position: absolute; left: 0; color: var(--cyan); font-size: 12px; }
+  .prose blockquote {
+    border-left: 3px solid; border-image: linear-gradient(180deg, #FF4FD8, #8B6CFF) 1;
+    background: rgba(139,108,255,0.08); padding: 12px 22px; margin: 22px 0; color: var(--dim); border-radius: 0 10px 10px 0;
+  }
+  .prose code { font-family: var(--mono); font-size: 0.85em; color: var(--cyan); background: rgba(62,230,210,0.08); border: 1px solid rgba(62,230,210,0.18); border-radius: 6px; padding: 1px 7px; }
+  .prose pre {
+    font-family: var(--mono); font-size: 13px; line-height: 1.8; color: #E4DEF9;
+    background: #0D0A1C; border: 1px solid rgba(233,228,255,0.12); border-radius: 12px;
+    box-shadow: inset 0 0 40px rgba(139,108,255,0.07);
+    padding: 20px 22px; overflow-x: auto; margin: 24px 0;
+  }
+  .pre-wrap { position: relative; }
+  .pre-wrap .fname { position: absolute; top: -11px; left: 20px; font-family: var(--mono); font-size: 10.5px; color: var(--pink); background: var(--bg); border: 1px solid rgba(255,79,216,0.35); border-radius: 999px; padding: 0 12px; }
+  .tk-c { color: #655C99; } .tk-k { color: #FF7DE2; } .tk-t { color: #6FD8FF; }
+  .tk-s { color: #3EE6D2; } .tk-f { color: #B79CFF; }
+
+  .cmt { padding: 16px 20px; margin: 12px 0; }
+  .cmt-h { display: flex; gap: 12px; font-family: var(--mono); font-size: 11.5px; color: var(--dim); margin-bottom: 6px; }
+  .cmt-h .who { color: var(--cyan); }
+  .cmt.reply { margin-left: 44px; border-left: 2px solid rgba(139,108,255,0.5); }
+  .cmt-form { display: flex; gap: 12px; margin-top: 18px; }
+  .cmt-form input[type=text] { flex: 1; }
+
+  /* ============ PROJECTS ============ */
+  .proj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .proj-card { padding: 24px 26px; position: relative; overflow: hidden; }
+  .proj-card::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: var(--grad); opacity: 0.65;
+  }
+  .proj-card h2 { font-size: 18px; font-weight: 800; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .proj-card h2 .feat { font-size: 10px; font-family: var(--mono); letter-spacing: 0.2em; color: var(--pink); border: 1px solid rgba(255,79,216,0.4); border-radius: 999px; padding: 0 10px; }
+  .proj-card p { margin-top: 8px; font-size: 13.5px; color: var(--dim); }
+  .proj-card .tags { margin: 14px 0; display: flex; gap: 6px; flex-wrap: wrap; }
+  .proj-card .links { display: flex; gap: 16px; font-family: var(--mono); font-size: 12px; }
+
+  /* ============ forms ============ */
+  .gate { max-width: 440px; margin: 30px auto 0; }
+  .gate .panel { padding: 36px 38px 38px; position: relative; }
+  .gate .glowline { position: absolute; top: 0; left: 24px; right: 24px; height: 2px; background: var(--grad); border-radius: 2px; }
+  .gate h1 { font-size: 27px; font-weight: 900; }
+  .gate .sub { font-size: 13px; color: var(--dim); margin: 6px 0 24px; }
+  .field { margin: 16px 0; }
+  .field label { display: block; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.24em; color: var(--faint); margin-bottom: 6px; }
+  input[type=text], input[type=email], input[type=password], textarea, select {
+    width: 100%; font-family: var(--sans); font-size: 14.5px; color: var(--ink);
+    background: rgba(10,7,22,0.6); border: 1px solid var(--panel-line); border-radius: 10px; padding: 11px 15px;
+  }
+  input::placeholder, textarea::placeholder { color: var(--faint); }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: rgba(62,230,210,0.55); box-shadow: 0 0 16px rgba(62,230,210,0.15); }
+  .gate .actions { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+  .err { margin-top: 16px; font-size: 13px; color: var(--pink); border: 1px solid rgba(255,79,216,0.4); background: rgba(255,79,216,0.07); border-radius: 10px; padding: 8px 14px; }
+  .gate .aside { margin-top: 20px; font-size: 13px; color: var(--dim); }
+  .lock-ic { width: 52px; height: 52px; border-radius: 50%; border: 1px solid rgba(255,79,216,0.5); box-shadow: 0 0 24px rgba(255,79,216,0.25); display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 18px; }
+
+  /* ============ admin ============ */
+  table.adm { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .adm th { text-align: left; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.2em; color: var(--faint); font-weight: 400; padding: 12px 14px; border-bottom: 1px solid var(--panel-line); }
+  .adm td { padding: 12px 14px; border-bottom: 1px solid rgba(233,228,255,0.07); }
+  .adm tbody tr:hover td { background: rgba(139,108,255,0.06); }
+  .adm td.tt { font-weight: 700; }
+  .adm .st { font-family: var(--mono); font-size: 11px; }
+  .adm .st.pub { color: var(--cyan); } .adm .st.draft { color: var(--faint); }
+  .adm .ops a { margin-right: 14px; font-family: var(--mono); font-size: 11.5px; }
+  .ed-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0 24px; }
+  textarea.draft { min-height: 300px; font-family: var(--mono); font-size: 13.5px; line-height: 1.8; }
+  .ed-foot { display: flex; gap: 12px; margin-top: 18px; flex-wrap: wrap; align-items: center; }
+  .ed-foot .stat { margin-left: auto; font-family: var(--mono); font-size: 10.5px; color: var(--faint); }
+
+  /* ============ 404 ============ */
+  .nf { text-align: center; padding: 80px 0 40px; }
+  .nf .code { font-size: 96px; font-weight: 900; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 24px rgba(255,79,216,0.3)); }
+  .nf p { color: var(--dim); margin: 14px 0 28px; }
+
+  /* ============ palette ============ */
+  .pal-veil { position: fixed; inset: 0; background: rgba(8,5,18,0.72); backdrop-filter: blur(3px); display: flex; justify-content: center; padding-top: 13vh; z-index: 100; }
+  .pal-veil[hidden] { display: none; }
+  .pal { width: min(620px, calc(100vw - 32px)); height: fit-content; background: #16112C; border: 1px solid rgba(233,228,255,0.16); border-radius: 14px; overflow: hidden; box-shadow: 0 24px 70px rgba(0,0,0,0.55), 0 0 40px rgba(139,108,255,0.12); }
+  .pal-in { display: flex; gap: 14px; align-items: center; padding: 15px 20px; border-bottom: 1px solid rgba(233,228,255,0.1); }
+  .pal-in .m { font-family: var(--mono); font-size: 11px; letter-spacing: 0.3em; color: var(--pink); }
+  .pal-in input { background: none; border: 0; padding: 0; font-size: 15px; }
+  .pal-in input:focus { box-shadow: none; border: 0; }
+  .pal-list { max-height: 300px; overflow-y: auto; }
+  .pal-item { display: flex; gap: 16px; padding: 11px 20px; align-items: center; }
+  .pal-item .d { font-family: var(--mono); font-size: 11px; color: var(--faint); min-width: 4ch; }
+  .pal-item.sel { background: rgba(139,108,255,0.1); box-shadow: inset 3px 0 0 var(--pink); }
+  .pal-foot { border-top: 1px solid rgba(233,228,255,0.1); padding: 8px 20px; font-family: var(--mono); font-size: 10.5px; color: var(--faint); letter-spacing: 0.1em; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sun { animation: none; }
+  }
+  @media (max-width: 860px) {
+    .home-grid, .proj-grid { grid-template-columns: 1fr; }
+    .hero { padding: 44px 26px 120px; }
+    .sun { right: 26px; width: 110px; height: 110px; top: 30px; }
+    .art { padding: 26px 22px 32px; }
+    .post-row { grid-template-columns: 44px 1fr; }
+    .post-row .tags, .post-row .d { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="pt-bar">
+  <span class="pt-title">原型 · 方向 G 霓虹夜行</span>
+  <nav aria-label="原型页面" style="display:flex;gap:2px;flex-wrap:wrap">
+    <button class="pt-tab active" data-target="home">首页</button>
+    <button class="pt-tab" data-target="blog">博客</button>
+    <button class="pt-tab" data-target="post">文章</button>
+    <button class="pt-tab" data-target="projects">项目</button>
+    <button class="pt-tab" data-target="login">登录</button>
+    <button class="pt-tab" data-target="signup">注册</button>
+    <button class="pt-tab" data-target="unlock">解锁</button>
+    <button class="pt-tab" data-target="admin">后台</button>
+    <button class="pt-tab" data-target="editor">编辑器</button>
+    <button class="pt-tab" data-target="404">404</button>
+  </nav>
+  <div class="pt-links"><a href="index.html">总览</a></div>
+</div>
+
+<div class="wrap">
+  <header class="site-head">
+    <span class="logo">Perfect<b>PAN</b></span>
+    <nav>
+      <a href="#" onclick="return false">Home</a>
+      <a href="#" onclick="return false" class="on">Blog</a>
+      <a href="#" onclick="return false">Projects</a>
+      <a href="#" onclick="return false">Admin</a>
+    </nav>
+    <div class="tools">
+      <button class="tool-btn" onclick="document.dispatchEvent(new KeyboardEvent('keydown',{key:'k',metaKey:true}))">⌘K</button>
+      <a class="tool-btn" href="#" onclick="return false">RSS</a>
+      <a class="tool-btn" href="#" onclick="return false">GitHub</a>
+    </div>
+  </header>
+
+  <!-- ================= HOME ================= -->
+  <section class="page" data-page="home">
+    <div class="hero">
+      <div class="sun" aria-hidden="true"></div>
+      <div class="kicker">NIGHT DRIVE · SINCE 2019</div>
+      <h1>PERFECTPAN</h1>
+      <p>是个什么都不会的废物.jpg —— 但夜里还在写代码。算法竞赛旧题解、TypeScript 类型体操、Cloudflare $0/月 工程实践，一路霓虹。</p>
+      <div class="cta">
+        <a class="btn grad" href="#" onclick="return false">进入博客 →</a>
+        <a class="btn" href="#" onclick="return false">看看项目</a>
+      </div>
+    </div>
+    <div class="home-grid">
+      <div class="panel hpanel">
+        <h3>LATEST / 最新</h3>
+        <div class="hitem"><span class="no">016</span><a class="t" href="#" onclick="return false">初探 Github Blocks</a><span class="tagchip">MISC</span></div>
+        <div class="hitem"><span class="no">015</span><a class="t" href="#" onclick="return false">Type Challenge · 冒泡排序</a><span class="tagchip violet">TS</span></div>
+        <div class="hitem"><span class="no">014</span><a class="t" href="#" onclick="return false">回顾 2020</a><span class="tagchip cyan">MEMBER</span></div>
+        <div class="hitem"><span class="no">013</span><a class="t" href="#" onclick="return false">一些随想</a><span class="tagchip">随笔</span></div>
+      </div>
+      <div class="panel hpanel">
+        <h3 class="c">DATA / 数据</h3>
+        <div class="hstat"><b>16</b><span>篇文章</span></div>
+        <div class="hstat"><b>5</b><span>个开源项目</span></div>
+        <div class="hstat"><b>$0</b><span>每月托管费</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= BLOG ================= -->
+  <section class="page" data-page="blog" hidden>
+    <div class="page-head">
+      <h1>Blog</h1><span class="cnt">— 16 POSTS / 2 PAGES</span>
+      <div class="filters">
+        <button class="filter on">全部</button>
+        <button class="filter">算法</button>
+        <button class="filter">TypeScript</button>
+        <button class="filter">随笔</button>
+        <button class="filter">工程</button>
+      </div>
+    </div>
+
+    <div class="yrline">2023</div>
+    <a class="post-row" href="#" onclick="return false"><span class="no">016</span><span class="t">初探 Github Blocks</span><span class="tags"><span class="tagchip">MISC</span></span><span class="d">02-18</span></a>
+
+    <div class="yrline">2021</div>
+    <a class="post-row" href="#" onclick="return false"><span class="no">015</span><span class="t">Type Challenge · 冒泡排序</span><span class="tags"><span class="tagchip violet">TS</span></span><span class="d">05-08</span></a>
+    <a class="post-row" href="#" onclick="return false"><span class="no">014</span><span class="t">回顾 2020<span class="vis mem">MEMBER</span></span><span class="tags"><span class="tagchip cyan">LIFE</span></span><span class="d">02-28</span></a>
+
+    <div class="yrline">2020</div>
+    <a class="post-row" href="#" onclick="return false"><span class="no">013</span><span class="t">一些随想</span><span class="tags"><span class="tagchip">随笔</span></span><span class="d">08-26</span></a>
+    <a class="post-row" href="#" onclick="return false"><span class="no">012</span><span class="t">LeetCode 中国区 TypeScript 面试题题解</span><span class="tags"><span class="tagchip violet">TS</span></span><span class="d">04-13</span></a>
+    <a class="post-row" href="#" onclick="return false"><span class="no">011</span><span class="t">那些年邂逅的 LeetCode 趣/难题</span><span class="tags"><span class="tagchip pink">LC</span></span><span class="d">03-30</span></a>
+    <a class="post-row" href="#" onclick="return false"><span class="no">010</span><span class="t">文档书写要点整理<span class="vis pw">PASSWORD</span></span><span class="tags"><span class="tagchip pink">LOCKED</span></span><span class="d">03-01</span></a>
+
+    <div class="yrline">2019</div>
+    <a class="post-row" href="#" onclick="return false"><span class="no">009</span><span class="t">回顾 2019<span class="vis vip">VIP</span></span><span class="tags"><span class="tagchip cyan">LIFE</span></span><span class="d">12-31</span></a>
+    <a class="post-row" href="#" onclick="return false"><span class="no">008</span><span class="t">Codeforces Round#605(Div. 3) D/E/F 题解</span><span class="tags"><span class="tagchip violet">DP</span><span class="tagchip">BFS</span></span><span class="d">12-14</span></a>
+    <a class="post-row" href="#" onclick="return false"><span class="no">007</span><span class="t">Codeforces Round#603(Div. 2) E/F 题解</span><span class="tags"><span class="tagchip violet">DP</span><span class="tagchip">STK</span></span><span class="d">12-01</span></a>
+    <a class="post-row" href="#" onclick="return false"><span class="no">006</span><span class="t">银联极客高校挑战赛复赛 D 多项式</span><span class="tags"><span class="tagchip violet">DP</span></span><span class="d">09-17</span></a>
+    <a class="post-row" href="#" onclick="return false"><span class="no">005</span><span class="t">Codeforces 1149B Three Religions</span><span class="tags"><span class="tagchip violet">DP</span><span class="tagchip">STR</span></span><span class="d">04-30</span></a>
+    <a class="post-row" href="#" onclick="return false"><span class="no">004</span><span class="t">2019 ICPC 南昌邀请赛网络赛 G. tsy's number</span><span class="tags"><span class="tagchip cyan">NT</span></span><span class="d">04-22</span></a>
+
+    <div class="pager"><button class="cur">1</button><button>2</button><button>NEXT →</button></div>
+  </section>
+
+  <!-- ================= ARTICLE ================= -->
+  <section class="page" data-page="post" hidden>
+    <div class="page-head" style="padding-bottom:14px">
+      <h1 style="font-size:22px">POST №015</h1>
+      <a class="btn" href="#" onclick="return false" style="margin-left:auto">← BACK</a>
+    </div>
+    <article class="panel art">
+      <h1>Type Challenge · 冒泡排序</h1>
+      <div class="meta">
+        <span class="tagchip violet">TS</span><span class="tagchip">2021-05-08</span><span class="tagchip">9 MIN</span><span class="tagchip cyan">PUBLIC</span>
+      </div>
+      <div class="prose">
+        <p>这题要求在类型系统里实现冒泡排序：给定一个元组 <code>T extends number[]</code>，返回排序后的元组。类型层面上没有循环，所以核心思路是把「一趟冒泡」展开成递归。</p>
+
+        <h2><span class="no">01</span>一趟冒泡：两两比较并交换</h2>
+        <p>先写一个 <code>Pass</code>，从头到尾扫一遍，相邻逆序就交换：</p>
+
+        <div class="pre-wrap"><span class="fname">bubble.ts</span>
+<pre><span class="tk-c">// 一趟冒泡：相邻比较，逆序则交换</span>
+<span class="tk-k">type</span> <span class="tk-t">Pass</span>&lt;<span class="tk-t">T</span> <span class="tk-k">extends</span> <span class="tk-t">number</span>[]&gt; =
+  <span class="tk-t">T</span> <span class="tk-k">extends</span> [<span class="tk-k">infer</span> <span class="tk-t">A</span> <span class="tk-k">extends</span> <span class="tk-t">number</span>, <span class="tk-k">infer</span> <span class="tk-t">B</span> <span class="tk-k">extends</span> <span class="tk-t">number</span>, ...<span class="tk-k">infer</span> <span class="tk-t">R</span> <span class="tk-k">extends</span> <span class="tk-t">number</span>[]]
+    ? <span class="tk-t">A</span> <span class="tk-k">extends</span> <span class="tk-s">`${B}`</span>
+      ? [<span class="tk-t">A</span>, ...<span class="tk-t">Pass</span>&lt;[<span class="tk-t">B</span>, ...<span class="tk-t">R</span>]&gt;]
+      : [<span class="tk-t">B</span>, ...<span class="tk-t">Pass</span>&lt;[<span class="tk-t">A</span>, ...<span class="tk-t">R</span>]&gt;]
+    : <span class="tk-t">T</span>;
+
+<span class="tk-k">type</span> <span class="tk-f">BubbleSort</span>&lt;<span class="tk-t">T</span>&gt; = ...<span class="tk-c">// 一趟没交换 → 有序；否则再来一趟</span></pre>
+        </div>
+
+        <blockquote>数字比较不能直接用 <code>&lt;</code>，得转成字符串长度或逐位比较——类型体操的老朋友了。</blockquote>
+
+        <h2><span class="no">02</span>几个细节</h2>
+        <ul>
+          <li><code>infer A extends number</code> 收窄推断结果，省掉一层条件判断；</li>
+          <li>终止条件是「这一趟没有发生任何交换」，用深度相等判断；</li>
+          <li>元组很长时记得给 TS 足够的递归深度，或者拆成小测试。</li>
+        </ul>
+        <p>完整题解在仓库 <code>type-challenges</code> 里，配合测试用例食用更佳。</p>
+      </div>
+    </article>
+
+    <div class="page-head" style="padding:34px 0 8px"><h1 style="font-size:16px">COMMENTS · 2</h1></div>
+    <div class="panel cmt">
+      <div class="cmt-h"><span class="who">alice@example.com</span><span>2021-05-09</span></div>
+      <p>Equal 判终止这个思路太优雅了，比数长度 hack 干净。</p>
+    </div>
+    <div class="panel cmt reply">
+      <div class="cmt-h"><span class="who">bob@example.com</span><span>2021-05-10</span></div>
+      <p>数长度在负数场景直接爆炸，还是深度相等稳。</p>
+    </div>
+    <form class="cmt-form" onsubmit="return false">
+      <input type="text" placeholder="留下一句……（支持 markdown）" aria-label="新评论">
+      <button class="btn grad" type="submit">评论 →</button>
+    </form>
+  </section>
+
+  <!-- ================= PROJECTS ================= -->
+  <section class="page" data-page="projects" hidden>
+    <div class="page-head"><h1>Projects</h1><span class="cnt">— 5 WORKS / 2 FEATURED</span></div>
+    <div class="proj-grid">
+      <div class="panel proj-card">
+        <h2>blog<span class="feat">FEATURED</span></h2>
+        <p>本博客——TanStack Start 前台，全量部署在 Cloudflare Workers + D1 上。</p>
+        <div class="tags"><span class="tagchip violet">TanStack</span><span class="tagchip cyan">Cloudflare</span><span class="tagchip">TS</span></div>
+        <div class="links"><a href="#" onclick="return false">CODE ↗</a><a href="#" onclick="return false">DEMO ↗</a></div>
+      </div>
+      <div class="panel proj-card">
+        <h2>logseq-plugin-code-formatter<span class="feat">FEATURED</span></h2>
+        <p>Logseq 插件——用 Prettier 一键格式化代码块，支持 JS / TS / HTML / CSS / Markdown / JSON。</p>
+        <div class="tags"><span class="tagchip violet">TS</span><span class="tagchip">Logseq</span><span class="tagchip cyan">Prettier</span></div>
+        <div class="links"><a href="#" onclick="return false">CODE ↗</a></div>
+      </div>
+      <div class="panel proj-card">
+        <h2>ocvm</h2>
+        <p>OpenClaw 版本管理器——nvm 风格的 Rust CLI，按项目安装、切换、锁定与回滚版本。</p>
+        <div class="tags"><span class="tagchip pink">Rust</span><span class="tagchip">CLI</span></div>
+        <div class="links"><a href="#" onclick="return false">CODE ↗</a><a href="#" onclick="return false">DEMO ↗</a></div>
+      </div>
+      <div class="panel proj-card">
+        <h2>agent-presence</h2>
+        <p>把本地编码 agent 的在线状态与 token 用量同步到飞书签名链接预览。</p>
+        <div class="tags"><span class="tagchip violet">TS</span><span class="tagchip">CLI</span><span class="tagchip pink">Feishu</span></div>
+        <div class="links"><a href="#" onclick="return false">CODE ↗</a><a href="#" onclick="return false">DEMO ↗</a></div>
+      </div>
+      <div class="panel proj-card">
+        <h2>base64</h2>
+        <p>Moonbit 语言实现的 Base64 编解码库，遵循 RFC 4648。</p>
+        <div class="tags"><span class="tagchip cyan">Moonbit</span></div>
+        <div class="links"><a href="#" onclick="return false">CODE ↗</a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= LOGIN ================= -->
+  <section class="page" data-page="login" hidden>
+    <div class="gate">
+      <div class="panel">
+        <div class="glowline"></div>
+        <h1>登录</h1>
+        <p class="sub">会友可读「会员可读」文章 · 亦支持 GitHub OAuth</p>
+        <form onsubmit="return false">
+          <div class="field"><label for="g-em">EMAIL</label><input id="g-em" type="email" placeholder="you@example.com"></div>
+          <div class="field"><label for="g-pw">PASSWORD</label><input id="g-pw" type="password" placeholder="••••••••"></div>
+          <div class="actions">
+            <button class="btn grad" type="submit">登录</button>
+            <button class="btn" type="button">GitHub 登录</button>
+          </div>
+          <p class="err" hidden>邮箱或密码不正确</p>
+        </form>
+        <p class="aside">没有账号？<a href="#" onclick="return false">注册 →</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SIGNUP ================= -->
+  <section class="page" data-page="signup" hidden>
+    <div class="gate">
+      <div class="panel">
+        <div class="glowline"></div>
+        <h1>注册</h1>
+        <p class="sub">注册即成为 member</p>
+        <form onsubmit="return false">
+          <div class="field"><label for="g-sem">EMAIL</label><input id="g-sem" type="email" placeholder="you@example.com"></div>
+          <div class="field"><label for="g-spw">PASSWORD</label><input id="g-spw" type="password" placeholder="至少 8 位"></div>
+          <div class="field"><label for="g-spw2">CONFIRM</label><input id="g-spw2" type="password" placeholder="再输一遍"></div>
+          <div class="actions">
+            <button class="btn grad" type="submit">创建账号</button>
+            <button class="btn" type="button">GitHub 注册</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= UNLOCK ================= -->
+  <section class="page" data-page="unlock" hidden>
+    <div class="gate">
+      <div class="panel">
+        <div class="glowline"></div>
+        <div class="lock-ic" aria-hidden="true">🔑</div>
+        <h1>解锁文章</h1>
+        <p class="sub">这篇用单文密码上锁 ・ 验证后 24 小时免密阅读</p>
+        <form onsubmit="return false">
+          <div class="field"><label for="g-upw">POST PASSWORD</label><input id="g-upw" type="password" placeholder="••••••••" autofocus></div>
+          <p class="err">密码错误，请重试（连续失败会触发限流）</p>
+          <div class="actions">
+            <button class="btn grad" type="submit">解锁</button>
+            <a class="btn" href="#" onclick="return false">← 返回文章</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ADMIN ================= -->
+  <section class="page" data-page="admin" hidden>
+    <div class="page-head">
+      <h1 style="font-size:26px">后台</h1>
+      <div style="margin-left:auto;display:flex;gap:10px;flex-wrap:wrap">
+        <a class="btn grad" href="#" onclick="return false">＋ 新文章</a>
+        <a class="btn" href="#" onclick="return false">评论 (23)</a>
+      </div>
+    </div>
+    <div class="panel" style="padding:4px 10px 10px">
+      <table class="adm">
+        <thead><tr><th>№</th><th>标题</th><th>状态</th><th>可见</th><th>更新</th><th>操作</th></tr></thead>
+        <tbody>
+          <tr><td style="font-family:var(--mono);font-size:11px;color:var(--faint)">016</td><td class="tt">初探 Github Blocks</td><td class="st pub">● published</td><td style="font-family:var(--mono);font-size:11px">public</td><td style="font-family:var(--mono);font-size:11px;color:var(--faint)">2023-02-18</td><td class="ops"><a href="#" onclick="return false">编辑</a><a href="#" onclick="return false" style="color:var(--pink)">删除</a></td></tr>
+          <tr><td style="font-family:var(--mono);font-size:11px;color:var(--faint)">015</td><td class="tt">Type Challenge · 冒泡排序</td><td class="st pub">● published</td><td style="font-family:var(--mono);font-size:11px">public</td><td style="font-family:var(--mono);font-size:11px;color:var(--faint)">2021-05-08</td><td class="ops"><a href="#" onclick="return false">编辑</a><a href="#" onclick="return false" style="color:var(--pink)">删除</a></td></tr>
+          <tr><td style="font-family:var(--mono);font-size:11px;color:var(--faint)">014</td><td class="tt">回顾 2020</td><td class="st pub">● published</td><td style="font-family:var(--mono);font-size:11px">member</td><td style="font-family:var(--mono);font-size:11px;color:var(--faint)">2021-02-28</td><td class="ops"><a href="#" onclick="return false">编辑</a><a href="#" onclick="return false" style="color:var(--pink)">删除</a></td></tr>
+          <tr><td style="font-family:var(--mono);font-size:11px;color:var(--faint)">010</td><td class="tt">文档书写要点整理</td><td class="st pub">● published</td><td style="font-family:var(--mono);font-size:11px">password</td><td style="font-family:var(--mono);font-size:11px;color:var(--faint)">2020-03-01</td><td class="ops"><a href="#" onclick="return false">编辑</a><a href="#" onclick="return false" style="color:var(--pink)">删除</a></td></tr>
+          <tr><td style="font-family:var(--mono);font-size:11px;color:var(--faint)">017</td><td class="tt">Cloudflare 迁移实录</td><td class="st draft">○ draft</td><td style="font-family:var(--mono);font-size:11px">public</td><td style="font-family:var(--mono);font-size:11px;color:var(--faint)">2026-08-12</td><td class="ops"><a href="#" onclick="return false">编辑</a><a href="#" onclick="return false" style="color:var(--pink)">删除</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= EDITOR ================= -->
+  <section class="page" data-page="editor" hidden>
+    <div class="page-head"><h1 style="font-size:26px">编辑器</h1></div>
+    <div class="panel" style="padding:26px 30px 30px">
+      <form onsubmit="return false">
+        <div class="ed-grid">
+          <div class="field"><label>TITLE</label><input type="text" value="Cloudflare 迁移实录"></div>
+          <div class="field"><label>SLUG</label><input type="text" value="cloudflare-migration"></div>
+          <div class="field"><label>VISIBILITY</label>
+            <select><option>public</option><option>member</option><option>vip</option><option>admin</option><option>password</option></select>
+          </div>
+          <div class="field"><label>TAGS</label><input type="text" value="Cloudflare, D1, Workers"></div>
+        </div>
+        <div class="field"><label>CONTENT — MARKDOWN</label>
+          <textarea class="draft" spellcheck="false">## 为什么要迁
+
+Postgres 免费额度撑不住了……
+
+```ts
+export default { fetch } = ...
+```</textarea>
+        </div>
+        <div class="ed-foot">
+          <button class="btn" type="button">存草稿</button>
+          <button class="btn grad" type="button">发布</button>
+          <span class="stat">642 CHARS · 3 MIN · AUTOSAVED 12:41</span>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ================= 404 ================= -->
+  <section class="page" data-page="404" hidden>
+    <div class="nf">
+      <div class="code">404</div>
+      <p>你驶入了没有霓虹的街区。</p>
+      <a class="btn grad" href="#" onclick="return false">← 回到博客</a>
+    </div>
+  </section>
+
+</div>
+
+<!-- ⌘K palette -->
+<div class="pal-veil" id="pal-veil" hidden>
+  <div class="pal" role="dialog" aria-label="搜索文章">
+    <div class="pal-in"><span class="m">SEARCH</span><input type="text" id="pal-input" placeholder="在夜色里搜索……" aria-label="搜索"></div>
+    <div class="pal-list">
+      <div class="pal-item sel"><span class="d">015</span><span style="font-weight:600">Type Challenge · 冒泡排序</span><span class="tagchip violet">TS</span></div>
+      <div class="pal-item"><span class="d">012</span><span style="font-weight:600">LeetCode 中国区 TypeScript 面试题题解</span><span class="tagchip violet">TS</span></div>
+      <div class="pal-item"><span class="d">008</span><span style="font-weight:600">Codeforces Round#605(Div. 3) D/E/F 题解</span><span class="tagchip violet">DP</span></div>
+      <div class="pal-item"><span class="d">005</span><span style="font-weight:600">Codeforces 1149B Three Religions</span><span class="tagchip violet">DP</span></div>
+    </div>
+    <div class="pal-foot">↑↓ SELECT · ↵ OPEN · ESC CLOSE — 权限按当前身份过滤</div>
+  </div>
+</div>
+
+<script>
+  var tabs = document.querySelectorAll('.pt-tab');
+  var pages = document.querySelectorAll('.page');
+  function go(id) {
+    pages.forEach(function(p){ p.hidden = p.dataset.page !== id; });
+    tabs.forEach(function(t){ t.classList.toggle('active', t.dataset.target === id); });
+    window.scrollTo(0, 0);
+    history.replaceState(null, '', '#' + id);
+  }
+  tabs.forEach(function(t){ if (t.dataset.target) t.addEventListener('click', function(){ go(t.dataset.target); }); });
+  var h = location.hash.slice(1);
+  if (h && document.querySelector('.page[data-page="' + h + '"]')) go(h);
+  window.addEventListener('hashchange', function(){
+    var h = location.hash.slice(1);
+    if (h && document.querySelector('.page[data-page="' + h + '"]')) go(h);
+  });
+
+  var veil = document.getElementById('pal-veil');
+  var input = document.getElementById('pal-input');
+  document.addEventListener('keydown', function(e){
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); veil.hidden = false; input.focus(); }
+    if (e.key === 'Escape') veil.hidden = true;
+  });
+  veil.addEventListener('click', function(e){ if (e.target === veil) veil.hidden = true; });
+</script>
+</body>
+</html>

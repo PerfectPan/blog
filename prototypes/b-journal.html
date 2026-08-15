@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>方向 B · 文学集刊《废墨集》· PerfectPan's Blog 原型</title>
+<style>
+  /* ============ tokens ============ */
+  :root {
+    --paper: #F6F3EC;      /* 纸 */
+    --paper2: #EFEAE0;     /* 深一度纸（面板） */
+    --ink: #262523;        /* 墨 */
+    --faded: #6E6A60;      /* 淡墨 */
+    --faint: #A29C8E;      /* 更淡 */
+    --red: #A63A2B;        /* 印泥朱 */
+    --indigo: #2E4A68;     /* 靛青（meta） */
+    --rule: #DAD4C6;       /* 界线 */
+    --serif: "Songti SC", "Noto Serif SC", "Source Han Serif SC", "SimSun", serif;
+    --sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 16.5px;
+    line-height: 2;
+    min-height: 100vh;
+  }
+  ::selection { background: rgba(166,58,43,0.16); }
+  a { color: var(--ink); text-decoration: none; }
+  a:hover { color: var(--red); }
+  :focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+
+  /* ============ prototype chrome ============ */
+  .pt-bar {
+    background: #1E1C1A; color: #B9B2A5;
+    font-family: var(--sans); font-size: 12.5px;
+    padding: 0 16px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    position: sticky; top: 0; z-index: 50;
+  }
+  .pt-bar .pt-title { color: #E0B04A; font-weight: 700; letter-spacing: 0.06em; }
+  .pt-tab {
+    font-family: inherit; font-size: 12.5px; color: #B9B2A5; background: none;
+    border: 0; padding: 9px 10px; cursor: pointer;
+  }
+  .pt-tab:hover { color: #F6F3EC; }
+  .pt-tab.active { color: #1E1C1A; background: #E0B04A; font-weight: 700; }
+  .pt-links { margin-left: auto; display: flex; gap: 12px; }
+  .pt-links a { color: #6B665C; }
+  .pt-links a:hover { color: #E0B04A; }
+
+  /* ============ 刊头 ============ */
+  .masthead {
+    max-width: 960px; margin: 0 auto; padding: 34px 24px 0;
+    display: flex; align-items: flex-end; gap: 24px;
+  }
+  .masthead .brand {
+    font-size: 30px; font-weight: 900; letter-spacing: 0.22em; white-space: nowrap;
+  }
+  .masthead .brand a:hover { color: var(--ink); }
+  .masthead .brand .dot { color: var(--red); }
+  .masthead nav { display: flex; gap: 26px; font-family: var(--sans); font-size: 13.5px; letter-spacing: 0.28em; margin-left: auto; }
+  .masthead nav a { color: var(--faded); }
+  .masthead nav a:hover { color: var(--red); }
+  .headrule { max-width: 960px; margin: 14px auto 0; padding: 0 24px; }
+  .headrule hr { border: 0; border-top: 2.5px solid var(--ink); position: relative; }
+  .headrule hr::after {
+    content: ""; position: absolute; left: 0; right: 0; top: 3px;
+    border-top: 1px solid var(--ink);
+  }
+
+  /* ============ layout ============ */
+  .sheet { max-width: 960px; margin: 0 auto; padding: 44px 24px 90px; position: relative; min-height: 55vh; }
+  .page[hidden] { display: none; }
+
+  /* 竖排卷标（签名元素） */
+  .spine {
+    position: absolute; left: -52px; top: 8px;
+    writing-mode: vertical-rl; letter-spacing: 0.5em;
+    font-size: 13px; color: var(--faint);
+    border-right: 1px solid var(--rule); padding-right: 10px; height: 300px;
+    user-select: none;
+  }
+  .spine b { color: var(--red); font-weight: 400; }
+
+  /* 印章 */
+  .seal {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 46px; height: 46px; background: var(--red); color: #F8F4EA;
+    font-size: 24px; font-weight: 900; border-radius: 7px;
+    box-shadow: inset 0 0 0 2px rgba(248,244,234,0.55), inset 0 0 0 4px var(--red);
+    transform: rotate(-4deg);
+  }
+
+  /* 小注（visibility 标记） */
+  .note {
+    font-family: var(--sans); font-size: 11px; letter-spacing: 0.12em;
+    color: var(--faded); border: 1px solid var(--rule); border-radius: 2px;
+    padding: 0 6px; margin-left: 10px; white-space: nowrap; vertical-align: 2px;
+  }
+  .note.vip, .note.mem { color: var(--indigo); border-color: #C9D4DF; }
+  .note.pw { color: var(--red); border-color: #DFC0BA; }
+
+  h1.entry-title { font-size: 34px; font-weight: 900; line-height: 1.55; letter-spacing: 0.04em; }
+  .entry-meta { font-family: var(--sans); font-size: 13px; color: var(--indigo); letter-spacing: 0.06em; margin-top: 10px; }
+  .entry-meta span { margin-right: 18px; }
+
+  /* ============ 扉页 home ============ */
+  .frontispiece { display: grid; grid-template-columns: auto 1fr; gap: 48px; align-items: start; }
+  .fp-vertical {
+    writing-mode: vertical-rl; font-size: 84px; font-weight: 900; letter-spacing: 0.18em;
+    line-height: 1.15; border-left: 3px solid var(--ink); padding-left: 26px; height: 480px;
+    user-select: none;
+  }
+  .fp-vertical small { font-size: 15px; font-weight: 400; color: var(--faded); letter-spacing: 0.4em; margin-top: 18px; }
+  .fp-right { padding-top: 8px; }
+  .fp-tagline { font-size: 19px; line-height: 2.1; max-width: 34ch; }
+  .fp-facts {
+    margin-top: 26px; font-family: var(--sans); font-size: 13px; color: var(--faded);
+    display: flex; gap: 22px; flex-wrap: wrap; letter-spacing: 0.1em;
+  }
+  .fp-facts b { color: var(--ink); font-weight: 600; }
+  .fp-latest { margin-top: 34px; }
+  .fp-latest h3, .blockhead {
+    font-family: var(--sans); font-size: 12.5px; letter-spacing: 0.42em; color: var(--red);
+    margin-bottom: 8px; font-weight: 600;
+  }
+  .toc-line { display: flex; align-items: baseline; gap: 10px; padding: 7px 0; }
+  .toc-line .t { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .toc-line .dots { flex: 1; border-bottom: 2px dotted var(--faint); transform: translateY(-5px); min-width: 24px; }
+  .toc-line .n { font-family: var(--mono); font-size: 12.5px; color: var(--faded); white-space: nowrap; }
+  .toc-line a:hover .t { color: var(--red); }
+  .fp-actions { margin-top: 36px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .btn {
+    font-family: var(--sans); font-size: 13.5px; letter-spacing: 0.2em; cursor: pointer;
+    padding: 10px 26px; border-radius: 2px; border: 1.5px solid var(--ink);
+    background: transparent; color: var(--ink); transition: all .15s;
+  }
+  .btn:hover { background: var(--ink); color: var(--paper); }
+  .btn.red { border-color: var(--red); color: var(--red); }
+  .btn.red:hover { background: var(--red); color: var(--paper); }
+  .fp-seal { margin-top: 44px; display: flex; align-items: center; gap: 14px; }
+  .fp-seal .sign { font-family: var(--sans); font-size: 12px; color: var(--faint); letter-spacing: 0.2em; line-height: 1.9; }
+
+  /* ============ 目次 blog ============ */
+  .juan {
+    display: flex; align-items: baseline; gap: 18px; margin: 40px 0 8px;
+  }
+  .juan h2 { font-size: 24px; font-weight: 900; letter-spacing: 0.3em; }
+  .juan .sub { font-family: var(--sans); font-size: 12px; color: var(--faint); letter-spacing: 0.2em; }
+  .juan::after { content: ""; flex: 1; border-bottom: 1px solid var(--rule); transform: translateY(-6px); }
+  .toc-list { padding: 4px 0; }
+  .toc-list .toc-line { font-size: 17px; padding: 9px 0; }
+  .toc-list .toc-line a { display: flex; flex: 1; align-items: baseline; gap: 10px; }
+  .pager {
+    display: flex; justify-content: center; gap: 30px; margin-top: 50px;
+    font-family: var(--sans); font-size: 13px; letter-spacing: 0.15em; color: var(--faded);
+  }
+  .pager a { color: var(--red); }
+
+  /* ============ 正文 article ============ */
+  .article { max-width: 46em; margin: 0 auto; }
+  .running-head {
+    font-family: var(--sans); font-size: 11.5px; color: var(--faint); letter-spacing: 0.3em;
+    text-align: center; margin-bottom: 26px; padding-bottom: 12px; border-bottom: 1px solid var(--rule);
+  }
+  .article h1 { text-align: center; }
+  .article .entry-meta { text-align: center; margin: 14px 0 34px; }
+  .article .entry-meta span { margin: 0 9px; }
+  .prose p { margin: 18px 0; text-align: justify; }
+  .prose > p:first-of-type::first-letter {
+    font-size: 3.1em; font-weight: 900; float: left; line-height: 1;
+    margin: 8px 12px 0 0; color: var(--red);
+  }
+  .prose h2 {
+    font-size: 21px; font-weight: 900; margin: 40px 0 14px; letter-spacing: 0.08em;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .prose h2::before, .prose h2::after { content: ""; height: 1px; background: var(--rule); flex: 1; }
+  .prose ul { padding-left: 0; list-style: none; margin: 16px 0; }
+  .prose ul li { padding-left: 1.6em; position: relative; margin: 8px 0; }
+  .prose ul li::before { content: "—"; position: absolute; left: 0; color: var(--red); }
+  .prose blockquote {
+    margin: 26px 0; padding: 14px 22px; background: var(--paper2);
+    border-left: 3px solid var(--red); color: var(--faded); font-size: 15.5px;
+  }
+  .prose blockquote .who { display: block; font-family: var(--sans); font-size: 12px; color: var(--faint); margin-top: 6px; letter-spacing: 0.15em; }
+  .prose code {
+    font-family: var(--mono); font-size: 0.84em; background: var(--paper2);
+    border: 1px solid var(--rule); border-radius: 2px; padding: 1px 6px; color: var(--red);
+  }
+  .prose pre {
+    font-family: var(--mono); font-size: 13px; line-height: 1.8; background: #2B2926; color: #E8E2D5;
+    border-radius: 4px; padding: 20px 22px; overflow-x: auto; margin: 24px 0;
+  }
+  .prose pre .c { color: #8A8477; } .prose pre .k { color: #D8A5A0; } .prose pre .f { color: #A8C0D8; }
+  .prose pre .s { color: #B5C9A8; } .prose pre .t { color: #E0C088; }
+  .backlink { text-align: center; margin-top: 54px; font-family: var(--sans); font-size: 13px; letter-spacing: 0.3em; }
+  .backlink a { color: var(--faded); }
+  .backlink a:hover { color: var(--red); }
+
+  /* 读者来函 comments */
+  .letters { max-width: 46em; margin: 60px auto 0; }
+  .letter {
+    border: 1px solid var(--rule); border-radius: 3px; padding: 18px 22px; margin: 14px 0;
+    background: rgba(255,255,255,0.45);
+  }
+  .letter .lhead { font-family: var(--sans); font-size: 12.5px; color: var(--indigo); letter-spacing: 0.08em; margin-bottom: 6px; }
+  .letter .lhead .when { color: var(--faint); margin-left: 12px; }
+  .letter p { font-size: 15.5px; line-height: 1.95; margin: 0; }
+  .letter.reply { margin-left: 44px; background: var(--paper2); }
+  .letter-form { display: flex; gap: 12px; margin-top: 20px; }
+  .letter-form input[type=text] { flex: 1; }
+
+  /* ============ 器物谱 projects ============ */
+  .ware { display: grid; grid-template-columns: 64px 1fr; gap: 0 26px; padding: 26px 0; border-bottom: 1px solid var(--rule); }
+  .ware .no { font-size: 26px; font-weight: 900; color: var(--faint); font-family: var(--serif); }
+  .ware .no small { display: block; font-size: 11px; font-family: var(--sans); letter-spacing: 0.2em; margin-top: 4px; }
+  .ware h2 { font-size: 21px; font-weight: 900; letter-spacing: 0.04em; }
+  .ware h2 .feat { color: var(--red); font-size: 13px; margin-left: 10px; letter-spacing: 0.2em; font-family: var(--sans); }
+  .ware p { color: var(--faded); font-size: 15.5px; margin-top: 6px; }
+  .ware .wlinks { margin-top: 10px; font-family: var(--sans); font-size: 13px; display: flex; gap: 20px; }
+  .ware .wlinks a { color: var(--indigo); border-bottom: 1px solid #C9D4DF; }
+  .ware .tags { margin-top: 8px; font-family: var(--sans); font-size: 12px; color: var(--faint); letter-spacing: 0.1em; }
+  .ware .tags i { font-style: normal; margin-right: 12px; }
+
+  /* ============ forms ============ */
+  .gate { max-width: 460px; margin: 30px auto 0; }
+  .gate .card {
+    border: 1.5px solid var(--ink); border-radius: 4px; background: rgba(255,255,255,0.5);
+    padding: 38px 40px 40px; position: relative;
+    box-shadow: 6px 6px 0 rgba(38,37,35,0.08);
+  }
+  .gate .card .seal { position: absolute; right: 26px; top: -23px; }
+  .gate h1 { font-size: 26px; font-weight: 900; letter-spacing: 0.14em; }
+  .gate .sub { font-family: var(--sans); font-size: 13px; color: var(--faded); margin: 8px 0 26px; letter-spacing: 0.08em; }
+  .field { margin: 16px 0; }
+  .field label { display: block; font-family: var(--sans); font-size: 12.5px; letter-spacing: 0.24em; color: var(--faded); margin-bottom: 6px; }
+  input[type=text], input[type=email], input[type=password], textarea, select {
+    width: 100%; font-family: var(--serif); font-size: 15.5px; color: var(--ink);
+    background: var(--paper); border: 1px solid var(--rule); border-radius: 2px; padding: 10px 14px;
+  }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 2px rgba(166,58,43,0.12); }
+  .gate .actions { display: flex; gap: 12px; margin-top: 26px; flex-wrap: wrap; }
+  .gate .aside { text-align: center; margin-top: 22px; font-family: var(--sans); font-size: 13px; color: var(--faded); }
+  .err { font-family: var(--sans); font-size: 13px; color: var(--red); margin-top: 10px; }
+  .lockmark {
+    width: 54px; height: 54px; border: 2px solid var(--red); border-radius: 4px; color: var(--red);
+    display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 900;
+    margin: 0 auto 20px; transform: rotate(3deg);
+  }
+
+  /* ============ 编辑部 admin ============ */
+  .desk-table { width: 100%; border-collapse: collapse; font-family: var(--sans); font-size: 13.5px; margin-top: 26px; }
+  .desk-table th {
+    text-align: left; font-weight: 600; color: var(--faded); letter-spacing: 0.15em; font-size: 12px;
+    padding: 10px 12px; border-bottom: 2px solid var(--ink);
+  }
+  .desk-table td { padding: 12px; border-bottom: 1px solid var(--rule); }
+  .desk-table tr:hover td { background: rgba(166,58,43,0.04); }
+  .desk-table td.t { font-family: var(--serif); font-size: 15.5px; }
+  .desk-table a.op { color: var(--indigo); margin-right: 14px; font-size: 12.5px; }
+  .desk-table a.op.del { color: var(--red); }
+  .editor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0 22px; }
+  textarea.draft { min-height: 320px; line-height: 2; font-size: 15px; }
+  .editor-foot { display: flex; gap: 12px; margin-top: 18px; align-items: center; flex-wrap: wrap; }
+  .editor-foot .stat { font-family: var(--sans); font-size: 12px; color: var(--faint); margin-left: auto; letter-spacing: 0.1em; }
+
+  /* ============ 404 ============ */
+  .nf404 { text-align: center; padding: 90px 0 40px; }
+  .nf404 .zh { font-size: 40px; font-weight: 900; letter-spacing: 0.3em; }
+  .nf404 p { font-family: var(--sans); font-size: 14px; color: var(--faded); margin-top: 18px; letter-spacing: 0.15em; }
+
+  /* ============ 检索 palette ============ */
+  .pal-veil { position: fixed; inset: 0; background: rgba(38,37,35,0.35); backdrop-filter: blur(1.5px); display: flex; justify-content: center; padding-top: 14vh; z-index: 100; }
+  .pal-veil[hidden] { display: none; }
+  .pal {
+    width: min(600px, calc(100vw - 32px)); height: fit-content;
+    background: var(--paper); border: 1.5px solid var(--ink); border-radius: 5px;
+    box-shadow: 8px 8px 0 rgba(38,37,35,0.15); overflow: hidden;
+  }
+  .pal-in { display: flex; gap: 12px; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--rule); }
+  .pal-in .mark { color: var(--red); font-weight: 900; }
+  .pal-in input { background: none; border: 0; padding: 0; font-size: 15.5px; }
+  .pal-in input:focus { box-shadow: none; }
+  .pal-list { max-height: 300px; overflow-y: auto; }
+  .pal-item { display: flex; gap: 14px; padding: 11px 18px; align-items: baseline; font-size: 15px; }
+  .pal-item .d { font-family: var(--mono); font-size: 11.5px; color: var(--faint); min-width: 6ch; }
+  .pal-item.sel { background: rgba(166,58,43,0.07); }
+  .pal-item.sel .t::after { content: "　※"; color: var(--red); font-size: 12px; }
+  .pal-foot { border-top: 1px solid var(--rule); padding: 8px 18px; font-family: var(--sans); font-size: 11.5px; color: var(--faint); letter-spacing: 0.1em; }
+
+  /* 刊脚 */
+  .colophon {
+    border-top: 2.5px solid var(--ink); position: relative; margin-top: 40px; padding-top: 18px;
+    text-align: center; font-family: var(--sans); font-size: 12px; color: var(--faint); letter-spacing: 0.2em;
+  }
+  .colophon::before { content: ""; position: absolute; left: 0; right: 0; top: 3px; border-top: 1px solid var(--ink); }
+  .colophon a { color: var(--indigo); }
+
+  @media (max-width: 760px) {
+    .spine { display: none; }
+    .frontispiece { grid-template-columns: 1fr; }
+    .fp-vertical { height: auto; writing-mode: horizontal-tb; font-size: 46px; border-left: 0; border-bottom: 3px solid var(--ink); padding: 0 0 16px; }
+    .fp-vertical small { margin-top: 8px; margin-left: 8px; }
+    .masthead { flex-wrap: wrap; align-items: center; }
+    .sheet { padding: 30px 18px 70px; }
+    .prose > p:first-of-type::first-letter { font-size: 2.6em; }
+  }
+</style>
+</head>
+<body>
+
+<!-- prototype chrome -->
+<div class="pt-bar">
+  <span class="pt-title">原型 · 方向 B 文学集刊</span>
+  <nav aria-label="原型页面" style="display:flex;gap:2px;flex-wrap:wrap">
+    <button class="pt-tab active" data-target="home">扉页</button>
+    <button class="pt-tab" data-target="blog">目次</button>
+    <button class="pt-tab" data-target="post">正文</button>
+    <button class="pt-tab" data-target="projects">器物谱</button>
+    <button class="pt-tab" data-target="login">入会</button>
+    <button class="pt-tab" data-target="signup">注册</button>
+    <button class="pt-tab" data-target="unlock">密函</button>
+    <button class="pt-tab" data-target="admin">编辑部</button>
+    <button class="pt-tab" data-target="editor">拟稿</button>
+    <button class="pt-tab" data-target="404">阙页</button>
+  </nav>
+  <div class="pt-links"><a href="index.html">总览</a><a href="a-terminal.html">方向 A</a><a href="c-swiss.html">方向 C</a></div>
+</div>
+
+<header class="masthead">
+  <div class="brand"><a href="#" onclick="return false">废墨集<span class="dot">。</span></a></div>
+  <nav>
+    <a href="#" onclick="return false">目次</a>
+    <a href="#" onclick="return false">器物</a>
+    <a href="#" onclick="return false">入会</a>
+    <button class="pt-tab" style="color:var(--red);padding:9px 0" onclick="document.dispatchEvent(new KeyboardEvent('keydown',{key:'k',metaKey:true}))">检索 ⌘K</button>
+  </nav>
+</header>
+<div class="headrule"><hr></div>
+
+<main class="sheet">
+  <aside class="spine" aria-hidden="true">废墨集 · <b>卷四</b> · 二〇二六年 第八期 · perfectpan.org</aside>
+
+  <!-- ================= 扉页 ================= -->
+  <section class="page" data-page="home">
+    <div class="frontispiece">
+      <div class="fp-vertical" aria-hidden="true">废墨集<small>FEI MO JI · 创刊于二〇一九</small></div>
+      <div class="fp-right">
+        <p class="fp-tagline">是个什么都不会的废物.jpg —— 但笔没停过。算法竞赛的旧题解、TypeScript 的类型体操、把整站跑在 Cloudflare 免费额度上的工程笔记，以及一些不成体统的随想，都收在这本集子里。</p>
+        <div class="fp-facts">
+          <span>收文 <b>十六</b> 篇</span>
+          <span>历时 <b>二〇一九 — 二〇二三</b></span>
+          <span>栏目 <b>算法 · 类型 · 随笔 · 工程</b></span>
+        </div>
+        <div class="fp-latest">
+          <h3>近日新篇</h3>
+          <div class="toc-line"><a href="#" onclick="return false"><span class="t">初探 Github Blocks</span><span class="dots"></span></a><span class="n">二〇二三 · 二月</span></div>
+          <div class="toc-line"><a href="#" onclick="return false"><span class="t">Type Challenge - 冒泡排序</span><span class="dots"></span></a><span class="n">二〇二一 · 五月</span></div>
+          <div class="toc-line"><a href="#" onclick="return false"><span class="t">回顾 2020</span><span class="dots"></span></a><span class="n">二〇二一 · 二月</span></div>
+        </div>
+        <div class="fp-actions">
+          <a class="btn red" href="#" onclick="return false">读 目 次</a>
+          <a class="btn" href="#" onclick="return false">观 器 物 谱</a>
+        </div>
+        <div class="fp-seal">
+          <span class="seal">潘</span>
+          <div class="sign">PerfectPan 手订<br>全刊运行于 Cloudflare · 每月费用为零</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 目次 ================= -->
+  <section class="page" data-page="blog" hidden>
+    <h1 class="entry-title" style="text-align:center">目　次</h1>
+    <p class="entry-meta" style="text-align:center">全刊总目 · 按年分卷 · 自新迄旧</p>
+
+    <div class="juan"><h2>卷四 · 二〇二三</h2><span class="sub">一篇</span></div>
+    <div class="toc-list">
+      <div class="toc-line"><a href="#" onclick="return false"><span class="t">初探 Github Blocks</span><span class="dots"></span></a><span class="n">〇一六</span></div>
+    </div>
+
+    <div class="juan"><h2>卷三 · 二〇二一</h2><span class="sub">两篇</span></div>
+    <div class="toc-list">
+      <div class="toc-line"><a href="#" onclick="return false"><span class="t">Type Challenge - 冒泡排序</span><span class="dots"></span></a><span class="n">〇一五</span></div>
+      <div class="toc-line"><a href="#" onclick="return false"><span class="t">回顾 2020<span class="note mem">会员可读</span></span><span class="dots"></span></a><span class="n">〇一四</span></div>
+    </div>
+
+    <div class="juan"><h2>卷二 · 二〇二〇</h2><span class="sub">四篇</span></div>
+    <div class="toc-list">
+      <div class="toc-line"><a href="#" onclick="return false"><span class="t">一些随想</span><span class="dots"></span></a><span class="n">〇一三</span></div>
+      <div class="toc-line"><a href="#" onclick="return false"><span class="t">LeetCode 中国区 TypeScript 面试题题解</span><span class="dots"></span></a><span class="n">〇一二</span></div>
+      <div class="toc-line"><a href="#" onclick="return false"><span class="t">那些年邂逅的 LeetCode 趣/难题</span><span class="dots"></span></a><span class="n">〇一一</span></div>
+      <div class="toc-line"><a href="#" onclick="return false"><span class="t">文档书写要点整理<span class="note pw">密笈</span></span><span class="dots"></span></a><span class="n">〇一〇</span></div>
+    </div>
+
+    <div class="juan"><h2>卷一 · 二〇一九</h2><span class="sub">八篇 · 摘录六篇</span></div>
+    <div class="toc-list">
+      <div class="toc-line"><a href="#" onclick="return false"><span class="t">回顾 2019<span class="note vip">VIP</span></span><span class="dots"></span></a><span class="n">〇〇九</span></div>
+      <div class="toc-line"><a href="#" onclick="return false"><span class="t">Codeforces Round#605(Div. 3) D/E/F 题解</span><span class="dots"></span></a><span class="n">〇〇八</span></div>
+      <div class="toc-line"><a href="#" onclick="return false"><span class="t">Codeforces Round#603(Div. 2) E/F 题解</span><span class="dots"></span></a><span class="n">〇〇七</span></div>
+      <div class="toc-line"><a href="#" onclick="return false"><span class="t">银联极客高校挑战赛复赛 D 多项式</span><span class="dots"></span></a><span class="n">〇〇六</span></div>
+      <div class="toc-line"><a href="#" onclick="return false"><span class="t">Codeforces 1149B Three Religions</span><span class="dots"></span></a><span class="n">〇〇五</span></div>
+      <div class="toc-line"><a href="#" onclick="return false"><span class="t">2019 ICPC 南昌邀请赛网络赛 G. tsy's number</span><span class="dots"></span></a><span class="n">〇〇四</span></div>
+    </div>
+
+    <nav class="pager" aria-label="翻页">
+      <span>上页</span><span>· 一 / 二 ·</span><a href="#" onclick="return false">下页</a>
+    </nav>
+  </section>
+
+  <!-- ================= 正文 ================= -->
+  <section class="page" data-page="post" hidden>
+    <article class="article">
+      <div class="running-head">废墨集 · 卷三 · 第一五篇 · 栏目：类型体操</div>
+      <h1 class="entry-title">Type Challenge · 冒泡排序</h1>
+      <p class="entry-meta"><span>二〇二一年五月八日</span><span>·</span><span>约九分钟</span><span>·</span><span>TypeScript</span></p>
+
+      <div class="prose">
+        <p>这题要求在类型系统里实现冒泡排序：给定一个元组 <code>T extends number[]</code>，返回排序后的元组。类型层面上没有循环，所以核心思路是把「一趟冒泡」展开成递归。</p>
+
+        <h2>一趟冒泡：两两比较并交换</h2>
+        <p>先写一个 <code>Pass</code>，从头到尾扫一遍，相邻逆序就交换。它递归地消费元组的头部两个元素：</p>
+
+<pre><span class="c">// 一趟冒泡：相邻比较，逆序则交换</span>
+<span class="k">type</span> <span class="t">Pass</span>&lt;<span class="t">T</span> <span class="k">extends</span> <span class="t">number</span>[]&gt; =
+  <span class="t">T</span> <span class="k">extends</span> [<span class="k">infer</span> <span class="t">A</span> <span class="k">extends</span> <span class="t">number</span>, <span class="k">infer</span> <span class="t">B</span> <span class="k">extends</span> <span class="t">number</span>, ...<span class="k">infer</span> <span class="t">R</span> <span class="k">extends</span> <span class="t">number</span>[]]
+    ? <span class="t">A</span> <span class="k">extends</span> <span class="s">`${B}`</span>
+      ? [<span class="t">A</span>, ...<span class="t">Pass</span>&lt;[<span class="t">B</span>, ...<span class="t">R</span>]&gt;]
+      : [<span class="t">B</span>, ...<span class="t">Pass</span>&lt;[<span class="t">A</span>, ...<span class="t">R</span>]&gt;]
+    : <span class="t">T</span>;
+
+<span class="k">type</span> <span class="f">BubbleSort</span>&lt;<span class="t">T</span>&gt; = ...<span class="c">// 一趟没交换 → 有序；否则再来一趟</span></pre>
+
+        <blockquote>
+          数字比较不能直接用 <code>&lt;</code>，得转成字符串长度或逐位比较——类型体操的老朋友了。
+          <span class="who">—— 按语</span>
+        </blockquote>
+
+        <h2>几个细节</h2>
+        <ul>
+          <li><code>infer A extends number</code> 收窄推断结果，省掉一层条件判断；</li>
+          <li>终止条件是「这一趟没有发生任何交换」，用深度相等判断；</li>
+          <li>元组很长时记得给 TS 足够的递归深度，或者拆成小测试。</li>
+        </ul>
+        <p>完整题解在仓库 <code>type-challenges</code> 里，配合测试用例食用更佳。</p>
+      </div>
+
+      <div class="backlink"><a href="#" onclick="return false">— 返 目 次 —</a></div>
+    </article>
+
+    <div class="letters">
+      <h3 class="blockhead">读者来函</h3>
+      <div class="letter">
+        <div class="lhead">alice@example.com<span class="when">五月九日</span></div>
+        <p>Equal 判终止这个思路太优雅了，比数长度 hack 干净。</p>
+      </div>
+      <div class="letter reply">
+        <div class="lhead">bob@example.com<span class="when">五月十日</span></div>
+        <p>数长度在负数场景直接爆炸，还是深度相等稳。</p>
+      </div>
+      <form class="letter-form" onsubmit="return false">
+        <input type="text" placeholder="来函一句（支持 markdown）……" aria-label="新评论">
+        <button class="btn red" type="submit">投 函</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ================= 器物谱 ================= -->
+  <section class="page" data-page="projects" hidden>
+    <h1 class="entry-title" style="text-align:center">器物谱</h1>
+    <p class="entry-meta" style="text-align:center">所制之器 · 自兹编次 · 以志不忘</p>
+
+    <div class="ware">
+      <div class="no">壹<small>FEATURED</small></div>
+      <div>
+        <h2>blog<span class="feat">本集所在</span></h2>
+        <p>本博客——TanStack Start 前台，全量部署在 Cloudflare Workers + D1 上。</p>
+        <div class="tags"><i>TanStack Start</i><i>Cloudflare</i><i>TypeScript</i></div>
+        <div class="wlinks"><a href="#" onclick="return false">源码</a><a href="#" onclick="return false">在线</a></div>
+      </div>
+    </div>
+    <div class="ware">
+      <div class="no">贰<small>FEATURED</small></div>
+      <div>
+        <h2>logseq-plugin-code-formatter</h2>
+        <p>Logseq 插件——用 Prettier 一键格式化代码块，支持 JS / TS / HTML / CSS / Markdown / JSON。</p>
+        <div class="tags"><i>TypeScript</i><i>Logseq</i><i>Prettier</i></div>
+        <div class="wlinks"><a href="#" onclick="return false">源码</a></div>
+      </div>
+    </div>
+    <div class="ware">
+      <div class="no">叁</div>
+      <div>
+        <h2>ocvm</h2>
+        <p>OpenClaw 版本管理器——nvm 风格的 Rust CLI，按项目安装、切换、锁定与回滚版本。</p>
+        <div class="tags"><i>Rust</i><i>CLI</i></div>
+        <div class="wlinks"><a href="#" onclick="return false">源码</a><a href="#" onclick="return false">在线</a></div>
+      </div>
+    </div>
+    <div class="ware">
+      <div class="no">肆</div>
+      <div>
+        <h2>agent-presence</h2>
+        <p>把本地编码 agent 的在线状态与 token 用量同步到飞书签名链接预览。</p>
+        <div class="tags"><i>TypeScript</i><i>CLI</i><i>Feishu</i></div>
+        <div class="wlinks"><a href="#" onclick="return false">源码</a><a href="#" onclick="return false">在线</a></div>
+      </div>
+    </div>
+    <div class="ware" style="border-bottom:0">
+      <div class="no">伍</div>
+      <div>
+        <h2>base64</h2>
+        <p>Moonbit 语言实现的 Base64 编解码库，遵循 RFC 4648。</p>
+        <div class="tags"><i>Moonbit</i></div>
+        <div class="wlinks"><a href="#" onclick="return false">源码</a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 入会 login ================= -->
+  <section class="page" data-page="login" hidden>
+    <div class="gate">
+      <div class="card">
+        <span class="seal" aria-hidden="true">潘</span>
+        <h1>入　会</h1>
+        <p class="sub">会友可读「会员可读」篇目 · 亦支持 GitHub 介绍入会</p>
+        <form onsubmit="return false">
+          <div class="field"><label for="b-em">邮　箱</label><input id="b-em" type="email" placeholder="you@example.com"></div>
+          <div class="field"><label for="b-pw">口　令</label><input id="b-pw" type="password" placeholder="••••••••"></div>
+          <div class="actions">
+            <button class="btn red" type="submit">登 入</button>
+            <button class="btn" type="button">GitHub 入会</button>
+          </div>
+          <p class="err" hidden>邮箱或口令不正确</p>
+        </form>
+        <p class="aside">尚未入会？<a href="#" onclick="return false" style="color:var(--red)">注册</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 注册 ================= -->
+  <section class="page" data-page="signup" hidden>
+    <div class="gate">
+      <div class="card">
+        <span class="seal" aria-hidden="true">潘</span>
+        <h1>注　册</h1>
+        <p class="sub">注册即成为会友（member）</p>
+        <form onsubmit="return false">
+          <div class="field"><label for="b-sem">邮　箱</label><input id="b-sem" type="email" placeholder="you@example.com"></div>
+          <div class="field"><label for="b-spw">口　令</label><input id="b-spw" type="password" placeholder="至少八位"></div>
+          <div class="field"><label for="b-spw2">再录一遍</label><input id="b-spw2" type="password" placeholder="••••••••"></div>
+          <div class="actions">
+            <button class="btn red" type="submit">立 会 籍</button>
+            <button class="btn" type="button">GitHub 注册</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 密函 unlock ================= -->
+  <section class="page" data-page="unlock" hidden>
+    <div class="gate">
+      <div class="card" style="text-align:center">
+        <div class="lockmark" aria-hidden="true">密</div>
+        <h1>密　笈</h1>
+        <p class="sub">此篇以单文口令封缄 · 验后廿四小时内免复输入</p>
+        <form onsubmit="return false" style="text-align:left">
+          <div class="field"><label for="b-upw">篇目口令</label><input id="b-upw" type="password" placeholder="••••••••" autofocus></div>
+          <div class="actions" style="justify-content:center">
+            <button class="btn red" type="submit">启 封</button>
+          </div>
+          <p class="err" style="text-align:center" hidden>口令有误，请再试</p>
+        </form>
+        <p class="aside"><a href="#" onclick="return false" style="color:var(--indigo)">← 返回篇目</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 编辑部 admin ================= -->
+  <section class="page" data-page="admin" hidden>
+    <h1 class="entry-title" style="text-align:center">编 辑 部</h1>
+    <p class="entry-meta" style="text-align:center">案卷总理 · 仅编者可见</p>
+    <table class="desk-table">
+      <thead><tr><th>编号</th><th>篇目</th><th>状态</th><th>可见</th><th>更新</th><th>理事</th></tr></thead>
+      <tbody>
+        <tr><td>〇一六</td><td class="t">初探 Github Blocks</td><td>已刊</td><td>公开</td><td>2023-02-18</td><td><a class="op" href="#" onclick="return false">改</a><a class="op del" href="#" onclick="return false">删</a></td></tr>
+        <tr><td>〇一五</td><td class="t">Type Challenge - 冒泡排序</td><td>已刊</td><td>公开</td><td>2021-05-08</td><td><a class="op" href="#" onclick="return false">改</a><a class="op del" href="#" onclick="return false">删</a></td></tr>
+        <tr><td>〇一四</td><td class="t">回顾 2020</td><td>已刊</td><td>会员</td><td>2021-02-28</td><td><a class="op" href="#" onclick="return false">改</a><a class="op del" href="#" onclick="return false">删</a></td></tr>
+        <tr><td>〇一〇</td><td class="t">文档书写要点整理</td><td>已刊</td><td>密笈</td><td>2020-03-01</td><td><a class="op" href="#" onclick="return false">改</a><a class="op del" href="#" onclick="return false">删</a></td></tr>
+        <tr><td>〇一七</td><td class="t">Cloudflare 迁移实录</td><td>草稿</td><td>公开</td><td>2026-08-12</td><td><a class="op" href="#" onclick="return false">改</a><a class="op del" href="#" onclick="return false">删</a></td></tr>
+      </tbody>
+    </table>
+    <div style="display:flex;gap:12px;margin-top:26px">
+      <a class="btn red" href="#" onclick="return false">＋ 新拟一篇</a>
+      <a class="btn" href="#" onclick="return false">读者来函（廿三）</a>
+    </div>
+  </section>
+
+  <!-- ================= 拟稿 editor ================= -->
+  <section class="page" data-page="editor" hidden>
+    <h1 class="entry-title" style="text-align:center;font-size:28px">拟　稿</h1>
+    <p class="entry-meta" style="text-align:center">新篇草拟 · 每 thirty 秒自动存档</p>
+    <form onsubmit="return false" style="max-width:720px;margin:26px auto 0">
+      <div class="editor-grid">
+        <div class="field"><label>篇　目</label><input type="text" value="Cloudflare 迁移实录"></div>
+        <div class="field"><label>档　名</label><input type="text" value="cloudflare-migration"></div>
+        <div class="field"><label>可见性</label>
+          <select><option>公开</option><option>会员</option><option>VIP</option><option>编者</option><option>密笈</option></select>
+        </div>
+        <div class="field"><label>栏　目</label><input type="text" value="工程, Cloudflare, D1"></div>
+      </div>
+      <div class="field"><label>正文（markdown）</label>
+        <textarea class="draft" spellcheck="false">## 为什么要迁
+
+Postgres 免费额度撑不住了……
+
+```ts
+export default { fetch } = ...
+```</textarea>
+      </div>
+      <div class="editor-foot">
+        <button class="btn" type="button">存 草 稿</button>
+        <button class="btn red" type="button">刊 发</button>
+        <span class="stat">六百四十二字 · 约三分钟 · 存档于 12:41</span>
+      </div>
+    </form>
+  </section>
+
+  <!-- ================= 404 ================= -->
+  <section class="page" data-page="404" hidden>
+    <div class="nf404">
+      <div class="seal" style="margin:0 auto 30px">阙</div>
+      <div class="zh">此页未收</div>
+      <p>本刊并无此篇 · 或已散佚</p>
+      <p style="margin-top:26px"><a class="btn" href="#" onclick="return false" style="text-decoration:none">返 目 次</a></p>
+    </div>
+  </section>
+
+  <footer class="colophon">
+    废墨集 · 二〇二六年 · <a href="#" onclick="return false">RSS 订阅</a> · 全刊运行于 <a href="#" onclick="return false">Cloudflare</a> 之上
+  </footer>
+</main>
+
+<!-- 检索 palette -->
+<div class="pal-veil" id="pal-veil" hidden>
+  <div class="pal" role="dialog" aria-label="检索篇目">
+    <div class="pal-in"><span class="mark">按</span><input type="text" id="pal-input" placeholder="检一篇目……" aria-label="检索"></div>
+    <div class="pal-list">
+      <div class="pal-item sel"><span class="d">2021-05</span><span class="t">Type Challenge - 冒泡排序</span></div>
+      <div class="pal-item"><span class="d">2020-04</span><span class="t">LeetCode 中国区 TypeScript 面试题题解</span></div>
+      <div class="pal-item"><span class="d">2019-12</span><span class="t">Codeforces Round#605(Div. 3) D/E/F 题解</span></div>
+      <div class="pal-item"><span class="d">2019-04</span><span class="t">Codeforces 1149B Three Religions</span></div>
+    </div>
+    <div class="pal-foot">↑↓ 选择 · ↵ 开卷 · esc 合上 · 密笈与会员篇目按身份自动隐去</div>
+  </div>
+</div>
+
+<script>
+  var tabs = document.querySelectorAll('.pt-tab');
+  var pages = document.querySelectorAll('.page');
+  function go(id) {
+    pages.forEach(function(p){ p.hidden = p.dataset.page !== id; });
+    tabs.forEach(function(t){ t.classList.toggle('active', t.dataset.target === id); });
+    window.scrollTo(0, 0);
+    history.replaceState(null, '', '#' + id);
+  }
+  tabs.forEach(function(t){ if (t.dataset.target) t.addEventListener('click', function(){ go(t.dataset.target); }); });
+  var h = location.hash.slice(1);
+  if (h && document.querySelector('.page[data-page="' + h + '"]')) go(h);
+  window.addEventListener('hashchange', function(){
+    var h = location.hash.slice(1);
+    if (h && document.querySelector('.page[data-page="' + h + '"]')) go(h);
+  });
+
+  var veil = document.getElementById('pal-veil');
+  var input = document.getElementById('pal-input');
+  document.addEventListener('keydown', function(e){
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); veil.hidden = false; input.focus(); }
+    if (e.key === 'Escape') veil.hidden = true;
+  });
+  veil.addEventListener('click', function(e){ if (e.target === veil) veil.hidden = true; });
+</script>
+</body>
+</html>

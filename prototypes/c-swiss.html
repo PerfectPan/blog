@@ -1,0 +1,823 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>方向 C · 瑞士网格 × 评级色 · PerfectPan's Blog 原型</title>
+<style>
+  /* ============ tokens ============ */
+  :root {
+    --bg: #FFFFFF;
+    --surface: #F5F5F3;
+    --ink: #16181D;
+    --dim: #6D717A;
+    --faint: #A6AAB2;
+    --line: #E4E5E7;
+    --line-strong: #16181D;
+    --accent: #E5484D;
+    --accent-soft: rgba(229,72,77,0.08);
+    /* rating palette（算法评级色系） */
+    --r0: #98A0A6;  /* grey   */
+    --r1: #3F9E4C;  /* green  */
+    --r2: #2FA8B8;  /* cyan   */
+    --r3: #3D6BE8;  /* blue   */
+    --r4: #8F5AE8;  /* violet */
+    --r5: #E8973D;  /* orange */
+    --r6: #E5484D;  /* red    */
+    --sans: "Helvetica Neue", Helvetica, Inter, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  [data-theme="dark"] {
+    --bg: #0E0F12;
+    --surface: #16181D;
+    --ink: #EDEEF0;
+    --dim: #8B8F98;
+    --faint: #565A63;
+    --line: #24262C;
+    --line-strong: #EDEEF0;
+    --accent-soft: rgba(229,72,77,0.14);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: var(--sans); font-size: 15px; line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: var(--accent); color: #fff; }
+  a { color: inherit; text-decoration: none; }
+  a:hover { color: var(--accent); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .mono { font-family: var(--mono); }
+
+  /* ============ prototype chrome ============ */
+  .pt-bar {
+    background: #101114; color: #9A9FA6; font-size: 12.5px;
+    padding: 0 16px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    position: sticky; top: 0; z-index: 50;
+  }
+  .pt-bar .pt-title { color: #E5484D; font-weight: 700; letter-spacing: 0.06em; }
+  .pt-tab {
+    font-family: inherit; font-size: 12.5px; color: #9A9FA6; background: none;
+    border: 0; padding: 9px 10px; cursor: pointer;
+  }
+  .pt-tab:hover { color: #EDEEF0; }
+  .pt-tab.active { color: #101114; background: #E5484D; font-weight: 700; }
+  .pt-links { margin-left: auto; display: flex; gap: 12px; }
+  .pt-links a { color: #63686F; }
+  .pt-links a:hover { color: #E5484D; }
+
+  /* ============ site header ============ */
+  .site-head {
+    border-bottom: 2px solid var(--line-strong);
+    position: sticky; top: 40px; z-index: 40; background: var(--bg);
+  }
+  .site-head-in {
+    max-width: 1160px; margin: 0 auto; padding: 0 28px;
+    display: flex; align-items: stretch; gap: 0; height: 58px;
+  }
+  .logo {
+    display: flex; align-items: center; font-weight: 800; letter-spacing: -0.02em;
+    font-size: 15.5px; border-right: 1px solid var(--line); padding-right: 22px;
+  }
+  .logo .cursor { display:inline-block; width: 9px; height: 1.05em; background: var(--accent); margin-left: 4px; animation: blink 1.1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .site-head nav { display: flex; }
+  .site-head nav a {
+    display: flex; align-items: center; padding: 0 16px; font-size: 13.5px;
+    color: var(--dim); letter-spacing: 0.04em; border-right: 1px solid var(--line);
+    position: relative;
+  }
+  .site-head nav a:hover { color: var(--ink); }
+  .site-head nav a.on { color: var(--ink); font-weight: 700; }
+  .site-head nav a.on::after { content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 3px; background: var(--accent); }
+  .site-head .tools { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+  .tool-btn {
+    font: inherit; font-size: 12.5px; color: var(--dim); background: none; border: 0;
+    padding: 6px 10px; cursor: pointer; letter-spacing: 0.04em;
+  }
+  .tool-btn:hover { color: var(--ink); }
+  .tool-btn kbd {
+    font-family: var(--mono); font-size: 10.5px; border: 1px solid var(--line);
+    border-radius: 3px; padding: 0 4px; margin-left: 4px; color: var(--faint);
+  }
+
+  /* ============ shared ============ */
+  .page[hidden] { display: none; }
+  .frame { max-width: 1160px; margin: 0 auto; padding: 0 28px 90px; }
+  .rule { border: 0; border-top: 1px solid var(--line); }
+  .rule.strong { border-top: 2px solid var(--line-strong); }
+  .sec-label {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.22em;
+    color: var(--faint); text-transform: uppercase;
+  }
+  .no-index { font-family: var(--mono); font-size: 12px; color: var(--faint); letter-spacing: 0.05em; }
+  .btn {
+    font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer;
+    padding: 10px 22px; border: 1px solid var(--ink); background: transparent; color: var(--ink);
+    transition: background .12s, color .12s;
+  }
+  .btn:hover { background: var(--ink); color: var(--bg); }
+  .btn.solid { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.solid:hover { background: #C93A3F; border-color: #C93A3F; color: #fff; }
+  .btn.ghost { border-color: var(--line); }
+  .btn.ghost:hover { border-color: var(--ink); background: var(--surface); color: var(--ink); }
+
+  /* rating chip */
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em;
+    border: 1px solid var(--line); padding: 1px 8px; color: var(--dim); white-space: nowrap;
+  }
+  .chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--c, var(--r0)); }
+  .chip.c0 { --c: var(--r0); } .chip.c1 { --c: var(--r1); } .chip.c2 { --c: var(--r2); }
+  .chip.c3 { --c: var(--r3); } .chip.c4 { --c: var(--r4); } .chip.c5 { --c: var(--r5); }
+  .chip.c6 { --c: var(--r6); border-color: rgba(229,72,77,0.4); color: var(--accent); }
+
+  /* visibility marker */
+  .vis { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.08em; color: var(--faint); }
+  .vis::before { content: "● "; font-size: 8px; vertical-align: 2px; }
+  .vis.mem { color: var(--r3); } .vis.vip { color: var(--r4); } .vis.pw { color: var(--accent); }
+
+  /* ============ HOME ============ */
+  .hero { padding: 64px 0 44px; }
+  .hero .kicker { display: flex; gap: 14px; align-items: baseline; margin-bottom: 18px; }
+  .hero h1 {
+    font-size: clamp(46px, 9vw, 108px); font-weight: 800; letter-spacing: -0.045em;
+    line-height: 0.98;
+  }
+  .hero h1 .hollow {
+    color: transparent; -webkit-text-stroke: 1.5px var(--ink);
+  }
+  .hero h1 .dot { color: var(--accent); }
+  .hero .sub { color: var(--dim); margin-top: 20px; max-width: 56ch; font-size: 15.5px; }
+  .home-cols {
+    display: grid; grid-template-columns: 1.4fr 1fr 1fr; border: 1px solid var(--line); border-top: 2px solid var(--line-strong);
+  }
+  .home-col { padding: 22px 24px 26px; border-right: 1px solid var(--line); }
+  .home-col:last-child { border-right: 0; }
+  .home-col h3 { font-size: 12px; letter-spacing: 0.2em; font-family: var(--mono); color: var(--faint); font-weight: 500; margin-bottom: 14px; }
+  .latest-item { display: flex; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
+  .latest-item:last-child { border-bottom: 0; }
+  .latest-item .t { flex: 1; font-weight: 600; font-size: 14.5px; }
+  .latest-item .t:hover { color: var(--accent); }
+  .latest-item .d { font-family: var(--mono); font-size: 11px; color: var(--faint); white-space: nowrap; }
+  .stat-row { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .stat-row:last-child { border-bottom: 0; }
+  .stat-row b { font-family: var(--mono); font-size: 22px; font-weight: 600; letter-spacing: -0.02em; }
+  .stat-row b.red { color: var(--accent); }
+  .stat-row span { font-size: 12.5px; color: var(--dim); }
+
+  /* ============ BLOG LIST ============ */
+  .list-head {
+    display: flex; align-items: baseline; gap: 18px; padding: 44px 0 14px;
+  }
+  .list-head h1 { font-size: 40px; font-weight: 800; letter-spacing: -0.03em; }
+  .list-head .count { font-family: var(--mono); font-size: 12px; color: var(--faint); }
+  .list-head .filters { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; }
+  .filter {
+    font-family: var(--mono); font-size: 11.5px; padding: 4px 12px; cursor: pointer;
+    border: 1px solid var(--line); background: none; color: var(--dim);
+  }
+  .filter:hover { border-color: var(--ink); color: var(--ink); }
+  .filter.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .rowlist { border-top: 2px solid var(--line-strong); }
+  .row {
+    display: grid; grid-template-columns: 64px 1fr auto 92px; gap: 20px;
+    padding: 15px 10px; border-bottom: 1px solid var(--line); align-items: center;
+    position: relative; transition: background .1s;
+  }
+  a.row:hover { background: var(--accent-soft); color: inherit; }
+  a.row:hover::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); }
+  .row .t { font-weight: 600; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .row .t .vis { margin-left: 12px; }
+  .row .tags { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .row .d { font-family: var(--mono); font-size: 11.5px; color: var(--faint); text-align: right; }
+  .year-mark {
+    font-family: var(--mono); font-size: 12px; color: var(--faint); letter-spacing: 0.2em;
+    padding: 26px 10px 6px; display: flex; align-items: center; gap: 12px;
+  }
+  .year-mark::after { content: ""; flex: 1; border-top: 1px solid var(--line); }
+  .pager { display: flex; gap: 8px; justify-content: center; padding: 36px 0 0; }
+  .pager button, .pager .cur { font-family: var(--mono); font-size: 12px; padding: 6px 14px; border: 1px solid var(--line); background: none; color: var(--dim); cursor: pointer; }
+  .pager .cur { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+  /* ============ ARTICLE ============ */
+  .art-grid { display: grid; grid-template-columns: 220px 1fr; gap: 48px; padding-top: 44px; }
+  .meta-rail { position: sticky; top: 138px; align-self: start; }
+  .meta-rail .bigno { font-family: var(--mono); font-size: 44px; font-weight: 300; color: var(--faint); letter-spacing: -0.02em; }
+  .meta-rail .bigno b { color: var(--accent); font-weight: 300; }
+  .meta-rail dl { margin: 18px 0; }
+  .meta-rail dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.18em; color: var(--faint); margin-top: 12px; }
+  .meta-rail dd { font-size: 13.5px; color: var(--ink); }
+  .meta-rail .toc a { display: block; font-size: 13px; color: var(--dim); padding: 3px 0; border-left: 2px solid var(--line); padding-left: 10px; }
+  .meta-rail .toc a:hover { color: var(--accent); border-color: var(--accent); }
+  .art-title h1 { font-size: clamp(28px, 4.4vw, 42px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.25; }
+  .art-title .bar { height: 4px; background: linear-gradient(90deg, var(--accent) 0 64px, var(--line) 64px); margin: 18px 0 8px; }
+  .prose { max-width: 68ch; font-size: 16px; }
+  .prose p { margin: 18px 0; color: var(--ink); }
+  .prose h2 { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; margin: 40px 0 12px; padding-top: 18px; border-top: 1px solid var(--line); }
+  .prose h2 .no { font-family: var(--mono); font-size: 12px; color: var(--accent); font-weight: 400; margin-right: 12px; }
+  .prose ul { margin: 14px 0; list-style: none; }
+  .prose li { padding: 6px 0 6px 24px; position: relative; }
+  .prose li::before { content: "→"; position: absolute; left: 0; color: var(--accent); font-family: var(--mono); }
+  .prose blockquote { border-left: 3px solid var(--accent); padding: 10px 20px; margin: 20px 0; background: var(--surface); color: var(--dim); }
+  .prose code.inline { font-family: var(--mono); font-size: 0.85em; background: var(--surface); border: 1px solid var(--line); padding: 1px 6px; }
+  .prose pre {
+    font-family: var(--mono); font-size: 13px; line-height: 1.75; background: var(--surface);
+    border: 1px solid var(--line); border-left: 3px solid var(--ink);
+    padding: 18px 20px; overflow-x: auto; margin: 22px 0;
+  }
+  [data-theme="light"] .prose pre { background: #14161A; border-color: #14161A; color: #DDE1E8; }
+  .pre-wrap { position: relative; }
+  .pre-wrap .fname { position: absolute; top: 0; right: 0; font-family: var(--mono); font-size: 10.5px; color: var(--faint); background: var(--bg); border: 1px solid var(--line); border-top: 0; border-right: 0; padding: 1px 10px; }
+  .tk-c { color: #7A828E; } .tk-k { color: #C792EA; } .tk-f { color: #82AAFF; }
+  .tk-s { color: #C3E88D; } .tk-t { color: #FFCB6B; }
+
+  /* comments */
+  .cmt-head { display: flex; align-items: baseline; gap: 14px; margin: 56px 0 6px; }
+  .cmt-head h2 { font-size: 14px; letter-spacing: 0.16em; font-family: var(--mono); font-weight: 600; }
+  .cmt-head .n { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+  .cmt { border: 1px solid var(--line); margin-top: -1px; }
+  .cmt-in { padding: 14px 18px; }
+  .cmt-h { display: flex; gap: 12px; font-size: 12px; color: var(--dim); margin-bottom: 6px; font-family: var(--mono); }
+  .cmt-h .who { color: var(--ink); font-weight: 600; }
+  .cmt.reply { margin: 0 0 -1px 44px; border-left: 3px solid var(--line); background: var(--surface); }
+  .cmt-form { display: flex; gap: 0; margin-top: 18px; border: 1px solid var(--ink); }
+  .cmt-form input { flex: 1; border: 0; padding: 12px 16px; font: inherit; background: var(--bg); color: var(--ink); }
+  .cmt-form input:focus { outline: none; }
+  .cmt-form button { border: 0; border-left: 1px solid var(--ink); background: var(--ink); color: var(--bg); font: inherit; font-size: 13px; font-weight: 600; padding: 0 24px; cursor: pointer; }
+  .cmt-form button:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* ============ PROJECTS ============ */
+  .proj { border-top: 2px solid var(--line-strong); }
+  .proj-row {
+    display: grid; grid-template-columns: 130px 1.2fr 1fr auto; gap: 24px;
+    padding: 24px 10px; border-bottom: 1px solid var(--line); align-items: start;
+  }
+  .proj-row:hover { background: var(--surface); }
+  .proj-row .idx { font-family: var(--mono); font-size: 26px; font-weight: 300; color: var(--faint); }
+  .proj-row .idx .feat { display: block; font-size: 9.5px; letter-spacing: 0.24em; color: var(--accent); margin-top: 2px; }
+  .proj-row h2 { font-size: 18px; font-weight: 800; letter-spacing: -0.01em; }
+  .proj-row p { font-size: 13.5px; color: var(--dim); margin-top: 6px; }
+  .proj-row .tags { display: flex; gap: 6px; flex-wrap: wrap; padding-top: 4px; }
+  .proj-row .links { display: flex; flex-direction: column; gap: 8px; font-family: var(--mono); font-size: 12px; text-align: right; }
+  .proj-row .links a { color: var(--dim); border-bottom: 1px solid var(--line); padding-bottom: 1px; }
+  .proj-row .links a:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* ============ AUTH / UNLOCK ============ */
+  .auth-wrap { max-width: 440px; margin: 60px auto 0; }
+  .auth-head { display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 10px; }
+  .auth-head h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
+  .auth-card { border: 1px solid var(--ink); padding: 30px 30px 34px; }
+  .auth-card::before { content: ""; display: block; height: 4px; background: var(--accent); margin: -30px -30px 26px; }
+  .field { margin: 16px 0; }
+  .field label { display: block; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.2em; color: var(--faint); margin-bottom: 6px; text-transform: uppercase; }
+  input[type=text], input[type=email], input[type=password], textarea, select {
+    width: 100%; font: inherit; font-size: 14.5px; color: var(--ink);
+    background: var(--bg); border: 1px solid var(--line); padding: 10px 13px;
+  }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--ink); }
+  .auth-actions { display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
+  .auth-aside { margin-top: 18px; font-size: 13px; color: var(--dim); }
+  .auth-aside a { color: var(--accent); }
+  .err { margin-top: 12px; font-size: 13px; color: var(--accent); border: 1px solid rgba(229,72,77,0.35); background: var(--accent-soft); padding: 8px 12px; }
+  .lockline { display: flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; color: var(--accent); margin-bottom: 14px; }
+  .lockline::after { content: ""; flex: 1; border-top: 1px solid rgba(229,72,77,0.4); }
+
+  /* ============ ADMIN ============ */
+  .adm-head { display: flex; align-items: baseline; gap: 16px; padding: 40px 0 14px; }
+  .adm-head h1 { font-size: 26px; font-weight: 800; }
+  .adm-head .spacer { flex: 1; }
+  table.adm { width: 100%; border-collapse: collapse; border-top: 2px solid var(--line-strong); font-size: 13.5px; }
+  .adm th { text-align: left; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.16em; color: var(--faint); font-weight: 500; padding: 10px 10px; border-bottom: 1px solid var(--line); }
+  .adm td { padding: 11px 10px; border-bottom: 1px solid var(--line); }
+  .adm tbody tr:hover td { background: var(--surface); }
+  .adm td.tt { font-weight: 600; }
+  .adm .st { font-family: var(--mono); font-size: 11px; }
+  .adm .st.pub { color: var(--r1); } .adm .st.draft { color: var(--faint); }
+  .adm .ops { display: flex; gap: 12px; font-family: var(--mono); font-size: 11.5px; }
+  .adm .ops a:hover { color: var(--accent); }
+  .ed-grid { display: grid; grid-template-columns: 260px 1fr; gap: 36px; padding-top: 40px; }
+  .ed-side { border-left: 3px solid var(--ink); padding-left: 18px; }
+  .ed-main textarea { min-height: 380px; font-family: var(--mono); font-size: 13.5px; line-height: 1.8; }
+  .ed-foot { display: flex; gap: 10px; margin-top: 16px; align-items: center; flex-wrap: wrap; }
+  .ed-foot .stat { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--faint); }
+
+  /* ============ 404 ============ */
+  .nf { text-align: left; padding: 70px 0 30px; }
+  .nf .code { font-family: var(--mono); font-size: clamp(90px, 18vw, 190px); font-weight: 300; letter-spacing: -0.05em; line-height: 1; }
+  .nf .code b { color: var(--accent); font-weight: 300; }
+  .nf p { color: var(--dim); margin-top: 14px; }
+
+  /* ============ palette ============ */
+  .pal-veil { position: fixed; inset: 0; background: rgba(10,11,14,0.42); display: flex; justify-content: center; padding-top: 13vh; z-index: 100; }
+  .pal-veil[hidden] { display: none; }
+  .pal {
+    width: min(620px, calc(100vw - 32px)); height: fit-content;
+    background: var(--bg); border: 1px solid var(--ink); overflow: hidden;
+    box-shadow: 0 24px 70px rgba(0,0,0,0.28);
+  }
+  .pal::before { content: ""; display: block; height: 4px; background: var(--accent); }
+  .pal-in { display: flex; gap: 12px; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+  .pal-in input { border: 0; padding: 0; font-size: 15px; background: none; }
+  .pal-in input:focus { box-shadow: none; }
+  .pal-list { max-height: 310px; overflow-y: auto; }
+  .pal-item { display: grid; grid-template-columns: 64px 1fr auto; gap: 14px; padding: 11px 18px; align-items: baseline; }
+  .pal-item .d { font-family: var(--mono); font-size: 11px; color: var(--faint); }
+  .pal-item .t { font-weight: 600; font-size: 14px; }
+  .pal-item.sel { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
+  .pal-foot { border-top: 1px solid var(--line); padding: 8px 18px; font-family: var(--mono); font-size: 10.5px; color: var(--faint); letter-spacing: 0.08em; }
+
+  @media (max-width: 900px) {
+    .home-cols { grid-template-columns: 1fr; }
+    .home-col { border-right: 0; border-bottom: 1px solid var(--line); }
+    .art-grid { grid-template-columns: 1fr; }
+    .meta-rail { position: static; display: flex; gap: 28px; flex-wrap: wrap; }
+    .meta-rail .bigno { font-size: 30px; }
+    .row { grid-template-columns: 48px 1fr; }
+    .row .tags, .row .d { display: none; }
+    .proj-row { grid-template-columns: 70px 1fr; }
+    .proj-row .links { flex-direction: row; gap: 18px; grid-column: 2; text-align: left; }
+    .site-head nav a { padding: 0 10px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- prototype chrome -->
+<div class="pt-bar">
+  <span class="pt-title">原型 · 方向 C 瑞士网格</span>
+  <nav aria-label="原型页面" style="display:flex;gap:2px;flex-wrap:wrap">
+    <button class="pt-tab active" data-target="home">首页</button>
+    <button class="pt-tab" data-target="blog">博客</button>
+    <button class="pt-tab" data-target="post">文章</button>
+    <button class="pt-tab" data-target="projects">项目</button>
+    <button class="pt-tab" data-target="login">登录</button>
+    <button class="pt-tab" data-target="signup">注册</button>
+    <button class="pt-tab" data-target="unlock">解锁</button>
+    <button class="pt-tab" data-target="admin">后台</button>
+    <button class="pt-tab" data-target="editor">编辑器</button>
+    <button class="pt-tab" data-target="404">404</button>
+  </nav>
+  <div class="pt-links"><a href="index.html">总览</a><a href="a-terminal.html">方向 A</a><a href="b-journal.html">方向 B</a></div>
+</div>
+
+<!-- site header -->
+<header class="site-head">
+  <div class="site-head-in">
+    <a class="logo" href="#" onclick="return false">PERFECTPAN<span class="cursor"></span></a>
+    <nav>
+      <a href="#" onclick="return false">Home</a>
+      <a href="#" onclick="return false" class="on">Blog</a>
+      <a href="#" onclick="return false">Projects</a>
+      <a href="#" onclick="return false">Admin</a>
+    </nav>
+    <div class="tools">
+      <button class="tool-btn" id="pal-open">Search<kbd>⌘K</kbd></button>
+      <button class="tool-btn" id="theme-toggle">◐ Dark</button>
+      <a class="tool-btn" href="#" onclick="return false">RSS</a>
+      <a class="tool-btn" href="#" onclick="return false">GitHub</a>
+    </div>
+  </div>
+</header>
+
+<div class="frame">
+
+  <!-- ================= HOME ================= -->
+  <section class="page" data-page="home">
+    <div class="hero">
+      <div class="kicker"><span class="sec-label">Personal Index — Since 2019</span><span class="no-index">/ perfectpan.org</span></div>
+      <h1><span class="hollow">PERFECT</span>PAN<span class="dot">.</span></h1>
+      <p class="sub">算法竞赛退役选手、前端工程师。写类型体操、Cloudflare 上的 $0 工程实践，以及一些随想。是个什么都不会的废物.jpg —— 但文档还在更新。</p>
+    </div>
+    <div class="home-cols">
+      <div class="home-col">
+        <h3>最新文章 / LATEST</h3>
+        <div class="latest-item"><span class="no-index">016</span><a class="t" href="#" onclick="return false">初探 Github Blocks</a><span class="d">2023-02</span></div>
+        <div class="latest-item"><span class="no-index">015</span><a class="t" href="#" onclick="return false">Type Challenge - 冒泡排序</a><span class="d">2021-05</span></div>
+        <div class="latest-item"><span class="no-index">014</span><a class="t" href="#" onclick="return false">回顾 2020</a><span class="d">2021-02</span></div>
+        <div class="latest-item"><span class="no-index">013</span><a class="t" href="#" onclick="return false">一些随想</a><span class="d">2020-08</span></div>
+      </div>
+      <div class="home-col">
+        <h3>项目 / WORK</h3>
+        <div class="latest-item"><a class="t" href="#" onclick="return false">blog</a><span class="d">★</span></div>
+        <div class="latest-item"><a class="t" href="#" onclick="return false">logseq-plugin-code-formatter</a><span class="d">★</span></div>
+        <div class="latest-item"><a class="t" href="#" onclick="return false">ocvm</a><span class="d"></span></div>
+        <div class="latest-item"><a class="t" href="#" onclick="return false">agent-presence</a><span class="d"></span></div>
+      </div>
+      <div class="home-col">
+        <h3>数据 / INDEX</h3>
+        <div class="stat-row"><b class="red">16</b><span>篇文章</span></div>
+        <div class="stat-row"><b>5</b><span>个开源项目</span></div>
+        <div class="stat-row"><b>4</b><span>个年份卷宗</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= BLOG ================= -->
+  <section class="page" data-page="blog" hidden>
+    <div class="list-head">
+      <h1>Blog</h1>
+      <span class="count mono">— 16 entries / 2 pages</span>
+      <div class="filters">
+        <button class="filter on">全部</button>
+        <button class="filter">算法</button>
+        <button class="filter">TypeScript</button>
+        <button class="filter">随笔</button>
+        <button class="filter">工程</button>
+      </div>
+    </div>
+    <div class="rowlist">
+      <div class="year-mark">2023</div>
+      <a class="row" href="#" onclick="return false">
+        <span class="no-index">016</span>
+        <span class="t">初探 Github Blocks</span>
+        <span class="tags"><span class="chip c0">Misc</span></span>
+        <span class="d">02-18</span>
+      </a>
+      <div class="year-mark">2021</div>
+      <a class="row" href="#" onclick="return false">
+        <span class="no-index">015</span>
+        <span class="t">Type Challenge - 冒泡排序</span>
+        <span class="tags"><span class="chip c3">TypeScript</span></span>
+        <span class="d">05-08</span>
+      </a>
+      <a class="row" href="#" onclick="return false">
+        <span class="no-index">014</span>
+        <span class="t">回顾 2020<span class="vis mem">MEMBER</span></span>
+        <span class="tags"><span class="chip c0">Life</span></span>
+        <span class="d">02-28</span>
+      </a>
+      <div class="year-mark">2020</div>
+      <a class="row" href="#" onclick="return false">
+        <span class="no-index">013</span>
+        <span class="t">一些随想</span>
+        <span class="tags"><span class="chip c0">随笔</span></span>
+        <span class="d">08-26</span>
+      </a>
+      <a class="row" href="#" onclick="return false">
+        <span class="no-index">012</span>
+        <span class="t">LeetCode 中国区 TypeScript 面试题题解</span>
+        <span class="tags"><span class="chip c3">TypeScript</span></span>
+        <span class="d">04-13</span>
+      </a>
+      <a class="row" href="#" onclick="return false">
+        <span class="no-index">011</span>
+        <span class="t">那些年邂逅的 LeetCode 趣/难题</span>
+        <span class="tags"><span class="chip c5">LeetCode</span></span>
+        <span class="d">03-30</span>
+      </a>
+      <a class="row" href="#" onclick="return false">
+        <span class="no-index">010</span>
+        <span class="t">文档书写要点整理<span class="vis pw">PASSWORD</span></span>
+        <span class="tags"><span class="chip c6">LOCKED</span></span>
+        <span class="d">03-01</span>
+      </a>
+      <div class="year-mark">2019</div>
+      <a class="row" href="#" onclick="return false">
+        <span class="no-index">009</span>
+        <span class="t">回顾 2019<span class="vis vip">VIP</span></span>
+        <span class="tags"><span class="chip c0">Life</span></span>
+        <span class="d">12-31</span>
+      </a>
+      <a class="row" href="#" onclick="return false">
+        <span class="no-index">008</span>
+        <span class="t">Codeforces Round#605(Div. 3) D/E/F 题解</span>
+        <span class="tags"><span class="chip c4">DP</span><span class="chip c2">BFS</span></span>
+        <span class="d">12-14</span>
+      </a>
+      <a class="row" href="#" onclick="return false">
+        <span class="no-index">007</span>
+        <span class="t">Codeforces Round#603(Div. 2) E/F 题解</span>
+        <span class="tags"><span class="chip c4">DP</span><span class="chip c2">Stack</span></span>
+        <span class="d">12-01</span>
+      </a>
+      <a class="row" href="#" onclick="return false">
+        <span class="no-index">006</span>
+        <span class="t">银联极客高校挑战赛复赛 D 多项式</span>
+        <span class="tags"><span class="chip c4">DP</span></span>
+        <span class="d">09-17</span>
+      </a>
+      <a class="row" href="#" onclick="return false">
+        <span class="no-index">005</span>
+        <span class="t">Codeforces 1149B Three Religions</span>
+        <span class="tags"><span class="chip c4">DP</span><span class="chip c3">String</span></span>
+        <span class="d">04-30</span>
+      </a>
+      <a class="row" href="#" onclick="return false">
+        <span class="no-index">004</span>
+        <span class="t">2019 ICPC 南昌邀请赛网络赛 G. tsy's number</span>
+        <span class="tags"><span class="chip c1">Number Theory</span></span>
+        <span class="d">04-22</span>
+      </a>
+    </div>
+    <div class="pager">
+      <button class="cur">1</button><button>2</button>
+      <button>next →</button>
+    </div>
+  </section>
+
+  <!-- ================= ARTICLE ================= -->
+  <section class="page" data-page="post" hidden>
+    <div class="art-grid">
+      <aside class="meta-rail">
+        <div class="bigno">№<b>015</b></div>
+        <dl>
+          <dt>DATE</dt><dd>2021-05-08</dd>
+          <dt>READING</dt><dd>9 min</dd>
+          <dt>TAGS</dt><dd><span class="chip c3">TypeScript</span></dd>
+          <dt>VISIBILITY</dt><dd><span class="vis">PUBLIC</span></dd>
+        </dl>
+        <div class="toc">
+          <dt style="font-family:var(--mono);font-size:10.5px;letter-spacing:0.18em;color:var(--faint);margin-bottom:6px">ON THIS PAGE</dt>
+          <a href="#" onclick="return false">一趟冒泡</a>
+          <a href="#" onclick="return false">几个细节</a>
+        </div>
+      </aside>
+      <article>
+        <div class="art-title">
+          <h1>Type Challenge - 冒泡排序</h1>
+          <div class="bar"></div>
+        </div>
+        <div class="prose">
+          <p>这题要求在类型系统里实现冒泡排序：给定一个元组 <code class="inline">T extends number[]</code>，返回排序后的元组。类型层面上没有循环，所以核心思路是把「一趟冒泡」展开成递归。</p>
+
+          <h2><span class="no">01</span>一趟冒泡：两两比较并交换</h2>
+          <p>先写一个 <code class="inline">Pass</code>，从头到尾扫一遍，相邻逆序就交换。它递归地消费元组的头部两个元素：</p>
+
+          <div class="pre-wrap"><span class="fname">bubble.ts</span>
+<pre><span class="tk-c">// 一趟冒泡：相邻比较，逆序则交换</span>
+<span class="tk-k">type</span> <span class="tk-t">Pass</span>&lt;<span class="tk-t">T</span> <span class="tk-k">extends</span> <span class="tk-t">number</span>[]&gt; =
+  <span class="tk-t">T</span> <span class="tk-k">extends</span> [<span class="tk-k">infer</span> <span class="tk-t">A</span> <span class="tk-k">extends</span> <span class="tk-t">number</span>, <span class="tk-k">infer</span> <span class="tk-t">B</span> <span class="tk-k">extends</span> <span class="tk-t">number</span>, ...<span class="tk-k">infer</span> <span class="tk-t">R</span> <span class="tk-k">extends</span> <span class="tk-t">number</span>[]]
+    ? <span class="tk-t">A</span> <span class="tk-k">extends</span> <span class="tk-s">`${B}`</span>
+      ? [<span class="tk-t">A</span>, ...<span class="tk-t">Pass</span>&lt;[<span class="tk-t">B</span>, ...<span class="tk-t">R</span>]&gt;]
+      : [<span class="tk-t">B</span>, ...<span class="tk-t">Pass</span>&lt;[<span class="tk-t">A</span>, ...<span class="tk-t">R</span>]&gt;]
+    : <span class="tk-t">T</span>;
+
+<span class="tk-k">type</span> <span class="tk-f">BubbleSort</span>&lt;<span class="tk-t">T</span>&gt; = ...<span class="tk-c">// 一趟没交换 → 有序；否则再来一趟</span></pre>
+          </div>
+
+          <blockquote>数字比较不能直接用 <code class="inline">&lt;</code>，得转成字符串长度或逐位比较——类型体操的老朋友了。</blockquote>
+
+          <h2><span class="no">02</span>几个细节</h2>
+          <ul>
+            <li><code class="inline">infer A extends number</code> 收窄推断结果，省掉一层条件判断；</li>
+            <li>终止条件是「这一趟没有发生任何交换」，用深度相等判断；</li>
+            <li>元组很长时记得给 TS 足够的递归深度，或者拆成小测试。</li>
+          </ul>
+          <p>完整题解在仓库 <code class="inline">type-challenges</code> 里，配合测试用例食用更佳。</p>
+        </div>
+
+        <div class="cmt-head"><h2>COMMENTS</h2><span class="n mono">2</span></div>
+        <div class="cmt">
+          <div class="cmt-in">
+            <div class="cmt-h"><span class="who">alice@example.com</span><span>2021-05-09</span></div>
+            <p>Equal 判终止这个思路太优雅了，比数长度 hack 干净。</p>
+          </div>
+        </div>
+        <div class="cmt reply">
+          <div class="cmt-in">
+            <div class="cmt-h"><span class="who">bob@example.com</span><span>2021-05-10</span></div>
+            <p>数长度在负数场景直接爆炸，还是深度相等稳。</p>
+          </div>
+        </div>
+        <form class="cmt-form" onsubmit="return false">
+          <input type="text" placeholder="写下评论…（支持 markdown）" aria-label="新评论">
+          <button type="submit">评论 →</button>
+        </form>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================= PROJECTS ================= -->
+  <section class="page" data-page="projects" hidden>
+    <div class="list-head">
+      <h1>Projects</h1>
+      <span class="count mono">— 5 works / 2 featured</span>
+    </div>
+    <div class="proj">
+      <div class="proj-row">
+        <div class="idx">01<span class="feat">FEATURED</span></div>
+        <div>
+          <h2>blog</h2>
+          <p>本博客——TanStack Start 前台，全量部署在 Cloudflare Workers + D1 上。</p>
+        </div>
+        <div class="tags"><span class="chip c3">TanStack Start</span><span class="chip c2">Cloudflare</span><span class="chip c0">TypeScript</span></div>
+        <div class="links"><a href="#" onclick="return false">CODE ↗</a><a href="#" onclick="return false">DEMO ↗</a></div>
+      </div>
+      <div class="proj-row">
+        <div class="idx">02<span class="feat">FEATURED</span></div>
+        <div>
+          <h2>logseq-plugin-code-formatter</h2>
+          <p>Logseq 插件——用 Prettier 一键格式化代码块，支持 JS / TS / HTML / CSS / Markdown / JSON。</p>
+        </div>
+        <div class="tags"><span class="chip c3">TypeScript</span><span class="chip c0">Logseq</span><span class="chip c2">Prettier</span></div>
+        <div class="links"><a href="#" onclick="return false">CODE ↗</a></div>
+      </div>
+      <div class="proj-row">
+        <div class="idx">03</div>
+        <div>
+          <h2>ocvm</h2>
+          <p>OpenClaw 版本管理器——nvm 风格的 Rust CLI，按项目安装、切换、锁定与回滚版本。</p>
+        </div>
+        <div class="tags"><span class="chip c4">Rust</span><span class="chip c0">CLI</span></div>
+        <div class="links"><a href="#" onclick="return false">CODE ↗</a><a href="#" onclick="return false">DEMO ↗</a></div>
+      </div>
+      <div class="proj-row">
+        <div class="idx">04</div>
+        <div>
+          <h2>agent-presence</h2>
+          <p>把本地编码 agent 的在线状态与 token 用量同步到飞书签名链接预览。</p>
+        </div>
+        <div class="tags"><span class="chip c3">TypeScript</span><span class="chip c0">CLI</span><span class="chip c5">Feishu</span></div>
+        <div class="links"><a href="#" onclick="return false">CODE ↗</a><a href="#" onclick="return false">DEMO ↗</a></div>
+      </div>
+      <div class="proj-row">
+        <div class="idx">05</div>
+        <div>
+          <h2>base64</h2>
+          <p>Moonbit 语言实现的 Base64 编解码库，遵循 RFC 4648。</p>
+        </div>
+        <div class="tags"><span class="chip c1">Moonbit</span></div>
+        <div class="links"><a href="#" onclick="return false">CODE ↗</a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= LOGIN ================= -->
+  <section class="page" data-page="login" hidden>
+    <div class="auth-wrap">
+      <div class="auth-head"><h1>登录</h1><span class="no-index">AUTH / 01</span></div>
+      <div class="auth-card">
+        <form onsubmit="return false">
+          <div class="field"><label for="c-em">Email</label><input id="c-em" type="email" placeholder="you@example.com"></div>
+          <div class="field"><label for="c-pw">Password</label><input id="c-pw" type="password" placeholder="••••••••"></div>
+          <div class="auth-actions">
+            <button class="btn solid" type="submit">登录</button>
+            <button class="btn ghost" type="button">GitHub 登录</button>
+          </div>
+          <p class="err" hidden>邮箱或密码不正确</p>
+        </form>
+        <p class="auth-aside">登录后可读 member 篇目 · <a href="#" onclick="return false">没有账号？注册</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SIGNUP ================= -->
+  <section class="page" data-page="signup" hidden>
+    <div class="auth-wrap">
+      <div class="auth-head"><h1>注册</h1><span class="no-index">AUTH / 02</span></div>
+      <div class="auth-card">
+        <form onsubmit="return false">
+          <div class="field"><label for="c-sem">Email</label><input id="c-sem" type="email" placeholder="you@example.com"></div>
+          <div class="field"><label for="c-spw">Password</label><input id="c-spw" type="password" placeholder="至少 8 位"></div>
+          <div class="field"><label for="c-spw2">Confirm</label><input id="c-spw2" type="password" placeholder="再输一遍"></div>
+          <div class="auth-actions">
+            <button class="btn solid" type="submit">创建账号</button>
+            <button class="btn ghost" type="button">GitHub 注册</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= UNLOCK ================= -->
+  <section class="page" data-page="unlock" hidden>
+    <div class="auth-wrap">
+      <div class="auth-head"><h1>解锁文章</h1><span class="no-index">AUTH / 03</span></div>
+      <div class="auth-card">
+        <div class="lockline">LOCKED ENTRY · №010</div>
+        <form onsubmit="return false">
+          <div class="field"><label for="c-upw">单文密码</label><input id="c-upw" type="password" placeholder="••••••••" autofocus></div>
+          <p class="err">密码错误，请重试（连续失败会触发限流）</p>
+          <div class="auth-actions">
+            <button class="btn solid" type="submit">解锁</button>
+            <a class="btn ghost" href="#" onclick="return false">← 返回文章</a>
+          </div>
+        </form>
+        <p class="auth-aside">验证后 24 小时内免密阅读本篇。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ADMIN ================= -->
+  <section class="page" data-page="admin" hidden>
+    <div class="adm-head">
+      <h1>后台</h1><span class="no-index">ADMIN / DASHBOARD</span>
+      <span class="spacer"></span>
+      <a class="btn solid" href="#" onclick="return false" style="text-decoration:none">＋ 新文章</a>
+      <a class="btn ghost" href="#" onclick="return false" style="text-decoration:none">评论管理</a>
+    </div>
+    <table class="adm">
+      <thead><tr><th>№</th><th>标题</th><th>状态</th><th>可见性</th><th>更新时间</th><th>操作</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">016</td><td class="tt">初探 Github Blocks</td><td class="st pub">● published</td><td class="mono">public</td><td class="mono">2023-02-18</td><td class="ops"><a href="#" onclick="return false">编辑</a><a href="#" onclick="return false">删除</a></td></tr>
+        <tr><td class="mono">015</td><td class="tt">Type Challenge - 冒泡排序</td><td class="st pub">● published</td><td class="mono">public</td><td class="mono">2021-05-08</td><td class="ops"><a href="#" onclick="return false">编辑</a><a href="#" onclick="return false">删除</a></td></tr>
+        <tr><td class="mono">014</td><td class="tt">回顾 2020</td><td class="st pub">● published</td><td class="mono">member</td><td class="mono">2021-02-28</td><td class="ops"><a href="#" onclick="return false">编辑</a><a href="#" onclick="return false">删除</a></td></tr>
+        <tr><td class="mono">010</td><td class="tt">文档书写要点整理</td><td class="st pub">● published</td><td class="mono">password</td><td class="mono">2020-03-01</td><td class="ops"><a href="#" onclick="return false">编辑</a><a href="#" onclick="return false">删除</a></td></tr>
+        <tr><td class="mono">017</td><td class="tt">Cloudflare 迁移实录</td><td class="st draft">○ draft</td><td class="mono">public</td><td class="mono">2026-08-12</td><td class="ops"><a href="#" onclick="return false">编辑</a><a href="#" onclick="return false">删除</a></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ================= EDITOR ================= -->
+  <section class="page" data-page="editor" hidden>
+    <div class="adm-head">
+      <h1>编辑器</h1><span class="no-index">ADMIN / EDITOR · NEW</span>
+    </div>
+    <div class="ed-grid">
+      <aside class="ed-side">
+        <div class="field"><label>Title</label><input type="text" value="Cloudflare 迁移实录"></div>
+        <div class="field"><label>Slug</label><input type="text" value="cloudflare-migration"></div>
+        <div class="field"><label>Visibility</label>
+          <select><option>public</option><option>member</option><option>vip</option><option>admin</option><option>password</option></select>
+        </div>
+        <div class="field"><label>Tags</label><input type="text" value="Cloudflare, D1, Workers"></div>
+      </aside>
+      <div class="ed-main">
+        <div class="field"><label>Content — Markdown</label>
+          <textarea spellcheck="false">## 为什么要迁
+
+Postgres 免费额度撑不住了……
+
+```ts
+export default { fetch } = ...
+```</textarea>
+        </div>
+        <div class="ed-foot">
+          <button class="btn ghost" type="button">保存草稿</button>
+          <button class="btn solid" type="button">发布</button>
+          <span class="stat">642 chars · 3 min read · autosaved 12:41</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 404 ================= -->
+  <section class="page" data-page="404" hidden>
+    <div class="nf">
+      <div class="sec-label" style="margin-bottom:10px">ERROR / NOT FOUND</div>
+      <div class="code">4<b>0</b>4</div>
+      <p>你闯入了无人之境。</p>
+      <div style="margin-top:26px"><a class="btn" href="#" onclick="return false" style="text-decoration:none">← 返回博客</a></div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ⌘K palette -->
+<div class="pal-veil" id="pal-veil" hidden>
+  <div class="pal" role="dialog" aria-label="搜索文章">
+    <div class="pal-in">
+      <span class="sec-label" style="margin:0">FIND</span>
+      <input type="text" id="pal-input" placeholder="搜索文章…" aria-label="搜索">
+    </div>
+    <div class="pal-list">
+      <div class="pal-item sel"><span class="d">015</span><span class="t">Type Challenge - 冒泡排序</span><span class="chip c3">TypeScript</span></div>
+      <div class="pal-item"><span class="d">012</span><span class="t">LeetCode 中国区 TypeScript 面试题题解</span><span class="chip c3">TypeScript</span></div>
+      <div class="pal-item"><span class="d">008</span><span class="t">Codeforces Round#605(Div. 3) D/E/F 题解</span><span class="chip c4">DP</span></div>
+      <div class="pal-item"><span class="d">005</span><span class="t">Codeforces 1149B Three Religions</span><span class="chip c4">DP</span></div>
+    </div>
+    <div class="pal-foot">↑↓ navigate · ↵ open · esc close — 权限按当前身份过滤</div>
+  </div>
+</div>
+
+<script>
+  // page switching
+  var tabs = document.querySelectorAll('.pt-tab');
+  var pages = document.querySelectorAll('.page');
+  function go(id) {
+    pages.forEach(function(p){ p.hidden = p.dataset.page !== id; });
+    tabs.forEach(function(t){ t.classList.toggle('active', t.dataset.target === id); });
+    window.scrollTo(0, 0);
+    history.replaceState(null, '', '#' + id);
+  }
+  tabs.forEach(function(t){ if (t.dataset.target) t.addEventListener('click', function(){ go(t.dataset.target); }); });
+  var h = location.hash.slice(1);
+  if (h && document.querySelector('.page[data-page="' + h + '"]')) go(h);
+  window.addEventListener('hashchange', function(){
+    var h = location.hash.slice(1);
+    if (h && document.querySelector('.page[data-page="' + h + '"]')) go(h);
+  });
+
+  // theme
+  var tbtn = document.getElementById('theme-toggle');
+  tbtn.addEventListener('click', function(){
+    var el = document.documentElement;
+    var dark = el.getAttribute('data-theme') === 'dark';
+    el.setAttribute('data-theme', dark ? 'light' : 'dark');
+    tbtn.textContent = dark ? '◐ Dark' : '◑ Light';
+  });
+
+  // palette
+  var veil = document.getElementById('pal-veil');
+  var input = document.getElementById('pal-input');
+  document.getElementById('pal-open').addEventListener('click', function(){ veil.hidden = false; input.focus(); });
+  document.addEventListener('keydown', function(e){
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); veil.hidden = false; input.focus(); }
+    if (e.key === 'Escape') veil.hidden = true;
+  });
+  veil.addEventListener('click', function(e){ if (e.target === veil) veil.hidden = true; });
+</script>
+</body>
+</html>
