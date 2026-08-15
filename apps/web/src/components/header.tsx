@@ -60,10 +60,18 @@ export function Header() {
             </Link>
           ) : (
             <>
-              <Link to='/login' className='opacity-70 hover:opacity-100'>
+              <Link
+                to='/login'
+                data-testid='nav-login'
+                className='opacity-70 hover:opacity-100'
+              >
                 Login
               </Link>
-              <Link to='/signup' className='opacity-70 hover:opacity-100'>
+              <Link
+                to='/signup'
+                data-testid='nav-signup'
+                className='opacity-70 hover:opacity-100'
+              >
                 Sign Up
               </Link>
             </>
