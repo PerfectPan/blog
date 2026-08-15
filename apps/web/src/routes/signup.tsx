@@ -35,25 +35,26 @@ function SignUpPage() {
 
   if (sessionData?.user?.id || isSessionPending) {
     return (
-      <section className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-        <p className='opacity-70'>Checking session...</p>
-      </section>
+      <div className='th-page'>
+        <p className='th-comment'># checking session…</p>
+      </div>
     );
   }
 
   return (
-    <section className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-      <h1 className='mb-2 text-3xl font-black'>注册</h1>
-      <p className='mb-6 opacity-70'>注册后默认角色为 member，可在后台升权。</p>
-
-      {error ? (
-        <p role='alert' className='mb-4 text-sm text-red-700 dark:text-red-300'>
-          {error}
-        </p>
-      ) : null}
-
+    <div className='th-page'>
+      <div className='th-prompt'>
+        <span className='th-prompt-u'>guest</span>
+        <span className='th-prompt-at'>@</span>
+        <span className='th-prompt-h'>perfectpan.org</span>{' '}
+        <span className='th-prompt-p'>~ %</span>{' '}
+        <span className='th-cmd'>useradd --join</span>
+      </div>
+      <p className='th-out th-comment mt-2'>
+        # 注册成为 member，可读 member 可见性的文章。
+      </p>
       <form
-        className='grid max-w-[420px] gap-3'
+        className='mt-4'
         method='post'
         onSubmit={(event) => {
           event.preventDefault();
@@ -75,53 +76,72 @@ function SignUpPage() {
           });
         }}
       >
-        <label htmlFor='name' className='font-semibold'>
-          Name
-        </label>
-        <input
-          id='name'
-          name='name'
-          type='text'
-          required
-          autoComplete='name'
-          className='rounded-md border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-wash-dark'
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-        />
-        <label htmlFor='email' className='font-semibold'>
-          Email
-        </label>
-        <input
-          id='email'
-          name='email'
-          type='email'
-          required
-          autoComplete='email'
-          className='rounded-md border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-wash-dark'
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-        />
-        <label htmlFor='password' className='font-semibold'>
-          Password
-        </label>
-        <input
-          id='password'
-          name='password'
-          type='password'
-          required
-          autoComplete='new-password'
-          className='rounded-md border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-wash-dark'
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-        />
-        <button
-          type='submit'
-          className='rounded-md bg-black px-4 py-2 font-semibold text-white transition-opacity hover:opacity-90 dark:bg-neutral-900'
-          disabled={isPending}
-        >
-          {isPending ? 'Creating account...' : 'Sign Up'}
-        </button>
+        <div className='th-field'>
+          <label htmlFor='name'>name</label>
+          <input
+            id='name'
+            name='name'
+            type='text'
+            required
+            autoComplete='name'
+            className='th-input'
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+          />
+        </div>
+        <div className='th-field'>
+          <label htmlFor='email'>email</label>
+          <input
+            id='email'
+            name='email'
+            type='email'
+            required
+            autoComplete='email'
+            className='th-input'
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
+        </div>
+        <div className='th-field'>
+          <label htmlFor='password'>password</label>
+          <input
+            id='password'
+            name='password'
+            type='password'
+            required
+            autoComplete='new-password'
+            className='th-input'
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+          />
+        </div>
+        <div className='mt-5 flex flex-wrap gap-3'>
+          <button
+            type='submit'
+            className='th-btn th-btn-primary'
+            disabled={isPending}
+          >
+            {isPending ? 'creating…' : 'create account'}
+          </button>
+          <button
+            type='button'
+            className='th-btn'
+            onClick={async () => {
+              setError(null);
+              const result = await authClient.signIn.social({
+                provider: 'github',
+                callbackURL: '/blog',
+              });
+              if (result.error) {
+                setError(result.error.message ?? 'GitHub 注册失败');
+              }
+            }}
+          >
+            continue with github
+          </button>
+        </div>
+        {error ? <p className='th-err'>{error}</p> : null}
       </form>
-    </section>
+    </div>
   );
 }

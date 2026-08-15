@@ -77,16 +77,41 @@ function BlogDetailPage() {
   });
 
   return (
-    <div className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-      <div className='m-auto mb-8 flex flex-col gap-2'>
-        <div className='text-3xl font-black'>{post.title}</div>
-        <div className='opacity-60'>{date}</div>
+    <div className='th-page'>
+      <div className='th-prompt'>
+        <span className='th-prompt-u'>perfectpan</span>
+        <span className='th-prompt-at'>@</span>
+        <span className='th-prompt-h'>blog</span>{' '}
+        <span className='th-prompt-p'>~/posts %</span>{' '}
+        <span className='th-cmd'>
+          cat {new Date(post.publishedAt).getFullYear()}/{post.slug}.md
+        </span>
+      </div>
+
+      <div className='th-art-head'>
+        <h1 className='th-art-title'>{post.title}</h1>
+        <div className='th-art-meta'>
+          <span>{date}</span>
+          <span>·</span>
+          <span>{post.visibility}</span>
+          {post.tags.length > 0 ? (
+            <>
+              <span>·</span>
+              <span>#{post.tags.join(' #')}</span>
+            </>
+          ) : null}
+        </div>
       </div>
       <Markdown content={post.contentMdx} />
-      <Link to='/blog' className='mt-4 inline-block'>
-        <span className='opacity-70'>&gt;&nbsp;&nbsp;&nbsp;</span>
-        <span className='underline opacity-70 hover:opacity-100'>cd ..</span>
-      </Link>
+      <div className='th-prompt mt-6'>
+        <span className='th-prompt-u'>perfectpan</span>
+        <span className='th-prompt-at'>@</span>
+        <span className='th-prompt-h'>blog</span>{' '}
+        <span className='th-prompt-p'>~/posts %</span>{' '}
+        <Link to='/blog' className='th-cmd th-cmd-dim'>
+          cd ..
+        </Link>
+      </div>
       <Comments
         key={post.slug}
         slug={post.slug}

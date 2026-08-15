@@ -144,3 +144,744 @@ html.dark ::-webkit-scrollbar-thumb {
 html.dark ::-webkit-scrollbar-thumb:hover {
   background: rgb(148 163 184 / 0.55);
 }
+
+/* =====================================================================
+ * THEME A — Terminal Session (UX redesign direction A)
+ * The site is one persistent terminal session: title bar header, tmux
+ * status bar footer, `ls -la` post list with permission bits encoding
+ * visibility. Dark-native: html renders with .dark by default (root.tsx)
+ * so existing dark: variants and shiki dual-themes stay coherent.
+ * =================================================================== */
+:root,
+.dark {
+  /* shadcn token layer → terminal palette (search palette & dialogs) */
+  --background: 210 29% 7%;
+  --foreground: 210 20% 83%;
+  --card: 211 30% 10%;
+  --card-foreground: 210 20% 83%;
+  --popover: 211 30% 9%;
+  --popover-foreground: 210 20% 83%;
+  --primary: 39 77% 60%;
+  --primary-foreground: 30 50% 8%;
+  --secondary: 211 30% 13%;
+  --secondary-foreground: 210 20% 83%;
+  --muted: 211 30% 13%;
+  --muted-foreground: 208 14% 56%;
+  --accent: 211 30% 15%;
+  --accent-foreground: 210 20% 88%;
+  --destructive: 2 66% 65%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 211 26% 17%;
+  --input: 211 26% 17%;
+  --ring: 39 77% 60%;
+  --radius: 0.375rem;
+}
+
+:root {
+  --t-bg: #0a0f14;
+  --t-term: #0c1218;
+  --t-panel: #101923;
+  --t-line: #1d2a37;
+  --t-text: #c9d4de;
+  --t-dim: #71828f;
+  --t-faint: #465666;
+  --t-amber: #e9b44c;
+  --t-cyan: #6fc5d8;
+  --t-green: #7cbf8b;
+  --t-red: #e06c75;
+  --t-violet: #a78bc4;
+  --t-sel: #16222e;
+  --t-mono:
+    ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas,
+    "PingFang SC", "Microsoft YaHei", monospace;
+}
+
+html,
+html.dark {
+  background-color: var(--t-bg);
+  scrollbar-color: #24313e var(--t-bg);
+}
+
+html body {
+  font-family: var(--t-mono);
+  background-color: var(--t-bg);
+  color: var(--t-text);
+  font-size: 14.5px;
+  line-height: 1.75;
+}
+
+::selection {
+  background: rgba(233, 180, 76, 0.25);
+}
+
+/* ---------- shell: title bar / main / tmux bar ---------- */
+.th-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+}
+
+.th-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--t-line);
+  background: linear-gradient(#0e1620, #0c1218);
+}
+
+.th-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+}
+.th-dot-r {
+  background: #e5544b;
+}
+.th-dot-y {
+  background: #d8a03c;
+}
+.th-dot-g {
+  background: #47a258;
+}
+
+.th-term-title {
+  margin-left: 10px;
+  color: var(--t-dim);
+  font-size: 12.5px;
+}
+.th-term-title b {
+  color: var(--t-text);
+  font-weight: 600;
+}
+.th-term-title .th-path {
+  color: var(--t-cyan);
+}
+
+.th-main {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--t-term);
+}
+
+.th-page {
+  width: 100%;
+  max-width: 1020px;
+  margin: 0 auto;
+  padding: 26px 22px 46px;
+}
+
+/* ---------- tmux footer ---------- */
+.th-tmux {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  padding: 6px 14px;
+  border-top: 1px solid var(--t-line);
+  background: #10161d;
+  font-size: 12.5px;
+}
+.th-tmux-sess {
+  color: #0a0f14;
+  background: var(--t-green);
+  padding: 1px 8px;
+  border-radius: 3px;
+  margin-right: 8px;
+  font-weight: 700;
+}
+.th-tmux-win {
+  color: var(--t-dim);
+  padding: 1px 8px;
+  border-radius: 3px;
+}
+a.th-tmux-win:hover {
+  color: var(--t-text);
+  text-decoration: none;
+}
+.th-tmux-win.th-on {
+  background: var(--t-term);
+  color: var(--t-amber);
+  box-shadow: inset 0 0 0 1px var(--t-line);
+}
+.th-tmux-right {
+  margin-left: auto;
+  color: var(--t-faint);
+  display: flex;
+  gap: 14px;
+}
+
+/* ---------- prompt primitives ---------- */
+.th-prompt {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+.th-prompt-u {
+  color: var(--t-cyan);
+}
+.th-prompt-at {
+  color: var(--t-faint);
+}
+.th-prompt-h {
+  color: var(--t-green);
+}
+.th-prompt-p {
+  color: var(--t-amber);
+}
+.th-cmd {
+  color: var(--t-text);
+}
+.th-cmd-dim {
+  color: var(--t-dim);
+}
+.th-out {
+  margin: 4px 0;
+}
+.th-comment {
+  color: var(--t-faint);
+}
+.th-hr {
+  border: 0;
+  border-top: 1px dashed var(--t-line);
+  margin: 20px 0;
+}
+
+/* ---------- titlebar tools ---------- */
+.th-tools {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.th-tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--t-dim);
+  background: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: inherit;
+}
+.th-tool-btn:hover {
+  color: var(--t-amber);
+  text-decoration: none;
+}
+.th-user-chip {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--t-line);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 12px;
+  color: var(--t-dim);
+}
+@media (min-width: 768px) {
+  .th-user-chip {
+    display: inline-flex;
+  }
+}
+.th-role-badge {
+  background: var(--t-amber);
+  color: #171106;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 7px;
+}
+
+/* ---------- buttons / forms ---------- */
+.th-btn {
+  font-family: var(--t-mono);
+  font-size: 13.5px;
+  cursor: pointer;
+  background: var(--t-panel);
+  color: var(--t-text);
+  border: 1px solid var(--t-line);
+  border-radius: 6px;
+  padding: 9px 18px;
+  transition:
+    border-color 0.12s,
+    color 0.12s;
+}
+.th-btn:hover {
+  border-color: var(--t-amber);
+  color: var(--t-amber);
+}
+.th-btn-primary {
+  background: var(--t-amber);
+  border-color: var(--t-amber);
+  color: #171106;
+  font-weight: 700;
+}
+.th-btn-primary:hover {
+  background: #f0c268;
+  color: #171106;
+}
+
+.th-field {
+  margin: 14px 0;
+  max-width: 460px;
+}
+.th-field label {
+  display: block;
+  color: var(--t-dim);
+  font-size: 13px;
+  margin-bottom: 5px;
+}
+.th-field label::before {
+  content: "▸ ";
+  color: var(--t-amber);
+}
+.th-input {
+  font-family: var(--t-mono);
+  font-size: 14px;
+  color: var(--t-text);
+  background: var(--t-panel);
+  border: 1px solid var(--t-line);
+  border-radius: 6px;
+  padding: 9px 12px;
+  width: 100%;
+}
+.th-input::placeholder {
+  color: var(--t-faint);
+}
+.th-input:focus {
+  outline: none;
+  border-color: var(--t-amber);
+  box-shadow: 0 0 0 2px rgba(233, 180, 76, 0.15);
+}
+.th-err {
+  color: var(--t-red);
+  margin: 10px 0;
+  font-size: 13.5px;
+}
+.th-err::before {
+  content: "✗ ";
+}
+
+/* ---------- home ---------- */
+.th-hero-name {
+  font-size: 21px;
+  color: #eaf1f7;
+  font-weight: 700;
+  margin-top: 12px;
+}
+.th-hero-desc {
+  color: var(--t-dim);
+  max-width: 62ch;
+  margin-top: 6px;
+}
+.th-figlet {
+  white-space: pre;
+  color: var(--t-faint);
+  line-height: 1.25;
+  font-size: 11px;
+  margin-top: 18px;
+  user-select: none;
+}
+.th-figlet b {
+  color: var(--t-amber);
+  font-weight: 400;
+}
+.th-home-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+  margin-top: 22px;
+}
+.th-home-links a {
+  display: block;
+  border: 1px solid var(--t-line);
+  background: var(--t-panel);
+  padding: 14px 16px;
+  border-radius: 6px;
+  color: var(--t-text);
+}
+.th-home-links a:hover {
+  border-color: var(--t-amber);
+  text-decoration: none;
+  box-shadow: 0 0 18px rgba(233, 180, 76, 0.07);
+}
+.th-home-links .k {
+  color: var(--t-amber);
+}
+.th-home-links small {
+  display: block;
+  color: var(--t-dim);
+  margin-top: 2px;
+}
+
+/* ---------- ls table (blog list) ---------- */
+.th-ls {
+  margin-top: 12px;
+}
+.th-ls-row {
+  display: grid;
+  grid-template-columns: 11ch 7ch 8ch 1fr auto;
+  gap: 0 14px;
+  padding: 5px 8px;
+  border-radius: 4px;
+  align-items: baseline;
+}
+.th-ls-head {
+  color: var(--t-faint);
+  font-size: 12.5px;
+}
+a.th-ls-row {
+  color: var(--t-text);
+}
+a.th-ls-row:hover {
+  background: var(--t-sel);
+  text-decoration: none;
+}
+.th-ls-year {
+  grid-column: 1 / -1;
+  color: var(--t-amber);
+  margin-top: 20px;
+  font-weight: 700;
+}
+.th-ls-year::before {
+  content: "# ";
+  color: var(--t-faint);
+  font-weight: 400;
+}
+.th-perm {
+  letter-spacing: 0.08em;
+}
+.th-perm-pub {
+  color: var(--t-green);
+}
+.th-perm-mem {
+  color: var(--t-cyan);
+}
+.th-perm-vip {
+  color: var(--t-violet);
+}
+.th-perm-pw {
+  color: var(--t-red);
+}
+.th-perm-adm {
+  color: var(--t-dim);
+}
+.th-ls-date,
+.th-ls-vis {
+  color: var(--t-dim);
+  font-size: 13px;
+}
+.th-ls-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.th-ls-tags {
+  color: var(--t-faint);
+  font-size: 12.5px;
+}
+.th-legend {
+  margin-top: 26px;
+  color: var(--t-faint);
+  font-size: 12.5px;
+  line-height: 1.9;
+}
+.th-pager {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  margin-top: 26px;
+  color: var(--t-dim);
+  font-size: 13.5px;
+}
+.th-pager a {
+  color: var(--t-amber);
+}
+.th-pager .th-pager-off {
+  color: var(--t-faint);
+  opacity: 0.6;
+}
+.th-cd {
+  color: var(--t-dim);
+}
+.th-cd:hover {
+  color: var(--t-text);
+}
+
+@media (max-width: 720px) {
+  .th-ls-row {
+    grid-template-columns: 11ch 7ch 1fr;
+  }
+  .th-ls-head,
+  .th-ls-vis,
+  .th-ls-tags {
+    display: none;
+  }
+}
+
+/* projects ls rows: star / project+desc / stack / links */
+.th-ls-proj {
+  display: grid;
+  grid-template-columns: 4ch 1fr 18ch auto;
+  gap: 0 16px;
+  padding: 8px;
+  border-radius: 4px;
+  align-items: baseline;
+}
+.th-ls-proj-head {
+  color: var(--t-faint);
+  font-size: 12.5px;
+}
+@media (max-width: 720px) {
+  .th-ls-proj {
+    grid-template-columns: 4ch 1fr;
+  }
+  .th-ls-proj .th-ls-tags,
+  .th-ls-proj .th-ls-link {
+    display: none;
+  }
+}
+
+/* ---------- article ---------- */
+.th-art-head {
+  margin: 16px 0 26px;
+}
+.th-art-title {
+  font-size: 24px;
+  color: #eaf1f7;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.th-art-meta {
+  color: var(--t-dim);
+  margin-top: 6px;
+  font-size: 13px;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* markdown body (article prose) */
+.md {
+  max-width: 74ch;
+}
+.md p {
+  margin: 14px 0;
+  color: var(--t-text);
+}
+.md h2 {
+  font-size: 17px;
+  color: #eaf1f7;
+  font-weight: 700;
+  margin: 30px 0 10px;
+  scroll-margin-top: 20px;
+}
+.md h2::before {
+  content: "## ";
+  color: var(--t-faint);
+  font-weight: 400;
+}
+.md h2 a {
+  color: inherit;
+}
+.md ul {
+  margin: 12px 0 12px 22px;
+  list-style: disc;
+}
+.md li {
+  margin: 4px 0;
+}
+.md li::marker {
+  color: var(--t-amber);
+}
+.md a {
+  color: var(--t-cyan);
+}
+.md a:hover {
+  text-decoration: underline;
+}
+.md blockquote {
+  border-left: 2px solid var(--t-amber);
+  background: var(--t-panel);
+  padding: 10px 16px;
+  margin: 16px 0;
+  color: var(--t-dim);
+  border-radius: 0 6px 6px 0;
+}
+.th-cmt-body code {
+  background: var(--t-panel);
+  border: 1px solid var(--t-line);
+  border-radius: 4px;
+  padding: 0 5px;
+  font-size: 0.9em;
+  color: var(--t-amber);
+}
+.md code.md-inline {
+  background: var(--t-panel);
+  border: 1px solid var(--t-line);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  color: var(--t-amber);
+}
+.th-code {
+  position: relative;
+  margin: 18px 0;
+}
+.th-code-copy {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--t-line);
+  background: rgba(16, 25, 35, 0.85);
+  color: var(--t-dim);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-family: var(--t-mono);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.th-code:hover .th-code-copy,
+.th-code-copy:focus-visible {
+  opacity: 1;
+}
+@media not (hover: hover) {
+  .th-code-copy {
+    opacity: 0.75;
+  }
+}
+.md pre.th-pre {
+  background: #0a1016;
+  border: 1px solid var(--t-line);
+  border-radius: 8px;
+  padding: 18px;
+  overflow-x: auto;
+  line-height: 1.7;
+  font-size: 13px;
+  margin: 0;
+}
+/* shiki writes inline light bg/color on <pre>; force the terminal panel. */
+.md pre.th-pre {
+  /* biome-ignore lint/complexity/noImportantStyles: shiki inline light bg must be overridden. */
+  background: #0a1016 !important;
+  /* biome-ignore lint/complexity/noImportantStyles: shiki inline light color must be overridden. */
+  color: var(--t-text) !important;
+}
+.md .th-pre code {
+  background: none;
+  padding: 0;
+}
+
+/* ---------- comments ---------- */
+.th-cmt {
+  border: 1px solid var(--t-line);
+  border-radius: 8px;
+  margin: 12px 0;
+  overflow: hidden;
+}
+.th-cmt-head {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  background: var(--t-panel);
+  padding: 8px 14px;
+  font-size: 13px;
+  color: var(--t-dim);
+  border-bottom: 1px solid var(--t-line);
+}
+.th-cmt-head .who {
+  color: var(--t-text);
+}
+.th-cmt-body {
+  padding: 10px 14px;
+}
+.th-cmt-body p {
+  margin: 0 0 8px;
+}
+.th-cmt-body p:last-child {
+  margin-bottom: 0;
+}
+.th-cmt-body blockquote {
+  border-left: 2px solid var(--t-line);
+  padding-left: 12px;
+  color: var(--t-dim);
+}
+.th-cmt-ops {
+  display: flex;
+  gap: 14px;
+  padding: 0 14px 10px;
+  font-size: 12px;
+}
+.th-cmt-ops button {
+  color: var(--t-dim);
+  cursor: pointer;
+  background: none;
+  font-family: inherit;
+}
+.th-cmt-ops button:hover {
+  color: var(--t-amber);
+}
+.th-cmt-ops .del:hover {
+  color: var(--t-red);
+}
+.th-cmt-replies {
+  border-top: 1px dashed var(--t-line);
+  background: rgba(16, 25, 35, 0.45);
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.th-cmt-reply {
+  border-left: 2px solid var(--t-line);
+  padding-left: 12px;
+}
+.th-cmt-form textarea {
+  width: 100%;
+  resize: vertical;
+  font-family: var(--t-mono);
+  font-size: 13.5px;
+  color: var(--t-text);
+  background: var(--t-panel);
+  border: 1px solid var(--t-line);
+  border-radius: 6px;
+  padding: 9px 12px;
+}
+.th-cmt-form textarea:focus {
+  outline: none;
+  border-color: var(--t-amber);
+}
+.th-cmt-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 8px;
+}
+.th-cmt-hint {
+  font-size: 12px;
+  color: var(--t-faint);
+}
+
+/* ---------- misc ---------- */
+.th-nf-big {
+  color: var(--t-red);
+}
+.th-devhint {
+  border: 1px dashed rgba(233, 180, 76, 0.5);
+  background: rgba(233, 180, 76, 0.06);
+  color: var(--t-amber);
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  margin-bottom: 18px;
+}

@@ -26,7 +26,7 @@ export const Route = createRootRoute({
       },
       {
         name: 'theme-color',
-        content: '#000000',
+        content: '#0A0F14',
       },
     ],
     links: [
@@ -38,11 +38,17 @@ export const Route = createRootRoute({
   errorComponent: ({ error }) => (
     <RootDocument>
       <AppLayout>
-        <div className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-          <h2 className='mb-4 text-3xl'>Request Failed</h2>
-          <p className='mb-4 opacity-70'>{String(error)}</p>
-          <Link to='/blog' className='opacity-70 hover:opacity-100'>
-            Back to blog
+        <div className='th-page'>
+          <div className='th-prompt'>
+            <span className='th-prompt-u'>guest</span>
+            <span className='th-prompt-at'>@</span>
+            <span className='th-prompt-h'>perfectpan.org</span>{' '}
+            <span className='th-prompt-p'>~ %</span>{' '}
+            <span className='th-cmd'>curl -I $(hostname)</span>
+          </div>
+          <p className='th-out th-nf-big'>Request failed: {String(error)}</p>
+          <Link to='/blog' className='th-cd'>
+            cd ~/blog
           </Link>
         </div>
       </AppLayout>
@@ -51,12 +57,24 @@ export const Route = createRootRoute({
   notFoundComponent: () => (
     <RootDocument>
       <AppLayout>
-        <div className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-          <h2 className='mb-4 text-3xl'>404 Not Found</h2>
-          <p className='mb-4 opacity-70'>你闯入了无人之境...</p>
-          <Link to='/blog' className='opacity-70 hover:opacity-100'>
-            Back to blog
-          </Link>
+        <div className='th-page'>
+          <div className='th-prompt'>
+            <span className='th-prompt-u'>guest</span>
+            <span className='th-prompt-at'>@</span>
+            <span className='th-prompt-h'>perfectpan.org</span>{' '}
+            <span className='th-prompt-p'>~ %</span>{' '}
+            <span className='th-cmd'>cd /nowhere</span>
+          </div>
+          <p className='th-out th-nf-big'>
+            bash: cd: /nowhere: No such file or directory
+          </p>
+          <p className='th-out th-comment'># 你闯入了无人之境。</p>
+          <p className='th-out mt-4'>
+            <Link to='/blog' className='th-cd'>
+              cd ~/blog
+            </Link>
+            <span className='th-comment'> ← 回到博客列表</span>
+          </p>
         </div>
       </AppLayout>
     </RootDocument>
@@ -86,7 +104,9 @@ function RootComponent() {
 
 function RootDocument({ children }: { children: ReactNode }) {
   return (
-    <html lang='zh-CN'>
+    // Terminal theme is dark-native: render with .dark so existing dark:
+    // variants and shiki dual-themes apply without a client-side flash.
+    <html lang='zh-CN' className='dark'>
       <head>
         <HeadContent />
       </head>
