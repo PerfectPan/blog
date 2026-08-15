@@ -53,6 +53,7 @@ export function Header() {
           {sessionUser ? (
             <Link
               to='/logout'
+              data-testid='nav-logout'
               className='inline-flex items-center gap-1 rounded-md border border-slate-300 px-2 py-1 text-sm opacity-85 transition-opacity hover:opacity-100 dark:border-slate-600'
             >
               <LogOut size={14} />
