@@ -52,11 +52,13 @@ export function Header() {
             </span>
           ) : null}
           {sessionUser ? (
-            <Link to='/logout' aria-label='Logout'>
+            <Link to='/logout' data-testid='nav-logout' aria-label='Logout'>
               <LogOut size={15} />
             </Link>
           ) : (
-            <Link to='/login'>入</Link>
+            <Link to='/login' data-testid='nav-login'>
+              入
+            </Link>
           )}
           <button
             type='button'
