@@ -26,7 +26,7 @@ export const Route = createRootRoute({
       },
       {
         name: 'theme-color',
-        content: '#000000',
+        content: '#FFFFFF',
       },
     ],
     links: [
