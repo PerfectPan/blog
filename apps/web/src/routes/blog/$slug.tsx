@@ -1,10 +1,5 @@
 import { type CommentThread, canAccessVisibility } from '@blog/shared';
-import {
-  createFileRoute,
-  Link,
-  notFound,
-  redirect,
-} from '@tanstack/react-router';
+import { createFileRoute, notFound, redirect } from '@tanstack/react-router';
 import { Comments } from '../../components/comments.js';
 import { Markdown } from '../../components/markdown.js';
 import { getBlogPostServerFn } from '../../lib/blog-service.js';
@@ -70,23 +65,33 @@ function BlogDetailPage() {
     return null;
   }
 
-  const date = new Date(post.publishedAt).toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  });
+  const date = new Date(post.publishedAt).toISOString().slice(0, 10);
 
   return (
-    <div className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-      <div className='m-auto mb-8 flex flex-col gap-2'>
-        <div className='text-3xl font-black'>{post.title}</div>
-        <div className='opacity-60'>{date}</div>
+    <div className='f-page'>
+      <div className='f-page-head' style={{ paddingBottom: 14 }}>
+        <span className='f-banner'>POST</span>
       </div>
-      <Markdown content={post.contentMdx} />
-      <Link to='/blog' className='mt-4 inline-block'>
-        <span className='opacity-70'>&gt;&nbsp;&nbsp;&nbsp;</span>
-        <span className='underline opacity-70 hover:opacity-100'>cd ..</span>
-      </Link>
+      <article className='f-card f-art'>
+        <h1>{post.title}</h1>
+        <div className='f-meta'>
+          <span className='f-sticker'>{date}</span>
+          <span
+            className='f-sticker'
+            style={{
+              background: post.visibility === 'public' ? '#21CBA8' : '#FF6B35',
+              color: post.visibility === 'public' ? '#141414' : '#fff',
+            }}
+          >
+            {post.visibility.toUpperCase()}
+          </span>
+        </div>
+        <Markdown content={post.contentMdx} />
+      </article>
+
+      <div className='f-page-head' style={{ paddingBottom: 10 }}>
+        <span className='f-banner'>COMMENTS · {data.comments.total}</span>
+      </div>
       <Comments
         key={post.slug}
         slug={post.slug}
