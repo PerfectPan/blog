@@ -54,15 +54,20 @@ export function Header() {
           </span>
         ) : null}
         {sessionUser ? (
-          <Link to='/logout' className='e-tool' aria-label='Logout'>
+          <Link
+            to='/logout'
+            data-testid='nav-logout'
+            className='e-tool'
+            aria-label='Logout'
+          >
             <LogOut size={12} aria-hidden='true' />
           </Link>
         ) : (
           <>
-            <Link to='/login' className='e-tool'>
+            <Link to='/login' data-testid='nav-login' className='e-tool'>
               SIGN IN
             </Link>
-            <Link to='/signup' className='e-tool'>
+            <Link to='/signup' data-testid='nav-signup' className='e-tool'>
               SIGN UP
             </Link>
           </>
