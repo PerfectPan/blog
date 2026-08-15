@@ -194,6 +194,7 @@ html.dark ::-webkit-scrollbar-thumb:hover {
   --t-tmux-bg: #eeebe2;
   --t-tmux-ink: #33363b;
   --t-pre-bg: #fbfaf7;
+  --t-heading: #2b2f36;
   --t-amber-ink: #fbfaf7;
   --t-mono:
     ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas,
@@ -241,6 +242,7 @@ html.dark {
   --t-tmux-bg: #10161d;
   --t-tmux-ink: #0a0f14;
   --t-pre-bg: #0a1016;
+  --t-heading: #eaf1f7;
   --t-amber-ink: #171106;
 }
 
@@ -326,7 +328,7 @@ html body {
   flex-wrap: wrap;
   padding: 6px 14px;
   border-top: 1px solid var(--t-line);
-  background: #10161d;
+  background: var(--t-tmux-bg);
   font-size: 12.5px;
 }
 .th-tmux-sess {
@@ -515,7 +517,7 @@ a.th-tmux-win:hover {
 /* ---------- home ---------- */
 .th-hero-name {
   font-size: 21px;
-  color: #eaf1f7;
+  color: var(--t-heading);
   font-weight: 700;
   margin-top: 12px;
 }
@@ -698,7 +700,7 @@ a.th-ls-row:hover {
 }
 .th-art-title {
   font-size: 24px;
-  color: #eaf1f7;
+  color: var(--t-heading);
   font-weight: 700;
   line-height: 1.4;
 }
@@ -721,7 +723,7 @@ a.th-ls-row:hover {
 }
 .md h2 {
   font-size: 17px;
-  color: #eaf1f7;
+  color: var(--t-heading);
   font-weight: 700;
   margin: 30px 0 10px;
   scroll-margin-top: 20px;
@@ -807,7 +809,7 @@ a.th-ls-row:hover {
   }
 }
 .md pre.th-pre {
-  background: #0a1016;
+  background: var(--t-pre-bg);
   border: 1px solid var(--t-line);
   border-radius: 8px;
   padding: 18px;
