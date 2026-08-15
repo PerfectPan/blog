@@ -41,16 +41,21 @@ export function Header() {
           </span>
         ) : null}
         {sessionUser ? (
-          <Link to='/logout' className='th-tool-btn' aria-label='Logout'>
+          <Link
+            to='/logout'
+            data-testid='nav-logout'
+            className='th-tool-btn'
+            aria-label='Logout'
+          >
             <LogOut size={15} aria-hidden='true' />
             <span className='hidden sm:inline'>logout</span>
           </Link>
         ) : (
           <>
-            <Link to='/login' className='th-tool-btn'>
+            <Link to='/login' data-testid='nav-login' className='th-tool-btn'>
               login
             </Link>
-            <Link to='/signup' className='th-tool-btn'>
+            <Link to='/signup' data-testid='nav-signup' className='th-tool-btn'>
               signup
             </Link>
           </>
