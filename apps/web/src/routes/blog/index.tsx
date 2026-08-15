@@ -48,17 +48,6 @@ function getDevScopeHint(sessionUser: SessionUser | null | undefined): string {
   return '当前身份：member；可见范围：public/member';
 }
 
-const CN_DIGITS = ['〇', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
-
-/** TOC page number in Chinese digits, zero-padded to 3 (〇一六). */
-function tocNumber(n: number): string {
-  return String(n)
-    .padStart(3, '0')
-    .split('')
-    .map((d) => CN_DIGITS[Number(d)])
-    .join('');
-}
-
 const NOTE_CLASS: Record<PostSummary['visibility'], string> = {
   public: '',
   member: 'j-note mem',
@@ -68,10 +57,10 @@ const NOTE_CLASS: Record<PostSummary['visibility'], string> = {
 };
 const NOTE_TEXT: Record<PostSummary['visibility'], string> = {
   public: '',
-  member: '会员可读',
+  member: '会员',
   vip: 'VIP',
-  admin: '编者',
-  password: '密笈',
+  admin: '仅后台',
+  password: '密码',
 };
 
 export const Route = createFileRoute('/blog/')({
@@ -111,15 +100,15 @@ function BlogListPage() {
 
   return (
     <div className='j-sheet'>
-      <h1 className='j-entry-title text-center'>目　次</h1>
-      <p className='j-entry-meta text-center'>全刊总目 · 按年分卷 · 自新迄旧</p>
+      <h1 className='j-entry-title text-center'>Blog</h1>
+      <p className='j-entry-meta text-center'>按年份归档 · 自新迄旧</p>
 
       {showDevHint ? <div className='j-devhint'>{devScopeHint}</div> : null}
 
       {blogGroups.map((group) => (
         <div key={group.year}>
           <div className='j-juan'>
-            <h2>卷 · {group.year}</h2>
+            <h2 style={{ letterSpacing: '0.18em' }}>{group.year}</h2>
             <span className='sub'>{group.blogs.length} 篇</span>
           </div>
           {group.blogs.map((blog: PostSummary) => {
@@ -137,7 +126,15 @@ function BlogListPage() {
                   </span>
                   <span className='dots' />
                 </Link>
-                <span className='n'>{tocNumber(runningIndex)}</span>
+                <span className='n'>
+                  {new Date(blog.publishedAt).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                  })}
+                </span>
+                <span className='n' style={{ color: 'var(--j-faint)' }}>
+                  {String(runningIndex).padStart(3, '0')}
+                </span>
               </div>
             );
           })}
@@ -145,23 +142,23 @@ function BlogListPage() {
       ))}
 
       {data.totalPages > 1 ? (
-        <nav className='j-pager' aria-label='翻页'>
+        <nav className='j-pager' aria-label='Pagination'>
           {data.page > 1 ? (
             <Link to='/blog' search={{ page: data.page - 1 }}>
-              上一页
+              ← prev
             </Link>
           ) : (
-            <span>上一页</span>
+            <span>← prev</span>
           )}
           <span>
-            · {data.page} / {data.totalPages} ·
+            page {data.page} / {data.totalPages}
           </span>
           {data.page < data.totalPages ? (
             <Link to='/blog' search={{ page: data.page + 1 }}>
-              下一页
+              next →
             </Link>
           ) : (
-            <span>下一页</span>
+            <span>next →</span>
           )}
         </nav>
       ) : null}

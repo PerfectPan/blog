@@ -15,7 +15,7 @@ function getRoleLabel(role?: string | null): string {
   return 'MEMBER';
 }
 
-/** Journal masthead: brand + section nav + tools. Light-only theme. */
+/** Journal masthead: warm-paper shell with the site's original wording. */
 export function Header() {
   const { data: sessionData } = authClient.useSession();
   const sessionUser = sessionData?.user ?? null;
@@ -25,14 +25,15 @@ export function Header() {
       <header className='j-masthead'>
         <div className='j-brand'>
           <Link to='/'>
-            废墨集<span className='j-dot'>。</span>
+            PerfectPan<span className='j-dot'>.</span>
           </Link>
         </div>
-        <nav aria-label='栏目'>
-          <Link to='/blog'>目次</Link>
-          <Link to='/projects'>器物</Link>
+        <nav aria-label='主导航'>
+          <Link to='/'>Home</Link>
+          <Link to='/blog'>Blog</Link>
+          <Link to='/projects'>Projects</Link>
           {sessionUser?.role === 'admin' ? (
-            <Link to='/admin'>编辑部</Link>
+            <Link to='/admin'>Admin</Link>
           ) : null}
         </nav>
         <div className='ml-auto flex items-center gap-3'>
@@ -52,18 +53,27 @@ export function Header() {
               <LogOut size={17} className='opacity-60 hover:opacity-100' />
             </Link>
           ) : (
-            <Link
-              to='/login'
-              data-testid='nav-login'
-              className='text-[13.5px]'
-              style={{ letterSpacing: '0.28em', color: 'var(--j-faded)' }}
-            >
-              入会
-            </Link>
+            <>
+              <Link
+                to='/login'
+                data-testid='nav-login'
+                className='text-[13.5px]'
+                style={{ letterSpacing: '0.28em', color: 'var(--j-faded)' }}
+              >
+                Login
+              </Link>
+              <Link
+                to='/signup'
+                className='text-[13.5px]'
+                style={{ letterSpacing: '0.28em', color: 'var(--j-faded)' }}
+              >
+                Sign Up
+              </Link>
+            </>
           )}
           <button
             type='button'
-            aria-label='检索篇目 (Cmd+K)'
+            aria-label='Search posts (Cmd+K)'
             onClick={() => searchPalette.open()}
           >
             <Search size={17} className='opacity-60 hover:opacity-100' />

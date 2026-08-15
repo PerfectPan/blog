@@ -63,6 +63,14 @@ export const Route = createFileRoute('/blog/$slug')({
   component: BlogDetailPage,
 });
 
+const VIS_TEXT: Record<string, string> = {
+  public: '',
+  member: '会员可见',
+  vip: 'VIP 可见',
+  admin: '仅后台',
+  password: '密码保护',
+};
+
 function BlogDetailPage() {
   const data = Route.useLoaderData();
   const post = data.post;
@@ -70,46 +78,31 @@ function BlogDetailPage() {
     return null;
   }
 
-  const date = new Date(post.publishedAt).toLocaleDateString('zh-CN', {
-    year: 'numeric',
+  const date = new Date(post.publishedAt).toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
+    year: 'numeric',
   });
 
   return (
     <div className='j-sheet'>
       <aside className='j-spine' aria-hidden='true'>
-        废墨集 · {new Date(post.publishedAt).getFullYear()} 年卷 · {post.slug}
+        PerfectPan's Blog · {post.slug}
       </aside>
       <article className='j-article'>
-        <div className='j-running-head'>
-          废墨集 · {date} · 栏目：
-          {post.tags.length > 0 ? post.tags.join('・') : '未分栏'}
-        </div>
         <h1 className='j-entry-title'>{post.title}</h1>
-
-        <div className='j-article'>
-          <p className='j-entry-meta'>
-            <span>{date}</span>
-            <span>·</span>
-            <span>
-              {post.visibility === 'public'
-                ? '公开'
-                : post.visibility === 'member'
-                  ? '会员可读'
-                  : post.visibility === 'vip'
-                    ? 'VIP'
-                    : post.visibility === 'admin'
-                      ? '编者'
-                      : '密笈'}
-            </span>
-          </p>
-        </div>
-
+        <p className='j-entry-meta'>
+          <span>{date}</span>
+          {post.visibility !== 'public' ? (
+            <span> · {VIS_TEXT[post.visibility]}</span>
+          ) : null}
+          {post.tags.length > 0 ? (
+            <span> · {post.tags.join(' / ')}</span>
+          ) : null}
+        </p>
         <Markdown content={post.contentMdx} />
-
         <div className='j-backlink'>
-          <Link to='/blog'>— 返 目 次 —</Link>
+          <Link to='/blog'>← Back to blog</Link>
         </div>
       </article>
       <div className='j-letters'>

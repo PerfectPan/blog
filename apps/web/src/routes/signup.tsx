@@ -36,7 +36,7 @@ function SignUpPage() {
   if (sessionData?.user?.id || isSessionPending) {
     return (
       <div className='j-sheet'>
-        <p className='j-aside'>正在核对会籍……</p>
+        <p className='j-aside'>Checking session...</p>
       </div>
     );
   }
@@ -48,8 +48,8 @@ function SignUpPage() {
           <span className='j-seal' aria-hidden='true'>
             潘
           </span>
-          <h1>注　册</h1>
-          <p className='sub'>注册即成为会友（member）</p>
+          <h1>注册</h1>
+          <p className='sub'>注册后默认角色为 member，可在后台升权。</p>
           <form
             method='post'
             onSubmit={(event) => {
@@ -73,7 +73,7 @@ function SignUpPage() {
             }}
           >
             <div className='j-field'>
-              <label htmlFor='name'>名　号</label>
+              <label htmlFor='name'>Name</label>
               <input
                 id='name'
                 name='name'
@@ -86,7 +86,7 @@ function SignUpPage() {
               />
             </div>
             <div className='j-field'>
-              <label htmlFor='email'>邮　箱</label>
+              <label htmlFor='email'>Email</label>
               <input
                 id='email'
                 name='email'
@@ -99,7 +99,7 @@ function SignUpPage() {
               />
             </div>
             <div className='j-field'>
-              <label htmlFor='password'>口　令</label>
+              <label htmlFor='password'>Password</label>
               <input
                 id='password'
                 name='password'
@@ -117,23 +117,7 @@ function SignUpPage() {
                 className='j-btn j-btn-red'
                 disabled={isPending}
               >
-                {isPending ? '建立中…' : '立 会 籍'}
-              </button>
-              <button
-                type='button'
-                className='j-btn'
-                onClick={async () => {
-                  setError(null);
-                  const result = await authClient.signIn.social({
-                    provider: 'github',
-                    callbackURL: '/blog',
-                  });
-                  if (result.error) {
-                    setError(result.error.message ?? 'GitHub 注册失败');
-                  }
-                }}
-              >
-                GitHub 注册
+                {isPending ? 'Creating account...' : 'Sign Up'}
               </button>
             </div>
             {error ? <p className='j-err mt-4'>{error}</p> : null}

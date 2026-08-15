@@ -91,7 +91,7 @@ function Composer({
       />
       <div className='j-cmt-foot'>
         <span className='j-cmt-hint'>
-          {remaining < 200 ? `${remaining} 字剩余` : '来函支持 Markdown'}
+          {remaining < 200 ? `${remaining} 字剩余` : '支持 Markdown'}
           {error ? <span className='j-err'>{error}</span> : null}
         </span>
         <button
@@ -99,7 +99,7 @@ function Composer({
           disabled={submitting || !body.trim()}
           className='j-btn j-btn-red'
         >
-          {submitting ? '投递中…' : '投　函'}
+          {submitting ? '发送中…' : '发送'}
         </button>
       </div>
     </form>
@@ -342,14 +342,12 @@ export function Comments({
 
   return (
     <section className='mt-10'>
-      <h3 className='j-blockhead'>
-        读 者 来 函 {total > 0 ? `(${total})` : ''}
-      </h3>
+      <h3 className='j-blockhead'>评论 {total > 0 ? `(${total})` : ''}</h3>
 
       {sessionUser ? (
         <div className='mb-6'>
           <Composer
-            placeholder='来函一句（支持 Markdown）……'
+            placeholder='写下你的评论…（支持 Markdown）'
             submitting={submitting}
             onSubmit={handleCreateTopLevel}
           />
@@ -362,7 +360,7 @@ export function Comments({
           <Link to='/login' className='underline'>
             入会
           </Link>{' '}
-          后即可来函。
+          后即可评论。
         </p>
       )}
 
@@ -373,7 +371,7 @@ export function Comments({
           className='py-8 text-center text-sm'
           style={{ color: 'var(--j-faint)', fontFamily: 'var(--j-sans)' }}
         >
-          尚无来函，静候佳音。
+          还没有评论，来抢沙发。
         </p>
       ) : (
         <ul className='flex flex-col gap-3'>
@@ -400,7 +398,7 @@ export function Comments({
             disabled={loadingMore}
             className='j-btn'
           >
-            {loadingMore ? '展读中…' : '展读更多来函'}
+            {loadingMore ? '加载中…' : '加载更多'}
           </button>
         </div>
       ) : null}

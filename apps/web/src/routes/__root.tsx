@@ -39,10 +39,10 @@ export const Route = createRootRoute({
     <RootDocument>
       <AppLayout>
         <div className='j-sheet'>
-          <h1 className='j-entry-title text-center'>未能成页</h1>
+          <h1 className='j-entry-title text-center'>Request Failed</h1>
           <p className='j-entry-meta text-center'>{String(error)}</p>
           <p className='j-backlink'>
-            <Link to='/blog'>— 返 目 次 —</Link>
+            <Link to='/blog'>Back to blog</Link>
           </p>
         </div>
       </AppLayout>
@@ -56,12 +56,12 @@ export const Route = createRootRoute({
             阙
           </span>
           <div className='zh' style={{ marginTop: 30 }}>
-            此页未收
+            404 Not Found
           </div>
-          <p>本刊并无此篇 · 或已散佚</p>
+          <p>你闯入了无人之境...</p>
           <p style={{ marginTop: 26 }}>
             <Link to='/blog' className='j-btn'>
-              返 目 次
+              Back to blog
             </Link>
           </p>
         </div>

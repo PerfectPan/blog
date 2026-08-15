@@ -78,7 +78,7 @@ function UnlockPage() {
     search.error === 'missing'
       ? '请输入访问密码'
       : search.error === 'invalid'
-        ? '口令有误，请再试'
+        ? '密码错误，请重试'
         : undefined;
 
   return (
@@ -86,13 +86,13 @@ function UnlockPage() {
       <div className='j-gate'>
         <div className='j-gate-card text-center'>
           <div className='j-lockmark' aria-hidden='true'>
-            密
+            锁
           </div>
-          <h1>密　笺</h1>
-          <p className='sub'>此篇以单文口令封缄 · 验后廿四小时内免复输入</p>
+          <h1>输入文章访问密码</h1>
+          <p className='sub'>这篇文章使用了单文密码保护。</p>
           <form method='post' className='text-left'>
             <div className='j-field'>
-              <label htmlFor='password'>篇目口令</label>
+              <label htmlFor='password'>Password</label>
               <input
                 id='password'
                 name='password'
@@ -106,13 +106,17 @@ function UnlockPage() {
             ) : null}
             <div className='j-actions justify-center'>
               <button type='submit' className='j-btn j-btn-red'>
-                启　封
+                Unlock
               </button>
             </div>
           </form>
           <p className='j-aside'>
-            <Link to='/blog/$slug' params={{ slug }}>
-              ← 返回篇目
+            <Link
+              to='/blog/$slug'
+              params={{ slug }}
+              style={{ color: 'var(--j-indigo)' }}
+            >
+              返回文章页
             </Link>
           </p>
         </div>

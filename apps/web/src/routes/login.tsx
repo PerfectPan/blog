@@ -35,7 +35,7 @@ function LoginPage() {
   if (sessionData?.user?.id || isSessionPending) {
     return (
       <div className='j-sheet'>
-        <p className='j-aside'>正在核对会籍……</p>
+        <p className='j-aside'>Checking session...</p>
       </div>
     );
   }
@@ -47,10 +47,8 @@ function LoginPage() {
           <span className='j-seal' aria-hidden='true'>
             潘
           </span>
-          <h1>入　会</h1>
-          <p className='sub'>
-            会友可读「会员可读」篇目 · 亦支持 GitHub 介绍入会
-          </p>
+          <h1>登录</h1>
+          <p className='sub'>支持邮箱密码和 GitHub OAuth。</p>
           <form
             method='post'
             onSubmit={(event) => {
@@ -73,7 +71,7 @@ function LoginPage() {
             }}
           >
             <div className='j-field'>
-              <label htmlFor='email'>邮　箱</label>
+              <label htmlFor='email'>Email</label>
               <input
                 id='email'
                 name='email'
@@ -86,7 +84,7 @@ function LoginPage() {
               />
             </div>
             <div className='j-field'>
-              <label htmlFor='password'>口　令</label>
+              <label htmlFor='password'>Password</label>
               <input
                 id='password'
                 name='password'
@@ -104,7 +102,7 @@ function LoginPage() {
                 className='j-btn j-btn-red'
                 disabled={isPending}
               >
-                {isPending ? '登入中…' : '登　入'}
+                {isPending ? 'Signing in...' : 'Sign In'}
               </button>
               <button
                 type='button'
@@ -120,15 +118,15 @@ function LoginPage() {
                   }
                 }}
               >
-                GitHub 入会
+                Continue with GitHub
               </button>
             </div>
             {error ? <p className='j-err mt-4'>{error}</p> : null}
           </form>
           <p className='j-aside'>
-            尚未入会？{' '}
-            <a href='/signup' className='j-aside-link'>
-              注册
+            还没有账号？{' '}
+            <a href='/signup' style={{ color: 'var(--j-red)' }}>
+              Sign Up
             </a>
           </p>
         </div>
