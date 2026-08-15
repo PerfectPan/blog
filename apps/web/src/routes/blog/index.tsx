@@ -1,6 +1,5 @@
 import type { PostSummary, SessionUser } from '@blog/shared';
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useEffect } from 'react';
 import { z } from 'zod';
 import { getBlogListServerFn } from '../../lib/blog-service.js';
@@ -49,6 +48,21 @@ function getDevScopeHint(sessionUser: SessionUser | null | undefined): string {
   return '当前身份：member；可见范围：public/member';
 }
 
+const VIS_CLASS: Record<PostSummary['visibility'], string> = {
+  public: 'z-vis',
+  member: 'z-vis mem',
+  vip: 'z-vis vip',
+  admin: 'z-vis adm',
+  password: 'z-vis pw',
+};
+const VIS_TEXT: Record<PostSummary['visibility'], string> = {
+  public: '',
+  member: '会 员',
+  vip: 'VIP',
+  admin: '编',
+  password: '密',
+};
+
 export const Route = createFileRoute('/blog/')({
   head: () => ({
     meta: [
@@ -77,88 +91,70 @@ function BlogListPage() {
   const devScopeHint = getDevScopeHint(data.sessionUser);
 
   // Conventional blog pagination: the page scrolls naturally; jump back to the
-  // top on each page change so the new page starts at its first post. (Without
-  // this, clicking "next" while scrolled to the bottom leaves the reader past a
-  // shorter page — the original "bounce".)
+  // top on each page change so the new page starts at its first post.
   // biome-ignore lint/correctness/useExhaustiveDependencies: re-run on page change, value unused in body on purpose
   useEffect(() => {
     document.querySelector('main')?.scrollTo({ top: 0 });
   }, [data.page]);
 
   return (
-    <div className='mx-auto flex w-full max-w-[80ch] flex-col gap-8 self-start pt-8'>
-      <div className='w-full'>
-        {showDevHint ? (
-          <div className='mb-8 rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900'>
-            {devScopeHint}
-          </div>
-        ) : null}
-        {blogGroups.map((group) => (
-          <div key={group.year}>
-            <div className='mb-4 text-3xl'>{group.year}</div>
-            {group.blogs.map((blog: PostSummary) => (
-              <div
-                key={blog.slug}
-                className='mt-2 mb-6 opacity-70 hover:opacity-100'
-              >
-                <Link
-                  to='/blog/$slug'
-                  params={{ slug: blog.slug }}
-                  className='flex items-center gap-2'
-                >
-                  <span className='text-lg leading-[1.2em]'>{blog.title}</span>
-                  <span className='text-sm opacity-50'>
-                    {new Date(blog.publishedAt).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                    })}
-                  </span>
-                </Link>
-              </div>
-            ))}
-          </div>
-        ))}
+    <div className='z-page'>
+      <div className='z-ma' style={{ paddingTop: 56 }} aria-hidden='true'>
+        <span>間</span>
       </div>
-      {data.totalPages > 1 ? (
-        <nav
-          className='flex w-full items-center justify-center gap-4 text-sm sm:gap-6'
-          aria-label='Pagination'
-        >
-          {data.page > 1 ? (
+
+      {showDevHint ? <div className='z-devhint'>{devScopeHint}</div> : null}
+
+      {blogGroups.map((group) => (
+        <div key={group.year}>
+          <div className='z-year'>{group.year}</div>
+          {group.blogs.map((blog: PostSummary) => (
             <Link
-              to='/blog'
-              search={{ page: data.page - 1 }}
-              className='inline-flex items-center gap-1 opacity-60 hover:opacity-100'
+              key={blog.slug}
+              to='/blog/$slug'
+              params={{ slug: blog.slug }}
+              className='z-item flex'
             >
-              <ChevronLeft size={14} /> prev
+              <span className='t'>
+                {blog.title}
+                {blog.visibility !== 'public' ? (
+                  <span className={VIS_CLASS[blog.visibility]}>
+                    {VIS_TEXT[blog.visibility]}
+                  </span>
+                ) : null}
+              </span>
+              <span className='d'>
+                {new Date(blog.publishedAt)
+                  .toISOString()
+                  .slice(5, 10)
+                  .replace('-', ' / ')}
+              </span>
             </Link>
-          ) : (
-            <span className='inline-flex items-center gap-1 opacity-30'>
-              <ChevronLeft size={14} /> prev
-            </span>
-          )}
-          <span className='opacity-60'>
-            page {data.page} / {data.totalPages}
+          ))}
+        </div>
+      ))}
+
+      {data.totalPages > 1 ? (
+        <nav className='z-pager' aria-label='翻页'>
+          {data.page > 1 ? (
+            <Link to='/blog' search={{ page: data.page - 1 }}>
+              ← 前
+            </Link>
+          ) : null}
+          <span>
+            {data.page} / {data.totalPages}
           </span>
           {data.page < data.totalPages ? (
-            <Link
-              to='/blog'
-              search={{ page: data.page + 1 }}
-              className='inline-flex items-center gap-1 opacity-60 hover:opacity-100'
-            >
-              next <ChevronRight size={14} />
+            <Link to='/blog' search={{ page: data.page + 1 }}>
+              次 →
             </Link>
-          ) : (
-            <span className='inline-flex items-center gap-1 opacity-30'>
-              next <ChevronRight size={14} />
-            </span>
-          )}
+          ) : null}
         </nav>
       ) : null}
-      <Link to='/' className='mt-4 inline-block'>
-        <span className='opacity-70'>&gt;&nbsp;&nbsp;&nbsp;</span>
-        <span className='underline opacity-70 hover:opacity-100'>cd ..</span>
-      </Link>
+
+      <div className='z-ma' aria-hidden='true'>
+        <span>次 の 頁 へ</span>
+      </div>
     </div>
   );
 }

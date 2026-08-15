@@ -26,7 +26,7 @@ export const Route = createRootRoute({
       },
       {
         name: 'theme-color',
-        content: '#000000',
+        content: '#F7F8F5',
       },
     ],
     links: [
@@ -38,12 +38,16 @@ export const Route = createRootRoute({
   errorComponent: ({ error }) => (
     <RootDocument>
       <AppLayout>
-        <div className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-          <h2 className='mb-4 text-3xl'>Request Failed</h2>
-          <p className='mb-4 opacity-70'>{String(error)}</p>
-          <Link to='/blog' className='opacity-70 hover:opacity-100'>
-            Back to blog
-          </Link>
+        <div className='z-page'>
+          <div className='z-nf'>
+            <div className='k'>虚</div>
+            <p>{String(error)}</p>
+            <p style={{ marginTop: 26 }}>
+              <Link to='/blog' className='z-link'>
+                回到目次
+              </Link>
+            </p>
+          </div>
         </div>
       </AppLayout>
     </RootDocument>
@@ -51,12 +55,16 @@ export const Route = createRootRoute({
   notFoundComponent: () => (
     <RootDocument>
       <AppLayout>
-        <div className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-          <h2 className='mb-4 text-3xl'>404 Not Found</h2>
-          <p className='mb-4 opacity-70'>你闯入了无人之境...</p>
-          <Link to='/blog' className='opacity-70 hover:opacity-100'>
-            Back to blog
-          </Link>
+        <div className='z-page'>
+          <div className='z-nf'>
+            <div className='k'>空</div>
+            <p>此处无文</p>
+            <p style={{ marginTop: 26 }}>
+              <Link to='/blog' className='z-link'>
+                回到目次
+              </Link>
+            </p>
+          </div>
         </div>
       </AppLayout>
     </RootDocument>

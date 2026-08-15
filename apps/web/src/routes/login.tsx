@@ -34,96 +34,98 @@ function LoginPage() {
 
   if (sessionData?.user?.id || isSessionPending) {
     return (
-      <section className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-        <p className='opacity-70'>Checking session...</p>
-      </section>
+      <div className='z-page'>
+        <p className='z-hint text-center'>正在核对会籍……</p>
+      </div>
     );
   }
 
   return (
-    <section className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-      <h1 className='mb-2 text-3xl font-black'>登录</h1>
-      <p className='mb-6 opacity-70'>支持邮箱密码和 GitHub OAuth。</p>
+    <div className='z-page'>
+      <div className='z-gate'>
+        <h1>登　録</h1>
+        <p className='sub'>会員は「会員可読」の記事を読める</p>
+        <form
+          method='post'
+          onSubmit={(event) => {
+            event.preventDefault();
+            setError(null);
+            startTransition(async () => {
+              const result = await authClient.signIn.email({
+                email,
+                password,
+                callbackURL: '/blog',
+              });
 
-      {error ? (
-        <p role='alert' className='mb-4 text-sm text-red-700 dark:text-red-300'>
-          {error}
-        </p>
-      ) : null}
+              if (result.error) {
+                setError(result.error.message ?? '登录失败');
+                return;
+              }
 
-      <form
-        className='grid max-w-[420px] gap-3'
-        method='post'
-        onSubmit={(event) => {
-          event.preventDefault();
-          setError(null);
-          startTransition(async () => {
-            const result = await authClient.signIn.email({
-              email,
-              password,
-              callbackURL: '/blog',
+              navigate({ to: '/blog' });
             });
-
-            if (result.error) {
-              setError(result.error.message ?? '登录失败');
-              return;
-            }
-
-            navigate({ to: '/blog' });
-          });
-        }}
-      >
-        <label htmlFor='email' className='font-semibold'>
-          Email
-        </label>
-        <input
-          id='email'
-          name='email'
-          type='email'
-          required
-          autoComplete='email'
-          className='rounded-md border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-wash-dark'
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-        />
-        <label htmlFor='password' className='font-semibold'>
-          Password
-        </label>
-        <input
-          id='password'
-          name='password'
-          type='password'
-          required
-          autoComplete='current-password'
-          className='rounded-md border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-wash-dark'
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-        />
-        <button
-          type='submit'
-          className='rounded-md bg-black px-4 py-2 font-semibold text-white transition-opacity hover:opacity-90 dark:bg-neutral-900'
-          disabled={isPending}
+          }}
         >
-          {isPending ? 'Signing in...' : 'Sign In'}
-        </button>
-      </form>
-
-      <button
-        type='button'
-        className='mt-3 rounded-md border border-slate-300 px-4 py-2 font-semibold transition-colors hover:bg-gray-100 dark:border-slate-700 dark:hover:bg-slate-800'
-        onClick={async () => {
-          setError(null);
-          const result = await authClient.signIn.social({
-            provider: 'github',
-            callbackURL: '/blog',
-          });
-          if (result.error) {
-            setError(result.error.message ?? 'GitHub 登录失败');
-          }
-        }}
-      >
-        Continue with GitHub
-      </button>
-    </section>
+          <div className='z-field'>
+            <label htmlFor='email'>邮 箱</label>
+            <input
+              id='email'
+              name='email'
+              type='email'
+              required
+              autoComplete='email'
+              className='z-input'
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+            />
+          </div>
+          <div className='z-field'>
+            <label htmlFor='password'>口 令</label>
+            <input
+              id='password'
+              name='password'
+              type='password'
+              required
+              autoComplete='current-password'
+              className='z-input'
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+            />
+          </div>
+          <div className='actions'>
+            <button
+              type='submit'
+              className='z-btn z-btn-fill'
+              disabled={isPending}
+            >
+              {isPending ? '登入中…' : '登　入'}
+            </button>
+            <button
+              type='button'
+              className='z-btn'
+              onClick={async () => {
+                setError(null);
+                const result = await authClient.signIn.social({
+                  provider: 'github',
+                  callbackURL: '/blog',
+                });
+                if (result.error) {
+                  setError(result.error.message ?? 'GitHub 登录失败');
+                }
+              }}
+            >
+              GitHub
+            </button>
+          </div>
+          {error ? <p className='z-err'>{error}</p> : null}
+        </form>
+        <p className='aside'>
+          尚未注册？{' '}
+          <a href='/signup' className='z-link'>
+            注册
+          </a>
+        </p>
+      </div>
+    </div>
   );
 }

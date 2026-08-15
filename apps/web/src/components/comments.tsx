@@ -20,14 +20,6 @@ type CommentsProps = {
 
 const PAGE_SIZE = 20;
 
-function getInitials(name: string): string {
-  const trimmed = name.trim();
-  if (!trimmed) {
-    return '?';
-  }
-  return trimmed.slice(0, 1).toUpperCase();
-}
-
 function formatRelative(iso: string): string {
   const then = new Date(iso).getTime();
   if (Number.isNaN(then)) {
@@ -54,24 +46,6 @@ function formatRelative(iso: string): string {
     day: 'numeric',
     year: 'numeric',
   });
-}
-
-function Avatar({ name, image }: { name: string; image: string | null }) {
-  if (image) {
-    return (
-      <img
-        src={image}
-        alt={name}
-        loading='lazy'
-        className='h-8 w-8 shrink-0 rounded-full bg-zinc-100 dark:bg-zinc-800'
-      />
-    );
-  }
-  return (
-    <div className='flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-xs font-semibold text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300'>
-      {getInitials(name)}
-    </div>
-  );
 }
 
 type ComposerProps = {
@@ -107,26 +81,27 @@ function Composer({
   }
 
   return (
-    <form onSubmit={handleSubmit} className='flex flex-col gap-2'>
+    <form onSubmit={handleSubmit} className='z-cmt-form'>
       <textarea
         value={body}
         onChange={(event) => setBody(event.target.value)}
         placeholder={placeholder}
         rows={compact ? 2 : 3}
         maxLength={2000}
-        className='w-full resize-y rounded-md border border-zinc-300 bg-transparent px-3 py-2 text-sm outline-none transition-colors focus:border-zinc-400 dark:border-zinc-600 dark:focus:border-zinc-400'
       />
-      <div className='flex items-center justify-between gap-2'>
-        <span className='text-xs opacity-50'>
-          {remaining < 200 ? `${remaining} 字剩余` : '支持 Markdown'}
-          {error ? <span className='ml-2 text-red-500'>{error}</span> : null}
+      <div className='z-cmt-foot'>
+        <span className='z-hint'>
+          {remaining < 200
+            ? `${remaining} 字剩余`
+            : '静かに一言どうぞ（Markdown 可）'}
+          {error ? <span className='err'>{error}</span> : null}
         </span>
         <button
           type='submit'
           disabled={submitting || !body.trim()}
-          className='rounded-md bg-black px-3 py-1 text-xs font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-neutral-900'
+          className='z-btn z-btn-fill'
         >
-          {submitting ? '发送中…' : '发送'}
+          {submitting ? '投递中…' : '投　稿'}
         </button>
       </div>
     </form>
@@ -191,7 +166,7 @@ function CommentItem({
       ) : null}
 
       {thread.replies.length > 0 ? (
-        <ul className='ml-10 flex flex-col gap-2 border-l border-zinc-200 pl-4 dark:border-zinc-700'>
+        <ul className='ml-10 flex flex-col'>
           {thread.replies.map((reply) => {
             const replyCanAct =
               sessionUser != null &&
@@ -233,49 +208,28 @@ function CommentView({
   onDelete,
 }: CommentViewProps) {
   return (
-    <div className='flex gap-3'>
-      <Avatar name={comment.author.name} image={comment.author.image} />
-      <div className='min-w-0 flex-1'>
-        <div className='flex flex-wrap items-center gap-x-2 gap-y-0.5'>
-          <span className='text-sm font-semibold'>{comment.author.name}</span>
-          {comment.author.role === 'admin' ? (
-            <span className='rounded bg-zinc-900 px-1.5 py-0.5 text-[10px] font-semibold text-white dark:bg-white dark:text-zinc-900'>
-              Author
-            </span>
-          ) : null}
-          {comment.status !== 'visible' ? (
-            <span className='rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'>
-              {comment.status}
-            </span>
-          ) : null}
-          <span className='text-xs opacity-50'>
-            {formatRelative(comment.createdAt)}
-          </span>
-        </div>
-        <div className='mt-1'>
-          <CommentMarkdown content={comment.body} />
-        </div>
-        <div className='mt-1 flex gap-3 text-xs'>
+    <div className={comment.parentId !== null ? 'z-cmt reply' : 'z-cmt'}>
+      <div className='z-cmt-h'>
+        <span className='who'>{comment.author.name}</span>
+        {comment.author.role === 'admin' ? <span>・ 作者</span> : null}
+        {comment.status !== 'visible' ? <span>・ {comment.status}</span> : null}
+        <span> ・ {formatRelative(comment.createdAt)}</span>
+      </div>
+      <CommentMarkdown content={comment.body} />
+      {(canReply && onReply) || canAct ? (
+        <div className='z-cmt-ops'>
           {canReply && onReply ? (
-            <button
-              type='button'
-              onClick={onReply}
-              className='opacity-50 transition-opacity hover:opacity-100'
-            >
-              回复
+            <button type='button' onClick={onReply}>
+              返信
             </button>
           ) : null}
           {canAct ? (
-            <button
-              type='button'
-              onClick={() => onDelete()}
-              className='text-red-500/70 transition-colors hover:text-red-500'
-            >
-              删除
+            <button type='button' onClick={() => onDelete()}>
+              削除
             </button>
           ) : null}
         </div>
-      </div>
+      ) : null}
     </div>
   );
 }
@@ -375,10 +329,8 @@ export function Comments({
   }
 
   return (
-    <section className='mt-12'>
-      <h2 className='mb-4 text-lg font-black'>
-        评论 {total > 0 ? <span className='opacity-50'>({total})</span> : null}
-      </h2>
+    <section className='mt-2'>
+      <div className='z-label'>読 者 の 声 {total > 0 ? `(${total})` : ''}</div>
 
       {sessionUser ? (
         <div className='mb-6'>
@@ -389,24 +341,20 @@ export function Comments({
           />
         </div>
       ) : (
-        <p className='mb-6 text-sm opacity-60'>
-          <Link to='/login' className='underline hover:opacity-100'>
-            登录
+        <p className='z-hint mb-6'>
+          <Link to='/login' className='z-link'>
+            登録
           </Link>{' '}
-          后即可评论。
+          後にコメントできます。
         </p>
       )}
 
-      {topError ? (
-        <p className='mb-4 text-sm text-red-500'>{topError}</p>
-      ) : null}
+      {topError ? <p className='z-err mb-4'>{topError}</p> : null}
 
       {threads.length === 0 ? (
-        <p className='py-8 text-center text-sm opacity-50'>
-          还没有评论，来抢沙发。
-        </p>
+        <p className='z-hint py-8 text-center'>まだコメントはありません。</p>
       ) : (
-        <ul className='flex flex-col gap-5'>
+        <ul className='flex flex-col'>
           {threads.map((thread) => (
             <CommentItem
               key={thread.id}
@@ -428,9 +376,9 @@ export function Comments({
             type='button'
             onClick={handleLoadMore}
             disabled={loadingMore}
-            className='text-sm opacity-60 transition-opacity hover:opacity-100 disabled:opacity-40'
+            className='z-btn'
           >
-            {loadingMore ? '加载中…' : '加载更多'}
+            {loadingMore ? '読み込み中…' : 'もっと見る'}
           </button>
         </div>
       ) : null}

@@ -144,3 +144,706 @@ html.dark ::-webkit-scrollbar-thumb {
 html.dark ::-webkit-scrollbar-thumb:hover {
   background: rgb(148 163 184 / 0.55);
 }
+
+/* =====================================================================
+ * THEME D — Zen whitespace 「字纸篓」 (UX redesign direction D)
+ * Bamboo-green accent on mist-white, serif display, borderless lists,
+ * 「間」 (ma) separators. Light-only, quiet by design.
+ * =================================================================== */
+:root {
+  /* shadcn token layer → zen palette */
+  --background: 100 12% 96%;
+  --foreground: 120 5% 17%;
+  --card: 90 10% 93%;
+  --card-foreground: 120 5% 17%;
+  --popover: 60 20% 98%;
+  --popover-foreground: 120 5% 17%;
+  --primary: 150 20% 41%;
+  --primary-foreground: 100 15% 97%;
+  --secondary: 100 10% 92%;
+  --secondary-foreground: 120 5% 17%;
+  --muted: 100 10% 92%;
+  --muted-foreground: 100 6% 46%;
+  --accent: 100 12% 90%;
+  --accent-foreground: 120 5% 17%;
+  --destructive: 20 45% 45%;
+  --destructive-foreground: 100 15% 97%;
+  --border: 90 12% 86%;
+  --input: 90 12% 86%;
+  --ring: 150 20% 41%;
+  --radius: 0.125rem;
+
+  --z-bg: #f7f8f5;
+  --z-wash: #eff1ec;
+  --z-ink: #2b302b;
+  --z-dim: #78816f;
+  --z-faint: #a9b2a3;
+  --z-bamboo: #557c67;
+  --z-bamboo-soft: #e3eae4;
+  --z-line: #e1e5da;
+  --z-serif:
+    "Songti SC", "Hiragino Mincho ProN", "Noto Serif SC", "SimSun", serif;
+  --z-sans:
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+  --z-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+html {
+  background-color: var(--z-bg);
+}
+
+html body {
+  font-family: var(--z-sans);
+  background-color: var(--z-bg);
+  color: var(--z-ink);
+  font-size: 15px;
+  line-height: 2.05;
+}
+
+::selection {
+  background: var(--z-bamboo-soft);
+}
+
+/* ---------- shell ---------- */
+.z-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+}
+.z-main {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.z-head {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 68px 24px 8px;
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+}
+.z-head .mark {
+  font-family: var(--z-serif);
+  font-size: 19px;
+  letter-spacing: 0.5em;
+  font-weight: 600;
+  color: var(--z-ink);
+}
+.z-head nav {
+  margin-left: auto;
+  display: flex;
+  gap: 22px;
+  font-size: 13px;
+  letter-spacing: 0.22em;
+}
+.z-head nav a,
+.z-head nav button {
+  color: var(--z-dim);
+  font-family: var(--z-sans);
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+}
+.z-head nav a:hover,
+.z-head nav button:hover {
+  color: var(--z-bamboo);
+  text-decoration: none;
+}
+.z-tools {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.z-tools :where(a),
+.z-tools :where(button) {
+  color: var(--z-faint);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+}
+.z-tools :where(a):hover,
+.z-tools :where(button):hover {
+  color: var(--z-bamboo);
+}
+.z-user {
+  display: none;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  color: var(--z-faint);
+}
+@media (min-width: 768px) {
+  .z-user {
+    display: inline-flex;
+  }
+}
+
+/* margin note (signature) */
+.z-margin-note {
+  position: fixed;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  writing-mode: vertical-rl;
+  letter-spacing: 0.6em;
+  font-size: 10.5px;
+  color: var(--z-faint);
+  user-select: none;
+  z-index: 5;
+}
+.z-margin-note::before {
+  content: "";
+  display: block;
+  width: 1px;
+  height: 46px;
+  background: var(--z-line);
+  margin: 0 auto 18px;
+}
+@media (max-width: 900px) {
+  .z-margin-note {
+    display: none;
+  }
+}
+
+/* 間 divider */
+.z-ma {
+  display: flex;
+  justify-content: center;
+  padding: 52px 0;
+}
+.z-ma :where(span) {
+  color: var(--z-faint);
+  font-size: 12px;
+  letter-spacing: 1.2em;
+  padding-left: 1.2em;
+}
+
+.z-foot {
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: 0.34em;
+  color: var(--z-faint);
+  padding: 46px 0 60px;
+}
+.z-foot :where(a) {
+  color: var(--z-dim);
+}
+.z-foot :where(a):hover {
+  color: var(--z-bamboo);
+}
+
+/* ---------- shared ---------- */
+.z-page {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 24px 40px;
+}
+.z-label {
+  font-size: 11px;
+  letter-spacing: 0.42em;
+  color: var(--z-faint);
+  margin-bottom: 10px;
+}
+.z-btn {
+  font-family: var(--z-sans);
+  font-size: 13px;
+  letter-spacing: 0.34em;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  color: var(--z-ink);
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--z-line);
+}
+.z-btn:hover {
+  color: var(--z-bamboo);
+  border-color: var(--z-bamboo);
+}
+.z-btn-fill {
+  background: var(--z-bamboo);
+  color: #f4f7f3;
+  border-bottom-color: var(--z-bamboo);
+  padding: 12px 30px;
+}
+.z-btn-fill:hover {
+  background: #476856;
+  color: #f4f7f3;
+}
+.z-link {
+  color: var(--z-dim);
+  border-bottom: 1px solid var(--z-line);
+  padding-bottom: 2px;
+}
+.z-link:hover {
+  color: var(--z-bamboo);
+  border-color: var(--z-bamboo);
+  text-decoration: none;
+}
+
+/* ---------- home ---------- */
+.z-hero {
+  padding: 88px 0 8px;
+}
+.z-hero .since {
+  font-size: 12px;
+  letter-spacing: 0.5em;
+  color: var(--z-faint);
+}
+.z-hero h1 {
+  font-family: var(--z-serif);
+  font-weight: 600;
+  font-size: 34px;
+  line-height: 1.9;
+  letter-spacing: 0.12em;
+  margin-top: 18px;
+}
+.z-hero p {
+  color: var(--z-dim);
+  margin-top: 18px;
+  max-width: 38ch;
+}
+.z-links {
+  display: flex;
+  gap: 56px;
+  padding: 40px 0 0;
+}
+.z-links :where(a) {
+  font-size: 14px;
+  letter-spacing: 0.3em;
+  color: var(--z-ink);
+  border-bottom: 1px solid var(--z-line);
+  padding-bottom: 6px;
+}
+.z-links :where(a):hover {
+  color: var(--z-bamboo);
+  border-color: var(--z-bamboo);
+  text-decoration: none;
+}
+
+/* ---------- borderless list ---------- */
+.z-item {
+  display: flex;
+  align-items: baseline;
+  gap: 20px;
+  padding: 15px 2px;
+}
+.z-item .t {
+  flex: 1;
+  font-size: 15.5px;
+  color: var(--z-ink);
+}
+.z-item .d {
+  font-family: var(--z-mono);
+  font-size: 11.5px;
+  color: var(--z-faint);
+  white-space: nowrap;
+}
+a.z-item:hover .t {
+  color: var(--z-bamboo);
+  text-decoration: none;
+}
+.z-year {
+  font-family: var(--z-mono);
+  font-size: 12px;
+  color: var(--z-faint);
+  letter-spacing: 0.3em;
+  padding: 44px 2px 6px;
+}
+.z-vis {
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  color: var(--z-faint);
+  margin-left: 12px;
+}
+.z-vis.mem {
+  color: var(--z-bamboo);
+}
+.z-vis.vip {
+  color: #8a7bb0;
+}
+.z-vis.pw {
+  color: #b0705f;
+}
+.z-vis.adm {
+  color: var(--z-dim);
+}
+.z-pager {
+  display: flex;
+  gap: 40px;
+  justify-content: center;
+  padding: 40px 0 0;
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  color: var(--z-faint);
+}
+.z-pager :where(a) {
+  color: var(--z-dim);
+}
+.z-pager :where(a):hover {
+  color: var(--z-bamboo);
+}
+.z-devhint {
+  font-size: 12.5px;
+  color: var(--z-faint);
+  border-left: 2px solid var(--z-line);
+  padding: 4px 0 4px 14px;
+  margin: 20px 0;
+}
+
+/* ---------- article ---------- */
+.z-art h1 {
+  font-family: var(--z-serif);
+  font-size: 29px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1.8;
+}
+.z-art .meta {
+  font-family: var(--z-mono);
+  font-size: 11.5px;
+  color: var(--z-faint);
+  margin-top: 12px;
+  letter-spacing: 0.1em;
+}
+
+.md {
+  margin-top: 46px;
+  font-size: 16px;
+}
+.md p {
+  margin: 26px 0;
+  color: #3a403a;
+  text-align: justify;
+}
+.md > p:first-of-type::first-letter,
+.md > p:first-child::first-letter {
+  font-size: 2.9em;
+  font-weight: 600;
+  float: left;
+  line-height: 1;
+  margin: 10px 12px 0 0;
+  color: var(--z-bamboo);
+  font-family: var(--z-serif);
+}
+.md h2 {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  margin: 64px 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  scroll-margin-top: 20px;
+}
+.md h2::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--z-bamboo);
+  flex: none;
+}
+.md h2 a {
+  color: inherit;
+}
+.md ul {
+  list-style: none;
+  margin: 20px 0;
+}
+.md ul li {
+  padding: 8px 0 8px 20px;
+  position: relative;
+  color: #3a403a;
+}
+.md ul li::before {
+  content: "・";
+  position: absolute;
+  left: 0;
+  color: var(--z-bamboo);
+}
+.md :where(a) {
+  color: var(--z-bamboo);
+}
+.md blockquote {
+  margin: 34px 0;
+  padding: 4px 0 4px 24px;
+  border-left: 1px solid var(--z-bamboo);
+  color: var(--z-dim);
+  font-size: 15px;
+}
+.md :where(code.z-inline) {
+  font-family: var(--z-mono);
+  font-size: 0.84em;
+  color: var(--z-bamboo);
+  background: var(--z-wash);
+  padding: 1px 7px;
+  border-radius: 10px;
+}
+
+.z-code {
+  position: relative;
+  margin: 30px 0;
+}
+.z-code-copy {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--z-line);
+  background: rgba(247, 248, 245, 0.9);
+  color: var(--z-dim);
+  border-radius: 10px;
+  padding: 2px 9px;
+  font-size: 11px;
+  font-family: var(--z-mono);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.z-code:hover .z-code-copy,
+.z-code-copy:focus-visible {
+  opacity: 1;
+}
+@media not (hover: hover) {
+  .z-code-copy {
+    opacity: 0.75;
+  }
+}
+.md pre.z-pre {
+  font-family: var(--z-mono);
+  font-size: 13px;
+  line-height: 1.9;
+  color: #39413b;
+  background: #ffffff;
+  border: 1px solid var(--z-line);
+  border-radius: 2px;
+  padding: 24px 26px;
+  overflow-x: auto;
+  margin: 0;
+}
+.md .z-pre code {
+  background: none;
+  padding: 0;
+}
+
+/* ---------- comments ---------- */
+.z-cmt {
+  padding: 22px 0;
+  border-top: 1px solid var(--z-line);
+}
+.z-cmt:first-child {
+  border-top: 0;
+}
+.z-cmt-h {
+  font-family: var(--z-mono);
+  font-size: 11px;
+  color: var(--z-faint);
+  margin-bottom: 6px;
+}
+.z-cmt-h .who {
+  color: var(--z-ink);
+  font-weight: 600;
+}
+.z-cmt.reply {
+  margin-left: 40px;
+}
+.z-cmt p {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+.z-cmt p:last-child {
+  margin-bottom: 0;
+}
+.z-cmt :where(code) {
+  font-family: var(--z-mono);
+  font-size: 0.85em;
+  color: var(--z-bamboo);
+  background: var(--z-wash);
+  border-radius: 8px;
+  padding: 0 6px;
+}
+.z-cmt blockquote {
+  border-left: 1px solid var(--z-line);
+  padding-left: 12px;
+  color: var(--z-dim);
+}
+.z-cmt-ops {
+  display: flex;
+  gap: 16px;
+  margin-top: 6px;
+}
+.z-cmt-ops :where(button) {
+  color: var(--z-faint);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--z-sans);
+  font-size: 12px;
+  padding: 0;
+  letter-spacing: 0.1em;
+}
+.z-cmt-ops :where(button):hover {
+  color: var(--z-bamboo);
+}
+.z-cmt-form textarea {
+  width: 100%;
+  resize: vertical;
+  font-family: var(--z-sans);
+  font-size: 15px;
+  color: var(--z-ink);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--z-line);
+  padding: 10px 2px;
+}
+.z-cmt-form textarea:focus {
+  outline: none;
+  border-bottom-color: var(--z-bamboo);
+}
+.z-cmt-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+}
+.z-hint {
+  font-size: 12px;
+  color: var(--z-faint);
+}
+.z-hint .err {
+  color: #b0705f;
+  margin-left: 8px;
+}
+
+/* ---------- projects ---------- */
+.z-ware {
+  padding: 26px 2px;
+}
+.z-ware .name {
+  font-size: 16px;
+  letter-spacing: 0.06em;
+}
+.z-ware .name .feat {
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: var(--z-bamboo);
+  margin-left: 14px;
+}
+.z-ware p {
+  color: var(--z-dim);
+  font-size: 14px;
+  margin-top: 6px;
+  max-width: 46ch;
+}
+.z-ware .wlinks {
+  margin-top: 10px;
+  font-family: var(--z-mono);
+  font-size: 12px;
+  display: flex;
+  gap: 20px;
+}
+.z-ware .wlinks a {
+  color: var(--z-faint);
+}
+.z-ware .wlinks a:hover {
+  color: var(--z-bamboo);
+}
+
+/* ---------- forms ---------- */
+.z-gate {
+  max-width: 400px;
+  margin: 30px auto 0;
+  padding: 30px 0;
+}
+.z-gate h1 {
+  font-family: var(--z-serif);
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-align: center;
+}
+.z-gate .sub {
+  text-align: center;
+  color: var(--z-faint);
+  font-size: 12.5px;
+  letter-spacing: 0.14em;
+  margin-top: 8px;
+}
+.z-field {
+  margin: 34px 0;
+}
+.z-field label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  color: var(--z-faint);
+  margin-bottom: 4px;
+}
+.z-input {
+  width: 100%;
+  font-family: var(--z-sans);
+  font-size: 15px;
+  color: var(--z-ink);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--z-line);
+  border-radius: 0;
+  padding: 8px 2px;
+}
+.z-input:focus {
+  outline: none;
+  border-bottom-color: var(--z-bamboo);
+}
+.z-gate .actions {
+  display: flex;
+  gap: 40px;
+  justify-content: center;
+  margin-top: 44px;
+}
+.z-gate .aside {
+  text-align: center;
+  margin-top: 34px;
+  font-size: 12.5px;
+  color: var(--z-faint);
+}
+.z-err {
+  text-align: center;
+  color: #b0705f;
+  font-size: 13px;
+  margin-top: 18px;
+  letter-spacing: 0.1em;
+}
+.z-lock {
+  text-align: center;
+  font-family: var(--z-serif);
+  font-size: 30px;
+  color: var(--z-bamboo);
+  padding: 6px 0 0;
+}
+
+/* ---------- 404 ---------- */
+.z-nf {
+  text-align: center;
+  padding: 80px 0 30px;
+}
+.z-nf .k {
+  font-family: var(--z-serif);
+  font-size: 64px;
+  color: var(--z-faint);
+}
+.z-nf p {
+  color: var(--z-dim);
+  font-size: 13.5px;
+  letter-spacing: 0.2em;
+  margin-top: 18px;
+}

@@ -70,23 +70,23 @@ function BlogDetailPage() {
     return null;
   }
 
-  const date = new Date(post.publishedAt).toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  });
+  const date = new Date(post.publishedAt).toISOString().slice(0, 10);
 
   return (
-    <div className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-      <div className='m-auto mb-8 flex flex-col gap-2'>
-        <div className='text-3xl font-black'>{post.title}</div>
-        <div className='opacity-60'>{date}</div>
+    <div className='z-page'>
+      <div className='z-ma' style={{ paddingTop: 56 }} aria-hidden='true'>
+        <span>間</span>
       </div>
-      <Markdown content={post.contentMdx} />
-      <Link to='/blog' className='mt-4 inline-block'>
-        <span className='opacity-70'>&gt;&nbsp;&nbsp;&nbsp;</span>
-        <span className='underline opacity-70 hover:opacity-100'>cd ..</span>
-      </Link>
+      <article className='z-art'>
+        <h1>{post.title}</h1>
+        <div className='meta'>
+          {date} ・ {post.visibility} ・ {post.tags.join(' ・ ') || '未分類'}
+        </div>
+        <Markdown content={post.contentMdx} />
+      </article>
+      <div className='z-ma' aria-hidden='true'>
+        <span>読 者 の 声</span>
+      </div>
       <Comments
         key={post.slug}
         slug={post.slug}
@@ -95,6 +95,11 @@ function BlogDetailPage() {
         initialTotal={data.comments.total}
         sessionUser={data.sessionUser}
       />
+      <p className='mt-10 text-center'>
+        <Link to='/blog' className='z-link'>
+          ― 目次へ ―
+        </Link>
+      </p>
     </div>
   );
 }
