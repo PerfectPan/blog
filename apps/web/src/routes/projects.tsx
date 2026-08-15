@@ -1,5 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
-import { ExternalLink, Github } from 'lucide-react';
+import { createFileRoute } from '@tanstack/react-router';
 import { PROJECTS, type Project } from '../lib/projects.js';
 
 export const Route = createFileRoute('/projects')({
@@ -25,67 +24,54 @@ function ProjectsPage() {
   const projects = sortProjects(PROJECTS);
 
   return (
-    <div className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-      <h1 className='mb-2 text-3xl font-black'>Projects</h1>
-      <p className='mb-8 opacity-70'>我做过的一些东西，按需更新。</p>
+    <div className='e-board'>
+      <section className='e-sheet'>
+        <span className='e-tick tl' aria-hidden='true' />
+        <span className='e-tick tr' aria-hidden='true' />
+        <span className='e-tick bl' aria-hidden='true' />
+        <span className='e-tick br' aria-hidden='true' />
+        <div className='e-sheet-head'>
+          <span className='dwg'>DWG NO. PP-PRJ-001</span>
+          <span className='dwg'>
+            REV <span className='rev'>A</span>
+          </span>
+        </div>
 
-      <div className='grid gap-4 sm:grid-cols-2'>
-        {projects.map((project) => (
-          <article
-            key={project.name}
-            className='flex flex-col rounded-lg border border-slate-200 bg-white/60 p-5 transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-wash-dark'
-          >
-            <div className='mb-1 flex items-center gap-2'>
-              <h2 className='text-lg font-semibold'>{project.name}</h2>
-              {project.featured ? (
-                <span className='rounded-full bg-black px-2 py-[2px] text-[10px] font-semibold text-white dark:bg-neutral-100 dark:text-neutral-900'>
-                  FEATURED
-                </span>
-              ) : null}
+        {projects.map((project, index) => (
+          <div className='e-dwg-row' key={project.name}>
+            <div className='no'>
+              {String(projects.length - index).padStart(2, '0')}
+              {project.featured ? <span className='feat'>FEATURED</span> : null}
             </div>
-            <p className='mb-4 flex-grow text-sm opacity-70'>
-              {project.description}
-            </p>
-            <div className='mb-4 flex flex-wrap gap-1.5'>
-              {project.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className='rounded-md border border-slate-200 px-2 py-[2px] text-[11px] opacity-70 dark:border-slate-700'
-                >
-                  {tag}
-                </span>
-              ))}
+            <div>
+              <h2>{project.name}</h2>
+              <p>{project.description}</p>
             </div>
-            <div className='flex items-center gap-4 text-sm'>
-              <a
-                href={project.repo}
-                target='_blank'
-                rel='noreferrer'
-                className='inline-flex items-center gap-1 opacity-70 hover:opacity-100'
-              >
-                <Github size={15} />
-                Code
+            <div className='links'>
+              <a href={project.repo} target='_blank' rel='noreferrer'>
+                CODE ↗
               </a>
               {project.demo ? (
-                <a
-                  href={project.demo}
-                  target='_blank'
-                  rel='noreferrer'
-                  className='inline-flex items-center gap-1 opacity-70 hover:opacity-100'
-                >
-                  <ExternalLink size={15} />
-                  Demo
+                <a href={project.demo} target='_blank' rel='noreferrer'>
+                  DEMO ↗
                 </a>
               ) : null}
             </div>
-          </article>
+          </div>
         ))}
-      </div>
 
-      <Link to='/' className='mt-8 inline-block'>
-        <span className='opacity-70'>&gt;&nbsp;&nbsp;&nbsp;</span>
-        <span className='underline opacity-70 hover:opacity-100'>cd ..</span>
-      </Link>
+        <div className='e-titleblock'>
+          <span className='cell'>
+            <b>PP-PRJ</b>
+          </span>
+          <span className='cell'>
+            TITLE<b>装配图集</b>
+          </span>
+          <span className='cell opt'>
+            QTY<b>{projects.length}</b>
+          </span>
+        </div>
+      </section>
     </div>
   );
 }

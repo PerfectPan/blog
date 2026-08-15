@@ -1,8 +1,6 @@
 import { Link } from '@tanstack/react-router';
-import { Github, LogOut, Rss, Search, UserRound } from 'lucide-react';
+import { Github, LogOut, Rss, UserRound } from 'lucide-react';
 import { authClient } from '../lib/auth-client.js';
-import { DarkMode } from './dark-mode.js';
-import { MenuLink } from './menu.js';
 import { searchPalette } from './search-palette-store.js';
 
 function getRoleLabel(role?: string | null): string {
@@ -17,78 +15,84 @@ function getRoleLabel(role?: string | null): string {
   return 'MEMBER';
 }
 
+/** Blueprint drawing-index bar: DWG no + nav + tools. Dark-native theme. */
 export function Header() {
   const { data: sessionData } = authClient.useSession();
   const sessionUser = sessionData?.user ?? null;
 
   return (
-    <header className='border-b border-slate-200 bg-white shadow-md dark:border-slate-300/10 dark:bg-slate-900'>
-      <div className='mx-4 flex h-16 items-center sm:mx-6'>
+    <header className='e-head'>
+      <span className='dwg'>
+        DWG NO. <b>PP-NAV-000</b> · REV <b>C</b>
+      </span>
+      <nav aria-label='图纸目录'>
         <Link
           to='/'
-          className='rounded-md border-10 border-black bg-black px-1 font-bold text-white dark:border-neutral-900 dark:bg-neutral-900'
+          activeOptions={{ exact: true }}
+          activeProps={{ className: 'on' }}
         >
-          PerfectPan
+          COVER
         </Link>
-        <div className='m-0 flex list-none items-center pl-1'>
-          <MenuLink href='/' name='Home' />
-          <MenuLink href='/blog' name='Blog' />
-          <MenuLink href='/projects' name='Projects' />
-          {sessionUser?.role === 'admin' ? (
-            <MenuLink href='/admin' name='Admin' />
-          ) : null}
-        </div>
-        <div className='ml-auto flex items-center gap-2 sm:gap-3'>
-          {sessionUser ? (
-            <div className='hidden items-center gap-2 rounded-full border border-slate-300 px-3 py-1 text-xs text-gray-700 md:flex dark:border-slate-600 dark:text-slate-200'>
-              <UserRound size={14} className='opacity-70' />
-              <span className='max-w-[220px] truncate'>
-                {sessionUser.email}
-              </span>
-              <span className='rounded-full bg-black px-2 py-[2px] text-[10px] font-semibold text-white dark:bg-neutral-100 dark:text-neutral-900'>
-                {getRoleLabel(sessionUser.role)}
-              </span>
-            </div>
-          ) : null}
-          {sessionUser ? (
-            <Link
-              to='/logout'
-              className='inline-flex items-center gap-1 rounded-md border border-slate-300 px-2 py-1 text-sm opacity-85 transition-opacity hover:opacity-100 dark:border-slate-600'
-            >
-              <LogOut size={14} />
-              <span className='hidden sm:inline'>Logout</span>
+        <Link to='/blog' activeProps={{ className: 'on' }}>
+          BLOG
+        </Link>
+        <Link to='/projects' activeProps={{ className: 'on' }}>
+          PROJECTS
+        </Link>
+        {sessionUser?.role === 'admin' ? (
+          <Link to='/admin' activeProps={{ className: 'on' }}>
+            ADMIN
+          </Link>
+        ) : null}
+      </nav>
+      <div className='tools'>
+        {sessionUser ? (
+          <span className='e-user'>
+            <UserRound size={12} aria-hidden='true' />
+            <span className='max-w-[180px] truncate'>{sessionUser.email}</span>
+            <span className='e-role'>{getRoleLabel(sessionUser.role)}</span>
+          </span>
+        ) : null}
+        {sessionUser ? (
+          <Link to='/logout' className='e-tool' aria-label='Logout'>
+            <LogOut size={12} aria-hidden='true' />
+          </Link>
+        ) : (
+          <>
+            <Link to='/login' className='e-tool'>
+              SIGN IN
             </Link>
-          ) : (
-            <>
-              <Link to='/login' className='opacity-70 hover:opacity-100'>
-                Login
-              </Link>
-              <Link to='/signup' className='opacity-70 hover:opacity-100'>
-                Sign Up
-              </Link>
-            </>
-          )}
-          <button
-            type='button'
-            aria-label='Search posts (Cmd+K)'
-            onClick={() => searchPalette.open()}
-            className='inline-flex items-center opacity-70 transition-opacity hover:opacity-100'
-          >
-            <Search size={22} />
-          </button>
-          <DarkMode />
-          <a
-            href='https://github.com/PerfectPan'
-            target='_blank'
-            rel='noreferrer'
-            className='flex items-center'
-          >
-            <Github size={22} className='opacity-70 hover:opacity-100' />
-          </a>
-          <a href='/rss.xml' target='_blank' rel='noreferrer'>
-            <Rss size={24} className='opacity-70 hover:opacity-100' />
-          </a>
-        </div>
+            <Link to='/signup' className='e-tool'>
+              SIGN UP
+            </Link>
+          </>
+        )}
+        <button
+          type='button'
+          className='e-tool'
+          aria-label='检索 (Cmd+K)'
+          onClick={() => searchPalette.open()}
+        >
+          ⌘K
+        </button>
+        <a
+          href='https://github.com/PerfectPan'
+          target='_blank'
+          rel='noreferrer'
+          className='e-tool'
+          aria-label='GitHub'
+        >
+          <Github size={12} aria-hidden='true' />
+        </a>
+        <a
+          href='/rss.xml'
+          target='_blank'
+          rel='noreferrer'
+          className='e-tool'
+          aria-label='RSS'
+        >
+          <Rss size={12} aria-hidden='true' />
+        </a>
       </div>
     </header>
   );

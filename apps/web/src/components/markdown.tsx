@@ -78,20 +78,17 @@ function CodeBlock({ children }: { children?: ReactNode }) {
   }, []);
 
   return (
-    <div className='group relative mb-2'>
+    <div className='e-code group relative'>
       <button
         type='button'
         onClick={onCopy}
         aria-label='Copy code'
-        className='absolute right-2 top-2 z-10 inline-flex items-center gap-1 rounded border border-slate-300 bg-white/70 px-1.5 py-0.5 text-xs opacity-0 backdrop-blur transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100 hover-none:opacity-70 dark:border-slate-700 dark:bg-slate-900/70'
+        className='e-code-copy'
       >
         {copied ? <Check size={12} /> : <Copy size={12} />}
         {copied ? 'Copied' : 'Copy'}
       </button>
-      <pre
-        ref={preRef}
-        className='shiki w-full overflow-x-auto whitespace-pre-wrap rounded-md bg-zinc-50 p-4 dark:bg-shiki-dark'
-      >
+      <pre ref={preRef} className='shiki e-pre w-full overflow-x-auto'>
         {children}
       </pre>
     </div>
@@ -112,7 +109,7 @@ export function Markdown({ content }: MarkdownProps) {
   }, []);
 
   return (
-    <article>
+    <article className='md'>
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath]}
         rehypePlugins={[
@@ -133,10 +130,7 @@ export function Markdown({ content }: MarkdownProps) {
             const id = typeof children === 'string' ? children : '';
 
             return (
-              <h2
-                id={id}
-                className='mb-6 mt-14 scroll-mt-20 text-balance text-2xl leading-none font-black first:mt-0'
-              >
+              <h2 id={id} className='scroll-mt-20'>
                 <a
                   href={`#${id}`}
                   onClick={(event) => {
@@ -150,24 +144,21 @@ export function Markdown({ content }: MarkdownProps) {
               </h2>
             );
           },
-          p: ({ children }) => <p className='mb-6 leading-7'>{children}</p>,
+          p: ({ children }) => <p>{children}</p>,
           a: ({ href, children }) => (
-            <a
-              href={href}
-              className='text-blue-700/80 transition-colors duration-300 ease-in-out hover:text-blue-700'
-              target='_blank'
-              rel='noreferrer'
-            >
+            <a href={href} target='_blank' rel='noreferrer'>
               {children}
             </a>
           ),
-          strong: ({ children }) => (
-            <b className='font-extrabold'>{children}</b>
-          ),
-          ul: ({ children }) => (
-            <ul className='mb-4 ml-4 list-disc'>{children}</ul>
-          ),
+          strong: ({ children }) => <b className='font-bold'>{children}</b>,
+          ul: ({ children }) => <ul>{children}</ul>,
           pre: ({ children }) => <CodeBlock>{children}</CodeBlock>,
+          code: ({ className, children }) =>
+            /language-/.test(className ?? '') ? (
+              <code className={className}>{children}</code>
+            ) : (
+              <code className='e-inline'>{children}</code>
+            ),
         }}
       >
         {content}

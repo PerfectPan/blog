@@ -1,6 +1,5 @@
 import type { PostSummary, SessionUser } from '@blog/shared';
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useEffect } from 'react';
 import { z } from 'zod';
 import { getBlogListServerFn } from '../../lib/blog-service.js';
@@ -49,6 +48,14 @@ function getDevScopeHint(sessionUser: SessionUser | null | undefined): string {
   return '当前身份：member；可见范围：public/member';
 }
 
+const PERM_CLASS: Record<PostSummary['visibility'], string> = {
+  public: 'e-perm pub',
+  member: 'e-perm mem',
+  vip: 'e-perm vip',
+  admin: 'e-perm adm',
+  password: 'e-perm pw',
+};
+
 export const Route = createFileRoute('/blog/')({
   head: () => ({
     meta: [
@@ -77,88 +84,122 @@ function BlogListPage() {
   const devScopeHint = getDevScopeHint(data.sessionUser);
 
   // Conventional blog pagination: the page scrolls naturally; jump back to the
-  // top on each page change so the new page starts at its first post. (Without
-  // this, clicking "next" while scrolled to the bottom leaves the reader past a
-  // shorter page — the original "bounce".)
+  // top on each page change so the new page starts at its first post.
   // biome-ignore lint/correctness/useExhaustiveDependencies: re-run on page change, value unused in body on purpose
   useEffect(() => {
     document.querySelector('main')?.scrollTo({ top: 0 });
   }, [data.page]);
 
   return (
-    <div className='mx-auto flex w-full max-w-[80ch] flex-col gap-8 self-start pt-8'>
-      <div className='w-full'>
-        {showDevHint ? (
-          <div className='mb-8 rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900'>
-            {devScopeHint}
-          </div>
-        ) : null}
-        {blogGroups.map((group) => (
-          <div key={group.year}>
-            <div className='mb-4 text-3xl'>{group.year}</div>
-            {group.blogs.map((blog: PostSummary) => (
-              <div
-                key={blog.slug}
-                className='mt-2 mb-6 opacity-70 hover:opacity-100'
-              >
-                <Link
-                  to='/blog/$slug'
-                  params={{ slug: blog.slug }}
-                  className='flex items-center gap-2'
-                >
-                  <span className='text-lg leading-[1.2em]'>{blog.title}</span>
-                  <span className='text-sm opacity-50'>
-                    {new Date(blog.publishedAt).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                    })}
-                  </span>
-                </Link>
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
-      {data.totalPages > 1 ? (
-        <nav
-          className='flex w-full items-center justify-center gap-4 text-sm sm:gap-6'
-          aria-label='Pagination'
-        >
-          {data.page > 1 ? (
-            <Link
-              to='/blog'
-              search={{ page: data.page - 1 }}
-              className='inline-flex items-center gap-1 opacity-60 hover:opacity-100'
-            >
-              <ChevronLeft size={14} /> prev
-            </Link>
-          ) : (
-            <span className='inline-flex items-center gap-1 opacity-30'>
-              <ChevronLeft size={14} /> prev
-            </span>
-          )}
-          <span className='opacity-60'>
-            page {data.page} / {data.totalPages}
+    <div className='e-board'>
+      <section className='e-sheet'>
+        <span className='e-tick tl' aria-hidden='true' />
+        <span className='e-tick tr' aria-hidden='true' />
+        <span className='e-tick bl' aria-hidden='true' />
+        <span className='e-tick br' aria-hidden='true' />
+        <div className='e-sheet-head'>
+          <span className='dwg'>
+            DWG NO. PP-BLOG-{String(data.page).padStart(3, '0')}
           </span>
-          {data.page < data.totalPages ? (
-            <Link
-              to='/blog'
-              search={{ page: data.page + 1 }}
-              className='inline-flex items-center gap-1 opacity-60 hover:opacity-100'
-            >
-              next <ChevronRight size={14} />
-            </Link>
-          ) : (
-            <span className='inline-flex items-center gap-1 opacity-30'>
-              next <ChevronRight size={14} />
+          <span className='dwg'>
+            REV <span className='rev'>C</span>
+          </span>
+        </div>
+
+        {showDevHint ? <div className='e-devhint'>{devScopeHint}</div> : null}
+
+        <table className='e-bom'>
+          <thead>
+            <tr>
+              <th>ITEM</th>
+              <th>TITLE / DESCRIPTION</th>
+              <th>ACCESS</th>
+              <th>DATE</th>
+              <th>MARK</th>
+            </tr>
+          </thead>
+          <tbody>
+            {blogGroups.map((group) => (
+              <Fragment key={group.year} group={group} data={data} />
+            ))}
+          </tbody>
+        </table>
+
+        {data.totalPages > 1 ? (
+          <nav className='e-pager' aria-label='Pagination'>
+            {data.page > 1 ? (
+              <Link to='/blog' search={{ page: data.page - 1 }}>
+                ← PREV
+              </Link>
+            ) : (
+              <span style={{ opacity: 0.5 }}>← PREV</span>
+            )}
+            <span>
+              SHEET {data.page} / {data.totalPages}
             </span>
-          )}
-        </nav>
-      ) : null}
-      <Link to='/' className='mt-4 inline-block'>
-        <span className='opacity-70'>&gt;&nbsp;&nbsp;&nbsp;</span>
-        <span className='underline opacity-70 hover:opacity-100'>cd ..</span>
-      </Link>
+            {data.page < data.totalPages ? (
+              <Link to='/blog' search={{ page: data.page + 1 }}>
+                NEXT →
+              </Link>
+            ) : (
+              <span style={{ opacity: 0.5 }}>NEXT →</span>
+            )}
+          </nav>
+        ) : null}
+
+        <div className='e-titleblock'>
+          <span className='cell'>
+            <b>PP-BLOG</b>
+          </span>
+          <span className='cell'>
+            TITLE<b>材料清单</b>
+          </span>
+          <span className='cell opt'>
+            SHEET
+            <b>
+              {data.page}/{data.totalPages}
+            </b>
+          </span>
+        </div>
+      </section>
     </div>
+  );
+}
+
+function Fragment({
+  group,
+  data,
+}: {
+  group: BlogGroup;
+  data: { total: number; page: number; totalPages: number };
+}) {
+  const startIndex = data.total - (data.page - 1) * 10;
+  return (
+    <>
+      <tr className='yr'>
+        <td colSpan={5}>— {group.year} —</td>
+      </tr>
+      {group.blogs.map((blog: PostSummary, index: number) => (
+        <tr key={blog.slug}>
+          <td className='e-item-no'>
+            {String(Math.max(1, startIndex - index)).padStart(3, '0')}
+          </td>
+          <td>
+            <Link to='/blog/$slug' params={{ slug: blog.slug }}>
+              {blog.title}
+            </Link>
+          </td>
+          <td className={PERM_CLASS[blog.visibility]}>
+            {blog.visibility.toUpperCase()}
+          </td>
+          <td className='e-item-no'>
+            {new Date(blog.publishedAt).toISOString().slice(5, 10)}
+          </td>
+          <td className='e-item-no'>
+            {blog.tags.slice(0, 2).join('·') || '—'}
+          </td>
+        </tr>
+      ))}
+    </>
   );
 }

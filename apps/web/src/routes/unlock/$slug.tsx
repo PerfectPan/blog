@@ -78,48 +78,56 @@ function UnlockPage() {
     search.error === 'missing'
       ? '请输入访问密码'
       : search.error === 'invalid'
-        ? '密码错误，请重试'
+        ? '密码错误，请重试（连续失败会触发限流）'
         : undefined;
 
   return (
-    <section className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-      <h1 className='mb-2 text-3xl font-black'>输入文章访问密码</h1>
-      <p className='mb-6 opacity-70'>这篇文章使用了单文密码保护。</p>
-
-      {errorLabel ? (
-        <p role='alert' className='mb-4 text-sm text-red-700 dark:text-red-300'>
-          {errorLabel}
-        </p>
-      ) : null}
-
-      <form method='post' className='grid max-w-[420px] gap-3'>
-        <label htmlFor='password' className='font-semibold'>
-          Password
-        </label>
-        <input
-          id='password'
-          name='password'
-          type='password'
-          required
-          className='rounded-md border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-wash-dark'
-        />
-        <button
-          type='submit'
-          className='rounded-md bg-black px-4 py-2 font-semibold text-white transition-opacity hover:opacity-90 dark:bg-neutral-900'
-        >
-          Unlock
-        </button>
-      </form>
-
-      <p className='mt-4'>
-        <Link
-          to='/blog/$slug'
-          params={{ slug }}
-          className='opacity-70 hover:opacity-100'
-        >
-          返回文章页
-        </Link>
-      </p>
-    </section>
+    <div className='e-board'>
+      <section className='e-sheet' style={{ maxWidth: 540, margin: '0 auto' }}>
+        <span className='e-tick tl' aria-hidden='true' />
+        <span className='e-tick tr' aria-hidden='true' />
+        <span className='e-tick bl' aria-hidden='true' />
+        <span className='e-tick br' aria-hidden='true' />
+        <div className='e-sheet-head'>
+          <span className='dwg'>DWG NO. PP-AUTH-03</span>
+          <span className='dwg' style={{ color: 'var(--e-red)' }}>
+            STATUS: LOCKED
+          </span>
+        </div>
+        <div className='e-gate'>
+          <h1>UNLOCK / 解锁图纸</h1>
+          <p className='sub'>此篇以单文密码封缄 ・ 验后 24 小时免复输入</p>
+          <form method='post'>
+            <div className='e-field'>
+              <label htmlFor='password'>POST PASSWORD</label>
+              <input
+                id='password'
+                name='password'
+                type='password'
+                required
+                className='e-input'
+              />
+            </div>
+            {errorLabel ? <p className='e-err'>{errorLabel}</p> : null}
+            <div className='e-actions'>
+              <button type='submit' className='e-btn e-btn-fill'>
+                UNLOCK
+              </button>
+              <Link to='/blog/$slug' params={{ slug }} className='e-btn'>
+                ← BACK
+              </Link>
+            </div>
+          </form>
+        </div>
+        <div className='e-titleblock'>
+          <span className='cell'>
+            <b>PP-AUTH-03</b>
+          </span>
+          <span className='cell'>
+            TITLE<b>密笺</b>
+          </span>
+        </div>
+      </section>
+    </div>
   );
 }
