@@ -86,9 +86,6 @@ function BlogDetailPage() {
 
   return (
     <div className='j-sheet'>
-      <aside className='j-spine' aria-hidden='true'>
-        PerfectPan's Blog · {post.slug}
-      </aside>
       <article className='j-article'>
         <h1 className='j-entry-title'>{post.title}</h1>
         <p className='j-entry-meta'>
