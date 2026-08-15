@@ -26,7 +26,7 @@ export const Route = createRootRoute({
       },
       {
         name: 'theme-color',
-        content: '#000000',
+        content: '#F6F3EC',
       },
     ],
     links: [
@@ -38,12 +38,12 @@ export const Route = createRootRoute({
   errorComponent: ({ error }) => (
     <RootDocument>
       <AppLayout>
-        <div className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-          <h2 className='mb-4 text-3xl'>Request Failed</h2>
-          <p className='mb-4 opacity-70'>{String(error)}</p>
-          <Link to='/blog' className='opacity-70 hover:opacity-100'>
-            Back to blog
-          </Link>
+        <div className='j-sheet'>
+          <h1 className='j-entry-title text-center'>未能成页</h1>
+          <p className='j-entry-meta text-center'>{String(error)}</p>
+          <p className='j-backlink'>
+            <Link to='/blog'>— 返 目 次 —</Link>
+          </p>
         </div>
       </AppLayout>
     </RootDocument>
@@ -51,12 +51,19 @@ export const Route = createRootRoute({
   notFoundComponent: () => (
     <RootDocument>
       <AppLayout>
-        <div className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-          <h2 className='mb-4 text-3xl'>404 Not Found</h2>
-          <p className='mb-4 opacity-70'>你闯入了无人之境...</p>
-          <Link to='/blog' className='opacity-70 hover:opacity-100'>
-            Back to blog
-          </Link>
+        <div className='j-nf'>
+          <span className='j-seal' aria-hidden='true'>
+            阙
+          </span>
+          <div className='zh' style={{ marginTop: 30 }}>
+            此页未收
+          </div>
+          <p>本刊并无此篇 · 或已散佚</p>
+          <p style={{ marginTop: 26 }}>
+            <Link to='/blog' className='j-btn'>
+              返 目 次
+            </Link>
+          </p>
         </div>
       </AppLayout>
     </RootDocument>

@@ -70,31 +70,58 @@ function BlogDetailPage() {
     return null;
   }
 
-  const date = new Date(post.publishedAt).toLocaleDateString('en-US', {
+  const date = new Date(post.publishedAt).toLocaleDateString('zh-CN', {
+    year: 'numeric',
     month: 'long',
     day: 'numeric',
-    year: 'numeric',
   });
 
   return (
-    <div className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-      <div className='m-auto mb-8 flex flex-col gap-2'>
-        <div className='text-3xl font-black'>{post.title}</div>
-        <div className='opacity-60'>{date}</div>
+    <div className='j-sheet'>
+      <aside className='j-spine' aria-hidden='true'>
+        废墨集 · {new Date(post.publishedAt).getFullYear()} 年卷 · {post.slug}
+      </aside>
+      <article className='j-article'>
+        <div className='j-running-head'>
+          废墨集 · {date} · 栏目：
+          {post.tags.length > 0 ? post.tags.join('・') : '未分栏'}
+        </div>
+        <h1 className='j-entry-title'>{post.title}</h1>
+
+        <div className='j-article'>
+          <p className='j-entry-meta'>
+            <span>{date}</span>
+            <span>·</span>
+            <span>
+              {post.visibility === 'public'
+                ? '公开'
+                : post.visibility === 'member'
+                  ? '会员可读'
+                  : post.visibility === 'vip'
+                    ? 'VIP'
+                    : post.visibility === 'admin'
+                      ? '编者'
+                      : '密笈'}
+            </span>
+          </p>
+        </div>
+
+        <Markdown content={post.contentMdx} />
+
+        <div className='j-backlink'>
+          <Link to='/blog'>— 返 目 次 —</Link>
+        </div>
+      </article>
+      <div className='j-letters'>
+        <Comments
+          key={post.slug}
+          slug={post.slug}
+          initialComments={data.comments.comments}
+          initialHasMore={data.comments.hasMore}
+          initialTotal={data.comments.total}
+          sessionUser={data.sessionUser}
+        />
       </div>
-      <Markdown content={post.contentMdx} />
-      <Link to='/blog' className='mt-4 inline-block'>
-        <span className='opacity-70'>&gt;&nbsp;&nbsp;&nbsp;</span>
-        <span className='underline opacity-70 hover:opacity-100'>cd ..</span>
-      </Link>
-      <Comments
-        key={post.slug}
-        slug={post.slug}
-        initialComments={data.comments.comments}
-        initialHasMore={data.comments.hasMore}
-        initialTotal={data.comments.total}
-        sessionUser={data.sessionUser}
-      />
     </div>
   );
 }

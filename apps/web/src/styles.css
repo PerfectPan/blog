@@ -144,3 +144,899 @@ html.dark ::-webkit-scrollbar-thumb {
 html.dark ::-webkit-scrollbar-thumb:hover {
   background: rgb(148 163 184 / 0.55);
 }
+
+/* =====================================================================
+ * THEME B — Literary Journal 《废墨集》 (UX redesign direction B)
+ * Paper-native Chinese literary journal: serif display, seal red,
+ * vertical spine label, TOC dot leaders, drop caps. Light-only.
+ * =================================================================== */
+:root {
+  /* shadcn token layer → paper palette (search palette & dialogs) */
+  --background: 45 30% 94%;
+  --foreground: 30 6% 14%;
+  --card: 45 27% 96%;
+  --card-foreground: 30 6% 14%;
+  --popover: 45 27% 96%;
+  --popover-foreground: 30 6% 14%;
+  --primary: 8 58% 42%;
+  --primary-foreground: 40 33% 94%;
+  --secondary: 45 22% 90%;
+  --secondary-foreground: 30 6% 14%;
+  --muted: 45 22% 90%;
+  --muted-foreground: 40 8% 42%;
+  --accent: 45 22% 88%;
+  --accent-foreground: 30 6% 14%;
+  --destructive: 8 58% 42%;
+  --destructive-foreground: 40 33% 94%;
+  --border: 44 18% 80%;
+  --input: 44 18% 80%;
+  --ring: 8 58% 42%;
+  --radius: 0.125rem;
+
+  --j-paper: #f6f3ec;
+  --j-paper2: #efeae0;
+  --j-ink: #262523;
+  --j-faded: #6e6a60;
+  --j-faint: #a29c8e;
+  --j-red: #a63a2b;
+  --j-indigo: #2e4a68;
+  --j-rule: #dad4c6;
+  --j-serif:
+    "Songti SC", "Noto Serif SC", "Source Han Serif SC", "SimSun", serif;
+  --j-sans:
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+  --j-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+html {
+  background-color: var(--j-paper);
+  scrollbar-color: #cfc8b8 var(--j-paper);
+}
+
+html body {
+  font-family: var(--j-serif);
+  background-color: var(--j-paper);
+  color: var(--j-ink);
+  font-size: 16.5px;
+  line-height: 2;
+}
+
+::selection {
+  background: rgba(166, 58, 43, 0.16);
+}
+
+/* ---------- masthead ---------- */
+.j-masthead {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 30px 24px 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+}
+.j-brand {
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: 0.22em;
+  white-space: nowrap;
+}
+.j-brand a {
+  color: var(--j-ink);
+}
+.j-brand a:hover {
+  color: var(--j-ink);
+  text-decoration: none;
+}
+.j-brand .j-dot {
+  color: var(--j-red);
+}
+.j-masthead nav {
+  display: flex;
+  gap: 26px;
+  font-family: var(--j-sans);
+  font-size: 13.5px;
+  letter-spacing: 0.28em;
+  margin-left: auto;
+}
+.j-masthead nav a,
+.j-masthead nav button {
+  color: var(--j-faded);
+  font-family: var(--j-sans);
+  font-size: 13.5px;
+  letter-spacing: 0.28em;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+}
+.j-masthead nav a:hover,
+.j-masthead nav button:hover {
+  color: var(--j-red);
+  text-decoration: none;
+}
+.j-headrule {
+  max-width: 960px;
+  margin: 14px auto 0;
+  padding: 0 24px;
+}
+.j-headrule hr {
+  border: 0;
+  border-top: 2.5px solid var(--j-ink);
+  position: relative;
+}
+.j-headrule hr::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 3px;
+  border-top: 1px solid var(--j-ink);
+}
+
+/* ---------- shell ---------- */
+.j-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+}
+.j-main {
+  flex: 1;
+  overflow-y: auto;
+}
+.j-sheet {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px 24px 60px;
+  position: relative;
+}
+.j-spine {
+  position: absolute;
+  left: -54px;
+  top: 6px;
+  writing-mode: vertical-rl;
+  letter-spacing: 0.5em;
+  font-size: 13px;
+  color: var(--j-faint);
+  border-right: 1px solid var(--j-rule);
+  padding-right: 10px;
+  height: 320px;
+  user-select: none;
+}
+@media (max-width: 860px) {
+  .j-spine {
+    display: none;
+  }
+}
+
+.j-colophon {
+  border-top: 2.5px solid var(--j-ink);
+  position: relative;
+  margin: 48px auto 0;
+  max-width: 960px;
+  padding: 18px 24px 26px;
+  text-align: center;
+  font-family: var(--j-sans);
+  font-size: 12px;
+  color: var(--j-faint);
+  letter-spacing: 0.2em;
+}
+.j-colophon::before {
+  content: "";
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  top: 3px;
+  border-top: 1px solid var(--j-ink);
+}
+.j-colophon a {
+  color: var(--j-indigo);
+}
+
+/* ---------- seal & notes ---------- */
+.j-seal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  background: var(--j-red);
+  color: #f8f4ea;
+  font-size: 24px;
+  font-weight: 900;
+  border-radius: 7px;
+  box-shadow:
+    inset 0 0 0 2px rgba(248, 244, 234, 0.55),
+    inset 0 0 0 4px var(--j-red);
+  transform: rotate(-4deg);
+}
+.j-note {
+  font-family: var(--j-sans);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--j-faded);
+  border: 1px solid var(--j-rule);
+  border-radius: 2px;
+  padding: 0 6px;
+  margin-left: 10px;
+  white-space: nowrap;
+  vertical-align: 2px;
+}
+.j-note.vip,
+.j-note.mem {
+  color: var(--j-indigo);
+  border-color: #c9d4df;
+}
+.j-note.pw {
+  color: var(--j-red);
+  border-color: #dfc0ba;
+}
+.j-note.adm {
+  color: var(--j-faded);
+}
+
+/* ---------- 扉页 home ---------- */
+.j-frontispiece {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 48px;
+  align-items: start;
+}
+.j-vertical {
+  writing-mode: vertical-rl;
+  font-size: 78px;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  line-height: 1.15;
+  border-left: 3px solid var(--j-ink);
+  padding-left: 26px;
+  height: 440px;
+  user-select: none;
+}
+.j-vertical small {
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--j-faded);
+  letter-spacing: 0.4em;
+  margin-top: 18px;
+}
+@media (max-width: 760px) {
+  .j-frontispiece {
+    grid-template-columns: 1fr;
+  }
+  .j-vertical {
+    height: auto;
+    writing-mode: horizontal-tb;
+    font-size: 44px;
+    border-left: 0;
+    border-bottom: 3px solid var(--j-ink);
+    padding: 0 0 16px;
+  }
+  .j-vertical small {
+    margin: 8px 0 0 10px;
+    display: block;
+  }
+}
+.j-tagline {
+  font-size: 19px;
+  line-height: 2.1;
+  max-width: 34ch;
+}
+.j-facts {
+  margin-top: 26px;
+  font-family: var(--j-sans);
+  font-size: 13px;
+  color: var(--j-faded);
+  display: flex;
+  gap: 22px;
+  flex-wrap: wrap;
+  letter-spacing: 0.1em;
+}
+.j-facts b {
+  color: var(--j-ink);
+  font-weight: 600;
+}
+.j-blockhead {
+  font-family: var(--j-sans);
+  font-size: 12.5px;
+  letter-spacing: 0.42em;
+  color: var(--j-red);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.j-btn {
+  font-family: var(--j-sans);
+  font-size: 13.5px;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  padding: 10px 26px;
+  border-radius: 2px;
+  border: 1.5px solid var(--j-ink);
+  background: transparent;
+  color: var(--j-ink);
+  transition: all 0.15s;
+  display: inline-block;
+}
+.j-btn:hover {
+  background: var(--j-ink);
+  color: var(--j-paper);
+  text-decoration: none;
+}
+.j-btn-red {
+  border-color: var(--j-red);
+  color: var(--j-red);
+}
+.j-btn-red:hover {
+  background: var(--j-red);
+  color: var(--j-paper);
+}
+
+/* ---------- 目次 TOC ---------- */
+.j-entry-title {
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+}
+.j-entry-meta {
+  font-family: var(--j-sans);
+  font-size: 13px;
+  color: var(--j-indigo);
+  letter-spacing: 0.06em;
+  margin-top: 10px;
+}
+.j-juan {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  margin: 40px 0 8px;
+}
+.j-juan h2 {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 0.3em;
+}
+.j-juan .sub {
+  font-family: var(--j-sans);
+  font-size: 12px;
+  color: var(--j-faint);
+  letter-spacing: 0.2em;
+}
+.j-juan::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid var(--j-rule);
+  transform: translateY(-6px);
+}
+.j-toc-line {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 17px;
+}
+.j-toc-line a {
+  display: flex;
+  flex: 1;
+  align-items: baseline;
+  gap: 10px;
+  color: var(--j-ink);
+}
+.j-toc-line a:hover {
+  text-decoration: none;
+}
+.j-toc-line .t {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.j-toc-line a:hover .t {
+  color: var(--j-red);
+}
+.j-toc-line .dots {
+  flex: 1;
+  border-bottom: 2px dotted var(--j-faint);
+  transform: translateY(-5px);
+  min-width: 24px;
+}
+.j-toc-line .n {
+  font-family: var(--j-mono);
+  font-size: 12.5px;
+  color: var(--j-faded);
+  white-space: nowrap;
+}
+.j-pager {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 50px;
+  font-family: var(--j-sans);
+  font-size: 13px;
+  letter-spacing: 0.15em;
+  color: var(--j-faded);
+}
+.j-pager a {
+  color: var(--j-red);
+}
+.j-devhint {
+  font-family: var(--j-sans);
+  border: 1px dashed var(--j-rule);
+  background: var(--j-paper2);
+  color: var(--j-faded);
+  border-radius: 3px;
+  padding: 8px 14px;
+  font-size: 13px;
+  margin-bottom: 18px;
+}
+
+/* ---------- 正文 article ---------- */
+.j-article {
+  max-width: 46em;
+  margin: 0 auto;
+}
+.j-running-head {
+  font-family: var(--j-sans);
+  font-size: 11.5px;
+  color: var(--j-faint);
+  letter-spacing: 0.3em;
+  text-align: center;
+  margin-bottom: 26px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--j-rule);
+}
+.j-article .j-entry-title,
+.j-article .j-entry-meta {
+  text-align: center;
+}
+.j-article .j-entry-meta {
+  margin: 14px 0 34px;
+}
+.j-backlink {
+  text-align: center;
+  margin-top: 54px;
+  font-family: var(--j-sans);
+  font-size: 13px;
+  letter-spacing: 0.3em;
+}
+.j-backlink a {
+  color: var(--j-faded);
+}
+.j-backlink a:hover {
+  color: var(--j-red);
+}
+
+.md p {
+  margin: 18px 0;
+  text-align: justify;
+}
+.md > p:first-of-type::first-letter,
+.md > p:first-child::first-letter {
+  font-size: 3em;
+  font-weight: 900;
+  float: left;
+  line-height: 1;
+  margin: 8px 12px 0 0;
+  color: var(--j-red);
+}
+.md h2 {
+  font-size: 21px;
+  font-weight: 900;
+  margin: 40px 0 14px;
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  scroll-margin-top: 20px;
+}
+.md h2::before,
+.md h2::after {
+  content: "";
+  height: 1px;
+  background: var(--j-rule);
+  flex: 1;
+}
+.md h2 a {
+  color: inherit;
+}
+.md ul {
+  padding-left: 0;
+  list-style: none;
+  margin: 16px 0;
+}
+.md ul li {
+  padding-left: 1.6em;
+  position: relative;
+  margin: 8px 0;
+}
+.md ul li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--j-red);
+}
+.md a {
+  color: var(--j-indigo);
+}
+.md a:hover {
+  color: var(--j-red);
+}
+.md blockquote {
+  margin: 26px 0;
+  padding: 14px 22px;
+  background: var(--j-paper2);
+  border-left: 3px solid var(--j-red);
+  color: var(--j-faded);
+  font-size: 15.5px;
+}
+.md :where(code.j-inline) {
+  font-family: var(--j-mono);
+  font-size: 0.84em;
+  background: var(--j-paper2);
+  border: 1px solid var(--j-rule);
+  border-radius: 2px;
+  padding: 1px 6px;
+  color: var(--j-red);
+}
+
+/* code panel: ink-dark paper (force shiki dark palette without html.dark) */
+.j-code {
+  position: relative;
+  margin: 24px 0;
+}
+.j-code-copy {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid #4a463e;
+  background: rgba(43, 41, 38, 0.9);
+  color: #b5ae9f;
+  border-radius: 3px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-family: var(--j-mono);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.j-code:hover .j-code-copy,
+.j-code-copy:focus-visible {
+  opacity: 1;
+}
+@media not (hover: hover) {
+  .j-code-copy {
+    opacity: 0.75;
+  }
+}
+.md pre.j-pre {
+  font-family: var(--j-mono);
+  font-size: 13px;
+  line-height: 1.8;
+  background: #2b2926;
+  color: #e8e2d5;
+  border-radius: 4px;
+  padding: 20px 22px;
+  overflow-x: auto;
+  margin: 0;
+}
+.md pre.j-pre {
+  /* biome-ignore lint/complexity/noImportantStyles: shiki writes an inline light bg; the journal uses an ink panel. */
+  background: #2b2926 !important;
+}
+.md pre.j-pre span {
+  /* biome-ignore lint/complexity/noImportantStyles: force shiki dark tokens without html.dark. */
+  color: var(--shiki-dark) !important;
+}
+.md .j-pre code {
+  background: none;
+  padding: 0;
+}
+
+/* ---------- 读者来函 comments ---------- */
+.j-letters {
+  max-width: 46em;
+  margin: 60px auto 0;
+}
+.j-letter {
+  border: 1px solid var(--j-rule);
+  border-radius: 3px;
+  padding: 18px 22px;
+  margin: 14px 0;
+  background: rgba(255, 255, 255, 0.45);
+}
+.j-letter-reply {
+  margin-left: 44px;
+  background: var(--j-paper2);
+}
+.j-lhead {
+  font-family: var(--j-sans);
+  font-size: 12.5px;
+  color: var(--j-indigo);
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+.j-lhead .who {
+  color: var(--j-ink);
+  font-weight: 600;
+}
+.j-lhead .when {
+  color: var(--j-faint);
+}
+.j-lhead .badge {
+  background: var(--j-red);
+  color: #f6f3ec;
+  font-size: 10px;
+  border-radius: 2px;
+  padding: 0 6px;
+  letter-spacing: 0.12em;
+}
+.j-lbody p {
+  font-size: 15.5px;
+  line-height: 1.95;
+  margin: 0 0 6px;
+}
+.j-lbody p:last-child {
+  margin-bottom: 0;
+}
+.j-lbody :where(code) {
+  font-family: var(--j-mono);
+  font-size: 0.85em;
+  background: var(--j-paper2);
+  border: 1px solid var(--j-rule);
+  border-radius: 2px;
+  padding: 0 5px;
+  color: var(--j-red);
+}
+.j-lbody blockquote {
+  border-left: 2px solid var(--j-rule);
+  padding-left: 12px;
+  color: var(--j-faded);
+}
+.j-lops {
+  display: flex;
+  gap: 16px;
+  font-family: var(--j-sans);
+  font-size: 12px;
+  margin-top: 8px;
+}
+.j-lops :where(button) {
+  color: var(--j-faded);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--j-sans);
+  font-size: 12px;
+  padding: 0;
+  letter-spacing: 0.1em;
+}
+.j-lops :where(button):hover {
+  color: var(--j-red);
+}
+.j-cmt-form textarea {
+  width: 100%;
+  resize: vertical;
+  font-family: var(--j-serif);
+  font-size: 15.5px;
+  color: var(--j-ink);
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--j-rule);
+  border-radius: 3px;
+  padding: 10px 14px;
+}
+.j-cmt-form textarea:focus {
+  outline: none;
+  border-color: var(--j-red);
+  box-shadow: 0 0 0 2px rgba(166, 58, 43, 0.12);
+}
+.j-cmt-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 8px;
+}
+.j-cmt-hint {
+  font-family: var(--j-sans);
+  font-size: 12px;
+  color: var(--j-faint);
+}
+.j-cmt-hint :where(.j-err) {
+  color: var(--j-red);
+  margin-left: 8px;
+}
+.j-err {
+  font-family: var(--j-sans);
+  font-size: 13px;
+  color: var(--j-red);
+}
+
+/* ---------- 器物谱 projects ---------- */
+.j-ware {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 0 26px;
+  padding: 26px 0;
+  border-bottom: 1px solid var(--j-rule);
+}
+.j-ware .no {
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--j-faint);
+}
+.j-ware .no small {
+  display: block;
+  font-size: 11px;
+  font-family: var(--j-sans);
+  letter-spacing: 0.2em;
+  margin-top: 4px;
+  color: var(--j-red);
+}
+.j-ware h2 {
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+.j-ware h2 .feat {
+  color: var(--j-red);
+  font-size: 13px;
+  margin-left: 10px;
+  letter-spacing: 0.2em;
+  font-family: var(--j-sans);
+}
+.j-ware p {
+  color: var(--j-faded);
+  font-size: 15.5px;
+  margin-top: 6px;
+}
+.j-ware .wlinks {
+  margin-top: 10px;
+  font-family: var(--j-sans);
+  font-size: 13px;
+  display: flex;
+  gap: 20px;
+}
+.j-ware .wlinks a {
+  color: var(--j-indigo);
+  border-bottom: 1px solid #c9d4df;
+}
+.j-ware .tags {
+  margin-top: 8px;
+  font-family: var(--j-sans);
+  font-size: 12px;
+  color: var(--j-faint);
+  letter-spacing: 0.1em;
+}
+@media (max-width: 640px) {
+  .j-ware {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- forms ---------- */
+.j-gate {
+  max-width: 460px;
+  margin: 30px auto 0;
+}
+.j-gate-card {
+  border: 1.5px solid var(--j-ink);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.5);
+  padding: 38px 40px 40px;
+  position: relative;
+  box-shadow: 6px 6px 0 rgba(38, 37, 35, 0.08);
+}
+.j-gate-card .j-seal {
+  position: absolute;
+  right: 26px;
+  top: -23px;
+}
+.j-gate h1 {
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+}
+.j-gate .sub {
+  font-family: var(--j-sans);
+  font-size: 13px;
+  color: var(--j-faded);
+  margin: 8px 0 26px;
+  letter-spacing: 0.08em;
+}
+.j-field {
+  margin: 16px 0;
+}
+.j-field label {
+  display: block;
+  font-family: var(--j-sans);
+  font-size: 12.5px;
+  letter-spacing: 0.24em;
+  color: var(--j-faded);
+  margin-bottom: 6px;
+}
+.j-input {
+  width: 100%;
+  font-family: var(--j-serif);
+  font-size: 15.5px;
+  color: var(--j-ink);
+  background: var(--j-paper);
+  border: 1px solid var(--j-rule);
+  border-radius: 2px;
+  padding: 10px 14px;
+}
+.j-input:focus {
+  outline: none;
+  border-color: var(--j-red);
+  box-shadow: 0 0 0 2px rgba(166, 58, 43, 0.12);
+}
+.j-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 26px;
+  flex-wrap: wrap;
+}
+.j-aside {
+  text-align: center;
+  margin-top: 22px;
+  font-family: var(--j-sans);
+  font-size: 13px;
+  color: var(--j-faded);
+}
+.j-aside a {
+  color: var(--j-red);
+}
+.j-lockmark {
+  width: 54px;
+  height: 54px;
+  border: 2px solid var(--j-red);
+  border-radius: 4px;
+  color: var(--j-red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  font-weight: 900;
+  margin: 0 auto 20px;
+  transform: rotate(3deg);
+}
+
+/* ---------- 404 ---------- */
+.j-nf {
+  text-align: center;
+  padding: 90px 0 40px;
+}
+.j-nf .zh {
+  font-size: 40px;
+  font-weight: 900;
+  letter-spacing: 0.3em;
+}
+.j-nf p {
+  font-family: var(--j-sans);
+  font-size: 14px;
+  color: var(--j-faded);
+  margin-top: 18px;
+  letter-spacing: 0.15em;
+}
+
+/* journal masthead user chip */
+.j-user-chip {
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--j-sans);
+  font-size: 12px;
+  color: var(--j-faded);
+  letter-spacing: 0.08em;
+}
+.j-user-role {
+  border: 1px solid var(--j-rule);
+  border-radius: 2px;
+  padding: 0 6px;
+  font-size: 10px;
+  color: var(--j-indigo);
+  letter-spacing: 0.12em;
+}

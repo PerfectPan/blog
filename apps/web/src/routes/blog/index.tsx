@@ -1,6 +1,5 @@
 import type { PostSummary, SessionUser } from '@blog/shared';
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useEffect } from 'react';
 import { z } from 'zod';
 import { getBlogListServerFn } from '../../lib/blog-service.js';
@@ -49,6 +48,32 @@ function getDevScopeHint(sessionUser: SessionUser | null | undefined): string {
   return '当前身份：member；可见范围：public/member';
 }
 
+const CN_DIGITS = ['〇', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+
+/** TOC page number in Chinese digits, zero-padded to 3 (〇一六). */
+function tocNumber(n: number): string {
+  return String(n)
+    .padStart(3, '0')
+    .split('')
+    .map((d) => CN_DIGITS[Number(d)])
+    .join('');
+}
+
+const NOTE_CLASS: Record<PostSummary['visibility'], string> = {
+  public: '',
+  member: 'j-note mem',
+  vip: 'j-note vip',
+  admin: 'j-note adm',
+  password: 'j-note pw',
+};
+const NOTE_TEXT: Record<PostSummary['visibility'], string> = {
+  public: '',
+  member: '会员可读',
+  vip: 'VIP',
+  admin: '编者',
+  password: '密笈',
+};
+
 export const Route = createFileRoute('/blog/')({
   head: () => ({
     meta: [
@@ -75,90 +100,71 @@ function BlogListPage() {
   const blogGroups = groupByYear(data.posts);
   const showDevHint = data.isDev;
   const devScopeHint = getDevScopeHint(data.sessionUser);
+  let runningIndex = 0;
 
   // Conventional blog pagination: the page scrolls naturally; jump back to the
-  // top on each page change so the new page starts at its first post. (Without
-  // this, clicking "next" while scrolled to the bottom leaves the reader past a
-  // shorter page — the original "bounce".)
+  // top on each page change so the new page starts at its first post.
   // biome-ignore lint/correctness/useExhaustiveDependencies: re-run on page change, value unused in body on purpose
   useEffect(() => {
     document.querySelector('main')?.scrollTo({ top: 0 });
   }, [data.page]);
 
   return (
-    <div className='mx-auto flex w-full max-w-[80ch] flex-col gap-8 self-start pt-8'>
-      <div className='w-full'>
-        {showDevHint ? (
-          <div className='mb-8 rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900'>
-            {devScopeHint}
+    <div className='j-sheet'>
+      <h1 className='j-entry-title text-center'>目　次</h1>
+      <p className='j-entry-meta text-center'>全刊总目 · 按年分卷 · 自新迄旧</p>
+
+      {showDevHint ? <div className='j-devhint'>{devScopeHint}</div> : null}
+
+      {blogGroups.map((group) => (
+        <div key={group.year}>
+          <div className='j-juan'>
+            <h2>卷 · {group.year}</h2>
+            <span className='sub'>{group.blogs.length} 篇</span>
           </div>
-        ) : null}
-        {blogGroups.map((group) => (
-          <div key={group.year}>
-            <div className='mb-4 text-3xl'>{group.year}</div>
-            {group.blogs.map((blog: PostSummary) => (
-              <div
-                key={blog.slug}
-                className='mt-2 mb-6 opacity-70 hover:opacity-100'
-              >
-                <Link
-                  to='/blog/$slug'
-                  params={{ slug: blog.slug }}
-                  className='flex items-center gap-2'
-                >
-                  <span className='text-lg leading-[1.2em]'>{blog.title}</span>
-                  <span className='text-sm opacity-50'>
-                    {new Date(blog.publishedAt).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                    })}
+          {group.blogs.map((blog: PostSummary) => {
+            runningIndex += 1;
+            return (
+              <div className='j-toc-line' key={blog.slug}>
+                <Link to='/blog/$slug' params={{ slug: blog.slug }}>
+                  <span className='t'>
+                    {blog.title}
+                    {blog.visibility !== 'public' ? (
+                      <span className={NOTE_CLASS[blog.visibility]}>
+                        {NOTE_TEXT[blog.visibility]}
+                      </span>
+                    ) : null}
                   </span>
+                  <span className='dots' />
                 </Link>
+                <span className='n'>{tocNumber(runningIndex)}</span>
               </div>
-            ))}
-          </div>
-        ))}
-      </div>
+            );
+          })}
+        </div>
+      ))}
+
       {data.totalPages > 1 ? (
-        <nav
-          className='flex w-full items-center justify-center gap-4 text-sm sm:gap-6'
-          aria-label='Pagination'
-        >
+        <nav className='j-pager' aria-label='翻页'>
           {data.page > 1 ? (
-            <Link
-              to='/blog'
-              search={{ page: data.page - 1 }}
-              className='inline-flex items-center gap-1 opacity-60 hover:opacity-100'
-            >
-              <ChevronLeft size={14} /> prev
+            <Link to='/blog' search={{ page: data.page - 1 }}>
+              上一页
             </Link>
           ) : (
-            <span className='inline-flex items-center gap-1 opacity-30'>
-              <ChevronLeft size={14} /> prev
-            </span>
+            <span>上一页</span>
           )}
-          <span className='opacity-60'>
-            page {data.page} / {data.totalPages}
+          <span>
+            · {data.page} / {data.totalPages} ·
           </span>
           {data.page < data.totalPages ? (
-            <Link
-              to='/blog'
-              search={{ page: data.page + 1 }}
-              className='inline-flex items-center gap-1 opacity-60 hover:opacity-100'
-            >
-              next <ChevronRight size={14} />
+            <Link to='/blog' search={{ page: data.page + 1 }}>
+              下一页
             </Link>
           ) : (
-            <span className='inline-flex items-center gap-1 opacity-30'>
-              next <ChevronRight size={14} />
-            </span>
+            <span>下一页</span>
           )}
         </nav>
       ) : null}
-      <Link to='/' className='mt-4 inline-block'>
-        <span className='opacity-70'>&gt;&nbsp;&nbsp;&nbsp;</span>
-        <span className='underline opacity-70 hover:opacity-100'>cd ..</span>
-      </Link>
     </div>
   );
 }

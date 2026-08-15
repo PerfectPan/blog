@@ -78,48 +78,45 @@ function UnlockPage() {
     search.error === 'missing'
       ? '请输入访问密码'
       : search.error === 'invalid'
-        ? '密码错误，请重试'
+        ? '口令有误，请再试'
         : undefined;
 
   return (
-    <section className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-      <h1 className='mb-2 text-3xl font-black'>输入文章访问密码</h1>
-      <p className='mb-6 opacity-70'>这篇文章使用了单文密码保护。</p>
-
-      {errorLabel ? (
-        <p role='alert' className='mb-4 text-sm text-red-700 dark:text-red-300'>
-          {errorLabel}
-        </p>
-      ) : null}
-
-      <form method='post' className='grid max-w-[420px] gap-3'>
-        <label htmlFor='password' className='font-semibold'>
-          Password
-        </label>
-        <input
-          id='password'
-          name='password'
-          type='password'
-          required
-          className='rounded-md border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-wash-dark'
-        />
-        <button
-          type='submit'
-          className='rounded-md bg-black px-4 py-2 font-semibold text-white transition-opacity hover:opacity-90 dark:bg-neutral-900'
-        >
-          Unlock
-        </button>
-      </form>
-
-      <p className='mt-4'>
-        <Link
-          to='/blog/$slug'
-          params={{ slug }}
-          className='opacity-70 hover:opacity-100'
-        >
-          返回文章页
-        </Link>
-      </p>
-    </section>
+    <div className='j-sheet'>
+      <div className='j-gate'>
+        <div className='j-gate-card text-center'>
+          <div className='j-lockmark' aria-hidden='true'>
+            密
+          </div>
+          <h1>密　笺</h1>
+          <p className='sub'>此篇以单文口令封缄 · 验后廿四小时内免复输入</p>
+          <form method='post' className='text-left'>
+            <div className='j-field'>
+              <label htmlFor='password'>篇目口令</label>
+              <input
+                id='password'
+                name='password'
+                type='password'
+                required
+                className='j-input'
+              />
+            </div>
+            {errorLabel ? (
+              <p className='j-err text-center'>{errorLabel}</p>
+            ) : null}
+            <div className='j-actions justify-center'>
+              <button type='submit' className='j-btn j-btn-red'>
+                启　封
+              </button>
+            </div>
+          </form>
+          <p className='j-aside'>
+            <Link to='/blog/$slug' params={{ slug }}>
+              ← 返回篇目
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }

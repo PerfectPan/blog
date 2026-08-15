@@ -1,8 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import { Github, LogOut, Rss, Search, UserRound } from 'lucide-react';
 import { authClient } from '../lib/auth-client.js';
-import { DarkMode } from './dark-mode.js';
-import { MenuLink } from './menu.js';
 import { searchPalette } from './search-palette-store.js';
 
 function getRoleLabel(role?: string | null): string {
@@ -17,79 +15,74 @@ function getRoleLabel(role?: string | null): string {
   return 'MEMBER';
 }
 
+/** Journal masthead: brand + section nav + tools. Light-only theme. */
 export function Header() {
   const { data: sessionData } = authClient.useSession();
   const sessionUser = sessionData?.user ?? null;
 
   return (
-    <header className='border-b border-slate-200 bg-white shadow-md dark:border-slate-300/10 dark:bg-slate-900'>
-      <div className='mx-4 flex h-16 items-center sm:mx-6'>
-        <Link
-          to='/'
-          className='rounded-md border-10 border-black bg-black px-1 font-bold text-white dark:border-neutral-900 dark:bg-neutral-900'
-        >
-          PerfectPan
-        </Link>
-        <div className='m-0 flex list-none items-center pl-1'>
-          <MenuLink href='/' name='Home' />
-          <MenuLink href='/blog' name='Blog' />
-          <MenuLink href='/projects' name='Projects' />
-          {sessionUser?.role === 'admin' ? (
-            <MenuLink href='/admin' name='Admin' />
-          ) : null}
+    <div>
+      <header className='j-masthead'>
+        <div className='j-brand'>
+          <Link to='/'>
+            废墨集<span className='j-dot'>。</span>
+          </Link>
         </div>
-        <div className='ml-auto flex items-center gap-2 sm:gap-3'>
+        <nav aria-label='栏目'>
+          <Link to='/blog'>目次</Link>
+          <Link to='/projects'>器物</Link>
+          {sessionUser?.role === 'admin' ? (
+            <Link to='/admin'>编辑部</Link>
+          ) : null}
+        </nav>
+        <div className='ml-auto flex items-center gap-3'>
           {sessionUser ? (
-            <div className='hidden items-center gap-2 rounded-full border border-slate-300 px-3 py-1 text-xs text-gray-700 md:flex dark:border-slate-600 dark:text-slate-200'>
-              <UserRound size={14} className='opacity-70' />
-              <span className='max-w-[220px] truncate'>
+            <span className='j-user-chip hidden md:flex'>
+              <UserRound size={13} aria-hidden='true' />
+              <span className='max-w-[200px] truncate'>
                 {sessionUser.email}
               </span>
-              <span className='rounded-full bg-black px-2 py-[2px] text-[10px] font-semibold text-white dark:bg-neutral-100 dark:text-neutral-900'>
+              <span className='j-user-role'>
                 {getRoleLabel(sessionUser.role)}
               </span>
-            </div>
+            </span>
           ) : null}
           {sessionUser ? (
-            <Link
-              to='/logout'
-              className='inline-flex items-center gap-1 rounded-md border border-slate-300 px-2 py-1 text-sm opacity-85 transition-opacity hover:opacity-100 dark:border-slate-600'
-            >
-              <LogOut size={14} />
-              <span className='hidden sm:inline'>Logout</span>
+            <Link to='/logout' aria-label='Logout'>
+              <LogOut size={17} className='opacity-60 hover:opacity-100' />
             </Link>
           ) : (
-            <>
-              <Link to='/login' className='opacity-70 hover:opacity-100'>
-                Login
-              </Link>
-              <Link to='/signup' className='opacity-70 hover:opacity-100'>
-                Sign Up
-              </Link>
-            </>
+            <Link
+              to='/login'
+              className='text-[13.5px]'
+              style={{ letterSpacing: '0.28em', color: 'var(--j-faded)' }}
+            >
+              入会
+            </Link>
           )}
           <button
             type='button'
-            aria-label='Search posts (Cmd+K)'
+            aria-label='检索篇目 (Cmd+K)'
             onClick={() => searchPalette.open()}
-            className='inline-flex items-center opacity-70 transition-opacity hover:opacity-100'
           >
-            <Search size={22} />
+            <Search size={17} className='opacity-60 hover:opacity-100' />
           </button>
-          <DarkMode />
           <a
             href='https://github.com/PerfectPan'
             target='_blank'
             rel='noreferrer'
-            className='flex items-center'
+            aria-label='GitHub'
           >
-            <Github size={22} className='opacity-70 hover:opacity-100' />
+            <Github size={17} className='opacity-60 hover:opacity-100' />
           </a>
-          <a href='/rss.xml' target='_blank' rel='noreferrer'>
-            <Rss size={24} className='opacity-70 hover:opacity-100' />
+          <a href='/rss.xml' target='_blank' rel='noreferrer' aria-label='RSS'>
+            <Rss size={17} className='opacity-60 hover:opacity-100' />
           </a>
         </div>
+      </header>
+      <div className='j-headrule'>
+        <hr />
       </div>
-    </header>
+    </div>
   );
 }

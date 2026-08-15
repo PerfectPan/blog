@@ -1,5 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
-import { ExternalLink, Github } from 'lucide-react';
+import { createFileRoute } from '@tanstack/react-router';
 import { PROJECTS, type Project } from '../lib/projects.js';
 
 export const Route = createFileRoute('/projects')({
@@ -11,6 +10,19 @@ export const Route = createFileRoute('/projects')({
   }),
   component: ProjectsPage,
 });
+
+const CN_ORDINALS = [
+  '壹',
+  '贰',
+  '叁',
+  '肆',
+  '伍',
+  '陆',
+  '柒',
+  '捌',
+  '玖',
+  '拾',
+];
 
 function sortProjects(projects: Project[]): Project[] {
   return [...projects].sort((a, b) => {
@@ -25,67 +37,36 @@ function ProjectsPage() {
   const projects = sortProjects(PROJECTS);
 
   return (
-    <div className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-      <h1 className='mb-2 text-3xl font-black'>Projects</h1>
-      <p className='mb-8 opacity-70'>我做过的一些东西，按需更新。</p>
+    <div className='j-sheet'>
+      <h1 className='j-entry-title text-center'>器物谱</h1>
+      <p className='j-entry-meta text-center'>所制之器 · 自兹编次 · 以志不忘</p>
 
-      <div className='grid gap-4 sm:grid-cols-2'>
-        {projects.map((project) => (
-          <article
-            key={project.name}
-            className='flex flex-col rounded-lg border border-slate-200 bg-white/60 p-5 transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-wash-dark'
-          >
-            <div className='mb-1 flex items-center gap-2'>
-              <h2 className='text-lg font-semibold'>{project.name}</h2>
-              {project.featured ? (
-                <span className='rounded-full bg-black px-2 py-[2px] text-[10px] font-semibold text-white dark:bg-neutral-100 dark:text-neutral-900'>
-                  FEATURED
-                </span>
-              ) : null}
-            </div>
-            <p className='mb-4 flex-grow text-sm opacity-70'>
-              {project.description}
-            </p>
-            <div className='mb-4 flex flex-wrap gap-1.5'>
-              {project.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className='rounded-md border border-slate-200 px-2 py-[2px] text-[11px] opacity-70 dark:border-slate-700'
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-            <div className='flex items-center gap-4 text-sm'>
-              <a
-                href={project.repo}
-                target='_blank'
-                rel='noreferrer'
-                className='inline-flex items-center gap-1 opacity-70 hover:opacity-100'
-              >
-                <Github size={15} />
-                Code
+      {projects.map((project, index) => (
+        <div className='j-ware' key={project.name}>
+          <div className='no'>
+            {CN_ORDINALS[index] ?? index + 1}
+            {project.featured ? <small>FEATURED</small> : null}
+          </div>
+          <div>
+            <h2>
+              {project.name}
+              {project.featured ? <span className='feat'>精选</span> : null}
+            </h2>
+            <p>{project.description}</p>
+            <div className='tags'>{project.tags.join('　')}</div>
+            <div className='wlinks'>
+              <a href={project.repo} target='_blank' rel='noreferrer'>
+                源码 ↗
               </a>
               {project.demo ? (
-                <a
-                  href={project.demo}
-                  target='_blank'
-                  rel='noreferrer'
-                  className='inline-flex items-center gap-1 opacity-70 hover:opacity-100'
-                >
-                  <ExternalLink size={15} />
-                  Demo
+                <a href={project.demo} target='_blank' rel='noreferrer'>
+                  在线 ↗
                 </a>
               ) : null}
             </div>
-          </article>
-        ))}
-      </div>
-
-      <Link to='/' className='mt-8 inline-block'>
-        <span className='opacity-70'>&gt;&nbsp;&nbsp;&nbsp;</span>
-        <span className='underline opacity-70 hover:opacity-100'>cd ..</span>
-      </Link>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
