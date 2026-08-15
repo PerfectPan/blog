@@ -19,7 +19,7 @@ test('admin can create a post that appears on the blog', async ({ page }) => {
   await page.locator('#password').fill(ADMIN_PASSWORD);
   await page.locator('form button[type="submit"]').click();
 
-  const loggedIn = page.getByRole('link', { name: /logout/i });
+  const loggedIn = page.getByTestId('nav-logout');
   try {
     await expect(loggedIn).toBeVisible({ timeout: 8000 });
   } catch {
