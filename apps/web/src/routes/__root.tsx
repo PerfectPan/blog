@@ -7,7 +7,7 @@ import {
 import { type ReactNode, useEffect } from 'react';
 import { AppLayout } from '../components/layout.js';
 import { SearchPalette } from '../components/search-palette.js';
-import { SkinProvider, useSkin } from '../skins/context.js';
+import { SkinProvider } from '../skins/context.js';
 import { TerminalError, TerminalNotFound } from '../skins/terminal/misc.js';
 import '../styles.css';
 
@@ -65,6 +65,12 @@ export const Route = createRootRoute({
 });
 
 function RootComponent() {
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      void import('react-grab');
+    }
+  }, []);
+
   useEffect(() => {
     // Register the service worker in production only (Bundle D / PWA).
     if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {

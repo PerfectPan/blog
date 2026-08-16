@@ -18,8 +18,12 @@ export function DarkMode() {
 
   useEffect(() => {
     // The terminal theme carries its own dark palette via html.dark custom
-    // properties; no legacy body utility classes are needed.
+    // properties; no legacy body utility classes are needed. Keep the
+    // browser-chrome theme-color meta in sync with the surface color.
     document.documentElement.classList.toggle('dark', isDarkMode);
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute('content', isDarkMode ? '#0a0f14' : '#f4f2ec');
   }, [isDarkMode]);
 
   const onTrigger = () => {

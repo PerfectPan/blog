@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useSkin } from '../skins/context.js';
 import { TerminalProjectsPage } from '../skins/terminal/projects.js';
 
 export const Route = createFileRoute('/projects')({

@@ -19,7 +19,7 @@ export const Route = createFileRoute('/admin/$slug')({
 function EditPostPage() {
   const { post } = Route.useLoaderData();
   return (
-    <div className='mx-auto w-full self-start max-w-5xl pt-8'>
+    <div className='mx-auto w-full self-start max-w-5xl px-4 pt-8 sm:px-6'>
       <Link
         to='/admin'
         className='mb-4 inline-block text-sm opacity-60 hover:opacity-100'

@@ -7,8 +7,8 @@
  * shadcn/ui token layer (Bundle 0). Mapped to the existing palette so the
  * rendered site is unchanged — the tokens only power the new ui/* primitives
  * (Command/Dialog). Light = white/near-black, dark = wash-dark/white, borders
- * = slate-300/slate-700. The body's dark background is still driven by the
- * DarkMode component's `dark:bg-wash-dark` class; nothing here re-styles body.
+ * = slate-300/slate-700. Nothing here re-styles body; the terminal skin
+ * drives its own surface colors from html[data-theme='terminal'] tokens.
  */
 @layer base {
   :root {
@@ -746,12 +746,12 @@ html[data-theme="terminal"] .md h2 {
   margin: 30px 0 10px;
   scroll-margin-top: 20px;
 }
-.md h2::before {
+html[data-theme="terminal"] .md h2::before {
   content: "## ";
   color: var(--t-faint);
   font-weight: 400;
 }
-.md h2 a {
+html[data-theme="terminal"] .md h2 a {
   color: inherit;
 }
 html[data-theme="terminal"] .md ul {
@@ -767,7 +767,7 @@ html[data-theme="terminal"] .md li::marker {
 html[data-theme="terminal"] .md a {
   color: var(--t-cyan);
 }
-.md a:hover {
+html[data-theme="terminal"] .md a:hover {
   text-decoration: underline;
 }
 html[data-theme="terminal"] .md blockquote {
@@ -778,7 +778,7 @@ html[data-theme="terminal"] .md blockquote {
   color: var(--t-dim);
   border-radius: 0 6px 6px 0;
 }
-.th-cmt-body code {
+html[data-theme="terminal"] .th-cmt-body code {
   background: var(--t-panel);
   border: 1px solid var(--t-line);
   border-radius: 4px;
@@ -1060,55 +1060,4 @@ html[data-theme="terminal"] .md .th-pre code {
   padding: 7px 16px;
   color: var(--t-faint);
   font-size: 11.5px;
-}
-
-/* search palette under the journal skin: same grep UX, paper materials
-   (--t-* tokens are undefined in this scope, so values are restated). */
-html[data-theme="journal"] .th-pal {
-  top: 14vh;
-  transform: none;
-  translate: -50% 0;
-  max-width: min(640px, calc(100vw - 32px));
-  border: 1.5px solid var(--j-ink);
-  border-radius: 3px;
-  background: var(--j-paper);
-  box-shadow: 6px 6px 0 rgba(38, 37, 35, 0.12);
-  font-family: var(--j-serif);
-}
-html[data-theme="journal"] .th-pal [cmdk-input-wrapper] {
-  border-bottom: 1px solid var(--j-rule);
-}
-html[data-theme="journal"] .th-pal [cmdk-input-wrapper]::before {
-  color: var(--j-red);
-  font-family: var(--j-serif);
-  font-weight: 600;
-}
-html[data-theme="journal"] .th-pal [cmdk-input] {
-  font-family: var(--j-serif);
-  color: var(--j-ink);
-}
-html[data-theme="journal"] .th-pal [cmdk-input]::placeholder {
-  color: var(--j-faint);
-}
-html[data-theme="journal"] .th-pal [cmdk-item] {
-  font-family: var(--j-serif);
-  color: var(--j-ink);
-}
-html[data-theme="journal"] .th-pal [cmdk-item][aria-selected="true"] {
-  background: var(--j-paper2);
-}
-html[data-theme="journal"]
-  .th-pal
-  [cmdk-item][aria-selected="true"]
-  .th-pal-title {
-  color: var(--j-red);
-}
-html[data-theme="journal"] .th-pal-date,
-html[data-theme="journal"] .th-pal-vis {
-  color: var(--j-faded);
-}
-html[data-theme="journal"] .th-pal-foot {
-  border-top: 1px solid var(--j-rule);
-  color: var(--j-faint);
-  font-family: var(--j-sans);
 }

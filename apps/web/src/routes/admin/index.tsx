@@ -28,7 +28,7 @@ function AdminListPage() {
   ).length;
 
   return (
-    <div className='mx-auto w-full self-start max-w-5xl pt-8'>
+    <div className='mx-auto w-full self-start max-w-5xl px-4 pt-8 sm:px-6'>
       <div className='mb-6 flex flex-wrap items-center justify-between gap-3'>
         <div>
           <h1 className='text-2xl font-black'>文章管理</h1>
