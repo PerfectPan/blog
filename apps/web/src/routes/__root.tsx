@@ -8,6 +8,7 @@ import {
 import { type ReactNode, useEffect } from 'react';
 import { AppLayout } from '../components/layout.js';
 import { SearchPalette } from '../components/search-palette.js';
+import { SkinProvider } from '../skins/context.js';
 import '../styles.css';
 
 export const Route = createRootRoute({
@@ -82,17 +83,19 @@ function RootComponent() {
 
   return (
     <RootDocument>
-      <AppLayout>
-        <Outlet />
-      </AppLayout>
-      <SearchPalette />
+      <SkinProvider initial='terminal'>
+        <AppLayout>
+          <Outlet />
+        </AppLayout>
+        <SearchPalette />
+      </SkinProvider>
     </RootDocument>
   );
 }
 
 function RootDocument({ children }: { children: ReactNode }) {
   return (
-    <html lang='zh-CN'>
+    <html lang='zh-CN' data-theme='terminal'>
       <head>
         <HeadContent />
       </head>
