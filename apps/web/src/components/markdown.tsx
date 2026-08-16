@@ -12,8 +12,23 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import type { HighlighterCore } from 'shiki/core';
 
+type Skin = 'terminal' | 'journal';
+
 type MarkdownProps = {
   content: string;
+  skin?: Skin;
+};
+
+/** Per-skin class names for the code block chrome + inline code. */
+const SKIN_CLASSES: Partial<
+  Record<Skin, { wrap: string; copy: string; pre: string; inline: string }>
+> = {
+  terminal: {
+    wrap: 'th-code group relative',
+    copy: 'th-code-copy',
+    pre: 'shiki th-pre w-full overflow-x-auto',
+    inline: 'md-inline',
+  },
 };
 
 function scrollToHeading(id: string) {
@@ -78,7 +93,7 @@ function getHighlighter() {
  * block in the browser. Reads the rendered textContent (post-markdown) so it
  * works regardless of how the code was tokenized.
  */
-function CodeBlock({ children }: { children?: ReactNode }) {
+function CodeBlock({ children, skin }: { children?: ReactNode; skin: Skin }) {
   const preRef = useRef<HTMLPreElement>(null);
   const [copied, setCopied] = useState(false);
 
@@ -132,19 +147,21 @@ function CodeBlock({ children }: { children?: ReactNode }) {
   }, []);
 
   return (
-    <div className='group relative mb-2'>
+    <div className={SKIN_CLASSES.terminal?.wrap ?? 'th-code group relative'}>
       <button
         type='button'
         onClick={onCopy}
         aria-label='Copy code'
-        className='absolute right-2 top-2 z-10 inline-flex items-center gap-1 rounded border border-slate-300 bg-white/70 px-1.5 py-0.5 text-xs opacity-0 backdrop-blur transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100 hover-none:opacity-70 dark:border-slate-700 dark:bg-slate-900/70'
+        className={SKIN_CLASSES.terminal?.copy ?? 'th-code-copy'}
       >
         {copied ? <Check size={12} /> : <Copy size={12} />}
         {copied ? 'Copied' : 'Copy'}
       </button>
       <pre
         ref={preRef}
-        className='shiki w-full overflow-x-auto whitespace-pre-wrap rounded-md bg-zinc-50 p-4 dark:bg-shiki-dark'
+        className={
+          SKIN_CLASSES.terminal?.pre ?? 'shiki th-pre w-full overflow-x-auto'
+        }
       >
         {children}
       </pre>
@@ -152,7 +169,7 @@ function CodeBlock({ children }: { children?: ReactNode }) {
   );
 }
 
-export function Markdown({ content }: MarkdownProps) {
+export function Markdown({ content, skin = 'terminal' }: MarkdownProps) {
   useEffect(() => {
     const hash = window.location.hash;
     if (!hash.startsWith('#')) {
@@ -166,7 +183,7 @@ export function Markdown({ content }: MarkdownProps) {
   }, []);
 
   return (
-    <article>
+    <article className='md'>
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath]}
         rehypePlugins={[rehypeKatex]}
@@ -175,10 +192,7 @@ export function Markdown({ content }: MarkdownProps) {
             const id = typeof children === 'string' ? children : '';
 
             return (
-              <h2
-                id={id}
-                className='mb-6 mt-14 scroll-mt-20 text-balance text-2xl leading-none font-black first:mt-0'
-              >
+              <h2 id={id} className='scroll-mt-20'>
                 <a
                   href={`#${id}`}
                   onClick={(event) => {
@@ -192,24 +206,23 @@ export function Markdown({ content }: MarkdownProps) {
               </h2>
             );
           },
-          p: ({ children }) => <p className='mb-6 leading-7'>{children}</p>,
+          p: ({ children }) => <p>{children}</p>,
           a: ({ href, children }) => (
-            <a
-              href={href}
-              className='text-blue-700/80 transition-colors duration-300 ease-in-out hover:text-blue-700'
-              target='_blank'
-              rel='noreferrer'
-            >
+            <a href={href} target='_blank' rel='noreferrer'>
               {children}
             </a>
           ),
-          strong: ({ children }) => (
-            <b className='font-extrabold'>{children}</b>
-          ),
-          ul: ({ children }) => (
-            <ul className='mb-4 ml-4 list-disc'>{children}</ul>
-          ),
-          pre: ({ children }) => <CodeBlock>{children}</CodeBlock>,
+          strong: ({ children }) => <b className='font-bold'>{children}</b>,
+          ul: ({ children }) => <ul>{children}</ul>,
+          pre: ({ children }) => <CodeBlock skin={skin}>{children}</CodeBlock>,
+          code: ({ className, children }) =>
+            /language-/.test(className ?? '') ? (
+              <code className={className}>{children}</code>
+            ) : (
+              <code className={SKIN_CLASSES.terminal?.inline ?? 'md-inline'}>
+                {children}
+              </code>
+            ),
         }}
       >
         {content}

@@ -167,3 +167,948 @@ html.dark ::-webkit-scrollbar-thumb {
 html.dark ::-webkit-scrollbar-thumb:hover {
   background: rgb(148 163 184 / 0.55);
 }
+
+/* =====================================================================
+ * THEME A — Terminal Session (UX redesign direction A)
+ * The site is one persistent terminal session: title bar header, tmux
+ * status bar footer, `ls -la` post list with permission bits encoding
+ * visibility. Dual theme: LIGHT paper-terminal by default, dark via the
+ * header toggle (html.dark).
+ * =================================================================== */
+html[data-theme="terminal"] {
+  /* shadcn token layer → terminal LIGHT palette (search palette & dialogs) */
+  --background: 45 25% 95%;
+  --foreground: 215 15% 22%;
+  --card: 45 30% 97%;
+  --card-foreground: 215 15% 22%;
+  --popover: 45 30% 98%;
+  --popover-foreground: 215 15% 22%;
+  --primary: 39 62% 42%;
+  --primary-foreground: 45 30% 97%;
+  --secondary: 45 20% 91%;
+  --secondary-foreground: 215 15% 22%;
+  --muted: 45 20% 91%;
+  --muted-foreground: 215 8% 42%;
+  --accent: 45 20% 88%;
+  --accent-foreground: 215 15% 22%;
+  --destructive: 2 56% 48%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 43 16% 82%;
+  --input: 43 16% 82%;
+  --ring: 39 62% 42%;
+  --radius: 0.375rem;
+
+  /* terminal LIGHT (paper terminal): default */
+  --t-bg: #f4f2ec;
+  --t-term: #fbfaf7;
+  --t-panel: #f0ede5;
+  --t-line: #ddd8cb;
+  --t-text: #33363b;
+  --t-dim: #6f7480;
+  --t-faint: #a6a49a;
+  --t-amber: #a8752b;
+  --t-cyan: #0e7d92;
+  --t-green: #3c7a52;
+  --t-red: #b8483f;
+  --t-violet: #7a5fa8;
+  --t-sel: #ece7da;
+  --t-titlebar-a: #f7f5ef;
+  --t-titlebar-b: #f4f2ec;
+  --t-tmux-bg: #eeebe2;
+  --t-tmux-ink: #33363b;
+  --t-pre-bg: #fbfaf7;
+  --t-heading: #2b2f36;
+  --t-amber-ink: #fbfaf7;
+  --t-mono:
+    ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas,
+    "PingFang SC", "Microsoft YaHei", monospace;
+}
+
+html[data-theme="terminal"].dark {
+  /* shadcn token layer → terminal DARK palette */
+  --background: 210 29% 7%;
+  --foreground: 210 20% 83%;
+  --card: 211 30% 10%;
+  --card-foreground: 210 20% 83%;
+  --popover: 211 30% 9%;
+  --popover-foreground: 210 20% 83%;
+  --primary: 39 77% 60%;
+  --primary-foreground: 30 50% 8%;
+  --secondary: 211 30% 13%;
+  --secondary-foreground: 210 20% 83%;
+  --muted: 211 30% 13%;
+  --muted-foreground: 208 14% 56%;
+  --accent: 211 30% 15%;
+  --accent-foreground: 210 20% 88%;
+  --destructive: 2 66% 65%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 211 26% 17%;
+  --input: 211 26% 17%;
+  --ring: 39 77% 60%;
+
+  /* terminal DARK (original) */
+  --t-bg: #0a0f14;
+  --t-term: #0c1218;
+  --t-panel: #101923;
+  --t-line: #1d2a37;
+  --t-text: #c9d4de;
+  --t-dim: #71828f;
+  --t-faint: #465666;
+  --t-amber: #e9b44c;
+  --t-cyan: #6fc5d8;
+  --t-green: #7cbf8b;
+  --t-red: #e06c75;
+  --t-violet: #a78bc4;
+  --t-sel: #16222e;
+  --t-titlebar-a: #0e1620;
+  --t-titlebar-b: #0c1218;
+  --t-tmux-bg: #10161d;
+  --t-tmux-ink: #0a0f14;
+  --t-pre-bg: #0a1016;
+  --t-heading: #eaf1f7;
+  --t-amber-ink: #171106;
+}
+
+html[data-theme="terminal"] body {
+  font-family: var(--t-mono);
+  background-color: var(--t-bg);
+  color: var(--t-text);
+  font-size: 14.5px;
+  line-height: 1.75;
+}
+
+html[data-theme="terminal"] ::selection {
+  background: rgba(233, 180, 76, 0.25);
+}
+
+/* ---------- shell: title bar / main / tmux bar ---------- */
+.th-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+}
+
+.th-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--t-line);
+  background: linear-gradient(var(--t-titlebar-a), var(--t-titlebar-b));
+}
+
+.th-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+}
+.th-dot-r {
+  background: #e5544b;
+}
+.th-dot-y {
+  background: #d8a03c;
+}
+.th-dot-g {
+  background: #47a258;
+}
+
+.th-term-title {
+  margin-left: 10px;
+  color: var(--t-dim);
+  font-size: 12.5px;
+}
+.th-term-title b {
+  color: var(--t-text);
+  font-weight: 600;
+}
+.th-term-title .th-path {
+  color: var(--t-cyan);
+}
+
+.th-main {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--t-term);
+}
+
+.th-page {
+  width: 100%;
+  max-width: 1020px;
+  margin: 0 auto;
+  padding: 26px 22px 46px;
+}
+
+/* ---------- tmux footer ---------- */
+.th-tmux {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  padding: 6px 14px;
+  border-top: 1px solid var(--t-line);
+  background: var(--t-tmux-bg);
+  font-size: 12.5px;
+}
+.th-tmux-sess {
+  color: var(--t-tmux-ink);
+  background: var(--t-green);
+  padding: 1px 8px;
+  border-radius: 3px;
+  margin-right: 8px;
+  font-weight: 700;
+}
+.th-tmux-win {
+  color: var(--t-dim);
+  padding: 1px 8px;
+  border-radius: 3px;
+}
+a.th-tmux-win:hover {
+  color: var(--t-text);
+  text-decoration: none;
+}
+.th-tmux-win.th-on {
+  background: var(--t-term);
+  color: var(--t-amber);
+  box-shadow: inset 0 0 0 1px var(--t-line);
+}
+.th-tmux-right {
+  margin-left: auto;
+  color: var(--t-faint);
+  display: flex;
+  gap: 14px;
+}
+
+/* ---------- prompt primitives ---------- */
+.th-prompt {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+.th-prompt-u {
+  color: var(--t-cyan);
+}
+.th-prompt-at {
+  color: var(--t-faint);
+}
+.th-prompt-h {
+  color: var(--t-green);
+}
+.th-prompt-p {
+  color: var(--t-amber);
+}
+.th-cmd {
+  color: var(--t-text);
+}
+.th-cmd-dim {
+  color: var(--t-dim);
+}
+.th-out {
+  margin: 4px 0;
+}
+.th-comment {
+  color: var(--t-faint);
+}
+.th-hr {
+  border: 0;
+  border-top: 1px dashed var(--t-line);
+  margin: 20px 0;
+}
+
+/* ---------- titlebar tools ---------- */
+.th-tools {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.th-tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--t-dim);
+  background: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: inherit;
+}
+.th-tool-btn:hover {
+  color: var(--t-amber);
+  text-decoration: none;
+}
+.th-user-chip {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--t-line);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 12px;
+  color: var(--t-dim);
+}
+@media (min-width: 768px) {
+  .th-user-chip {
+    display: inline-flex;
+  }
+}
+.th-role-badge {
+  background: var(--t-amber);
+  color: var(--t-amber-ink);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 7px;
+}
+
+/* ---------- buttons / forms ---------- */
+.th-btn {
+  font-family: var(--t-mono);
+  font-size: 13.5px;
+  cursor: pointer;
+  background: var(--t-panel);
+  color: var(--t-text);
+  border: 1px solid var(--t-line);
+  border-radius: 6px;
+  padding: 9px 18px;
+  transition:
+    border-color 0.12s,
+    color 0.12s;
+}
+.th-btn:hover {
+  border-color: var(--t-amber);
+  color: var(--t-amber);
+}
+.th-btn-primary {
+  background: var(--t-amber);
+  border-color: var(--t-amber);
+  color: #171106;
+  font-weight: 700;
+}
+.th-btn-primary:hover {
+  background: #f0c268;
+  color: #171106;
+}
+
+.th-field {
+  margin: 14px 0;
+  max-width: 460px;
+}
+.th-field label {
+  display: block;
+  color: var(--t-dim);
+  font-size: 13px;
+  margin-bottom: 5px;
+}
+.th-field label::before {
+  content: "▸ ";
+  color: var(--t-amber);
+}
+.th-input {
+  font-family: var(--t-mono);
+  font-size: 14px;
+  color: var(--t-text);
+  background: var(--t-panel);
+  border: 1px solid var(--t-line);
+  border-radius: 6px;
+  padding: 9px 12px;
+  width: 100%;
+}
+.th-input::placeholder {
+  color: var(--t-faint);
+}
+.th-input:focus {
+  outline: none;
+  border-color: var(--t-amber);
+  box-shadow: 0 0 0 2px rgba(233, 180, 76, 0.15);
+}
+.th-err {
+  color: var(--t-red);
+  margin: 10px 0;
+  font-size: 13.5px;
+}
+.th-err::before {
+  content: "✗ ";
+}
+
+/* ---------- home ---------- */
+.th-hero-name {
+  font-size: 21px;
+  color: var(--t-heading);
+  font-weight: 700;
+  margin-top: 12px;
+}
+.th-hero-desc {
+  color: var(--t-dim);
+  max-width: 62ch;
+  margin-top: 6px;
+}
+.th-figlet {
+  white-space: pre;
+  color: var(--t-faint);
+  line-height: 1.25;
+  font-size: 11px;
+  margin-top: 18px;
+  user-select: none;
+}
+.th-figlet b {
+  color: var(--t-amber);
+  font-weight: 400;
+}
+.th-home-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+  margin-top: 22px;
+}
+.th-home-links a {
+  display: block;
+  border: 1px solid var(--t-line);
+  background: var(--t-panel);
+  padding: 14px 16px;
+  border-radius: 6px;
+  color: var(--t-text);
+}
+.th-home-links a:hover {
+  border-color: var(--t-amber);
+  text-decoration: none;
+  box-shadow: 0 0 18px rgba(233, 180, 76, 0.07);
+}
+.th-home-links .k {
+  color: var(--t-amber);
+}
+.th-home-links small {
+  display: block;
+  color: var(--t-dim);
+  margin-top: 2px;
+}
+
+/* ---------- ls table (blog list) ---------- */
+.th-ls {
+  margin-top: 12px;
+}
+.th-ls-row {
+  display: grid;
+  grid-template-columns: 11ch 7ch 8ch 1fr auto;
+  gap: 0 14px;
+  padding: 5px 8px;
+  border-radius: 4px;
+  align-items: baseline;
+}
+.th-ls-head {
+  color: var(--t-faint);
+  font-size: 12.5px;
+}
+a.th-ls-row {
+  color: var(--t-text);
+}
+a.th-ls-row:hover {
+  background: var(--t-sel);
+  text-decoration: none;
+}
+.th-ls-year {
+  grid-column: 1 / -1;
+  color: var(--t-amber);
+  margin-top: 20px;
+  font-weight: 700;
+}
+.th-ls-year::before {
+  content: "# ";
+  color: var(--t-faint);
+  font-weight: 400;
+}
+.th-perm {
+  letter-spacing: 0.08em;
+}
+.th-perm-pub {
+  color: var(--t-green);
+}
+.th-perm-mem {
+  color: var(--t-cyan);
+}
+.th-perm-vip {
+  color: var(--t-violet);
+}
+.th-perm-pw {
+  color: var(--t-red);
+}
+.th-perm-adm {
+  color: var(--t-dim);
+}
+.th-ls-date,
+.th-ls-vis {
+  color: var(--t-dim);
+  font-size: 13px;
+}
+.th-ls-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.th-ls-tags {
+  color: var(--t-faint);
+  font-size: 12.5px;
+}
+.th-legend {
+  margin-top: 26px;
+  color: var(--t-faint);
+  font-size: 12.5px;
+  line-height: 1.9;
+}
+.th-pager {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  margin-top: 26px;
+  color: var(--t-dim);
+  font-size: 13.5px;
+}
+.th-pager a {
+  color: var(--t-amber);
+}
+.th-pager .th-pager-off {
+  color: var(--t-faint);
+  opacity: 0.6;
+}
+.th-cd {
+  color: var(--t-dim);
+}
+.th-cd:hover {
+  color: var(--t-text);
+}
+
+@media (max-width: 720px) {
+  .th-ls-row {
+    grid-template-columns: 11ch 7ch 1fr;
+  }
+  .th-ls-head,
+  .th-ls-vis,
+  .th-ls-tags {
+    display: none;
+  }
+}
+
+/* projects ls rows: star / project+desc / stack / links */
+.th-ls-proj {
+  display: grid;
+  grid-template-columns: 4ch 1fr 18ch auto;
+  gap: 0 16px;
+  padding: 8px;
+  border-radius: 4px;
+  align-items: baseline;
+}
+.th-ls-proj-head {
+  color: var(--t-faint);
+  font-size: 12.5px;
+}
+@media (max-width: 720px) {
+  .th-ls-proj {
+    grid-template-columns: 4ch 1fr;
+  }
+  .th-ls-proj .th-ls-tags,
+  .th-ls-proj .th-ls-link {
+    display: none;
+  }
+}
+
+/* ---------- article ---------- */
+.th-art-head {
+  margin: 16px 0 26px;
+}
+.th-art-title {
+  font-size: 24px;
+  color: var(--t-heading);
+  font-weight: 700;
+  line-height: 1.4;
+}
+.th-art-meta {
+  color: var(--t-dim);
+  margin-top: 6px;
+  font-size: 13px;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* markdown body (article prose) */
+html[data-theme="terminal"] .md {
+  max-width: 74ch;
+}
+html[data-theme="terminal"] .md p {
+  margin: 14px 0;
+  color: var(--t-text);
+}
+html[data-theme="terminal"] .md h2 {
+  font-size: 17px;
+  color: var(--t-heading);
+  font-weight: 700;
+  margin: 30px 0 10px;
+  scroll-margin-top: 20px;
+}
+.md h2::before {
+  content: "## ";
+  color: var(--t-faint);
+  font-weight: 400;
+}
+.md h2 a {
+  color: inherit;
+}
+html[data-theme="terminal"] .md ul {
+  margin: 12px 0 12px 22px;
+  list-style: disc;
+}
+html[data-theme="terminal"] .md li {
+  margin: 4px 0;
+}
+html[data-theme="terminal"] .md li::marker {
+  color: var(--t-amber);
+}
+html[data-theme="terminal"] .md a {
+  color: var(--t-cyan);
+}
+.md a:hover {
+  text-decoration: underline;
+}
+html[data-theme="terminal"] .md blockquote {
+  border-left: 2px solid var(--t-amber);
+  background: var(--t-panel);
+  padding: 10px 16px;
+  margin: 16px 0;
+  color: var(--t-dim);
+  border-radius: 0 6px 6px 0;
+}
+.th-cmt-body code {
+  background: var(--t-panel);
+  border: 1px solid var(--t-line);
+  border-radius: 4px;
+  padding: 0 5px;
+  font-size: 0.9em;
+  color: var(--t-amber);
+}
+html[data-theme="terminal"] .md code.md-inline {
+  background: var(--t-panel);
+  border: 1px solid var(--t-line);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  color: var(--t-amber);
+}
+.th-code {
+  position: relative;
+  margin: 18px 0;
+}
+.th-code-copy {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--t-line);
+  background: var(--t-panel);
+  color: var(--t-dim);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-family: var(--t-mono);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.th-code:hover .th-code-copy,
+.th-code-copy:focus-visible {
+  opacity: 1;
+}
+@media not (hover: hover) {
+  .th-code-copy {
+    opacity: 0.75;
+  }
+}
+html[data-theme="terminal"] .md pre.th-pre {
+  background: var(--t-pre-bg);
+  border: 1px solid var(--t-line);
+  border-radius: 8px;
+  padding: 18px;
+  overflow-x: auto;
+  line-height: 1.7;
+  font-size: 13px;
+  margin: 0;
+}
+/* shiki writes inline light bg on <pre>; force the themed panel (light keeps
+   the vitesse-light tokens, dark swaps to vitesse-dark via the span rule). */
+html[data-theme="terminal"] .md pre.th-pre {
+  /* biome-ignore lint/complexity/noImportantStyles: shiki inline light bg must be overridden. */
+  background: var(--t-pre-bg) !important;
+}
+html[data-theme="terminal"].dark .md pre.th-pre {
+  /* biome-ignore lint/complexity/noImportantStyles: shiki inline light color must be overridden in dark mode. */
+  color: var(--t-text) !important;
+}
+html[data-theme="terminal"].dark .md pre.th-pre span {
+  /* biome-ignore lint/complexity/noImportantStyles: force shiki dark tokens in dark mode (SSR-safe). */
+  color: var(--shiki-dark) !important;
+}
+html[data-theme="terminal"] .md .th-pre code {
+  background: none;
+  padding: 0;
+}
+
+/* ---------- comments ---------- */
+.th-cmt {
+  border: 1px solid var(--t-line);
+  border-radius: 8px;
+  margin: 12px 0;
+  overflow: hidden;
+}
+.th-cmt-head {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  background: var(--t-panel);
+  padding: 8px 14px;
+  font-size: 13px;
+  color: var(--t-dim);
+  border-bottom: 1px solid var(--t-line);
+}
+.th-cmt-head .who {
+  color: var(--t-text);
+}
+.th-cmt-body {
+  padding: 10px 14px;
+}
+.th-cmt-body :where(p) {
+  margin: 0 0 8px;
+}
+.th-cmt-body p:last-child {
+  margin-bottom: 0;
+}
+.th-cmt-body :where(blockquote) {
+  border-left: 2px solid var(--t-line);
+  padding-left: 12px;
+  color: var(--t-dim);
+}
+.th-cmt-ops {
+  display: flex;
+  gap: 14px;
+  padding: 0 14px 10px;
+  font-size: 12px;
+}
+.th-cmt-ops button {
+  color: var(--t-dim);
+  cursor: pointer;
+  background: none;
+  font-family: inherit;
+}
+.th-cmt-ops button:hover {
+  color: var(--t-amber);
+}
+.th-cmt-ops .del:hover {
+  color: var(--t-red);
+}
+.th-cmt-replies {
+  border-top: 1px dashed var(--t-line);
+  background: var(--t-sel);
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.th-cmt-reply {
+  border-left: 2px solid var(--t-line);
+  padding-left: 12px;
+}
+.th-cmt-form textarea {
+  width: 100%;
+  resize: vertical;
+  font-family: var(--t-mono);
+  font-size: 13.5px;
+  color: var(--t-text);
+  background: var(--t-panel);
+  border: 1px solid var(--t-line);
+  border-radius: 6px;
+  padding: 9px 12px;
+}
+.th-cmt-form textarea:focus {
+  outline: none;
+  border-color: var(--t-amber);
+}
+.th-cmt-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 8px;
+}
+.th-cmt-hint {
+  font-size: 12px;
+  color: var(--t-faint);
+}
+
+/* ---------- misc ---------- */
+.th-nf-big {
+  color: var(--t-red);
+}
+.th-devhint {
+  border: 1px dashed rgba(233, 180, 76, 0.5);
+  background: rgba(233, 180, 76, 0.06);
+  color: var(--t-amber);
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  margin-bottom: 18px;
+}
+
+/* ---------- terminal search palette (grep) ---------- */
+/* Scoped reskin of the shadcn Dialog + cmdk palette: drop from the top like a
+   terminal window, mono throughout, `~ %` prompt instead of a magnifier. */
+.th-pal {
+  top: 14vh;
+  transform: none;
+  translate: -50% 0;
+  max-width: min(640px, calc(100vw - 32px));
+  border: 1px solid var(--t-line);
+  border-radius: 10px;
+  background: var(--t-term);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+  font-family: var(--t-mono);
+}
+.th-pal > button {
+  display: none; /* terminals close with esc, not an ✕ */
+}
+.th-pal-cmd {
+  background: var(--t-term);
+  color: var(--t-text);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.th-pal [cmdk-input-wrapper] {
+  border-bottom: 1px dashed var(--t-line);
+  padding: 13px 16px;
+  gap: 10px;
+}
+.th-pal [cmdk-input-wrapper] svg {
+  display: none;
+}
+.th-pal [cmdk-input-wrapper]::before {
+  content: "~ %";
+  color: var(--t-amber);
+  font-family: var(--t-mono);
+  font-size: 15px;
+  flex: none;
+}
+.th-pal [cmdk-input] {
+  height: auto;
+  font-family: var(--t-mono);
+  font-size: 15px;
+  color: var(--t-text);
+  caret-color: var(--t-amber);
+  padding: 0;
+}
+.th-pal [cmdk-input]::placeholder {
+  color: var(--t-faint);
+}
+.th-pal [cmdk-list] {
+  height: auto;
+  max-height: 320px;
+  padding: 6px 0;
+}
+.th-pal [cmdk-empty] {
+  padding: 18px 16px;
+  text-align: left;
+  color: var(--t-faint);
+  font-size: 13px;
+}
+.th-pal [cmdk-group] {
+  padding: 0 8px;
+}
+.th-pal [cmdk-item] {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 8px 10px;
+  border-radius: 4px;
+  font-family: var(--t-mono);
+  font-size: 14px;
+  color: var(--t-text);
+}
+.th-pal-date {
+  color: var(--t-faint);
+  font-size: 11.5px;
+  min-width: 6ch;
+}
+.th-pal-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.th-pal-vis {
+  color: var(--t-dim);
+  font-size: 11px;
+}
+.th-pal [cmdk-item][aria-selected="true"] {
+  background: var(--t-sel);
+  color: var(--t-text);
+}
+.th-pal [cmdk-item][aria-selected="true"] .th-pal-title {
+  color: var(--t-amber);
+}
+.th-pal-foot {
+  border-top: 1px solid var(--t-line);
+  padding: 7px 16px;
+  color: var(--t-faint);
+  font-size: 11.5px;
+}
+
+/* search palette under the journal skin: same grep UX, paper materials
+   (--t-* tokens are undefined in this scope, so values are restated). */
+html[data-theme="journal"] .th-pal {
+  top: 14vh;
+  transform: none;
+  translate: -50% 0;
+  max-width: min(640px, calc(100vw - 32px));
+  border: 1.5px solid var(--j-ink);
+  border-radius: 3px;
+  background: var(--j-paper);
+  box-shadow: 6px 6px 0 rgba(38, 37, 35, 0.12);
+  font-family: var(--j-serif);
+}
+html[data-theme="journal"] .th-pal [cmdk-input-wrapper] {
+  border-bottom: 1px solid var(--j-rule);
+}
+html[data-theme="journal"] .th-pal [cmdk-input-wrapper]::before {
+  color: var(--j-red);
+  font-family: var(--j-serif);
+  font-weight: 600;
+}
+html[data-theme="journal"] .th-pal [cmdk-input] {
+  font-family: var(--j-serif);
+  color: var(--j-ink);
+}
+html[data-theme="journal"] .th-pal [cmdk-input]::placeholder {
+  color: var(--j-faint);
+}
+html[data-theme="journal"] .th-pal [cmdk-item] {
+  font-family: var(--j-serif);
+  color: var(--j-ink);
+}
+html[data-theme="journal"] .th-pal [cmdk-item][aria-selected="true"] {
+  background: var(--j-paper2);
+}
+html[data-theme="journal"]
+  .th-pal
+  [cmdk-item][aria-selected="true"]
+  .th-pal-title {
+  color: var(--j-red);
+}
+html[data-theme="journal"] .th-pal-date,
+html[data-theme="journal"] .th-pal-vis {
+  color: var(--j-faded);
+}
+html[data-theme="journal"] .th-pal-foot {
+  border-top: 1px solid var(--j-rule);
+  color: var(--j-faint);
+  font-family: var(--j-sans);
+}
