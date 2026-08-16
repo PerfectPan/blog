@@ -7,7 +7,8 @@ import {
 import { type ReactNode, useEffect } from 'react';
 import { AppLayout } from '../components/layout.js';
 import { SearchPalette } from '../components/search-palette.js';
-import { SkinProvider } from '../skins/context.js';
+import { SkinProvider, useSkin } from '../skins/context.js';
+import { JournalError, JournalNotFound } from '../skins/journal/misc.js';
 import { TerminalError, TerminalNotFound } from '../skins/terminal/misc.js';
 import '../styles.css';
 
@@ -103,11 +104,17 @@ function SkinPage({ children }: { children: ReactNode }) {
 }
 
 function SkinNotFound() {
-  return <TerminalNotFound />;
+  const { skin } = useSkin();
+  return skin === 'journal' ? <JournalNotFound /> : <TerminalNotFound />;
 }
 
 function SkinError({ error }: { error: unknown }) {
-  return <TerminalError error={error} />;
+  const { skin } = useSkin();
+  return skin === 'journal' ? (
+    <JournalError error={error} />
+  ) : (
+    <TerminalError error={error} />
+  );
 }
 
 function RootDocument({ children }: { children: ReactNode }) {

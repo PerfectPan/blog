@@ -26,7 +26,7 @@ type MarkdownProps = {
 };
 
 /** Per-skin class names for the code block chrome + inline code. Skins without
- *  an entry (e.g. journal before its layer lands) fall back to terminal. */
+ *  an entry fall back to terminal. */
 const TERMINAL_CLASSES = {
   wrap: 'th-code group relative',
   copy: 'th-code-copy',
@@ -38,6 +38,12 @@ const SKIN_CLASSES: Partial<
   Record<Skin, { wrap: string; copy: string; pre: string; inline: string }>
 > = {
   terminal: TERMINAL_CLASSES,
+  journal: {
+    wrap: 'j-code group relative',
+    copy: 'j-code-copy',
+    pre: 'shiki j-pre w-full overflow-x-auto',
+    inline: 'j-inline',
+  },
 };
 
 function scrollToHeading(id: string) {

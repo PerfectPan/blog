@@ -1,4 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { useSkin } from '../skins/context.js';
+import { JournalProjectsPage } from '../skins/journal/projects.js';
 import { TerminalProjectsPage } from '../skins/terminal/projects.js';
 
 export const Route = createFileRoute('/projects')({
@@ -12,5 +14,10 @@ export const Route = createFileRoute('/projects')({
 });
 
 function ProjectsPage() {
-  return <TerminalProjectsPage />;
+  const { skin } = useSkin();
+  return skin === 'journal' ? (
+    <JournalProjectsPage />
+  ) : (
+    <TerminalProjectsPage />
+  );
 }

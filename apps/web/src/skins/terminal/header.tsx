@@ -16,6 +16,9 @@ function getRoleLabel(role?: string | null): string {
   return 'MEMBER';
 }
 
+import { BookOpen } from 'lucide-react';
+import { useSkin } from '../context.js';
+
 /** Terminal title bar: window dots + session name + right-aligned tools. */
 export function TerminalHeader() {
   const { data: sessionData } = authClient.useSession();
@@ -61,6 +64,7 @@ export function TerminalHeader() {
             </Link>
           </>
         )}
+        <SkinSwitch />
         <DarkMode />
         <button
           type='button'
@@ -91,5 +95,20 @@ export function TerminalHeader() {
         </a>
       </div>
     </header>
+  );
+}
+
+function SkinSwitch() {
+  const { setSkin } = useSkin();
+  return (
+    <button
+      type='button'
+      className='th-tool-btn'
+      aria-label='Switch to journal theme'
+      onClick={() => setSkin('journal')}
+    >
+      <BookOpen size={15} aria-hidden='true' />
+      <span className='hidden sm:inline'>journal</span>
+    </button>
   );
 }

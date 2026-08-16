@@ -8,6 +8,8 @@ import {
   isUnlockRateLimited,
   recordUnlockFailure,
 } from '../../lib/unlock-rate-limit.js';
+import { useSkin } from '../../skins/context.js';
+import { JournalUnlockPage } from '../../skins/journal/auth.js';
 import { TerminalUnlockPage } from '../../skins/terminal/auth.js';
 
 function getClientIp(request: Request): string | null {
@@ -73,7 +75,12 @@ export const Route = createFileRoute('/unlock/$slug')({
 });
 
 function UnlockPage() {
+  const { skin } = useSkin();
   const { slug } = useParams({ from: '/unlock/$slug' });
   const search = Route.useSearch() as Record<string, string | undefined>;
-  return <TerminalUnlockPage slug={slug} search={search} />;
+  return skin === 'journal' ? (
+    <JournalUnlockPage slug={slug} search={search} />
+  ) : (
+    <TerminalUnlockPage slug={slug} search={search} />
+  );
 }

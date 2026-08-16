@@ -2,6 +2,8 @@ import { type CommentThread, canAccessVisibility } from '@blog/shared';
 import { createFileRoute, notFound, redirect } from '@tanstack/react-router';
 import { getBlogPostServerFn } from '../../lib/blog-service.js';
 import { getCommentsServerFn } from '../../lib/comments-service.js';
+import { useSkin } from '../../skins/context.js';
+import { JournalArticle } from '../../skins/journal/article.js';
 import { TerminalArticle } from '../../skins/terminal/article.js';
 
 export const Route = createFileRoute('/blog/$slug')({
@@ -59,11 +61,23 @@ export const Route = createFileRoute('/blog/$slug')({
 
 function BlogDetailPage() {
   const data = Route.useLoaderData();
+  const { skin } = useSkin();
   const post = data.post;
   if (!post) {
     return null;
   }
 
+  if (skin === 'journal') {
+    return (
+      <JournalArticle
+        post={post}
+        comments={data.comments.comments}
+        hasMoreComments={data.comments.hasMore}
+        totalComments={data.comments.total}
+        sessionUser={data.sessionUser}
+      />
+    );
+  }
   return (
     <TerminalArticle
       post={post}
