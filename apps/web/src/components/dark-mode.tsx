@@ -50,13 +50,22 @@ export function DarkMode() {
     const bottom = window.innerHeight - top;
     const maxRadius = Math.hypot(Math.max(left, right), Math.max(top, bottom));
 
-    // Bake the measured origin into the keyframes as literal pixels. Some
-    // engines do not cascade custom properties set on <html> into the
-    // view-transition pseudo-elements, which silently fell back to the
-    // 50%/50% var() defaults and made the circle grow from the screen
-    // center. Literal values sidestep that entirely, and rewriting a
-    // dedicated <style> before startViewTransition keeps the clip active
-    // from the pseudo-element's first frame (no post-`.ready` attach gap).
+    // Bake the measured origin into the keyframes as VIEWPORT PERCENTAGES.
+    // Pixel values are wrong on some setups: Chromium interprets clip-path
+    // lengths on view-transition pseudo-elements against the physical
+    // (device-pixel) snapshot box, so CSS-pixel coordinates land at half
+    // the intended position on DPR-2 screens (circle grew from top-center
+    // instead of the icon). Percentages resolve against the pseudo's own
+    // box in whatever space the engine uses, so they stay pinned to the
+    // icon at any DPR / zoom / window size.
+    const xp = (x / window.innerWidth) * 100;
+    const yp = (y / window.innerHeight) * 100;
+    // circle() percentage radius resolves against sqrt(w²+h²)/sqrt(2) of
+    // the reference box — convert the pixel max radius into that space.
+    const radiusRef =
+      Math.hypot(window.innerWidth, window.innerHeight) / Math.SQRT2;
+    const rp = (maxRadius / radiusRef) * 100;
+
     let styleEl = document.getElementById(
       'vt-dark-reveal-keyframes',
     ) as HTMLStyleElement | null;
@@ -65,7 +74,7 @@ export function DarkMode() {
       styleEl.id = 'vt-dark-reveal-keyframes';
       document.head.appendChild(styleEl);
     }
-    styleEl.textContent = `@keyframes dark-mode-reveal{from{clip-path:circle(0px at ${x}px ${y}px)}30%{clip-path:circle(140px at ${x}px ${y}px)}to{clip-path:circle(${maxRadius}px at ${x}px ${y}px)}}`;
+    styleEl.textContent = `@keyframes dark-mode-reveal{from{clip-path:circle(0% at ${xp}% ${yp}%)}to{clip-path:circle(${rp}% at ${xp}% ${yp}%)}}`;
     document.documentElement.classList.add('vt-dark-reveal');
 
     const transition = doc.startViewTransition(() => {
