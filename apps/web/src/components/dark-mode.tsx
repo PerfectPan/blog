@@ -31,15 +31,19 @@ export function DarkMode() {
       return;
     }
 
+    // Capture the anchor rect BEFORE starting the transition: by the time
+    // `.ready` resolves, the dark-mode class swap may have shifted layout
+    // (scrollbar / reflow), which moved the measured origin off the icon.
+    // This is the ordering the Chrome view-transition docs recommend.
+    const { top, left, width, height } = ref.current.getBoundingClientRect();
+    const x = left + width / 2;
+    const y = top + height / 2;
+
     await doc.startViewTransition(() => {
       flushSync(() => {
         setIsDarkMode(newIsDarkMode);
       });
     }).ready;
-
-    const { top, left, width, height } = ref.current.getBoundingClientRect();
-    const x = left + width / 2;
-    const y = top + height / 2;
     const right = window.innerWidth - left;
     const bottom = window.innerHeight - top;
     const maxRadius = Math.hypot(Math.max(left, right), Math.max(top, bottom));
