@@ -1,14 +1,10 @@
 import { type CommentThread, canAccessVisibility } from '@blog/shared';
-import {
-  createFileRoute,
-  Link,
-  notFound,
-  redirect,
-} from '@tanstack/react-router';
-import { Comments } from '../../components/comments.js';
-import { Markdown } from '../../components/markdown.js';
+import { createFileRoute, notFound, redirect } from '@tanstack/react-router';
 import { getBlogPostServerFn } from '../../lib/blog-service.js';
 import { getCommentsServerFn } from '../../lib/comments-service.js';
+import { useSkin } from '../../skins/context.js';
+import { JournalArticle } from '../../skins/journal/article.js';
+import { TerminalArticle } from '../../skins/terminal/article.js';
 
 export const Route = createFileRoute('/blog/$slug')({
   head: () => ({
@@ -65,61 +61,30 @@ export const Route = createFileRoute('/blog/$slug')({
 
 function BlogDetailPage() {
   const data = Route.useLoaderData();
+  const { skin } = useSkin();
   const post = data.post;
   if (!post) {
     return null;
   }
 
-  const date = new Date(post.publishedAt).toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  });
-
-  return (
-    <div className='th-page'>
-      <div className='th-prompt'>
-        <span className='th-prompt-u'>perfectpan</span>
-        <span className='th-prompt-at'>@</span>
-        <span className='th-prompt-h'>blog</span>{' '}
-        <span className='th-prompt-p'>~/posts %</span>{' '}
-        <span className='th-cmd'>
-          cat {new Date(post.publishedAt).getFullYear()}/{post.slug}.md
-        </span>
-      </div>
-
-      <div className='th-art-head'>
-        <h1 className='th-art-title'>{post.title}</h1>
-        <div className='th-art-meta'>
-          <span>{date}</span>
-          <span>·</span>
-          <span>{post.visibility}</span>
-          {post.tags.length > 0 ? (
-            <>
-              <span>·</span>
-              <span>#{post.tags.join(' #')}</span>
-            </>
-          ) : null}
-        </div>
-      </div>
-      <Markdown content={post.contentMdx} />
-      <div className='th-prompt mt-6'>
-        <span className='th-prompt-u'>perfectpan</span>
-        <span className='th-prompt-at'>@</span>
-        <span className='th-prompt-h'>blog</span>{' '}
-        <span className='th-prompt-p'>~/posts %</span>{' '}
-        <Link to='/blog' className='th-cmd th-cmd-dim'>
-          cd ..
-        </Link>
-      </div>
-      <Comments
-        key={post.slug}
-        slug={post.slug}
-        initialComments={data.comments.comments}
-        initialHasMore={data.comments.hasMore}
-        initialTotal={data.comments.total}
+  if (skin === 'journal') {
+    return (
+      <JournalArticle
+        post={post}
+        comments={data.comments.comments}
+        hasMoreComments={data.comments.hasMore}
+        totalComments={data.comments.total}
         sessionUser={data.sessionUser}
       />
-    </div>
+    );
+  }
+  return (
+    <TerminalArticle
+      post={post}
+      comments={data.comments.comments}
+      hasMoreComments={data.comments.hasMore}
+      totalComments={data.comments.total}
+      sessionUser={data.sessionUser}
+    />
   );
 }

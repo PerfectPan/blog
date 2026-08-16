@@ -18,8 +18,30 @@ import { createHighlighterCore } from 'shiki/core';
 // recommended engine for edge runtimes. Don't switch back to oniguruma.
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript';
 
+type Skin = 'terminal' | 'journal';
+
 type MarkdownProps = {
   content: string;
+  skin?: Skin;
+};
+
+/** Per-skin class names for the code block chrome + inline code. */
+const SKIN_CLASSES: Record<
+  Skin,
+  { wrap: string; copy: string; pre: string; inline: string }
+> = {
+  terminal: {
+    wrap: 'th-code group relative',
+    copy: 'th-code-copy',
+    pre: 'shiki th-pre w-full overflow-x-auto',
+    inline: 'md-inline',
+  },
+  journal: {
+    wrap: 'j-code group relative',
+    copy: 'j-code-copy',
+    pre: 'shiki j-pre w-full overflow-x-auto',
+    inline: 'j-inline',
+  },
 };
 
 function scrollToHeading(id: string) {
@@ -62,7 +84,7 @@ const highlighter = await createHighlighterCore({
  * Wraps a highlighted <pre> with a Copy button. Reads the rendered textContent
  * (post-shiki) so it works regardless of how the code was tokenized.
  */
-function CodeBlock({ children }: { children?: ReactNode }) {
+function CodeBlock({ children, skin }: { children?: ReactNode; skin: Skin }) {
   const preRef = useRef<HTMLPreElement>(null);
   const [copied, setCopied] = useState(false);
 
@@ -78,24 +100,41 @@ function CodeBlock({ children }: { children?: ReactNode }) {
   }, []);
 
   return (
-    <div className='th-code group relative'>
+    <div
+      className={
+        skin === 'terminal'
+          ? SKIN_CLASSES.terminal.wrap
+          : SKIN_CLASSES.journal.wrap
+      }
+    >
       <button
         type='button'
         onClick={onCopy}
         aria-label='Copy code'
-        className='th-code-copy'
+        className={
+          skin === 'terminal'
+            ? SKIN_CLASSES.terminal.copy
+            : SKIN_CLASSES.journal.copy
+        }
       >
         {copied ? <Check size={12} /> : <Copy size={12} />}
         {copied ? 'Copied' : 'Copy'}
       </button>
-      <pre ref={preRef} className='shiki th-pre w-full overflow-x-auto'>
+      <pre
+        ref={preRef}
+        className={
+          skin === 'terminal'
+            ? SKIN_CLASSES.terminal.pre
+            : SKIN_CLASSES.journal.pre
+        }
+      >
         {children}
       </pre>
     </div>
   );
 }
 
-export function Markdown({ content }: MarkdownProps) {
+export function Markdown({ content, skin = 'terminal' }: MarkdownProps) {
   useEffect(() => {
     const hash = window.location.hash;
     if (!hash.startsWith('#')) {
@@ -152,12 +191,20 @@ export function Markdown({ content }: MarkdownProps) {
           ),
           strong: ({ children }) => <b className='font-bold'>{children}</b>,
           ul: ({ children }) => <ul>{children}</ul>,
-          pre: ({ children }) => <CodeBlock>{children}</CodeBlock>,
+          pre: ({ children }) => <CodeBlock skin={skin}>{children}</CodeBlock>,
           code: ({ className, children }) =>
             /language-/.test(className ?? '') ? (
               <code className={className}>{children}</code>
             ) : (
-              <code className='md-inline'>{children}</code>
+              <code
+                className={
+                  skin === 'terminal'
+                    ? SKIN_CLASSES.terminal.inline
+                    : SKIN_CLASSES.journal.inline
+                }
+              >
+                {children}
+              </code>
             ),
         }}
       >

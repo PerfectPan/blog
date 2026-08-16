@@ -1,12 +1,12 @@
 import { Link } from '@tanstack/react-router';
-import { authClient } from '../lib/auth-client.js';
+import { authClient } from '../../lib/auth-client.js';
 
 /**
  * tmux-style status bar: session name + clickable windows on the left, site
  * info on the right. Doubles as secondary navigation (the active window is
  * highlighted by the current route).
  */
-export function Footer() {
+export function TerminalFooter() {
   const { data: sessionData } = authClient.useSession();
   const isAdmin = sessionData?.user?.role === 'admin';
 

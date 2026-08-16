@@ -1,8 +1,8 @@
 import { Link } from '@tanstack/react-router';
 import { Github, LogOut, Rss, Search, UserRound } from 'lucide-react';
-import { authClient } from '../lib/auth-client.js';
-import { DarkMode } from './dark-mode.js';
-import { searchPalette } from './search-palette-store.js';
+import { DarkMode } from '../../components/dark-mode.js';
+import { searchPalette } from '../../components/search-palette-store.js';
+import { authClient } from '../../lib/auth-client.js';
 
 function getRoleLabel(role?: string | null): string {
   if (role === 'admin') {
@@ -16,8 +16,11 @@ function getRoleLabel(role?: string | null): string {
   return 'MEMBER';
 }
 
+import { BookOpen } from 'lucide-react';
+import { useSkin } from '../context.js';
+
 /** Terminal title bar: window dots + session name + right-aligned tools. */
-export function Header() {
+export function TerminalHeader() {
   const { data: sessionData } = authClient.useSession();
   const sessionUser = sessionData?.user ?? null;
 
@@ -61,6 +64,7 @@ export function Header() {
             </Link>
           </>
         )}
+        <SkinSwitch />
         <DarkMode />
         <button
           type='button'
@@ -91,5 +95,20 @@ export function Header() {
         </a>
       </div>
     </header>
+  );
+}
+
+function SkinSwitch() {
+  const { setSkin } = useSkin();
+  return (
+    <button
+      type='button'
+      className='th-tool-btn'
+      aria-label='Switch to journal theme'
+      onClick={() => setSkin('journal')}
+    >
+      <BookOpen size={15} aria-hidden='true' />
+      <span className='hidden sm:inline'>journal</span>
+    </button>
   );
 }
