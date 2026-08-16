@@ -25,16 +25,19 @@ type MarkdownProps = {
   skin?: Skin;
 };
 
-/** Per-skin class names for the code block chrome + inline code. */
+/** Per-skin class names for the code block chrome + inline code. Skins without
+ *  an entry (e.g. journal before its layer lands) fall back to terminal. */
+const TERMINAL_CLASSES = {
+  wrap: 'th-code group relative',
+  copy: 'th-code-copy',
+  pre: 'shiki th-pre w-full overflow-x-auto',
+  inline: 'md-inline',
+} as const;
+
 const SKIN_CLASSES: Partial<
   Record<Skin, { wrap: string; copy: string; pre: string; inline: string }>
 > = {
-  terminal: {
-    wrap: 'th-code group relative',
-    copy: 'th-code-copy',
-    pre: 'shiki th-pre w-full overflow-x-auto',
-    inline: 'md-inline',
-  },
+  terminal: TERMINAL_CLASSES,
 };
 
 function scrollToHeading(id: string) {
@@ -92,23 +95,20 @@ function CodeBlock({ children, skin }: { children?: ReactNode; skin: Skin }) {
     }
   }, []);
 
+  const c = SKIN_CLASSES[skin] ?? TERMINAL_CLASSES;
+
   return (
-    <div className={SKIN_CLASSES.terminal?.wrap ?? 'th-code group relative'}>
+    <div className={c.wrap}>
       <button
         type='button'
         onClick={onCopy}
         aria-label='Copy code'
-        className={SKIN_CLASSES.terminal?.copy ?? 'th-code-copy'}
+        className={c.copy}
       >
         {copied ? <Check size={12} /> : <Copy size={12} />}
         {copied ? 'Copied' : 'Copy'}
       </button>
-      <pre
-        ref={preRef}
-        className={
-          SKIN_CLASSES.terminal?.pre ?? 'shiki th-pre w-full overflow-x-auto'
-        }
-      >
+      <pre ref={preRef} className={c.pre}>
         {children}
       </pre>
     </div>
@@ -177,7 +177,11 @@ export function Markdown({ content, skin = 'terminal' }: MarkdownProps) {
             /language-/.test(className ?? '') ? (
               <code className={className}>{children}</code>
             ) : (
-              <code className={SKIN_CLASSES.terminal?.inline ?? 'md-inline'}>
+              <code
+                className={
+                  SKIN_CLASSES[skin]?.inline ?? TERMINAL_CLASSES.inline
+                }
+              >
                 {children}
               </code>
             ),

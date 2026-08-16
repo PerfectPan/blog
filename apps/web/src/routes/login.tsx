@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useSkin } from '../skins/context.js';
 import { TerminalLoginPage } from '../skins/terminal/auth.js';
 
 export const Route = createFileRoute('/login')({
@@ -18,6 +17,5 @@ export const Route = createFileRoute('/login')({
 });
 
 function LoginPage() {
-  const { skin } = useSkin();
   return <TerminalLoginPage />;
 }

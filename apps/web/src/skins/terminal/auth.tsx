@@ -110,11 +110,15 @@ export function TerminalLoginPage() {
             continue with github
           </button>
         </div>
-        {error ? <p className='th-err'>{error}</p> : null}
+        {error ? (
+          <p role='alert' className='th-err'>
+            {error}
+          </p>
+        ) : null}
       </form>
       <p className='th-out mt-4'>
         <span className='th-comment'># 还没有账号？</span>{' '}
-        <a href='/signup'>signup</a>
+        <Link to='/signup'>signup</Link>
       </p>
     </div>
   );
@@ -243,7 +247,11 @@ export function TerminalSignupPage() {
             continue with github
           </button>
         </div>
-        {error ? <p className='th-err'>{error}</p> : null}
+        {error ? (
+          <p role='alert' className='th-err'>
+            {error}
+          </p>
+        ) : null}
       </form>
     </div>
   );
@@ -300,7 +308,11 @@ export function TerminalUnlockPage({
             ← 返回文章
           </Link>
         </div>
-        {errorLabel ? <p className='th-err'>{errorLabel}</p> : null}
+        {errorLabel ? (
+          <p role='alert' className='th-err'>
+            {errorLabel}
+          </p>
+        ) : null}
       </form>
     </div>
   );
