@@ -99,21 +99,26 @@
 }
 
 /* Dark-mode circular reveal. dark-mode.tsx bakes the measured icon position
-   into a `dark-mode-reveal` @keyframes rule (literal pixels, injected as a
-   <style> before startViewTransition) and adds .vt-dark-reveal on <html>.
-   Literal values are used because some engines do not cascade custom
-   properties set on <html> into the view-transition pseudo-elements — the
-   var() fallbacks then grew the circle from the screen center. The keyframes
-   cover the pseudo-elements from their first rendered frame (no flash of the
-   fully-swapped page while a script animation attaches after `.ready`).
-   Scoping by .vt-dark-reveal keeps every other view transition — e.g. router
-   navigations — on the plain swap defined above. */
+   into a `dark-mode-reveal` @keyframes rule as viewport percentages (injected
+   as a <style> before startViewTransition) and adds .vt-dark-reveal on <html>.
+   Percentages are used because (a) some engines do not cascade custom
+   properties set on <html> into the pseudo-elements (pixel var() fell back to
+   50%/50% = screen center) and (b) Chromium resolves pixel clip lengths on
+   view-transition pseudos against the physical snapshot box, which halves CSS
+   pixel coordinates on DPR-2 screens. Percentages resolve against the
+   pseudo's own box, correct in every coordinate space. `forwards` holds the
+   terminal clip so the swapped-away layer cannot flash unclipped for a frame
+   when the animation ends. The slow-start cubic-bezier keeps the circle
+   small (~140px) around the icon for the first ~150ms — the legible origin
+   — then sweeps; a single curve avoids the mid-animation hitch that chained
+   per-segment easings produced. */
 .vt-dark-reveal.dark::view-transition-new(root) {
-  animation: dark-mode-reveal 650ms ease-in-out;
+  animation: dark-mode-reveal 650ms cubic-bezier(0.65, 0, 0.35, 1) forwards;
 }
 
 .vt-dark-reveal:not(.dark)::view-transition-old(root) {
-  animation: dark-mode-reveal 650ms ease-in-out reverse;
+  animation: dark-mode-reveal 650ms cubic-bezier(0.65, 0, 0.35, 1) reverse
+    forwards;
 }
 
 /* https://shiki.style/guide/dual-themes */
