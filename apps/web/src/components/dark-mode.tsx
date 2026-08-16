@@ -45,16 +45,23 @@ export function DarkMode() {
     const bottom = window.innerHeight - top;
     const maxRadius = Math.hypot(Math.max(left, right), Math.max(top, bottom));
 
-    // Hand the origin to CSS custom properties and mark the transition with
-    // .vt-dark-reveal. The clip keyframes (see styles.css) then apply to the
-    // transition pseudo-elements from their very first frame — no gap between
-    // `.ready` resolving and a script animation attaching, so the reveal can
-    // never flash the fully-swapped page before the circle starts growing.
-    const root = document.documentElement;
-    root.style.setProperty('--vt-x', `${x}px`);
-    root.style.setProperty('--vt-y', `${y}px`);
-    root.style.setProperty('--vt-r', `${maxRadius}px`);
-    root.classList.add('vt-dark-reveal');
+    // Bake the measured origin into the keyframes as literal pixels. Some
+    // engines do not cascade custom properties set on <html> into the
+    // view-transition pseudo-elements, which silently fell back to the
+    // 50%/50% var() defaults and made the circle grow from the screen
+    // center. Literal values sidestep that entirely, and rewriting a
+    // dedicated <style> before startViewTransition keeps the clip active
+    // from the pseudo-element's first frame (no post-`.ready` attach gap).
+    let styleEl = document.getElementById(
+      'vt-dark-reveal-keyframes',
+    ) as HTMLStyleElement | null;
+    if (!styleEl) {
+      styleEl = document.createElement('style');
+      styleEl.id = 'vt-dark-reveal-keyframes';
+      document.head.appendChild(styleEl);
+    }
+    styleEl.textContent = `@keyframes dark-mode-reveal{from{clip-path:circle(0px at ${x}px ${y}px)}30%{clip-path:circle(140px at ${x}px ${y}px)}to{clip-path:circle(${maxRadius}px at ${x}px ${y}px)}}`;
+    document.documentElement.classList.add('vt-dark-reveal');
 
     const transition = doc.startViewTransition(() => {
       flushSync(() => {
@@ -63,7 +70,9 @@ export function DarkMode() {
     });
     transition.finished
       .catch(() => {})
-      .finally(() => root.classList.remove('vt-dark-reveal'));
+      .finally(() =>
+        document.documentElement.classList.remove('vt-dark-reveal'),
+      );
   };
 
   return (
