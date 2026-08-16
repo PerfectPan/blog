@@ -66,6 +66,12 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   useEffect(() => {
+    if (import.meta.env.DEV) {
+      void import('react-grab');
+    }
+  }, []);
+
+  useEffect(() => {
     // Register the service worker in production only (Bundle D / PWA).
     if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js').catch(() => {
