@@ -105,16 +105,25 @@
    `.ready`). Scoping by .vt-dark-reveal keeps every other view transition —
    e.g. router navigations — on the plain swap defined above. */
 .vt-dark-reveal.dark::view-transition-new(root) {
-  animation: dark-mode-reveal 500ms ease-in-out;
+  animation: dark-mode-reveal 650ms ease-in-out;
 }
 
 .vt-dark-reveal:not(.dark)::view-transition-old(root) {
-  animation: dark-mode-reveal 500ms ease-in-out reverse;
+  animation: dark-mode-reveal 650ms ease-in-out reverse;
 }
 
+/* The toggle sits ~30px from the viewport edge, so a plain 0 → max circle
+   exits the top edge within the first couple of frames and reads as a flat
+   band sweeping across the page. The 30% waypoint holds a ~140px disc around
+   the icon first (~200ms), making the origin legible before the sweep. */
 @keyframes dark-mode-reveal {
   from {
     clip-path: circle(0px at var(--vt-x, 50%) var(--vt-y, 50%));
+  }
+
+  30% {
+    clip-path: circle(140px at var(--vt-x, 50%) var(--vt-y, 50%));
+    animation-timing-function: ease-in-out;
   }
 
   to {
