@@ -98,6 +98,32 @@
   z-index: 9999;
 }
 
+/* Dark-mode circular reveal. dark-mode.tsx sets --vt-x/--vt-y/--vt-r and adds
+   .vt-dark-reveal on <html> before startViewTransition, so the clip keyframes
+   cover the transition pseudo-elements from their first rendered frame (no
+   flash of the fully-swapped page while a script animation attaches after
+   `.ready`). Scoping by .vt-dark-reveal keeps every other view transition —
+   e.g. router navigations — on the plain swap defined above. */
+.vt-dark-reveal.dark::view-transition-new(root) {
+  animation: dark-mode-reveal 500ms ease-in-out;
+}
+
+.vt-dark-reveal:not(.dark)::view-transition-old(root) {
+  animation: dark-mode-reveal 500ms ease-in-out reverse;
+}
+
+@keyframes dark-mode-reveal {
+  from {
+    clip-path: circle(0px at var(--vt-x, 50%) var(--vt-y, 50%));
+  }
+
+  to {
+    clip-path: circle(
+      var(--vt-r, 150vmax) at var(--vt-x, 50%) var(--vt-y, 50%)
+    );
+  }
+}
+
 /* https://shiki.style/guide/dual-themes */
 html.dark .shiki,
 html.dark .shiki span {
