@@ -70,19 +70,16 @@ export function SearchPalette() {
         next ? searchPalette.open() : searchPalette.close()
       }
     >
-      <DialogContent className='overflow-hidden p-0'>
-        <Command
-          shouldFilter={false}
-          className='[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-4 [&_[cmdk-input-wrapper]_svg]:w-4 [&_[cmdk-input]]:h-11 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-2'
-        >
+      <DialogContent className='th-pal overflow-hidden p-0'>
+        <Command shouldFilter={false} className='th-pal-cmd'>
           <CommandInput
             value={query}
             onValueChange={setQuery}
-            placeholder='Search posts…'
+            placeholder="grep -ri '关键词' ~/posts"
           />
           <CommandList>
             <CommandEmpty>
-              {query.trim() ? 'No posts found.' : 'Type to search posts…'}
+              {query.trim() ? '# no matches found' : '# type to grep ~/posts'}
             </CommandEmpty>
             <CommandGroup>
               {results.map((post) => (
@@ -91,25 +88,20 @@ export function SearchPalette() {
                   value={post.slug}
                   onSelect={() => go(post.slug)}
                 >
-                  <div className='flex min-w-0 flex-col gap-0.5'>
-                    <span className='font-medium'>{post.title}</span>
-                    {post.description ? (
-                      <span className='line-clamp-1 text-xs text-muted-foreground'>
-                        {post.description}
-                      </span>
-                    ) : null}
-                  </div>
-                  <span className='ml-auto shrink-0 pl-2 text-xs text-muted-foreground'>
-                    {new Date(post.publishedAt).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })}
+                  <span className='th-pal-date'>
+                    {new Date(post.publishedAt).toISOString().slice(0, 7)}
                   </span>
+                  <span className='th-pal-title'>{post.title}</span>
+                  {post.visibility !== 'public' ? (
+                    <span className='th-pal-vis'>{post.visibility}</span>
+                  ) : null}
                 </CommandItem>
               ))}
             </CommandGroup>
           </CommandList>
+          <div className='th-pal-foot'>
+            ↑↓ 选择 · ↵ 打开 · esc 关闭 · 结果按当前身份过滤
+          </div>
         </Command>
       </DialogContent>
     </Dialog>

@@ -13,14 +13,9 @@ export function DarkMode() {
   const ref = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-      document.body.classList.add('dark:bg-wash-dark', 'dark:text-white');
-      return;
-    }
-
-    document.documentElement.classList.remove('dark');
-    document.body.classList.remove('dark:bg-wash-dark', 'dark:text-white');
+    // The terminal theme carries its own dark palette via html.dark custom
+    // properties; no legacy body utility classes are needed.
+    document.documentElement.classList.toggle('dark', isDarkMode);
   }, [isDarkMode]);
 
   const onTrigger = async () => {
@@ -36,15 +31,19 @@ export function DarkMode() {
       return;
     }
 
+    // Capture the anchor rect BEFORE starting the transition: by the time
+    // `.ready` resolves, the dark-mode class swap may have shifted layout
+    // (scrollbar / reflow), which moved the measured origin off the icon.
+    // This is the ordering the Chrome view-transition docs recommend.
+    const { top, left, width, height } = ref.current.getBoundingClientRect();
+    const x = left + width / 2;
+    const y = top + height / 2;
+
     await doc.startViewTransition(() => {
       flushSync(() => {
         setIsDarkMode(newIsDarkMode);
       });
     }).ready;
-
-    const { top, left, width, height } = ref.current.getBoundingClientRect();
-    const x = left + width / 2;
-    const y = top + height / 2;
     const right = window.innerWidth - left;
     const bottom = window.innerHeight - top;
     const maxRadius = Math.hypot(Math.max(left, right), Math.max(top, bottom));

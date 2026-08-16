@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, useParams } from '@tanstack/react-router';
 import {
   buildUnlockCookieHeader,
   createUnlockCookieValue,
@@ -8,6 +8,7 @@ import {
   isUnlockRateLimited,
   recordUnlockFailure,
 } from '../../lib/unlock-rate-limit.js';
+import { TerminalUnlockPage } from '../../skins/terminal/auth.js';
 
 function getClientIp(request: Request): string | null {
   const forwardedFor = request.headers.get('x-forwarded-for');
@@ -72,54 +73,7 @@ export const Route = createFileRoute('/unlock/$slug')({
 });
 
 function UnlockPage() {
-  const { slug } = Route.useParams();
-  const search = Route.useSearch() as { error?: string };
-  const errorLabel =
-    search.error === 'missing'
-      ? '请输入访问密码'
-      : search.error === 'invalid'
-        ? '密码错误，请重试'
-        : undefined;
-
-  return (
-    <section className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-      <h1 className='mb-2 text-3xl font-black'>输入文章访问密码</h1>
-      <p className='mb-6 opacity-70'>这篇文章使用了单文密码保护。</p>
-
-      {errorLabel ? (
-        <p role='alert' className='mb-4 text-sm text-red-700 dark:text-red-300'>
-          {errorLabel}
-        </p>
-      ) : null}
-
-      <form method='post' className='grid max-w-[420px] gap-3'>
-        <label htmlFor='password' className='font-semibold'>
-          Password
-        </label>
-        <input
-          id='password'
-          name='password'
-          type='password'
-          required
-          className='rounded-md border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-wash-dark'
-        />
-        <button
-          type='submit'
-          className='rounded-md bg-black px-4 py-2 font-semibold text-white transition-opacity hover:opacity-90 dark:bg-neutral-900'
-        >
-          Unlock
-        </button>
-      </form>
-
-      <p className='mt-4'>
-        <Link
-          to='/blog/$slug'
-          params={{ slug }}
-          className='opacity-70 hover:opacity-100'
-        >
-          返回文章页
-        </Link>
-      </p>
-    </section>
-  );
+  const { slug } = useParams({ from: '/unlock/$slug' });
+  const search = Route.useSearch() as Record<string, string | undefined>;
+  return <TerminalUnlockPage slug={slug} search={search} />;
 }
