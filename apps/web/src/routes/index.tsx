@@ -31,5 +31,5 @@ function HomePage() {
   if (skin === 'journal') {
     return <JournalHomePage data={data} />;
   }
-  return <TerminalHomePage />;
+  return <TerminalHomePage data={data} />;
 }
