@@ -1,23 +1,22 @@
-import { Link, useNavigate } from '@tanstack/react-router';
-import { useEffect, useState, useTransition } from 'react';
-import { authClient } from '../../lib/auth-client.js';
+import { Link } from '@tanstack/react-router';
+import { useEmailAuth } from '../../lib/use-email-auth.js';
+import { unlockErrorLabel } from '../shared.js';
 
 export function JournalLoginPage() {
-  const navigate = useNavigate();
-  const { data: sessionData, isPending: isSessionPending } =
-    authClient.useSession();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const {
+    sessionUser,
+    isSessionPending,
+    email,
+    setEmail,
+    password,
+    setPassword,
+    error,
+    isPending,
+    handleSubmit,
+    handleGithub,
+  } = useEmailAuth('login');
 
-  useEffect(() => {
-    if (sessionData?.user?.id) {
-      navigate({ to: '/blog', replace: true });
-    }
-  }, [navigate, sessionData?.user?.id]);
-
-  if (sessionData?.user?.id || isSessionPending) {
+  if (sessionUser?.id || isSessionPending) {
     return (
       <div className='j-sheet'>
         <p className='j-aside'>Checking session...</p>
@@ -34,27 +33,7 @@ export function JournalLoginPage() {
           </span>
           <h1>登录</h1>
           <p className='sub'>支持邮箱密码和 GitHub OAuth。</p>
-          <form
-            method='post'
-            onSubmit={(event) => {
-              event.preventDefault();
-              setError(null);
-              startTransition(async () => {
-                const result = await authClient.signIn.email({
-                  email,
-                  password,
-                  callbackURL: '/blog',
-                });
-
-                if (result.error) {
-                  setError(result.error.message ?? '登录失败');
-                  return;
-                }
-
-                navigate({ to: '/blog' });
-              });
-            }}
-          >
+          <form method='post' onSubmit={handleSubmit}>
             <div className='j-field'>
               <label htmlFor='email'>Email</label>
               <input
@@ -89,20 +68,7 @@ export function JournalLoginPage() {
               >
                 {isPending ? 'Signing in...' : 'Sign In'}
               </button>
-              <button
-                type='button'
-                className='j-btn'
-                onClick={async () => {
-                  setError(null);
-                  const result = await authClient.signIn.social({
-                    provider: 'github',
-                    callbackURL: '/blog',
-                  });
-                  if (result.error) {
-                    setError(result.error.message ?? 'GitHub 登录失败');
-                  }
-                }}
-              >
+              <button type='button' className='j-btn' onClick={handleGithub}>
                 Continue with GitHub
               </button>
             </div>
@@ -125,22 +91,21 @@ export function JournalLoginPage() {
 }
 
 export function JournalSignupPage() {
-  const navigate = useNavigate();
-  const { data: sessionData, isPending: isSessionPending } =
-    authClient.useSession();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const {
+    sessionUser,
+    isSessionPending,
+    email,
+    setEmail,
+    password,
+    setPassword,
+    name,
+    setName,
+    error,
+    isPending,
+    handleSubmit,
+  } = useEmailAuth('signup');
 
-  useEffect(() => {
-    if (sessionData?.user?.id) {
-      navigate({ to: '/blog', replace: true });
-    }
-  }, [navigate, sessionData?.user?.id]);
-
-  if (sessionData?.user?.id || isSessionPending) {
+  if (sessionUser?.id || isSessionPending) {
     return (
       <div className='j-sheet'>
         <p className='j-aside'>Checking session...</p>
@@ -157,28 +122,7 @@ export function JournalSignupPage() {
           </span>
           <h1>注册</h1>
           <p className='sub'>注册后默认角色为 member，可在后台升权。</p>
-          <form
-            method='post'
-            onSubmit={(event) => {
-              event.preventDefault();
-              setError(null);
-              startTransition(async () => {
-                const result = await authClient.signUp.email({
-                  email,
-                  password,
-                  name,
-                  callbackURL: '/blog',
-                });
-
-                if (result.error) {
-                  setError(result.error.message ?? '注册失败');
-                  return;
-                }
-
-                navigate({ to: '/blog' });
-              });
-            }}
-          >
+          <form method='post' onSubmit={handleSubmit}>
             <div className='j-field'>
               <label htmlFor='name'>Name</label>
               <input
@@ -246,13 +190,7 @@ export function JournalUnlockPage({
   slug: string;
   search?: Record<string, string | undefined>;
 }) {
-  const { error: searchError } = (search ?? {}) as { error?: string };
-  const errorLabel =
-    searchError === 'missing'
-      ? '请输入访问密码'
-      : searchError === 'invalid'
-        ? '密码错误，请重试'
-        : undefined;
+  const errorLabel = unlockErrorLabel(search);
 
   return (
     <div className='j-sheet'>

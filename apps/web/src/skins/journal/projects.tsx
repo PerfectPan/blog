@@ -1,13 +1,5 @@
-import { PROJECTS, type Project } from '../../lib/projects.js';
-
-function sortProjects(projects: Project[]): Project[] {
-  return [...projects].sort((a, b) => {
-    if (Boolean(a.featured) === Boolean(b.featured)) {
-      return a.name.localeCompare(b.name);
-    }
-    return a.featured ? -1 : 1;
-  });
-}
+import { PROJECTS } from '../../lib/projects.js';
+import { sortProjects } from '../shared.js';
 
 export function JournalProjectsPage() {
   const projects = sortProjects(PROJECTS);

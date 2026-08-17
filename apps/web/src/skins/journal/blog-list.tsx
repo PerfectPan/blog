@@ -1,25 +1,6 @@
 import type { PostSummary } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
-
-function groupByYear(
-  posts: PostSummary[],
-): { year: string; blogs: PostSummary[] }[] {
-  const groups = new Map<string, PostSummary[]>();
-  for (const post of posts) {
-    const year = new Date(post.publishedAt).getFullYear().toString();
-    const existing = groups.get(year);
-    if (existing) existing.push(post);
-    else groups.set(year, [post]);
-  }
-  return [...groups.entries()]
-    .sort((a, b) => Number(b[0]) - Number(a[0]))
-    .map(([year, blogs]) => ({
-      year,
-      blogs: [...blogs].sort((a, b) =>
-        b.publishedAt.localeCompare(a.publishedAt),
-      ),
-    }));
-}
+import { type BlogListData, groupByYear } from '../shared.js';
 
 const NOTE_CLASS: Record<PostSummary['visibility'], string> = {
   public: '',
@@ -41,17 +22,18 @@ export function JournalBlogList({
   showDevHint,
   devScopeHint,
 }: {
-  data: {
-    posts: PostSummary[];
-    total: number;
-    page: number;
-    totalPages: number;
-  };
+  data: BlogListData;
   showDevHint: boolean;
   devScopeHint: string;
 }) {
   const blogGroups = groupByYear(data.posts);
-  let runningIndex = 0;
+  // Page-wide entry number (001, 002, …), precomputed — mutating a counter
+  // during render breaks under concurrent/replayed renders.
+  const indexBySlug = new Map(
+    blogGroups
+      .flatMap((group) => group.blogs)
+      .map((post, i) => [post.slug, i + 1]),
+  );
 
   return (
     <div className='j-sheet'>
@@ -66,33 +48,30 @@ export function JournalBlogList({
             <h2 style={{ letterSpacing: '0.18em' }}>{group.year}</h2>
             <span className='sub'>{group.blogs.length} 篇</span>
           </div>
-          {group.blogs.map((blog: PostSummary) => {
-            runningIndex += 1;
-            return (
-              <div className='j-toc-line' key={blog.slug}>
-                <Link to='/blog/$slug' params={{ slug: blog.slug }}>
-                  <span className='t'>
-                    {blog.title}
-                    {blog.visibility !== 'public' ? (
-                      <span className={NOTE_CLASS[blog.visibility]}>
-                        {NOTE_TEXT[blog.visibility]}
-                      </span>
-                    ) : null}
-                  </span>
-                  <span className='dots' />
-                </Link>
-                <span className='n'>
-                  {new Date(blog.publishedAt).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                  })}
+          {group.blogs.map((blog: PostSummary) => (
+            <div className='j-toc-line' key={blog.slug}>
+              <Link to='/blog/$slug' params={{ slug: blog.slug }}>
+                <span className='t'>
+                  {blog.title}
+                  {blog.visibility !== 'public' ? (
+                    <span className={NOTE_CLASS[blog.visibility]}>
+                      {NOTE_TEXT[blog.visibility]}
+                    </span>
+                  ) : null}
                 </span>
-                <span className='n' style={{ color: 'var(--j-faint)' }}>
-                  {String(runningIndex).padStart(3, '0')}
-                </span>
-              </div>
-            );
-          })}
+                <span className='dots' />
+              </Link>
+              <span className='n'>
+                {new Date(blog.publishedAt).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                })}
+              </span>
+              <span className='n' style={{ color: 'var(--j-faint)' }}>
+                {String(indexBySlug.get(blog.slug) ?? 0).padStart(3, '0')}
+              </span>
+            </div>
+          ))}
         </div>
       ))}
 

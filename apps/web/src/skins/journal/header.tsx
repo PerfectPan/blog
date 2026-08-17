@@ -1,22 +1,9 @@
 import { Link } from '@tanstack/react-router';
-import { Github, LogOut, Rss, Search, UserRound } from 'lucide-react';
+import { Github, LogOut, Rss, Search, Terminal, UserRound } from 'lucide-react';
 import { searchPalette } from '../../components/search-palette-store.js';
 import { authClient } from '../../lib/auth-client.js';
-
-function getRoleLabel(role?: string | null): string {
-  if (role === 'admin') {
-    return 'ADMIN';
-  }
-
-  if (role === 'vip') {
-    return 'VIP';
-  }
-
-  return 'MEMBER';
-}
-
-import { Terminal } from 'lucide-react';
 import { useSkin } from '../context.js';
+import { getRoleLabel } from '../shared.js';
 
 /** Journal masthead: warm-paper shell with the site's original wording. */
 export function JournalHeader() {
@@ -67,6 +54,7 @@ export function JournalHeader() {
               </Link>
               <Link
                 to='/signup'
+                data-testid='nav-signup'
                 className='text-[13.5px]'
                 style={{ letterSpacing: '0.28em', color: 'var(--j-faded)' }}
               >

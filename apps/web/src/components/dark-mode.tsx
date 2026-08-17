@@ -26,6 +26,17 @@ export function DarkMode() {
       ?.setAttribute('content', isDarkMode ? '#0a0f14' : '#f4f2ec');
   }, [isDarkMode]);
 
+  useEffect(() => {
+    // Journal is light-only: switching skins removes the dark class behind
+    // our back. Re-sync with the DOM when the skin changes so the icon and
+    // aria-label never disagree with the rendered theme.
+    const onSkinChange = () => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'));
+    };
+    window.addEventListener('blog:skinchange', onSkinChange);
+    return () => window.removeEventListener('blog:skinchange', onSkinChange);
+  }, []);
+
   const onTrigger = () => {
     const newIsDarkMode = !isDarkMode;
     const doc = document as ViewTransitionDocument;

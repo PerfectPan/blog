@@ -7,7 +7,13 @@ import {
 import { type ReactNode, useEffect } from 'react';
 import { AppLayout } from '../components/layout.js';
 import { SearchPalette } from '../components/search-palette.js';
-import { SkinProvider, useSkin } from '../skins/context.js';
+import { THEME_COLOR } from '../lib/skin.js';
+import {
+  getInitialSkin,
+  type Skin,
+  SkinProvider,
+  useSkin,
+} from '../skins/context.js';
 import { JournalError, JournalNotFound } from '../skins/journal/misc.js';
 import { TerminalError, TerminalNotFound } from '../skins/terminal/misc.js';
 import '../styles.css';
@@ -16,8 +22,14 @@ import '../styles.css';
  * Runs before first paint: if the cookie picks the journal skin, hide the
  * body so the terminal-themed SSR HTML never flashes; React applies the
  * journal skin right after hydration and SkinProvider removes this style.
+ *
+ * Why not read the cookie in a route loader / getRequest()? The router is a
+ * singleton reused across requests, and workerd's request context proved
+ * sticky across requests — the first visitor's skin would leak to everyone
+ * else until the isolate recycles. Verified on the production runtime
+ * (wrangler dev): per-request cookie reads in loaders return stale values.
  */
-const SKIN_BOOT_SCRIPT = `(function(){try{if(/(?:^|;\\s*)blog-skin=journal(?:;|$)/.test(document.cookie)){var s=document.createElement('style');s.id='skin-boot';s.textContent='body{visibility:hidden}';document.head.appendChild(s);}}catch(e){}})();`;
+const SKIN_BOOT_SCRIPT = `(function(){try{if(document.cookie.split(';').some(function(c){return c.trim().indexOf('blog-skin=journal')===0;})){var s=document.createElement('style');s.id='skin-boot';s.textContent='body{visibility:hidden}';document.head.appendChild(s);}}catch(e){}})();`;
 
 export const Route = createRootRoute({
   head: () => ({
@@ -35,7 +47,9 @@ export const Route = createRootRoute({
       },
       {
         name: 'theme-color',
-        content: '#F4F2EC',
+        // SSR default (terminal light); SkinProvider + DarkMode sync the
+        // real value client-side.
+        content: THEME_COLOR.terminal,
       },
     ],
     links: [
@@ -93,14 +107,8 @@ function RootComponent() {
   );
 }
 
-/**
- * SSR always renders the default (terminal) skin — the framework's
- * per-request context proved unreliable on workerd — and the provider applies
- * the cookie skin immediately after hydration (see context.tsx), so the boot
- * script above is the only thing a journal user ever sees pre-skin.
- */
 function SkinPage({ children }: { children: ReactNode }) {
-  return <SkinProvider initial='terminal'>{children}</SkinProvider>;
+  return <SkinProvider initial={getInitialSkin()}>{children}</SkinProvider>;
 }
 
 function SkinNotFound() {

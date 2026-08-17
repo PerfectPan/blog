@@ -1062,6 +1062,38 @@ html[data-theme="terminal"] .md .th-pre code {
   font-size: 11.5px;
 }
 
+/* ---------- terminal: small screens ---------- */
+@media (max-width: 640px) {
+  .th-titlebar {
+    padding: 8px 12px;
+    gap: 5px;
+  }
+  .th-term-title {
+    margin-left: 6px;
+    font-size: 12px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .th-term-sep,
+  .th-term-title .th-path {
+    display: none;
+  }
+  .th-tools {
+    gap: 2px;
+  }
+  .th-tool-btn {
+    padding: 4px 6px;
+  }
+  .th-page {
+    padding: 20px 14px 40px;
+  }
+  .th-figlet {
+    overflow-x: auto;
+  }
+}
+
 /* =====================================================================
  * THEME B — Literary Journal 《废墨集》 (UX redesign direction B)
  * Paper-native Chinese literary journal: serif display, seal red,
@@ -1105,7 +1137,7 @@ html[data-theme="journal"] {
   --j-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
 
-html {
+html[data-theme="journal"] {
   background-color: var(--j-paper);
   scrollbar-color: #cfc8b8 var(--j-paper);
 }
@@ -1355,6 +1387,11 @@ html[data-theme="journal"] ::selection {
   font-size: 11.5px;
   color: var(--j-faint);
   white-space: nowrap;
+}
+.j-latest-loading {
+  padding: 9px 0;
+  font-size: 14px;
+  color: var(--j-faint);
 }
 @media (max-width: 860px) {
   .j-home {

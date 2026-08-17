@@ -1,23 +1,22 @@
-import { Link, useNavigate } from '@tanstack/react-router';
-import { useEffect, useState, useTransition } from 'react';
-import { authClient } from '../../lib/auth-client.js';
+import { Link } from '@tanstack/react-router';
+import { useEmailAuth } from '../../lib/use-email-auth.js';
+import { unlockErrorLabel } from '../shared.js';
 
 export function TerminalLoginPage() {
-  const navigate = useNavigate();
-  const { data: sessionData, isPending: isSessionPending } =
-    authClient.useSession();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const {
+    sessionUser,
+    isSessionPending,
+    email,
+    setEmail,
+    password,
+    setPassword,
+    error,
+    isPending,
+    handleSubmit,
+    handleGithub,
+  } = useEmailAuth('login');
 
-  useEffect(() => {
-    if (sessionData?.user?.id) {
-      navigate({ to: '/blog', replace: true });
-    }
-  }, [navigate, sessionData?.user?.id]);
-
-  if (sessionData?.user?.id || isSessionPending) {
+  if (sessionUser?.id || isSessionPending) {
     return (
       <div className='th-page'>
         <p className='th-comment'># checking session…</p>
@@ -37,28 +36,7 @@ export function TerminalLoginPage() {
       <p className='th-out th-comment mt-2'>
         # 邮箱密码登录；或者走 GitHub OAuth。
       </p>
-      <form
-        className='mt-4'
-        method='post'
-        onSubmit={(event) => {
-          event.preventDefault();
-          setError(null);
-          startTransition(async () => {
-            const result = await authClient.signIn.email({
-              email,
-              password,
-              callbackURL: '/blog',
-            });
-
-            if (result.error) {
-              setError(result.error.message ?? '登录失败');
-              return;
-            }
-
-            navigate({ to: '/blog' });
-          });
-        }}
-      >
+      <form className='mt-4' method='post' onSubmit={handleSubmit}>
         <div className='th-field'>
           <label htmlFor='email'>email</label>
           <input
@@ -93,20 +71,7 @@ export function TerminalLoginPage() {
           >
             {isPending ? 'signing in…' : 'sign in'}
           </button>
-          <button
-            type='button'
-            className='th-btn'
-            onClick={async () => {
-              setError(null);
-              const result = await authClient.signIn.social({
-                provider: 'github',
-                callbackURL: '/blog',
-              });
-              if (result.error) {
-                setError(result.error.message ?? 'GitHub 登录失败');
-              }
-            }}
-          >
+          <button type='button' className='th-btn' onClick={handleGithub}>
             continue with github
           </button>
         </div>
@@ -125,22 +90,22 @@ export function TerminalLoginPage() {
 }
 
 export function TerminalSignupPage() {
-  const navigate = useNavigate();
-  const { data: sessionData, isPending: isSessionPending } =
-    authClient.useSession();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const {
+    sessionUser,
+    isSessionPending,
+    email,
+    setEmail,
+    password,
+    setPassword,
+    name,
+    setName,
+    error,
+    isPending,
+    handleSubmit,
+    handleGithub,
+  } = useEmailAuth('signup');
 
-  useEffect(() => {
-    if (sessionData?.user?.id) {
-      navigate({ to: '/blog', replace: true });
-    }
-  }, [navigate, sessionData?.user?.id]);
-
-  if (sessionData?.user?.id || isSessionPending) {
+  if (sessionUser?.id || isSessionPending) {
     return (
       <div className='th-page'>
         <p className='th-comment'># checking session…</p>
@@ -160,29 +125,7 @@ export function TerminalSignupPage() {
       <p className='th-out th-comment mt-2'>
         # 注册成为 member，可读 member 可见性的文章。
       </p>
-      <form
-        className='mt-4'
-        method='post'
-        onSubmit={(event) => {
-          event.preventDefault();
-          setError(null);
-          startTransition(async () => {
-            const result = await authClient.signUp.email({
-              email,
-              password,
-              name,
-              callbackURL: '/blog',
-            });
-
-            if (result.error) {
-              setError(result.error.message ?? '注册失败');
-              return;
-            }
-
-            navigate({ to: '/blog' });
-          });
-        }}
-      >
+      <form className='mt-4' method='post' onSubmit={handleSubmit}>
         <div className='th-field'>
           <label htmlFor='name'>name</label>
           <input
@@ -230,20 +173,7 @@ export function TerminalSignupPage() {
           >
             {isPending ? 'creating…' : 'create account'}
           </button>
-          <button
-            type='button'
-            className='th-btn'
-            onClick={async () => {
-              setError(null);
-              const result = await authClient.signIn.social({
-                provider: 'github',
-                callbackURL: '/blog',
-              });
-              if (result.error) {
-                setError(result.error.message ?? 'GitHub 注册失败');
-              }
-            }}
-          >
+          <button type='button' className='th-btn' onClick={handleGithub}>
             continue with github
           </button>
         </div>
@@ -264,13 +194,7 @@ export function TerminalUnlockPage({
   slug: string;
   search?: Record<string, string | undefined>;
 }) {
-  const { error: searchError } = (search ?? {}) as { error?: string };
-  const errorLabel =
-    searchError === 'missing'
-      ? '请输入访问密码'
-      : searchError === 'invalid'
-        ? '密码错误，请重试'
-        : undefined;
+  const errorLabel = unlockErrorLabel(search);
 
   return (
     <div className='th-page'>

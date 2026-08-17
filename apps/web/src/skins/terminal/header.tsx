@@ -1,23 +1,10 @@
 import { Link } from '@tanstack/react-router';
-import { Github, LogOut, Rss, Search, UserRound } from 'lucide-react';
+import { BookOpen, Github, LogOut, Rss, Search, UserRound } from 'lucide-react';
 import { DarkMode } from '../../components/dark-mode.js';
 import { searchPalette } from '../../components/search-palette-store.js';
 import { authClient } from '../../lib/auth-client.js';
-
-function getRoleLabel(role?: string | null): string {
-  if (role === 'admin') {
-    return 'ADMIN';
-  }
-
-  if (role === 'vip') {
-    return 'VIP';
-  }
-
-  return 'MEMBER';
-}
-
-import { BookOpen } from 'lucide-react';
 import { useSkin } from '../context.js';
+import { getRoleLabel } from '../shared.js';
 
 /** Terminal title bar: window dots + session name + right-aligned tools. */
 export function TerminalHeader() {
@@ -30,7 +17,8 @@ export function TerminalHeader() {
       <span className='th-dot th-dot-y' aria-hidden='true' />
       <span className='th-dot th-dot-g' aria-hidden='true' />
       <span className='th-term-title'>
-        <b>perfectpan@blog</b> —{' '}
+        <b>perfectpan@blog</b>
+        <span className='th-term-sep'> — </span>
         <span className='th-path'>~/perfectpan.org</span>
       </span>
 

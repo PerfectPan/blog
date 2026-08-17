@@ -1,13 +1,43 @@
 import type { PostSummary } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
+import { useEffect, useState } from 'react';
+import { getBlogListServerFn } from '../../lib/blog-service.js';
 import { PROJECTS } from '../../lib/projects.js';
 
-export function JournalHomePage({
-  data,
-}: {
-  data: { posts: PostSummary[]; total: number };
-}) {
-  const latest = data.posts.slice(0, 5);
+type HomeData = { posts: PostSummary[]; total: number } | null;
+
+export function JournalHomePage({ data }: { data: HomeData }) {
+  // SSR gives journal visitors their panel directly; data is only null when
+  // the visitor switched skin client-side on `/` (loader ran as terminal),
+  // so fetch the first page then.
+  const [fetched, setFetched] = useState<HomeData>(data);
+  const [loading, setLoading] = useState(data === null);
+
+  useEffect(() => {
+    if (data) {
+      setFetched(data);
+      setLoading(false);
+      return;
+    }
+    let cancelled = false;
+    getBlogListServerFn({ data: { page: 1 } })
+      .then((result) => {
+        if (!cancelled) {
+          setFetched(result);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [data]);
+
+  const latest = (fetched?.posts ?? []).slice(0, 5);
 
   return (
     <div className='j-sheet'>
@@ -19,8 +49,8 @@ export function JournalHomePage({
             Cloudflare 免费额度上。这里收着题解、笔记和一些随想。
           </p>
           <div className='j-facts'>
-            <span>{data.total} 篇文章</span>
-            <span>2019 — 2023</span>
+            <span>{fetched?.total ?? '—'} 篇文章</span>
+            <span>2019 — 至今</span>
             <span>{PROJECTS.length} 个开源项目</span>
           </div>
           <div className='j-home-cta'>
@@ -44,6 +74,7 @@ export function JournalHomePage({
         </div>
         <div className='j-home-panel'>
           <div className='j-blockhead'>最 近 文 章</div>
+          {loading ? <p className='j-latest-loading'>载入中…</p> : null}
           {latest.map((post: PostSummary) => (
             <div className='j-latest-item' key={post.slug}>
               <Link className='t' to='/blog/$slug' params={{ slug: post.slug }}>
