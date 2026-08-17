@@ -1,8 +1,6 @@
 import type { PostSummary } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
-import { type BlogListData, groupByYear } from '../shared.js';
-
-export type { BlogListData };
+import { type BlogListData, groupByYear } from '../../lib/blog-utils.js';
 
 const PERM_CLASS: Record<PostSummary['visibility'], string> = {
   public: 'th-perm th-perm-pub',

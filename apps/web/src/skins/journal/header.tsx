@@ -2,8 +2,8 @@ import { Link } from '@tanstack/react-router';
 import { Github, LogOut, Rss, Search, Terminal, UserRound } from 'lucide-react';
 import { searchPalette } from '../../components/search-palette-store.js';
 import { authClient } from '../../lib/auth-client.js';
+import { getRoleLabel } from '../../lib/format.js';
 import { useSkin } from '../context.js';
-import { getRoleLabel } from '../shared.js';
 
 /** Journal masthead: warm-paper shell with the site's original wording. */
 export function JournalHeader() {

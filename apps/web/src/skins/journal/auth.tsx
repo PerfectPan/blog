@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router';
+import { unlockErrorLabel } from '../../lib/format.js';
 import { useEmailAuth } from '../../lib/use-email-auth.js';
-import { unlockErrorLabel } from '../shared.js';
 
 export function JournalLoginPage() {
   const {

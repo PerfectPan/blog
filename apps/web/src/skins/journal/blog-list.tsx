@@ -1,6 +1,6 @@
 import type { PostSummary } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
-import { type BlogListData, groupByYear } from '../shared.js';
+import { type BlogListData, groupByYear } from '../../lib/blog-utils.js';
 
 const NOTE_CLASS: Record<PostSummary['visibility'], string> = {
   public: '',

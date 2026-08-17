@@ -4,8 +4,8 @@ import type { Comment, CommentThread, SessionUser } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
 import { CommentMarkdown } from '../../components/comment-markdown.js';
+import { formatRelative } from '../../lib/format.js';
 import { useCommentsThread } from '../../lib/use-comments-thread.js';
-import { formatRelative } from '../shared.js';
 
 type CommentsProps = {
   slug: string;

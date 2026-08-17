@@ -1,6 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { PROJECTS } from '../../lib/projects.js';
-import { sortProjects } from '../shared.js';
+import { PROJECTS, sortProjects } from '../../lib/projects.js';
 
 export function TerminalProjectsPage() {
   const projects = sortProjects(PROJECTS);

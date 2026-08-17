@@ -1,5 +1,4 @@
-import { PROJECTS } from '../../lib/projects.js';
-import { sortProjects } from '../shared.js';
+import { PROJECTS, sortProjects } from '../../lib/projects.js';
 
 export function JournalProjectsPage() {
   const projects = sortProjects(PROJECTS);

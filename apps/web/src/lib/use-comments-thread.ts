@@ -1,8 +1,8 @@
 'use client';
 
 import type { CommentThread } from '@blog/shared';
+import { PAGE_SIZE } from '@blog/shared';
 import { useState } from 'react';
-import { PAGE_SIZE } from '../skins/shared.js';
 import {
   createCommentServerFn,
   deleteCommentServerFn,

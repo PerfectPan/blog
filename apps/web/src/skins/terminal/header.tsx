@@ -3,8 +3,8 @@ import { BookOpen, Github, LogOut, Rss, Search, UserRound } from 'lucide-react';
 import { DarkMode } from '../../components/dark-mode.js';
 import { searchPalette } from '../../components/search-palette-store.js';
 import { authClient } from '../../lib/auth-client.js';
+import { getRoleLabel } from '../../lib/format.js';
 import { useSkin } from '../context.js';
-import { getRoleLabel } from '../shared.js';
 
 /** Terminal title bar: window dots + session name + right-aligned tools. */
 export function TerminalHeader() {
