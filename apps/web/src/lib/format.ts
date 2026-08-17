@@ -43,7 +43,7 @@ export function getRoleLabel(role?: string | null): string {
 export function unlockErrorLabel(
   search?: Record<string, string | undefined>,
 ): string | undefined {
-  const error = (search ?? {}).error;
+  const error = search?.error;
   if (error === 'missing') {
     return '请输入访问密码';
   }

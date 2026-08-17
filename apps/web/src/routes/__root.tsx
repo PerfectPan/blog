@@ -8,12 +8,7 @@ import { type ReactNode, useEffect } from 'react';
 import { AppLayout } from '../components/layout.js';
 import { SearchPalette } from '../components/search-palette.js';
 import { THEME_COLOR } from '../lib/skin.js';
-import {
-  getInitialSkin,
-  type Skin,
-  SkinProvider,
-  useSkin,
-} from '../skins/context.js';
+import { getInitialSkin, SkinProvider, useSkin } from '../skins/context.js';
 import { JournalError, JournalNotFound } from '../skins/journal/misc.js';
 import { TerminalError, TerminalNotFound } from '../skins/terminal/misc.js';
 import '../styles.css';

@@ -598,6 +598,11 @@ a.th-tmux-win:hover {
   background: var(--t-sel);
   text-decoration: none;
 }
+.th-ls-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .th-home-recent-row:hover .th-ls-title {
   color: var(--t-amber);
 }
@@ -658,11 +663,6 @@ a.th-ls-row:hover {
 .th-ls-vis {
   color: var(--t-dim);
   font-size: 13px;
-}
-.th-ls-title {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 .th-ls-tags {
   color: var(--t-faint);
