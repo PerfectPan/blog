@@ -7,9 +7,21 @@ import { JournalArticle } from '../../skins/journal/article.js';
 import { TerminalArticle } from '../../skins/terminal/article.js';
 
 export const Route = createFileRoute('/blog/$slug')({
-  head: () => ({
-    meta: [{ title: "Blog | PerfectPan's Blog" }],
-  }),
+  head: ({ match }) => {
+    // The router's own head-time typing resolves this route's loaderData to
+    // `never`; at runtime the match always carries the awaited loader result.
+    const post = (match.loaderData as { post?: { title: string } } | undefined)
+      ?.post;
+    return {
+      meta: [
+        {
+          title: post
+            ? `${post.title} | PerfectPan's Blog`
+            : "Blog | PerfectPan's Blog",
+        },
+      ],
+    };
+  },
   loader: async ({ params }) => {
     const data = await getBlogPostServerFn({ data: { slug: params.slug } });
     const post = data.post;

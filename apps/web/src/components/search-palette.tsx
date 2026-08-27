@@ -24,6 +24,7 @@ export function SearchPalette() {
   const open = useSearchPaletteOpen();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<PostSummary[]>([]);
+  const [pending, setPending] = useState(false);
   const navigate = useNavigate();
 
   // Global Cmd/Ctrl+K toggle.
@@ -38,24 +39,42 @@ export function SearchPalette() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  // Debounced server search while open; reset on close.
+  // Debounced server search while open; reset on close. `stale` guards
+  // against a slow earlier response overwriting a newer query's results.
   useEffect(() => {
     if (!open) {
       setQuery('');
       setResults([]);
+      setPending(false);
       return;
     }
     const q = query.trim();
     if (!q) {
       setResults([]);
+      setPending(false);
       return;
     }
+    let stale = false;
     const handle = setTimeout(() => {
+      setPending(true);
       searchPostsServerFn({ data: { q } })
-        .then(setResults)
-        .catch(() => setResults([]));
+        .then((posts) => {
+          if (!stale) {
+            setResults(posts);
+            setPending(false);
+          }
+        })
+        .catch(() => {
+          if (!stale) {
+            setResults([]);
+            setPending(false);
+          }
+        });
     }, 150);
-    return () => clearTimeout(handle);
+    return () => {
+      stale = true;
+      clearTimeout(handle);
+    };
   }, [open, query]);
 
   function go(slug: string) {
@@ -79,7 +98,11 @@ export function SearchPalette() {
           />
           <CommandList>
             <CommandEmpty>
-              {query.trim() ? '# no matches found' : '# type to grep ~/posts'}
+              {!query.trim()
+                ? '# type to grep ~/posts'
+                : pending
+                  ? '# grepping ...'
+                  : '# no matches found'}
             </CommandEmpty>
             <CommandGroup>
               {results.map((post) => (

@@ -14,9 +14,13 @@ import { TerminalError, TerminalNotFound } from '../skins/terminal/misc.js';
 import '../styles.css';
 
 /**
- * Runs before first paint: if the cookie picks the journal skin, hide the
- * body so the terminal-themed SSR HTML never flashes; React applies the
- * journal skin right after hydration and SkinProvider removes this style.
+ * Runs before first paint. Two jobs:
+ * 1. If the cookie picks the journal skin, hide the body so the
+ *    terminal-themed SSR HTML never flashes; React applies the journal skin
+ *    right after hydration and SkinProvider removes this style.
+ * 2. If the cookie keeps dark mode on (terminal skin), add the `dark` class
+ *    pre-paint — otherwise every full page load paints the light palette
+ *    first and flips to dark only at hydration (FOUC).
  *
  * Why not read the cookie in a route loader / getRequest()? The router is a
  * singleton reused across requests, and workerd's request context proved
@@ -24,7 +28,7 @@ import '../styles.css';
  * else until the isolate recycles. Verified on the production runtime
  * (wrangler dev): per-request cookie reads in loaders return stale values.
  */
-const SKIN_BOOT_SCRIPT = `(function(){try{if(document.cookie.split(';').some(function(c){return c.trim().indexOf('blog-skin=journal')===0;})){var s=document.createElement('style');s.id='skin-boot';s.textContent='body{visibility:hidden}';document.head.appendChild(s);}}catch(e){}})();`;
+const SKIN_BOOT_SCRIPT = `(function(){try{var cs=document.cookie.split(';'),journal=false,dark=false;for(var i=0;i<cs.length;i++){var c=cs[i].trim();if(c.indexOf('blog-skin=journal')===0)journal=true;if(c.indexOf('blog-dark=1')===0)dark=true;}if(journal){var s=document.createElement('style');s.id='skin-boot';s.textContent='body{visibility:hidden}';document.head.appendChild(s);}else if(dark){document.documentElement.classList.add('dark');var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content','#0a0f14');}}catch(e){}})();`;
 
 export const Route = createRootRoute({
   head: () => ({
@@ -124,9 +128,9 @@ function RootDocument({ children }: { children: ReactNode }) {
   return (
     <html lang='zh-CN' data-theme='terminal'>
       <head>
+        <HeadContent />
         {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static, code-reviewed boot script (no user input). */}
         <script dangerouslySetInnerHTML={{ __html: SKIN_BOOT_SCRIPT }} />
-        <HeadContent />
       </head>
       <body>
         {children}

@@ -1,5 +1,13 @@
 import { Link } from '@tanstack/react-router';
-import { Github, LogOut, Rss, Search, Terminal, UserRound } from 'lucide-react';
+import {
+  Github,
+  LogOut,
+  Rss,
+  Search,
+  Terminal,
+  UserRound,
+  UserRoundPlus,
+} from 'lucide-react';
 import { searchPalette } from '../../components/search-palette-store.js';
 import { authClient } from '../../lib/auth-client.js';
 import { getRoleLabel } from '../../lib/format.js';
@@ -26,7 +34,7 @@ export function JournalHeader() {
             <Link to='/admin'>Admin</Link>
           ) : null}
         </nav>
-        <div className='ml-auto flex items-center gap-3'>
+        <div className='ml-auto flex items-center gap-2 md:gap-3'>
           {sessionUser ? (
             <span className='j-user-chip hidden md:flex'>
               <UserRound size={13} aria-hidden='true' />
@@ -44,21 +52,31 @@ export function JournalHeader() {
             </Link>
           ) : (
             <>
+              {/* Phone width only fits the icon; the text label is desktop-only
+                  so nav-login / nav-signup testids stay single-element. */}
               <Link
                 to='/login'
                 data-testid='nav-login'
+                aria-label='Login'
                 className='text-[13.5px]'
                 style={{ letterSpacing: '0.28em', color: 'var(--j-faded)' }}
               >
-                Login
+                <UserRound size={16} className='md:hidden' aria-hidden='true' />
+                <span className='hidden md:inline'>Login</span>
               </Link>
               <Link
                 to='/signup'
                 data-testid='nav-signup'
+                aria-label='Sign Up'
                 className='text-[13.5px]'
                 style={{ letterSpacing: '0.28em', color: 'var(--j-faded)' }}
               >
-                Sign Up
+                <UserRoundPlus
+                  size={16}
+                  className='md:hidden'
+                  aria-hidden='true'
+                />
+                <span className='hidden md:inline'>Sign Up</span>
               </Link>
             </>
           )}

@@ -613,7 +613,9 @@ a.th-tmux-win:hover {
 }
 .th-ls-row {
   display: grid;
-  grid-template-columns: 11ch 7ch 8ch 1fr auto;
+  /* 12ch: the 10-char perm string + 0.08em letter-spacing ≈ 11.33ch; 11ch
+     wrapped its last character onto a second line. */
+  grid-template-columns: 12ch 7ch 8ch 1fr auto;
   gap: 0 14px;
   padding: 5px 8px;
   border-radius: 4px;
@@ -698,7 +700,7 @@ a.th-ls-row:hover {
 
 @media (max-width: 720px) {
   .th-ls-row {
-    grid-template-columns: 11ch 7ch 1fr;
+    grid-template-columns: 12ch 7ch 1fr;
   }
   .th-ls-head,
   .th-ls-vis,
@@ -1238,6 +1240,34 @@ html[data-theme="journal"] ::selection {
   right: 0;
   top: 3px;
   border-top: 1px solid var(--j-ink);
+}
+
+/* Masthead on phones: brand + icon cluster share row 1, nav drops to a
+   full-width row 2. Without this the single flex line overflows and clips
+   the search / skin / RSS / login controls off-screen. */
+@media (max-width: 640px) {
+  .j-masthead {
+    flex-wrap: wrap;
+    row-gap: 12px;
+    padding-top: 22px;
+  }
+  .j-brand {
+    font-size: 20px;
+    letter-spacing: 0.14em;
+  }
+  .j-masthead nav {
+    order: 3;
+    flex-basis: 100%;
+    margin-left: 0;
+    gap: 18px;
+    letter-spacing: 0.18em;
+    font-size: 12px;
+  }
+  .j-masthead nav a,
+  .j-masthead nav button {
+    letter-spacing: 0.18em;
+    font-size: 12px;
+  }
 }
 
 /* ---------- shell ---------- */
