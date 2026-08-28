@@ -102,7 +102,8 @@ export function TerminalHeader() {
         <button
           type='button'
           aria-label='Search posts (Cmd+K)'
-          onClick={() => searchPalette.open()}
+          data-palette-trigger
+          onClick={() => searchPalette.toggle()}
           className='th-tool-btn'
         >
           <Search size={15} aria-hidden='true' />

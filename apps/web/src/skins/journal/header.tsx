@@ -84,7 +84,8 @@ export function JournalHeader() {
           <button
             type='button'
             aria-label='Search posts (Cmd+K)'
-            onClick={() => searchPalette.open()}
+            data-palette-trigger
+            onClick={() => searchPalette.toggle()}
           >
             <Search size={17} className='opacity-60 hover:opacity-100' />
           </button>

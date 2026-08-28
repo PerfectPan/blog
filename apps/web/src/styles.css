@@ -989,13 +989,15 @@ html[data-theme="terminal"] .md .th-pre code {
 }
 
 /* ---------- terminal search palette (grep) ---------- */
-/* Scoped reskin of the shadcn Dialog + cmdk palette: drop from the top like a
-   terminal window, mono throughout, `~ %` prompt instead of a magnifier. */
+/* Scoped reskin of the cmdk palette: a non-modal command bar pinned under
+   the titlebar — no overlay, no scroll lock, closes on Esc / outside tap. */
 .th-pal {
+  position: fixed;
   top: 14vh;
-  transform: none;
+  left: 50%;
   translate: -50% 0;
-  max-width: min(640px, calc(100vw - 32px));
+  width: min(640px, calc(100vw - 32px));
+  z-index: 50;
   border: 1px solid var(--t-line);
   border-radius: 10px;
   background: var(--t-term);
@@ -1003,7 +1005,19 @@ html[data-theme="terminal"] .md .th-pre code {
   font-family: var(--t-mono);
 }
 .th-pal > button {
-  display: none; /* terminals close with esc, not an ✕ */
+  /* Close affordance: hidden on desktop (terminals close with esc), shown
+     ≤640px where there is no esc key. */
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 0;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--t-faint);
 }
 .th-pal-cmd {
   background: var(--t-term);
@@ -2120,15 +2134,14 @@ html[data-theme="journal"] .md .j-pre code {
 /* search palette under the journal skin: same grep UX, paper materials
    (--t-* tokens are undefined in this scope, so values are restated). */
 html[data-theme="journal"] .th-pal {
-  top: 14vh;
-  transform: none;
-  translate: -50% 0;
-  max-width: min(640px, calc(100vw - 32px));
   border: 1.5px solid var(--j-ink);
   border-radius: 3px;
   background: var(--j-paper);
   box-shadow: 6px 6px 0 rgba(38, 37, 35, 0.12);
   font-family: var(--j-serif);
+}
+html[data-theme="journal"] .th-pal > button {
+  color: var(--j-faded);
 }
 html[data-theme="journal"] .th-pal [cmdk-input-wrapper] {
   border-bottom: 1px solid var(--j-rule);
@@ -2170,21 +2183,58 @@ html[data-theme="journal"] .th-pal-foot {
 
 /* ---------- search palette: mobile ---------- */
 @media (max-width: 640px) {
-  /* <16px inputs make iOS Safari zoom the page on focus — palette, auth and
-     admin inputs included. */
+  /* Full-screen takeover — the "zoomed tmux pane" take on a mobile search
+     drawer: input row up top, results fill the rest. */
+  .th-pal {
+    top: 0;
+    left: 0;
+    translate: none;
+    width: 100vw;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    border-radius: 0;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+  .th-pal-cmd {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+  .th-pal [cmdk-list] {
+    flex: 1;
+    max-height: none;
+    overflow-y: auto;
+  }
+  html[data-theme="journal"] .th-pal {
+    border-radius: 0;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+  /* <16px inputs make iOS Safari zoom the page on focus — palette, auth,
+     comment and admin inputs included. */
   .th-pal [cmdk-input],
   html[data-theme="journal"] .th-pal [cmdk-input],
   .th-input,
-  .j-input {
+  .j-input,
+  .th-cmt-form textarea,
+  .j-cmt-form textarea {
     font-size: 16px;
   }
   .th-pal [cmdk-input-wrapper],
   html[data-theme="journal"] .th-pal [cmdk-input-wrapper] {
-    padding-right: 42px; /* keep clear of the close button */
+    padding: 14px 42px 14px 16px; /* keep clear of the close button */
   }
   /* Bigger tap targets on result rows. */
   .th-pal [cmdk-item] {
-    padding: 11px 10px;
+    padding: 12px 16px;
+  }
+  .th-pal [cmdk-empty] {
+    padding: 24px 16px;
   }
   /* No esc key on touch — surface the dialog's own close button. */
   .th-pal > button {
