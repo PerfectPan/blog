@@ -621,6 +621,11 @@ a.th-tmux-win:hover {
   border-radius: 4px;
   align-items: baseline;
 }
+/* Guest + all-public list: the vis column is not rendered, so the freed
+   space goes to titles instead of leaving an 8ch hole. */
+.th-ls--no-vis .th-ls-row {
+  grid-template-columns: 12ch 7ch 1fr auto;
+}
 .th-ls-head {
   color: var(--t-faint);
   font-size: 12.5px;
@@ -645,6 +650,9 @@ a.th-ls-row:hover {
 }
 .th-perm {
   letter-spacing: 0.08em;
+  /* Perm strings are single tokens; never break them mid-string — wrap at
+     the ` · ` separators instead. */
+  white-space: nowrap;
 }
 .th-perm-pub {
   color: var(--t-green);

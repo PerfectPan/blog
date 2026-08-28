@@ -1,5 +1,13 @@
 import { Link } from '@tanstack/react-router';
-import { BookOpen, Github, LogOut, Rss, Search, UserRound } from 'lucide-react';
+import {
+  BookOpen,
+  Github,
+  LogOut,
+  Rss,
+  Search,
+  UserRound,
+  UserRoundPlus,
+} from 'lucide-react';
 import { DarkMode } from '../../components/dark-mode.js';
 import { searchPalette } from '../../components/search-palette-store.js';
 import { authClient } from '../../lib/auth-client.js';
@@ -44,11 +52,23 @@ export function TerminalHeader() {
           </Link>
         ) : (
           <>
-            <Link to='/login' data-testid='nav-login' className='th-tool-btn'>
-              login
+            <Link
+              to='/login'
+              data-testid='nav-login'
+              className='th-tool-btn'
+              aria-label='Login'
+            >
+              <UserRound size={15} aria-hidden='true' />
+              <span className='hidden sm:inline'>login</span>
             </Link>
-            <Link to='/signup' data-testid='nav-signup' className='th-tool-btn'>
-              signup
+            <Link
+              to='/signup'
+              data-testid='nav-signup'
+              className='th-tool-btn'
+              aria-label='Sign Up'
+            >
+              <UserRoundPlus size={15} aria-hidden='true' />
+              <span className='hidden sm:inline'>signup</span>
             </Link>
           </>
         )}
