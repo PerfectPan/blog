@@ -2241,3 +2241,71 @@ html[data-theme="journal"] .th-pal-foot {
     display: flex;
   }
 }
+
+/* ---------- press feedback (:active) ---------- */
+/* Touch has no hover, so none of the :hover rules above fire on phones —
+   taps gave zero feedback. Mirror the key hover visuals on :active (fires
+   while pressed on both mouse and touch); everything else gets a universal
+   opacity dip. New components inherit the fallback automatically. */
+a,
+button {
+  touch-action: manipulation; /* no double-tap-zoom delay */
+}
+a:active,
+button:active {
+  opacity: 0.6;
+}
+.th-tool-btn:active {
+  color: var(--t-amber);
+}
+a.th-tmux-win:active {
+  color: var(--t-text);
+}
+.th-btn:active {
+  border-color: var(--t-amber);
+  color: var(--t-amber);
+  transform: translateY(1px);
+}
+.th-btn-primary:active {
+  background: #f0c268;
+  color: #171106;
+}
+.th-home-links a:active {
+  border-color: var(--t-amber);
+}
+.th-home-recent-row:active {
+  background: var(--t-sel);
+}
+.th-home-recent-row:active .th-ls-title {
+  color: var(--t-amber);
+}
+a.th-ls-row:active {
+  background: var(--t-sel);
+}
+.th-tools.th-tools-open > *:active {
+  background: var(--t-sel);
+}
+.th-pal [cmdk-item]:active {
+  background: var(--t-sel);
+}
+html[data-theme="journal"] .th-pal [cmdk-item]:active {
+  background: var(--j-paper2);
+}
+.j-toc-line a:active .t {
+  color: var(--j-red);
+}
+.j-latest-item .t:active {
+  color: var(--j-red);
+}
+.j-masthead nav a:active,
+.j-masthead nav button:active {
+  color: var(--j-red);
+}
+.j-btn:active {
+  border-color: var(--j-ink);
+  transform: translateY(1px);
+}
+.j-btn-red:active {
+  background: #8c3024;
+  border-color: #8c3024;
+}
