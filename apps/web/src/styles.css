@@ -1136,7 +1136,10 @@ html[data-theme="terminal"] .md .th-pre code {
   .th-tools {
     display: none;
   }
-  /* Flat expanding sheet under the bar — no drawer, no overlay, no motion. */
+  /* Flat expanding sheet under the bar — no drawer, no overlay, no motion.
+     Rows are normalized here (flex-center, uniform gap/font/color) because
+     children mix .th-tool-btn markup with Tailwind-styled buttons (DarkMode)
+     whose own classes don't line up. */
   .th-tools.th-tools-open {
     display: flex;
     flex-direction: column;
@@ -1153,8 +1156,15 @@ html[data-theme="terminal"] .md .th-pre code {
     box-shadow: 0 10px 22px rgba(0, 0, 0, 0.28);
   }
   .th-tools.th-tools-open > * {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     justify-content: flex-start;
-    padding: 9px 10px;
+    padding: 10px;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--t-dim);
+    opacity: 1;
   }
   /* Sheet rows always show their text labels, even below sm. */
   .th-tools.th-tools-open span.hidden {
