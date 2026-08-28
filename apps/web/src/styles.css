@@ -1553,6 +1553,8 @@ html[data-theme="journal"] ::selection {
 .j-toc-line a {
   display: flex;
   flex: 1;
+  min-width: 0; /* let the cluster shrink; without it long titles push the
+                   date/page number off-screen on phones */
   align-items: baseline;
   gap: 10px;
   color: var(--j-ink);
@@ -1561,6 +1563,7 @@ html[data-theme="journal"] ::selection {
   text-decoration: none;
 }
 .j-toc-line .t {
+  min-width: 0; /* overflow:hidden alone does nothing on a flex item */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2163,4 +2166,28 @@ html[data-theme="journal"] .th-pal-foot {
   border-top: 1px solid var(--j-rule);
   color: var(--j-faint);
   font-family: var(--j-sans);
+}
+
+/* ---------- search palette: mobile ---------- */
+@media (max-width: 640px) {
+  /* <16px inputs make iOS Safari zoom the page on focus — palette, auth and
+     admin inputs included. */
+  .th-pal [cmdk-input],
+  html[data-theme="journal"] .th-pal [cmdk-input],
+  .th-input,
+  .j-input {
+    font-size: 16px;
+  }
+  .th-pal [cmdk-input-wrapper],
+  html[data-theme="journal"] .th-pal [cmdk-input-wrapper] {
+    padding-right: 42px; /* keep clear of the close button */
+  }
+  /* Bigger tap targets on result rows. */
+  .th-pal [cmdk-item] {
+    padding: 11px 10px;
+  }
+  /* No esc key on touch — surface the dialog's own close button. */
+  .th-pal > button {
+    display: flex;
+  }
 }

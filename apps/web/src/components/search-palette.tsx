@@ -123,7 +123,10 @@ export function SearchPalette() {
             </CommandGroup>
           </CommandList>
           <div className='th-pal-foot'>
-            ↑↓ 选择 · ↵ 打开 · esc 关闭 · 结果按当前身份过滤
+            <span className='hidden sm:inline'>
+              ↑↓ 选择 · ↵ 打开 · esc 关闭 · 结果按当前身份过滤
+            </span>
+            <span className='sm:hidden'>输入关键词 · 点按结果打开</span>
           </div>
         </Command>
       </DialogContent>
