@@ -126,10 +126,12 @@ export function DarkMode() {
       type='button'
       ref={ref}
       aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-      className='inline-flex cursor-pointer items-center opacity-70 transition-opacity hover:opacity-100'
+      className='inline-flex cursor-pointer items-center gap-2 opacity-70 transition-opacity hover:opacity-100'
       onClick={onTrigger}
     >
       {isDarkMode ? <Moon size={24} /> : <Sun size={24} />}
+      {/* text label surfaces only inside the terminal ≤480px tools sheet */}
+      <span className='hidden'>dark</span>
     </button>
   );
 }

@@ -1092,10 +1092,6 @@ html[data-theme="terminal"] .md .th-pre code {
 
 /* ---------- terminal: small screens ---------- */
 @media (max-width: 640px) {
-  .th-titlebar {
-    padding: 8px 12px;
-    gap: 5px;
-  }
   .th-term-title {
     margin-left: 6px;
     font-size: 12px;
@@ -1119,6 +1115,50 @@ html[data-theme="terminal"] .md .th-pre code {
   }
   .th-figlet {
     overflow-x: auto;
+  }
+}
+.th-menu-btn {
+  display: none;
+}
+/* ≤480px even iconified tools squeeze the brand ("perfectpan@blog" needs
+   108px and loses 11px at 375px) — collapse them behind an ellipsis toggle.
+   The brand is the one thing that must never truncate. */
+@media (max-width: 480px) {
+  .th-titlebar {
+    position: relative;
+    padding: 8px 12px;
+    gap: 5px;
+  }
+  .th-menu-btn {
+    display: inline-flex;
+    margin-left: auto;
+  }
+  .th-tools {
+    display: none;
+  }
+  /* Flat expanding sheet under the bar — no drawer, no overlay, no motion. */
+  .th-tools.th-tools-open {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 40;
+    padding: 4px 10px 10px;
+    gap: 1px;
+    background: linear-gradient(var(--t-titlebar-a), var(--t-titlebar-b));
+    border-bottom: 1px solid var(--t-line);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.28);
+  }
+  .th-tools.th-tools-open > * {
+    justify-content: flex-start;
+    padding: 9px 10px;
+  }
+  /* Sheet rows always show their text labels, even below sm. */
+  .th-tools.th-tools-open span.hidden {
+    display: inline;
   }
 }
 

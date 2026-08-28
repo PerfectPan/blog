@@ -3,21 +3,36 @@ import {
   BookOpen,
   Github,
   LogOut,
+  MoreHorizontal,
   Rss,
   Search,
   UserRound,
   UserRoundPlus,
+  X,
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { DarkMode } from '../../components/dark-mode.js';
 import { searchPalette } from '../../components/search-palette-store.js';
 import { authClient } from '../../lib/auth-client.js';
 import { getRoleLabel } from '../../lib/format.js';
 import { useSkin } from '../context.js';
 
-/** Terminal title bar: window dots + session name + right-aligned tools. */
+/** Terminal title bar: window dots + session name + right-aligned tools.
+ *  ≤480px the tools collapse behind an ellipsis toggle and expand as a flat
+ *  text list under the bar (no drawer/overlay — terminals don't slide). */
 export function TerminalHeader() {
   const { data: sessionData } = authClient.useSession();
   const sessionUser = sessionData?.user ?? null;
+  const [toolsOpen, setToolsOpen] = useState(false);
+
+  useEffect(() => {
+    if (!toolsOpen) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setToolsOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [toolsOpen]);
 
   return (
     <header className='th-titlebar'>
@@ -30,7 +45,17 @@ export function TerminalHeader() {
         <span className='th-path'>~/perfectpan.org</span>
       </span>
 
-      <div className='th-tools'>
+      <div
+        id='th-tools-menu'
+        role='toolbar'
+        aria-label='Site tools'
+        className={`th-tools${toolsOpen ? ' th-tools-open' : ''}`}
+        // Any action inside the sheet (nav, skin, dark, grep) closes it.
+        onClick={() => setToolsOpen(false)}
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') setToolsOpen(false);
+        }}
+      >
         {sessionUser ? (
           <span className='th-user-chip'>
             <UserRound size={13} aria-hidden='true' />
@@ -91,6 +116,8 @@ export function TerminalHeader() {
           className='th-tool-btn'
         >
           <Github size={15} aria-hidden='true' />
+          {/* label surfaces only inside the ≤480px tools sheet */}
+          <span className='hidden'>github</span>
         </a>
         <a
           href='/rss.xml'
@@ -100,8 +127,24 @@ export function TerminalHeader() {
           className='th-tool-btn'
         >
           <Rss size={15} aria-hidden='true' />
+          <span className='hidden'>rss</span>
         </a>
       </div>
+
+      <button
+        type='button'
+        className='th-tool-btn th-menu-btn'
+        aria-label='More tools'
+        aria-expanded={toolsOpen}
+        aria-controls='th-tools-menu'
+        onClick={() => setToolsOpen((v) => !v)}
+      >
+        {toolsOpen ? (
+          <X size={15} aria-hidden='true' />
+        ) : (
+          <MoreHorizontal size={15} aria-hidden='true' />
+        )}
+      </button>
     </header>
   );
 }
