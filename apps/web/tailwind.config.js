@@ -49,6 +49,32 @@ export default {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+
+        // Terminal skin semantic tokens — utilities (bg-term, text-ink,
+        // border-line, text-amber…) resolve to the --t-* custom properties
+        // in styles.css, which flip with html[data-theme] / html.dark. So
+        // utilities carry the dark-mode swap for free, no dark: variants.
+        paper: 'var(--t-bg)',
+        term: 'var(--t-term)',
+        panel: 'var(--t-panel)',
+        sel: 'var(--t-sel)',
+        line: 'var(--t-line)',
+        ink: 'var(--t-text)',
+        heading: 'var(--t-heading)',
+        dim: 'var(--t-dim)',
+        faint: 'var(--t-faint)',
+        amber: 'var(--t-amber)',
+        'amber-ink': 'var(--t-amber-ink)',
+        cyan: 'var(--t-cyan)',
+        green: 'var(--t-green)',
+        red: 'var(--t-red)',
+        violet: 'var(--t-violet)',
+        tmux: 'var(--t-tmux-bg)',
+        'tmux-ink': 'var(--t-tmux-ink)',
+      },
+      fontFamily: {
+        // --t-mono flips with the theme attributes like the colors above.
+        mono: ['var(--t-mono)'],
       },
       borderColor: {
         DEFAULT: 'hsl(var(--border))',

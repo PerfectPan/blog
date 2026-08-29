@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { CommentMarkdown } from '../../components/comment-markdown.js';
 import { formatRelative } from '../../lib/format.js';
 import { useCommentsThread } from '../../lib/use-comments-thread.js';
+import { btn, btnPrimary, roleBadge } from './prompt.js';
 
 type CommentsProps = {
   slug: string;
@@ -48,8 +49,9 @@ function Composer({
   }
 
   return (
-    <form onSubmit={handleSubmit} className='th-cmt-form flex flex-col gap-2'>
+    <form onSubmit={handleSubmit} className='flex flex-col gap-2'>
       <textarea
+        className='w-full resize-y rounded-md border border-line bg-panel px-3 py-2.5 font-mono text-[13.5px] text-ink focus:border-amber focus:outline-none max-[640px]:text-base'
         value={body}
         onChange={(event) => setBody(event.target.value)}
         placeholder={placeholder}
@@ -57,14 +59,18 @@ function Composer({
         maxLength={2000}
       />
       <div className='flex items-center justify-between gap-2'>
-        <span className='th-cmt-hint'>
+        <span className='text-xs text-faint'>
           {remaining < 200 ? `${remaining} 字剩余` : '支持 Markdown'}
-          {error ? <span className='th-err ml-2 inline'>{error}</span> : null}
+          {error ? (
+            <span className='text-[13.5px] text-red ml-2 inline before:content-["✗_"]'>
+              {error}
+            </span>
+          ) : null}
         </span>
         <button
           type='submit'
           disabled={submitting || !body.trim()}
-          className='th-btn th-btn-primary'
+          className={btnPrimary}
         >
           {submitting ? '发送中…' : 'reply'}
         </button>
@@ -131,7 +137,7 @@ function CommentItem({
       ) : null}
 
       {thread.replies.length > 0 ? (
-        <ul className='th-cmt-replies'>
+        <ul className='flex flex-col gap-3 border-t border-dashed border-line bg-sel px-3.5 py-2.5'>
           {thread.replies.map((reply) => {
             const replyCanAct =
               sessionUser != null &&
@@ -174,35 +180,47 @@ function CommentView({
   onDelete,
 }: CommentViewProps) {
   return (
-    <div className='th-cmt'>
-      <div className='th-cmt-head'>
-        <span className='who'>{comment.author.name}</span>
+    <div className='my-3 overflow-hidden rounded-lg border border-line'>
+      <div className='flex items-center gap-2.5 border-b border-line bg-panel px-3.5 py-2 text-[13px] text-dim'>
+        <span className='text-ink'>{comment.author.name}</span>
         {comment.author.role === 'admin' ? (
-          <span className='th-role-badge'>AUTHOR</span>
+          <span className={roleBadge}>AUTHOR</span>
         ) : null}
         {comment.status !== 'visible' ? (
-          <span className='th-perm-pw'>{comment.status}</span>
+          <span className='text-red'>{comment.status}</span>
         ) : null}
         <span>{formatRelative(comment.createdAt)}</span>
       </div>
-      <div className='th-cmt-body'>
+      <div className='th-cmt-body px-3.5 py-2.5 [&_blockquote]:border-l-2 [&_blockquote]:border-line [&_blockquote]:pl-3 [&_blockquote]:text-dim [&_p]:my-2 [&_p:last-child]:mb-0'>
         <CommentMarkdown content={comment.body} />
       </div>
       {canReply && onReply ? (
-        <div className='th-cmt-ops'>
-          <button type='button' onClick={onReply}>
+        <div className='flex gap-3.5 px-3.5 pb-2.5 text-xs'>
+          <button
+            type='button'
+            onClick={onReply}
+            className='cursor-pointer bg-none font-[inherit] text-dim hover:text-amber'
+          >
             reply
           </button>
           {canAct ? (
-            <button type='button' className='del' onClick={() => onDelete()}>
+            <button
+              type='button'
+              className='cursor-pointer bg-none font-[inherit] text-dim hover:text-red'
+              onClick={() => onDelete()}
+            >
               rm
             </button>
           ) : null}
         </div>
       ) : null}
       {!(canReply && onReply) && canAct ? (
-        <div className='th-cmt-ops'>
-          <button type='button' className='del' onClick={() => onDelete()}>
+        <div className='flex gap-3.5 px-3.5 pb-2.5 text-xs'>
+          <button
+            type='button'
+            className='cursor-pointer bg-none font-[inherit] text-dim hover:text-red'
+            onClick={() => onDelete()}
+          >
             rm
           </button>
         </div>
@@ -240,10 +258,10 @@ export function TerminalComments({
 
   return (
     <section className='mt-10'>
-      <div className='th-prompt mb-4'>
-        <span className='th-prompt-p'>~ %</span>{' '}
-        <span className='th-cmd'>comments --on {slug}</span>{' '}
-        <span className='th-comment'>({total})</span>
+      <div className='mb-4 flex flex-wrap items-baseline gap-2.5'>
+        <span className='text-amber'>~ %</span>{' '}
+        <span className='text-ink'>comments --on {slug}</span>{' '}
+        <span className='text-faint'>({total})</span>
       </div>
 
       {sessionUser ? (
@@ -255,15 +273,19 @@ export function TerminalComments({
           />
         </div>
       ) : (
-        <p className='th-comment mb-6'>
+        <p className='mb-6 text-faint'>
           # <Link to='/login'>login</Link> 后即可评论。
         </p>
       )}
 
-      {topError ? <p className='th-err mb-4'>{topError}</p> : null}
+      {topError ? (
+        <p className='mb-4 text-[13.5px] text-red before:content-["✗_"]'>
+          {topError}
+        </p>
+      ) : null}
 
       {threads.length === 0 ? (
-        <p className='th-comment py-8 text-center'># 还没有评论，来抢沙发。</p>
+        <p className='py-8 text-center text-faint'># 还没有评论，来抢沙发。</p>
       ) : (
         <ul className='flex flex-col gap-3'>
           {threads.map((thread) => (
@@ -287,7 +309,7 @@ export function TerminalComments({
             type='button'
             onClick={handleLoadMore}
             disabled={loadingMore}
-            className='th-btn'
+            className={btn}
           >
             {loadingMore ? '加载中…' : 'tail -f'}
           </button>

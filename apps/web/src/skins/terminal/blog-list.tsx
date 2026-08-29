@@ -1,13 +1,14 @@
 import type { PostSummary } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
 import { type BlogListData, groupByYear } from '../../lib/blog-utils.js';
+import { Page, Prompt } from './prompt.js';
 
 const PERM_CLASS: Record<PostSummary['visibility'], string> = {
-  public: 'th-perm th-perm-pub',
-  member: 'th-perm th-perm-mem',
-  vip: 'th-perm th-perm-vip',
-  admin: 'th-perm th-perm-adm',
-  password: 'th-perm th-perm-pw',
+  public: 'text-green',
+  member: 'text-cyan',
+  vip: 'text-violet',
+  admin: 'text-dim',
+  password: 'text-red',
 };
 const PERM_BITS: Record<PostSummary['visibility'], string> = {
   public: '-r--r--r--',
@@ -16,6 +17,13 @@ const PERM_BITS: Record<PostSummary['visibility'], string> = {
   admin: '-r--------',
   password: '-r--------',
 };
+// 12ch: the 10-char perm string + 0.08em letter-spacing ≈ 11.33ch; 11ch
+// wrapped its last character onto a second line.
+const rowBase =
+  'grid grid-cols-[12ch_7ch_1fr_auto] items-baseline gap-x-3.5 rounded px-2 py-[5px] max-[720px]:grid-cols-[12ch_7ch_1fr]';
+const rowWithVis =
+  'grid grid-cols-[12ch_7ch_8ch_1fr_auto] items-baseline gap-x-3.5 rounded px-2 py-[5px] max-[720px]:grid-cols-[12ch_7ch_1fr]';
+const permCell = 'whitespace-nowrap tracking-[0.08em]';
 
 export function TerminalBlogList({
   data,
@@ -32,23 +40,22 @@ export function TerminalBlogList({
   showVisibility: boolean;
 }) {
   const blogGroups = groupByYear(data.posts);
+  const rowCls = showVisibility ? rowWithVis : rowBase;
 
   return (
-    <div className='th-page'>
-      <div className='th-prompt'>
-        <span className='th-prompt-u'>perfectpan</span>
-        <span className='th-prompt-at'>@</span>
-        <span className='th-prompt-h'>blog</span>{' '}
-        <span className='th-prompt-p'>~/posts %</span>{' '}
-        <span className='th-cmd'>ls -la --group-directories-first</span>
-      </div>
+    <Page>
+      <Prompt path='~/posts %'>ls -la --group-directories-first</Prompt>
 
       {showDevHint ? (
-        <div className='th-devhint mt-4'>{devScopeHint}</div>
+        <div className='mt-4 rounded border border-dashed border-amber/50 bg-amber/[0.06] px-3 py-2 text-[13px] text-amber'>
+          {devScopeHint}
+        </div>
       ) : null}
 
-      <div className={showVisibility ? 'th-ls' : 'th-ls th-ls--no-vis'}>
-        <div className='th-ls-row th-ls-head'>
+      <div className='mt-3'>
+        <div
+          className={`${rowCls} max-[720px]:hidden text-[12.5px] text-faint`}
+        >
           <span>perms</span>
           <span>date</span>
           {showVisibility ? <span>vis</span> : null}
@@ -57,32 +64,34 @@ export function TerminalBlogList({
         </div>
         {blogGroups.map((group) => (
           <div key={group.year}>
-            <div className='th-ls-row'>
-              <span className='th-ls-year'>{group.year}</span>
+            <div
+              className={`${rowCls} col-span-full mt-5 font-bold text-amber`}
+            >
+              <span>{group.year}</span>
             </div>
             {group.blogs.map((blog: PostSummary) => (
               <Link
                 key={blog.slug}
                 to='/blog/$slug'
                 params={{ slug: blog.slug }}
-                className='th-ls-row'
+                className={`${rowCls} text-ink hover:bg-sel hover:no-underline`}
               >
-                <span className={PERM_CLASS[blog.visibility]}>
+                <span className={`${permCell} ${PERM_CLASS[blog.visibility]}`}>
                   {PERM_BITS[blog.visibility]}
                 </span>
-                <span className='th-ls-date'>
+                <span className='text-[13px] text-dim'>
                   {new Date(blog.publishedAt).toLocaleDateString('en-US', {
                     month: '2-digit',
                     day: '2-digit',
                   })}
                 </span>
                 {showVisibility ? (
-                  <span className='th-ls-vis th-comment'>
+                  <span className='max-[720px]:hidden text-[13px] text-faint'>
                     {blog.visibility}
                   </span>
                 ) : null}
-                <span className='th-ls-title'>{blog.title}</span>
-                <span className='th-ls-tags text-right'>
+                <span className='truncate'>{blog.title}</span>
+                <span className='max-[720px]:hidden text-right text-[12.5px] text-faint'>
                   {blog.tags.join(' · ')}
                 </span>
               </Link>
@@ -92,47 +101,56 @@ export function TerminalBlogList({
       </div>
 
       {data.totalPages > 1 ? (
-        <nav className='th-pager' aria-label='Pagination'>
+        <nav
+          className='mt-[26px] flex justify-center gap-4 text-[13.5px] text-dim'
+          aria-label='Pagination'
+        >
           {data.page > 1 ? (
-            <Link to='/blog' search={{ page: data.page - 1 }}>
+            <Link
+              to='/blog'
+              search={{ page: data.page - 1 }}
+              className='text-amber'
+            >
               ← prev
             </Link>
           ) : (
-            <span className='th-pager-off'>← prev</span>
+            <span className='text-faint opacity-60'>← prev</span>
           )}
           <span>
             page {data.page} / {data.totalPages}
           </span>
           {data.page < data.totalPages ? (
-            <Link to='/blog' search={{ page: data.page + 1 }}>
+            <Link
+              to='/blog'
+              search={{ page: data.page + 1 }}
+              className='text-amber'
+            >
               next →
             </Link>
           ) : (
-            <span className='th-pager-off'>next →</span>
+            <span className='text-faint opacity-60'>next →</span>
           )}
         </nav>
       ) : null}
 
       {showVisibility ? (
-        <p className='th-legend'>
+        <p className='mt-[26px] text-[12.5px] leading-[1.9] text-faint'>
           # perms = 可见性：owner / member / guest 读权限
-          <br /># <span className='th-perm th-perm-pub'>-r--r--r--</span> 公开 ·{' '}
-          <span className='th-perm th-perm-mem'>-r--r-----</span> 登录可见 ·{' '}
-          <span className='th-perm th-perm-vip'>-r----r--</span> VIP ·{' '}
-          <span className='th-perm th-perm-pw'>-r--------</span> 需密码
+          <br /># <span className={`${permCell} text-green`}>-r--r--r--</span>{' '}
+          公开 · <span className={`${permCell} text-cyan`}>-r--r-----</span>{' '}
+          登录可见 ·{' '}
+          <span className={`${permCell} text-violet`}>-r----r--</span> VIP ·{' '}
+          <span className={`${permCell} text-red`}>-r--------</span> 需密码
         </p>
       ) : null}
 
-      <hr className='th-hr' />
-      <div className='th-prompt'>
-        <span className='th-prompt-u'>perfectpan</span>
-        <span className='th-prompt-at'>@</span>
-        <span className='th-prompt-h'>blog</span>{' '}
-        <span className='th-prompt-p'>~/posts %</span>{' '}
-        <Link to='/' className='th-cmd th-cmd-dim'>
-          cd ..
+      <hr className='my-5 border-0 border-t border-dashed border-line' />
+      <Prompt path='~/posts %'>
+        <Link to='/' className='text-dim hover:text-ink hover:no-underline'>
+          {' '}
+          cd ..{' '}
         </Link>
-      </div>
-    </div>
+      </Prompt>
+    </Page>
   );
 }

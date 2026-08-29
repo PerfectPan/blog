@@ -1,39 +1,37 @@
 import { Link } from '@tanstack/react-router';
 import { PROJECTS, sortProjects } from '../../lib/projects.js';
+import { Page, Prompt } from './prompt.js';
+
+const projRow =
+  'grid grid-cols-[4ch_1fr_18ch_auto] items-baseline gap-x-4 rounded p-2 max-[720px]:grid-cols-[4ch_1fr] max-[720px]:[&_.th-ls-tags]:hidden max-[720px]:[&_.th-ls-link]:hidden';
 
 export function TerminalProjectsPage() {
   const projects = sortProjects(PROJECTS);
 
   return (
-    <div className='th-page'>
-      <div className='th-prompt'>
-        <span className='th-prompt-u'>perfectpan</span>
-        <span className='th-prompt-at'>@</span>
-        <span className='th-prompt-h'>blog</span>{' '}
-        <span className='th-prompt-p'>~ %</span>{' '}
-        <span className='th-cmd'>ls -la ~/projects</span>
-      </div>
+    <Page>
+      <Prompt>ls -la ~/projects</Prompt>
 
-      <div className='th-ls mt-3'>
-        <div className='th-ls-proj th-ls-proj-head'>
+      <div className='mt-3'>
+        <div className={`${projRow} text-[12.5px] text-faint`}>
           <span>star</span>
           <span>project</span>
           <span className='text-right'>stack</span>
           <span>link</span>
         </div>
         {projects.map((project) => (
-          <div key={project.name} className='th-ls-proj'>
-            <span className={project.featured ? 'th-perm-pw' : 'th-comment'}>
+          <div key={project.name} className={projRow}>
+            <span className={project.featured ? 'text-red' : 'text-faint'}>
               {project.featured ? '★' : ' '}
             </span>
             <span>
-              <span className='th-ls-title'>{project.name}</span>
-              <span className='th-comment'> — {project.description}</span>
+              <span className='truncate'>{project.name}</span>
+              <span className='text-faint'> — {project.description}</span>
             </span>
-            <span className='th-ls-tags text-right'>
+            <span className='text-right text-[12.5px] text-faint'>
               {project.tags.join(' · ')}
             </span>
-            <span className='th-ls-link'>
+            <span className='flex gap-2'>
               <a href={project.repo} target='_blank' rel='noreferrer'>
                 code ↗
               </a>
@@ -50,15 +48,12 @@ export function TerminalProjectsPage() {
         ))}
       </div>
 
-      <div className='th-prompt mt-6'>
-        <span className='th-prompt-u'>perfectpan</span>
-        <span className='th-prompt-at'>@</span>
-        <span className='th-prompt-h'>blog</span>{' '}
-        <span className='th-prompt-p'>~ %</span>{' '}
-        <Link to='/' className='th-cmd th-cmd-dim'>
-          cd ..
+      <Prompt className='mt-6'>
+        <Link to='/' className='text-dim hover:text-ink hover:no-underline'>
+          {' '}
+          cd ..{' '}
         </Link>
-      </div>
-    </div>
+      </Prompt>
+    </Page>
   );
 }

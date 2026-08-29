@@ -2,6 +2,7 @@ import type { CommentThread, SessionUser } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
 import { Markdown } from '../../components/markdown.js';
 import { TerminalComments } from './comments.js';
+import { Page, Prompt } from './prompt.js';
 
 type TerminalArticleProps = {
   post: {
@@ -32,20 +33,16 @@ export function TerminalArticle({
   });
 
   return (
-    <div className='th-page'>
-      <div className='th-prompt'>
-        <span className='th-prompt-u'>perfectpan</span>
-        <span className='th-prompt-at'>@</span>
-        <span className='th-prompt-h'>blog</span>{' '}
-        <span className='th-prompt-p'>~/posts %</span>{' '}
-        <span className='th-cmd'>
-          cat {new Date(post.publishedAt).getFullYear()}/{post.slug}.md
-        </span>
-      </div>
+    <Page>
+      <Prompt path='~/posts %'>
+        cat {new Date(post.publishedAt).getFullYear()}/{post.slug}.md
+      </Prompt>
 
-      <div className='th-art-head'>
-        <h1 className='th-art-title'>{post.title}</h1>
-        <div className='th-art-meta'>
+      <div className='mb-[26px] mt-4'>
+        <h1 className='text-2xl font-bold leading-[1.4] text-heading'>
+          {post.title}
+        </h1>
+        <div className='mt-1.5 flex flex-wrap gap-4 text-[13px] text-dim'>
           <span>{date}</span>
           <span>·</span>
           <span>{post.visibility}</span>
@@ -58,15 +55,12 @@ export function TerminalArticle({
         </div>
       </div>
       <Markdown content={post.contentMdx} skin='terminal' />
-      <div className='th-prompt mt-6'>
-        <span className='th-prompt-u'>perfectpan</span>
-        <span className='th-prompt-at'>@</span>
-        <span className='th-prompt-h'>blog</span>{' '}
-        <span className='th-prompt-p'>~/posts %</span>{' '}
-        <Link to='/blog' className='th-cmd th-cmd-dim'>
-          cd ..
+      <Prompt path='~/posts %' className='mt-6'>
+        <Link to='/blog' className='text-dim hover:text-ink hover:no-underline'>
+          {' '}
+          cd ..{' '}
         </Link>
-      </div>
+      </Prompt>
       <TerminalComments
         key={post.slug}
         slug={post.slug}
@@ -75,6 +69,6 @@ export function TerminalArticle({
         initialTotal={totalComments}
         sessionUser={sessionUser}
       />
-    </div>
+    </Page>
   );
 }

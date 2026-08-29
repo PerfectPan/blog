@@ -33,9 +33,9 @@ export function AppLayout({ children }: AppLayoutProps) {
   }
 
   return (
-    <div className='th-shell'>
+    <div className='flex h-dvh flex-col'>
       <TerminalHeader />
-      <main className='th-main'>
+      <main className='flex-1 overflow-y-auto bg-term'>
         <div className='flex min-h-full flex-col'>
           <div className='flex-grow'>{children}</div>
           <TerminalFooter />
