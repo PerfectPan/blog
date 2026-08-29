@@ -23,16 +23,6 @@ export function TerminalHomePage() {
           <b>.dev</b>
         </pre>
       </div>
-      <div className='th-prompt mt-6'>
-        <span className='th-prompt-u'>perfectpan</span>
-        <span className='th-prompt-at'>@</span>
-        <span className='th-prompt-h'>blog</span>{' '}
-        <span className='th-prompt-p'>~ %</span>{' '}
-        <span className='th-cmd'>cat motd.txt</span>
-      </div>
-      <p className='th-out th-comment'>
-        # 是个什么都不会的废物.jpg —— 但还在写。
-      </p>
       <div className='th-home-links'>
         <Link to='/blog'>
           <span className='k'>open blog/</span>
