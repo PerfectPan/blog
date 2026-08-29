@@ -32,10 +32,6 @@ export function TerminalHomePage({ data }: { data: HomeData }) {
           <b className='font-normal text-amber'>.org</b>
         </pre>
       </div>
-      <Prompt className='mt-6'>cat motd.txt</Prompt>
-      <p className='my-1 text-faint'>
-        # 是个什么都不会的废物.jpg —— 但还在写。
-      </p>
       <div className='mt-[22px] grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-3'>
         <Link
           to='/blog'
