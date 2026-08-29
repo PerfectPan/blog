@@ -2,6 +2,12 @@ import {
   createStartHandler,
   defaultStreamHandler,
 } from '@tanstack/react-start/server';
+import {
+  articleCacheKey,
+  matchArticleCache,
+  putArticleCache,
+  toCacheablePair,
+} from './lib/page-cache.js';
 
 const handler = createStartHandler(defaultStreamHandler);
 
@@ -27,6 +33,13 @@ function hostFromUrl(raw: string | undefined): string | undefined {
 export default {
   async fetch(...args: Parameters<typeof handler>) {
     const request = args[0] as Request;
+    const ctx = (
+      args as unknown as [
+        Request,
+        unknown,
+        { waitUntil(p: Promise<unknown>): void } | undefined,
+      ]
+    )[2];
     // Canonicalize www -> apex with a 301 (e.g. www.perfectpan.org -> perfectpan.org),
     // preserving path and query. Runs before the app/auth handler.
     if (apexHost) {
@@ -36,6 +49,32 @@ export default {
         return Response.redirect(url.toString(), 301);
       }
     }
-    return await handler(...args);
+
+    // Article pages: SSR of a long post flirts with the free-plan CPU limit
+    // (intermittent 1102/503), so guest hits are served from the edge cache
+    // and cold renders get stored. Admin writes purge the slug.
+    const cacheKey = await articleCacheKey(request);
+    if (cacheKey) {
+      const hit = await matchArticleCache(cacheKey);
+      if (hit) {
+        return hit;
+      }
+    }
+
+    const res = await handler(...args);
+
+    if (cacheKey && res.status === 200) {
+      const pair = await toCacheablePair(res);
+      if (pair) {
+        const put = putArticleCache(cacheKey, pair.store);
+        if (ctx) {
+          ctx.waitUntil(put);
+        } else {
+          await put;
+        }
+        return pair.serve;
+      }
+    }
+    return res;
   },
 };

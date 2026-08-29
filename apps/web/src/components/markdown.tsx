@@ -1,4 +1,3 @@
-import rehypeShikiFromHighlighter from '@shikijs/rehype/core';
 import { Check, Copy } from 'lucide-react';
 import {
   type ReactNode,
@@ -11,12 +10,7 @@ import ReactMarkdown from 'react-markdown';
 import rehypeKatex from 'rehype-katex';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
-import { createHighlighterCore } from 'shiki/core';
-// JS regex engine, NOT oniguruma WASM: WebAssembly.instantiate failed
-// intermittently on the Worker under memory/CPU pressure, 500-ing article SSR
-// (logs 2026-07-26 ~05:45 UTC). shiki's JS engine needs no WASM and is the
-// recommended engine for edge runtimes. Don't switch back to oniguruma.
-import { createJavaScriptRegexEngine } from 'shiki/engine/javascript';
+import type { HighlighterCore } from 'shiki/core';
 
 type MarkdownProps = {
   content: string;
@@ -31,36 +25,58 @@ function scrollToHeading(id: string) {
   });
 }
 
-const highlighter = await createHighlighterCore({
-  themes: [
-    import('shiki/themes/vitesse-light.mjs'),
-    import('shiki/themes/vitesse-dark.mjs'),
-  ],
-  langs: [
-    import('shiki/langs/javascript.mjs'),
-    import('shiki/langs/typescript.mjs'),
-    import('shiki/langs/jsx.mjs'),
-    import('shiki/langs/tsx.mjs'),
-    import('shiki/langs/html.mjs'),
-    import('shiki/langs/css.mjs'),
-    import('shiki/langs/json.mjs'),
-    import('shiki/langs/bash.mjs'),
-    import('shiki/langs/yaml.mjs'),
-    import('shiki/langs/markdown.mjs'),
-    import('shiki/langs/cpp.mjs'),
-    import('shiki/langs/c.mjs'),
-    import('shiki/langs/go.mjs'),
-    import('shiki/langs/java.mjs'),
-    import('shiki/langs/python.mjs'),
-    import('shiki/langs/rust.mjs'),
-    import('shiki/langs/sql.mjs'),
-  ],
-  engine: createJavaScriptRegexEngine(),
-});
+/**
+ * Syntax highlighting happens in the BROWSER only. The old setup ran shiki
+ * inside the SSR worker, and its per-isolate init (17 language grammars) plus
+ * per-article highlighting blew through the free-tier CPU limit on longer
+ * posts — intermittent 1102/503s. Plain code blocks SSR instantly; the colors
+ * land a beat later, client-side, and shiki never enters the server bundle.
+ */
+let highlighterPromise: Promise<HighlighterCore> | null = null;
+
+function getHighlighter() {
+  highlighterPromise ??= (async () => {
+    const { createHighlighterCore } = await import('shiki/core');
+    // JS regex engine, NOT oniguruma WASM: WebAssembly.instantiate failed
+    // intermittently under memory/CPU pressure (logs 2026-07-26). In the
+    // browser that constraint doesn't apply, but the engine choice stays.
+    const { createJavaScriptRegexEngine } = await import(
+      'shiki/engine/javascript'
+    );
+    return createHighlighterCore({
+      themes: [
+        import('shiki/themes/vitesse-light.mjs'),
+        import('shiki/themes/vitesse-dark.mjs'),
+      ],
+      langs: [
+        import('shiki/langs/javascript.mjs'),
+        import('shiki/langs/typescript.mjs'),
+        import('shiki/langs/jsx.mjs'),
+        import('shiki/langs/tsx.mjs'),
+        import('shiki/langs/html.mjs'),
+        import('shiki/langs/css.mjs'),
+        import('shiki/langs/json.mjs'),
+        import('shiki/langs/bash.mjs'),
+        import('shiki/langs/yaml.mjs'),
+        import('shiki/langs/markdown.mjs'),
+        import('shiki/langs/cpp.mjs'),
+        import('shiki/langs/c.mjs'),
+        import('shiki/langs/go.mjs'),
+        import('shiki/langs/java.mjs'),
+        import('shiki/langs/python.mjs'),
+        import('shiki/langs/rust.mjs'),
+        import('shiki/langs/sql.mjs'),
+      ],
+      engine: createJavaScriptRegexEngine(),
+    });
+  })();
+  return highlighterPromise;
+}
 
 /**
- * Wraps a highlighted <pre> with a Copy button. Reads the rendered textContent
- * (post-shiki) so it works regardless of how the code was tokenized.
+ * Wraps a <pre> with a Copy button, then upgrades it to a shiki-highlighted
+ * block in the browser. Reads the rendered textContent (post-markdown) so it
+ * works regardless of how the code was tokenized.
  */
 function CodeBlock({ children }: { children?: ReactNode }) {
   const preRef = useRef<HTMLPreElement>(null);
@@ -75,6 +91,44 @@ function CodeBlock({ children }: { children?: ReactNode }) {
     } catch {
       // Clipboard unavailable (non-secure context / no permission) — no-op.
     }
+  }, []);
+
+  useEffect(() => {
+    const pre = preRef.current;
+    const code = pre?.querySelector('code');
+    if (!pre || !code || code.dataset.highlighted) {
+      return;
+    }
+    const lang = /language-([\w-]+)/.exec(code.className)?.[1] ?? 'text';
+    const raw = code.textContent ?? '';
+    let cancelled = false;
+    (async () => {
+      try {
+        const highlighter = await getHighlighter();
+        if (cancelled) return;
+        const html = highlighter.codeToHtml(raw, {
+          lang,
+          themes: { light: 'vitesse-light', dark: 'vitesse-dark' },
+        });
+        if (cancelled) return;
+        // codeToHtml returns a full <pre> — keep OUR pre (classes, copy
+        // button, refs) and lift shiki's <code> body + theme vars into it.
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const shikiPre = doc.querySelector('pre');
+        const shikiCode = shikiPre?.querySelector('code');
+        if (!shikiPre || !shikiCode) return;
+        pre.classList.add(...shikiPre.classList);
+        const style = shikiPre.getAttribute('style');
+        if (style) pre.setAttribute('style', style);
+        code.innerHTML = shikiCode.innerHTML;
+        code.dataset.highlighted = 'true';
+      } catch {
+        // Highlighting is progressive enhancement — plain code stays.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (
@@ -115,19 +169,7 @@ export function Markdown({ content }: MarkdownProps) {
     <article>
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath]}
-        rehypePlugins={[
-          rehypeKatex,
-          [
-            rehypeShikiFromHighlighter,
-            highlighter,
-            {
-              themes: {
-                light: 'vitesse-light',
-                dark: 'vitesse-dark',
-              },
-            },
-          ],
-        ]}
+        rehypePlugins={[rehypeKatex]}
         components={{
           h2: ({ children }) => {
             const id = typeof children === 'string' ? children : '';
