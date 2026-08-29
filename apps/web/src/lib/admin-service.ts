@@ -8,6 +8,7 @@ import { createServerFn } from '@tanstack/react-start';
 import { getRequest } from '@tanstack/react-start/server';
 import { z } from 'zod';
 import { getD1 } from './db.js';
+import { purgeArticleCache } from './page-cache.js';
 import { getSessionUserFromRequest } from './session-core.js';
 
 async function requireAdmin(): Promise<SessionUser> {
@@ -165,6 +166,10 @@ export const upsertPostServerFn = createServerFn({ method: 'POST' })
       )
       .run();
 
+    // The article page is edge-cached for guests — drop it so readers never
+    // see stale content after an edit.
+    await purgeArticleCache(data.slug);
+
     return { ok: true, slug: data.slug };
   });
 
@@ -176,5 +181,6 @@ export const deletePostServerFn = createServerFn({ method: 'POST' })
       .prepare('DELETE FROM "post" WHERE "slug" = ?')
       .bind(data.slug)
       .run();
+    await purgeArticleCache(data.slug);
     return { ok: true };
   });
