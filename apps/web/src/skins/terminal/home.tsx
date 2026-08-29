@@ -27,10 +27,6 @@ export function TerminalHomePage({ data }: { data: HomeData }) {
       </div>
       <div className='th-out'>
         <div className='th-hero-name'>PerfectPan</div>
-        <p className='th-hero-desc'>
-          写代码的人。算法竞赛退役选手，现在的兴趣在前端工程、类型体操和把东西跑在
-          Cloudflare 免费额度上。
-        </p>
         <pre className='th-figlet' aria-hidden='true'>
           {FIGLET}
           <b>.org</b>
