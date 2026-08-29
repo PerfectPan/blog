@@ -177,12 +177,20 @@ export function Markdown({ content, skin = 'terminal' }: MarkdownProps) {
           strong: ({ children }) => <b className='font-bold'>{children}</b>,
           ul: ({ children }) => <ul>{children}</ul>,
           pre: ({ children }) => <CodeBlock skin={skin}>{children}</CodeBlock>,
-          code: ({ className, children }) =>
-            /language-/.test(className ?? '') ? (
+          code: ({ className, children }) => {
+            // Block code from shiki carries `language-*` — but some shiki
+            // versions drop it, so also treat multi-line content as block.
+            // Without this, a whole code block falls into the inline-code
+            // style whose border renders under EVERY line box.
+            const isBlock =
+              /language-/.test(className ?? '') ||
+              String(children).includes('\n');
+            return isBlock ? (
               <code className={className}>{children}</code>
             ) : (
               <code className={SKIN_CLASSES[skin].inline}>{children}</code>
-            ),
+            );
+          },
         }}
       >
         {content}
