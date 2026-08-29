@@ -3,13 +3,7 @@ import { Link } from '@tanstack/react-router';
 import { Markdown } from '../../components/markdown.js';
 import { TerminalComments } from './comments.js';
 
-export function TerminalArticle({
-  post,
-  comments,
-  hasMoreComments,
-  totalComments,
-  sessionUser,
-}: {
+type TerminalArticleProps = {
   post: {
     slug: string;
     title: string;
@@ -22,7 +16,15 @@ export function TerminalArticle({
   hasMoreComments: boolean;
   totalComments: number;
   sessionUser: SessionUser | null;
-}) {
+};
+
+export function TerminalArticle({
+  post,
+  comments,
+  hasMoreComments,
+  totalComments,
+  sessionUser,
+}: TerminalArticleProps) {
   const date = new Date(post.publishedAt).toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
