@@ -43,7 +43,7 @@ export function JournalHomePage({ data }: { data: HomeData }) {
     <div className='j-sheet'>
       <div className='j-home'>
         <div>
-          <h1>是个什么都不会的废物.jpg</h1>
+          <h1>废墨集</h1>
           <p className='j-tagline'>
             算法竞赛退役选手，现在的兴趣在前端工程、类型体操和把东西跑在
             Cloudflare 免费额度上。这里收着题解、笔记和一些随想。
