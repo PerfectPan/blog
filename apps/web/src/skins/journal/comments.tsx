@@ -48,7 +48,7 @@ function Composer({
   }
 
   return (
-    <form onSubmit={handleSubmit} className='th-cmt-form flex flex-col gap-2'>
+    <form onSubmit={handleSubmit} className='j-cmt-form flex flex-col gap-2'>
       <textarea
         value={body}
         onChange={(event) => setBody(event.target.value)}
@@ -56,17 +56,17 @@ function Composer({
         rows={compact ? 2 : 3}
         maxLength={2000}
       />
-      <div className='flex items-center justify-between gap-2'>
-        <span className='th-cmt-hint'>
+      <div className='j-cmt-foot'>
+        <span className='j-cmt-hint'>
           {remaining < 200 ? `${remaining} 字剩余` : '支持 Markdown'}
-          {error ? <span className='th-err ml-2 inline'>{error}</span> : null}
+          {error ? <span className='j-err'>{error}</span> : null}
         </span>
         <button
           type='submit'
           disabled={submitting || !body.trim()}
-          className='th-btn th-btn-primary'
+          className='j-btn j-btn-red'
         >
-          {submitting ? '发送中…' : 'reply'}
+          {submitting ? '发送中…' : '发送'}
         </button>
       </div>
     </form>
@@ -131,7 +131,7 @@ function CommentItem({
       ) : null}
 
       {thread.replies.length > 0 ? (
-        <ul className='th-cmt-replies'>
+        <ul className='flex flex-col gap-2'>
           {thread.replies.map((reply) => {
             const replyCanAct =
               sessionUser != null &&
@@ -173,37 +173,39 @@ function CommentView({
   onReply,
   onDelete,
 }: CommentViewProps) {
+  const isReply = comment.parentId !== null;
+
   return (
-    <div className='th-cmt'>
-      <div className='th-cmt-head'>
+    <div className={isReply ? 'j-letter j-letter-reply' : 'j-letter'}>
+      <div className='j-lhead'>
         <span className='who'>{comment.author.name}</span>
         {comment.author.role === 'admin' ? (
-          <span className='th-role-badge'>AUTHOR</span>
+          <span className='badge'>作者</span>
         ) : null}
         {comment.status !== 'visible' ? (
-          <span className='th-perm-pw'>{comment.status}</span>
+          <span style={{ color: 'var(--j-red)' }}>{comment.status}</span>
         ) : null}
-        <span>{formatRelative(comment.createdAt)}</span>
+        <span className='when'>{formatRelative(comment.createdAt)}</span>
       </div>
-      <div className='th-cmt-body'>
+      <div className='j-lbody'>
         <CommentMarkdown content={comment.body} />
       </div>
       {canReply && onReply ? (
-        <div className='th-cmt-ops'>
+        <div className='j-lops'>
           <button type='button' onClick={onReply}>
-            reply
+            回复
           </button>
           {canAct ? (
-            <button type='button' className='del' onClick={() => onDelete()}>
-              rm
+            <button type='button' onClick={() => onDelete()}>
+              删除
             </button>
           ) : null}
         </div>
       ) : null}
       {!(canReply && onReply) && canAct ? (
-        <div className='th-cmt-ops'>
-          <button type='button' className='del' onClick={() => onDelete()}>
-            rm
+        <div className='j-lops'>
+          <button type='button' onClick={() => onDelete()}>
+            删除
           </button>
         </div>
       ) : null}
@@ -211,7 +213,7 @@ function CommentView({
   );
 }
 
-export function TerminalComments({
+export function JournalComments({
   slug,
   initialComments,
   initialHasMore,
@@ -240,11 +242,7 @@ export function TerminalComments({
 
   return (
     <section className='mt-10'>
-      <div className='th-prompt mb-4'>
-        <span className='th-prompt-p'>~ %</span>{' '}
-        <span className='th-cmd'>comments --on {slug}</span>{' '}
-        <span className='th-comment'>({total})</span>
-      </div>
+      <h3 className='j-blockhead'>评论 {total > 0 ? `(${total})` : ''}</h3>
 
       {sessionUser ? (
         <div className='mb-6'>
@@ -255,15 +253,26 @@ export function TerminalComments({
           />
         </div>
       ) : (
-        <p className='th-comment mb-6'>
-          # <Link to='/login'>login</Link> 后即可评论。
+        <p
+          className='mb-6 text-sm'
+          style={{ color: 'var(--j-faded)', fontFamily: 'var(--j-sans)' }}
+        >
+          <Link to='/login' className='underline'>
+            入会
+          </Link>{' '}
+          后即可评论。
         </p>
       )}
 
-      {topError ? <p className='th-err mb-4'>{topError}</p> : null}
+      {topError ? <p className='j-err mb-4'>{topError}</p> : null}
 
       {threads.length === 0 ? (
-        <p className='th-comment py-8 text-center'># 还没有评论，来抢沙发。</p>
+        <p
+          className='py-8 text-center text-sm'
+          style={{ color: 'var(--j-faint)', fontFamily: 'var(--j-sans)' }}
+        >
+          还没有评论，来抢沙发。
+        </p>
       ) : (
         <ul className='flex flex-col gap-3'>
           {threads.map((thread) => (
@@ -287,9 +296,9 @@ export function TerminalComments({
             type='button'
             onClick={handleLoadMore}
             disabled={loadingMore}
-            className='th-btn'
+            className='j-btn'
           >
-            {loadingMore ? '加载中…' : 'tail -f'}
+            {loadingMore ? '加载中…' : '加载更多'}
           </button>
         </div>
       ) : null}

@@ -1,12 +1,21 @@
+import type { PostSummary } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
 
-const FIGLET = `  ____              _   _        _   ____  __  __ ____
- |  _ \\ _   _  __ _| |_| |__    / \\ |  _ \\|  \\/  |  _ \\
- | |_) | | | |/ _\` | __| '_ \\  / _ \\| |_) | |\\/| | |_) |
- |  __/| |_| | (_| | |_| | | |/ ___ \\  __/| |  | |  __/
- |_|    \\__,_|\\__,_|\\__|_| |_/_/   \\_\\_|  |_|  |_|_|   `;
+const FIGLET = `                   __           _
+  _ __   ___ _ __ / _| ___  ___| |_ _ __   __ _ _ __
+ | '_ \\ / _ \\ '__| |_ / _ \\/ __| __| '_ \\ / _\` | '_ \\
+ | |_) |  __/ |  |  _|  __/ (__| |_| |_) | (_| | | | |
+ | .__/ \\___|_|  |_|  \\___|\\___|\\__| .__/ \\__,_|_| |_|
+ |_|                               |_|`;
 
-export function TerminalHomePage() {
+type HomeData = {
+  posts: PostSummary[];
+  total: number;
+} | null;
+
+export function TerminalHomePage({ data }: { data: HomeData }) {
+  const latest = (data?.posts ?? []).slice(0, 5);
+
   return (
     <div className='th-page'>
       <div className='th-prompt'>
@@ -20,7 +29,7 @@ export function TerminalHomePage() {
         <div className='th-hero-name'>PerfectPan</div>
         <pre className='th-figlet' aria-hidden='true'>
           {FIGLET}
-          <b>.dev</b>
+          <b>.org</b>
         </pre>
       </div>
       <div className='th-prompt mt-6'>
@@ -43,6 +52,38 @@ export function TerminalHomePage() {
           <small>Rust / TS / Moonbit 开源项目</small>
         </Link>
       </div>
+      {latest.length > 0 ? (
+        <>
+          <div className='th-prompt mt-8'>
+            <span className='th-prompt-u'>perfectpan</span>
+            <span className='th-prompt-at'>@</span>
+            <span className='th-prompt-h'>blog</span>{' '}
+            <span className='th-prompt-p'>~ %</span>{' '}
+            <span className='th-cmd'>ls -lt ~/posts | head -5</span>
+          </div>
+          <div className='th-home-recent'>
+            {latest.map((post) => (
+              <Link
+                key={post.slug}
+                to='/blog/$slug'
+                params={{ slug: post.slug }}
+                className='th-home-recent-row'
+              >
+                <span className='th-ls-date'>
+                  {new Date(post.publishedAt).toLocaleDateString('en-US', {
+                    month: '2-digit',
+                    day: '2-digit',
+                  })}
+                </span>
+                <span className='th-ls-title'>{post.title}</span>
+                <span className='th-ls-tags text-right'>
+                  {post.tags.join(' · ')}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </>
+      ) : null}
     </div>
   );
 }

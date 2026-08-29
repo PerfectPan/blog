@@ -1,8 +1,10 @@
-import type { SessionUser } from '@blog/shared';
+import type { PostSummary, SessionUser } from '@blog/shared';
 import { createFileRoute } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import { z } from 'zod';
 import { getBlogListServerFn } from '../../lib/blog-service.js';
+import { useSkin } from '../../skins/context.js';
+import { JournalBlogList } from '../../skins/journal/blog-list.js';
 import { TerminalBlogList } from '../../skins/terminal/blog-list.js';
 
 function getDevScopeHint(sessionUser: SessionUser | null | undefined): string {
@@ -44,8 +46,12 @@ export const Route = createFileRoute('/blog/')({
 
 function BlogListPage() {
   const data = Route.useLoaderData();
+  const { skin } = useSkin();
   const showDevHint = data.isDev;
   const devScopeHint = getDevScopeHint(data.sessionUser);
+  const showVisibility =
+    Boolean(data.sessionUser) ||
+    data.posts.some((post: PostSummary) => post.visibility !== 'public');
 
   // Conventional blog pagination: the page scrolls naturally; jump back to the
   // top on each page change so the new page starts at its first post.
@@ -54,11 +60,21 @@ function BlogListPage() {
     document.querySelector('main')?.scrollTo({ top: 0 });
   }, [data.page]);
 
+  if (skin === 'journal') {
+    return (
+      <JournalBlogList
+        data={data}
+        showDevHint={showDevHint}
+        devScopeHint={devScopeHint}
+      />
+    );
+  }
   return (
     <TerminalBlogList
       data={data}
       showDevHint={showDevHint}
       devScopeHint={devScopeHint}
+      showVisibility={showVisibility}
     />
   );
 }

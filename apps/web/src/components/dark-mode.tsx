@@ -12,8 +12,22 @@ type ViewTransitionDocument = Document & {
   startViewTransition?: (cb: () => void) => ViewTransitionLike;
 };
 
+const DARK_COOKIE = 'blog-dark';
+
+function readDarkCookie(): boolean {
+  if (typeof document === 'undefined') return false;
+  return document.cookie
+    .split(';')
+    .some((c) => c.trim().startsWith(`${DARK_COOKIE}=1`));
+}
+
+function writeDarkCookie(dark: boolean) {
+  // biome-ignore lint/suspicious/noDocumentCookie: UI preference cookie; document.cookie is the only dependency-free writer.
+  document.cookie = `${DARK_COOKIE}=${dark ? '1' : '0'}; path=/; max-age=31536000; samesite=lax`;
+}
+
 export function DarkMode() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(readDarkCookie);
   const ref = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -24,6 +38,25 @@ export function DarkMode() {
     document
       .querySelector('meta[name="theme-color"]')
       ?.setAttribute('content', isDarkMode ? '#0a0f14' : '#f4f2ec');
+    writeDarkCookie(isDarkMode);
+  }, [isDarkMode]);
+
+  useEffect(() => {
+    // Journal is light-only: switching skins removes the dark class behind
+    // our back. When returning to terminal, re-apply the dark class if the
+    // user's preference is still on (the preference itself is untouched by
+    // skin switches — only the class is).
+    const onSkinChange = (event: Event) => {
+      const { skin } = (event as CustomEvent<{ skin: string }>).detail;
+      if (skin === 'terminal' && isDarkMode) {
+        document.documentElement.classList.add('dark');
+        document
+          .querySelector('meta[name="theme-color"]')
+          ?.setAttribute('content', '#0a0f14');
+      }
+    };
+    window.addEventListener('blog:skinchange', onSkinChange);
+    return () => window.removeEventListener('blog:skinchange', onSkinChange);
   }, [isDarkMode]);
 
   const onTrigger = () => {
@@ -93,10 +126,12 @@ export function DarkMode() {
       type='button'
       ref={ref}
       aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-      className='inline-flex cursor-pointer items-center opacity-70 transition-opacity hover:opacity-100'
+      className='inline-flex cursor-pointer items-center gap-2 opacity-70 transition-opacity hover:opacity-100'
       onClick={onTrigger}
     >
-      {isDarkMode ? <Moon size={24} /> : <Sun size={24} />}
+      {isDarkMode ? <Moon size={15} /> : <Sun size={15} />}
+      {/* text label surfaces only inside the terminal ≤480px tools sheet */}
+      <span className='hidden'>dark</span>
     </button>
   );
 }

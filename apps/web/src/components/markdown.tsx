@@ -25,19 +25,23 @@ type MarkdownProps = {
   skin?: Skin;
 };
 
-/** Per-skin class names for the code block chrome + inline code. Skins without
- *  an entry (e.g. journal before its layer lands) fall back to terminal. */
-const TERMINAL_CLASSES = {
-  wrap: 'th-code group relative',
-  copy: 'th-code-copy',
-  pre: 'shiki th-pre w-full overflow-x-auto',
-  inline: 'md-inline',
-} as const;
-
-const SKIN_CLASSES: Partial<
-  Record<Skin, { wrap: string; copy: string; pre: string; inline: string }>
+/** Per-skin class names for the code block chrome + inline code. */
+const SKIN_CLASSES: Record<
+  Skin,
+  { wrap: string; copy: string; pre: string; inline: string }
 > = {
-  terminal: TERMINAL_CLASSES,
+  terminal: {
+    wrap: 'th-code group relative',
+    copy: 'th-code-copy',
+    pre: 'shiki th-pre w-full overflow-x-auto',
+    inline: 'md-inline',
+  },
+  journal: {
+    wrap: 'j-code group relative',
+    copy: 'j-code-copy',
+    pre: 'shiki j-pre w-full overflow-x-auto',
+    inline: 'j-inline',
+  },
 };
 
 function scrollToHeading(id: string) {
@@ -95,7 +99,7 @@ function CodeBlock({ children, skin }: { children?: ReactNode; skin: Skin }) {
     }
   }, []);
 
-  const c = SKIN_CLASSES[skin] ?? TERMINAL_CLASSES;
+  const c = SKIN_CLASSES[skin];
 
   return (
     <div className={c.wrap}>
@@ -177,13 +181,7 @@ export function Markdown({ content, skin = 'terminal' }: MarkdownProps) {
             /language-/.test(className ?? '') ? (
               <code className={className}>{children}</code>
             ) : (
-              <code
-                className={
-                  SKIN_CLASSES[skin]?.inline ?? TERMINAL_CLASSES.inline
-                }
-              >
-                {children}
-              </code>
+              <code className={SKIN_CLASSES[skin].inline}>{children}</code>
             ),
         }}
       >
