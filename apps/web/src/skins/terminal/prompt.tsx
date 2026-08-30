@@ -7,7 +7,7 @@ import type { ReactNode } from 'react';
  */
 export function Page({ children }: { children: ReactNode }) {
   return (
-    <div className='mx-auto w-full max-w-[1020px] px-[22px] pt-[26px] pb-[46px] max-[640px]:px-3.5 max-[640px]:pt-5 max-[640px]:pb-10'>
+    <div className='mx-auto w-full max-w-[1020px] px-[22px] pt-[26px] pb-[46px] max-[640px]:px-3.5 max-[640px]:pt-5 max-[640px]:pb-10 min-[640px]:max-[1100px]:px-11'>
       {children}
     </div>
   );
