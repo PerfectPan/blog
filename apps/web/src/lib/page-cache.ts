@@ -72,7 +72,15 @@ export async function matchArticleCache(
   key: Request,
 ): Promise<Response | undefined> {
   const cache = await getCache();
-  return cache?.match(key);
+  const hit = await cache?.match(key);
+  if (!hit) return undefined;
+  // The edge copy keeps a 7-day TTL, but browsers must NOT hold their own
+  // private copy — otherwise a redeploy leaves visitors on stale HTML until
+  // the TTL expires. `no-cache` = revalidate with the worker on every load;
+  // the worker answers from the edge cache at ~zero cost.
+  const headers = new Headers(hit.headers);
+  headers.set('cache-control', 'no-cache');
+  return new Response(hit.body, { status: hit.status, headers });
 }
 
 /** Purge after an admin write so readers never see stale content. */
