@@ -63,7 +63,9 @@ export function TerminalHeader() {
         aria-hidden='true'
       />
       <span className='ml-2.5 text-[12.5px] text-dim max-[640px]:ml-1.5 max-[640px]:min-w-0 max-[640px]:flex-1 max-[640px]:truncate'>
-        <b className='font-semibold text-ink'>perfectpan@blog</b>
+        <Link to='/' className='text-ink no-underline hover:text-amber'>
+          <b className='font-semibold'>perfectpan@blog</b>
+        </Link>
         <span className='max-[640px]:hidden'> — </span>
         <span className='text-cyan max-[640px]:hidden'>~/perfectpan.org</span>
       </span>
