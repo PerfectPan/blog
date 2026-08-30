@@ -430,16 +430,19 @@ a.th-tmux-win:hover {
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 .th-tool-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
+  height: 24px;
+  padding: 0 8px;
+  line-height: 1; /* icon and text share one optical center line */
   color: var(--t-dim);
   background: none;
   cursor: pointer;
-  padding: 4px 8px;
   border-radius: 4px;
   font-size: 13px;
   font-family: inherit;
