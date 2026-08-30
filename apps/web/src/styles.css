@@ -338,6 +338,16 @@ html[data-theme="terminal"] ::selection {
   padding: 26px 22px 46px;
 }
 
+/* Mid-size windows (~640-1100px): the 1020px column doesn't bind yet, so the
+   article would hug both edges with only the 22px gutter. Widen the gutter
+   in that band so the column reads as centered. */
+@media (min-width: 640px) and (max-width: 1100px) {
+  .th-page {
+    padding-left: 44px;
+    padding-right: 44px;
+  }
+}
+
 /* ---------- tmux footer ---------- */
 .th-tmux {
   display: flex;
