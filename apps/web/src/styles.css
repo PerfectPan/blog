@@ -724,8 +724,7 @@ a.th-ls-row:hover {
 
 /* ---------- article ---------- */
 .th-art-head {
-  max-width: 74ch;
-  margin: 16px auto 26px; /* align the title block with the prose column */
+  margin: 16px 0 26px;
 }
 .th-art-title {
   font-size: 24px;
@@ -745,7 +744,6 @@ a.th-ls-row:hover {
 /* markdown body (article prose) */
 html[data-theme="terminal"] .md {
   max-width: 74ch;
-  margin-inline: auto; /* center the reading column instead of hugging left */
 }
 html[data-theme="terminal"] .md p {
   margin: 14px 0;
