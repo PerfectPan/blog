@@ -97,6 +97,7 @@ export function DarkMode() {
       onClick={onTrigger}
     >
       {isDarkMode ? <Moon size={15} /> : <Sun size={15} />}
+      <span>dark</span>
     </button>
   );
 }

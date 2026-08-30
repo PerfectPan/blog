@@ -1,5 +1,12 @@
 import { Link } from '@tanstack/react-router';
-import { Github, LogOut, Rss, Search, UserRound } from 'lucide-react';
+import {
+  Github,
+  LogOut,
+  Rss,
+  Search,
+  UserRound,
+  UserRoundPlus,
+} from 'lucide-react';
 import { DarkMode } from '../../components/dark-mode.js';
 import { searchPalette } from '../../components/search-palette-store.js';
 import { authClient } from '../../lib/auth-client.js';
@@ -54,9 +61,11 @@ export function TerminalHeader() {
         ) : (
           <>
             <Link to='/login' data-testid='nav-login' className='th-tool-btn'>
+              <UserRound size={15} aria-hidden='true' />
               login
             </Link>
             <Link to='/signup' data-testid='nav-signup' className='th-tool-btn'>
+              <UserRoundPlus size={15} aria-hidden='true' />
               signup
             </Link>
           </>
@@ -79,6 +88,7 @@ export function TerminalHeader() {
           className='th-tool-btn'
         >
           <Github size={15} aria-hidden='true' />
+          <span>github</span>
         </a>
         <a
           href='/rss.xml'
@@ -88,6 +98,7 @@ export function TerminalHeader() {
           className='th-tool-btn'
         >
           <Rss size={15} aria-hidden='true' />
+          <span>rss</span>
         </a>
       </div>
     </header>
