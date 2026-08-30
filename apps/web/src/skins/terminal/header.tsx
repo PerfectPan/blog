@@ -34,8 +34,10 @@ export function TerminalHeader() {
       <span className='th-dot th-dot-y' aria-hidden='true' />
       <span className='th-dot th-dot-g' aria-hidden='true' />
       <span className='th-term-title'>
-        <b>perfectpan@blog</b> —{' '}
-        <span className='th-path'>~/perfectpan.org</span>
+        <Link to='/' className='th-home-link'>
+          <b>perfectpan@blog</b> —{' '}
+          <span className='th-path'>~/perfectpan.org</span>
+        </Link>
       </span>
 
       <div className='th-tools'>

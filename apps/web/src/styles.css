@@ -321,6 +321,13 @@ html[data-theme="terminal"] ::selection {
   color: var(--t-text);
   font-weight: 600;
 }
+.th-term-title a {
+  color: inherit;
+  text-decoration: none;
+}
+.th-term-title a:hover .th-path {
+  color: var(--t-amber);
+}
 .th-term-title .th-path {
   color: var(--t-cyan);
 }
