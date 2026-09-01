@@ -1110,6 +1110,11 @@ html[data-theme="terminal"] .md .th-pre code {
   .th-tool-btn > span {
     display: none;
   }
+  /* 字符画缩小到手机宽度能整幅放下(.org 不再被裁掉),再窄允许横滚 */
+  .th-figlet {
+    font-size: 9.5px;
+    overflow-x: auto;
+  }
   .th-tool-btn > span {
     display: none;
   }
