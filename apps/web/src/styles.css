@@ -1081,3 +1081,39 @@ html[data-theme="terminal"] .md .th-pre code {
   color: var(--t-faint);
   font-size: 11.5px;
 }
+
+/* ---------- terminal titlebar: small screens ---------- */
+@media (max-width: 640px) {
+  .th-titlebar {
+    padding: 8px 12px;
+    gap: 5px;
+  }
+  /* 品牌名是必须保住的最低信息量;路径后缀和分隔线在窄屏直接隐藏 */
+  .th-term-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+  }
+  .th-term-sep,
+  .th-term-title .th-path {
+    display: none;
+  }
+  /* 工具收成纯图标,间距收紧 */
+  .th-tools {
+    gap: 2px;
+  }
+  .th-tool-btn {
+    padding: 0 5px;
+  }
+  .th-tool-btn > span {
+    display: none;
+  }
+  .th-tool-btn > span {
+    display: none;
+  }
+  .th-page {
+    padding: 20px 14px 40px;
+  }
+}

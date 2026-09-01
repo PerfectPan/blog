@@ -35,7 +35,8 @@ export function TerminalHeader() {
       <span className='th-dot th-dot-g' aria-hidden='true' />
       <span className='th-term-title'>
         <Link to='/' className='th-home-link'>
-          <b>perfectpan@blog</b> —{' '}
+          <b>perfectpan@blog</b>
+          <span className='th-term-sep'> — </span>
           <span className='th-path'>~/perfectpan.org</span>
         </Link>
       </span>
@@ -64,11 +65,11 @@ export function TerminalHeader() {
           <>
             <Link to='/login' data-testid='nav-login' className='th-tool-btn'>
               <UserRound size={15} aria-hidden='true' />
-              login
+              <span>login</span>
             </Link>
             <Link to='/signup' data-testid='nav-signup' className='th-tool-btn'>
               <UserRoundPlus size={15} aria-hidden='true' />
-              signup
+              <span>signup</span>
             </Link>
           </>
         )}
