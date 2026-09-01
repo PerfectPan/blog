@@ -1,4 +1,4 @@
-import type { SessionUser } from '@blog/shared';
+import type { PostSummary, SessionUser } from '@blog/shared';
 import { createFileRoute } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import { z } from 'zod';
@@ -46,6 +46,9 @@ function BlogListPage() {
   const data = Route.useLoaderData();
   const showDevHint = data.isDev;
   const devScopeHint = getDevScopeHint(data.sessionUser);
+  const showVisibility =
+    Boolean(data.sessionUser) ||
+    data.posts.some((post: PostSummary) => post.visibility !== 'public');
 
   // Conventional blog pagination: the page scrolls naturally; jump back to the
   // top on each page change so the new page starts at its first post.
@@ -59,6 +62,7 @@ function BlogListPage() {
       data={data}
       showDevHint={showDevHint}
       devScopeHint={devScopeHint}
+      showVisibility={showVisibility}
     />
   );
 }

@@ -599,11 +599,17 @@ a.th-tmux-win:hover {
 }
 .th-ls-row {
   display: grid;
-  grid-template-columns: 11ch 7ch 8ch 1fr auto;
+  grid-template-columns: 12ch 7ch 8ch 1fr auto;
   gap: 0 14px;
   padding: 5px 8px;
   border-radius: 4px;
   align-items: baseline;
+}
+
+/* Guest + all-public list: the vis column is not rendered, so the freed
+   space goes to titles instead of leaving an 8ch hole. */
+.th-ls--no-vis .th-ls-row {
+  grid-template-columns: 12ch 7ch 1fr auto;
 }
 .th-ls-head {
   color: var(--t-faint);
@@ -629,6 +635,7 @@ a.th-ls-row:hover {
 }
 .th-perm {
   letter-spacing: 0.08em;
+  white-space: nowrap; /* perm tokens never break mid-string */
 }
 .th-perm-pub {
   color: var(--t-green);
@@ -689,7 +696,7 @@ a.th-ls-row:hover {
 
 @media (max-width: 720px) {
   .th-ls-row {
-    grid-template-columns: 11ch 7ch 1fr;
+    grid-template-columns: 12ch 7ch 1fr;
   }
   .th-ls-head,
   .th-ls-vis,

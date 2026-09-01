@@ -50,10 +50,12 @@ export function TerminalBlogList({
   data,
   showDevHint,
   devScopeHint,
+  showVisibility,
 }: {
   data: BlogListData;
   showDevHint: boolean;
   devScopeHint: string;
+  showVisibility: boolean;
 }) {
   const blogGroups = groupByYear(data.posts);
 
@@ -71,11 +73,11 @@ export function TerminalBlogList({
         <div className='th-devhint mt-4'>{devScopeHint}</div>
       ) : null}
 
-      <div className='th-ls'>
+      <div className={showVisibility ? 'th-ls' : 'th-ls th-ls--no-vis'}>
         <div className='th-ls-row th-ls-head'>
           <span>perms</span>
           <span>date</span>
-          <span>vis</span>
+          {showVisibility ? <span>vis</span> : null}
           <span>title</span>
           <span className='text-right'>tags</span>
         </div>
@@ -100,7 +102,11 @@ export function TerminalBlogList({
                     day: '2-digit',
                   })}
                 </span>
-                <span className='th-ls-vis th-comment'>{blog.visibility}</span>
+                {showVisibility ? (
+                  <span className='th-ls-vis th-comment'>
+                    {blog.visibility}
+                  </span>
+                ) : null}
                 <span className='th-ls-title'>{blog.title}</span>
                 <span className='th-ls-tags text-right'>
                   {blog.tags.join(' · ')}
@@ -133,13 +139,15 @@ export function TerminalBlogList({
         </nav>
       ) : null}
 
-      <p className='th-legend'>
-        # perms = 可见性：owner / member / guest 读权限
-        <br /># <span className='th-perm-pub'>-r--r--r--</span> 公开 ·{' '}
-        <span className='th-perm-mem'>-r--r-----</span> 登录可见 ·{' '}
-        <span className='th-perm-vip'>-r----r--</span> VIP ·{' '}
-        <span className='th-perm-pw'>-r--------</span> 需密码
-      </p>
+      {showVisibility ? (
+        <p className='th-legend'>
+          # perms = 可见性：owner / member / guest 读权限
+          <br /># <span className='th-perm th-perm-pub'>-r--r--r--</span> 公开 ·{' '}
+          <span className='th-perm th-perm-mem'>-r--r-----</span> 登录可见 ·{' '}
+          <span className='th-perm th-perm-vip'>-r----r--</span> VIP ·{' '}
+          <span className='th-perm th-perm-pw'>-r--------</span> 需密码
+        </p>
+      ) : null}
 
       <hr className='th-hr' />
       <div className='th-prompt'>
