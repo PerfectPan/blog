@@ -420,6 +420,9 @@ a.th-tmux-win:hover {
 .th-cmd-dim {
   color: var(--t-dim);
 }
+a.th-cmd:hover {
+  color: var(--t-amber);
+}
 .th-out {
   margin: 4px 0;
 }

@@ -66,7 +66,11 @@ export function TerminalArticle({
           <span className='th-prompt-at'>@</span>
           <span className='th-prompt-h'>blog</span>{' '}
           <span className='th-prompt-p'>~/posts %</span>{' '}
-          <Link to='/blog' className='th-cmd th-cmd-dim'>
+          <Link
+            to='/blog'
+            activeOptions={{ exact: true }}
+            className='th-cmd th-cmd-dim'
+          >
             cd ..
           </Link>
         </div>
