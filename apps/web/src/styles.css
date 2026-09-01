@@ -553,17 +553,6 @@ a.th-tmux-win:hover {
 }
 
 /* ---------- home ---------- */
-.th-hero-name {
-  font-size: 21px;
-  color: var(--t-heading);
-  font-weight: 700;
-  margin-top: 12px;
-}
-.th-hero-desc {
-  color: var(--t-dim);
-  max-width: 62ch;
-  margin-top: 6px;
-}
 .th-figlet {
   white-space: pre;
   color: var(--t-faint);
