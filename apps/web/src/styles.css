@@ -1110,10 +1110,10 @@ html[data-theme="terminal"] .md .th-pre code {
   .th-tool-btn > span {
     display: none;
   }
-  /* 字符画缩小到手机宽度能整幅放下(.org 不再被裁掉),再窄允许横滚 */
+  /* 字符画随视口流式缩放:任何宽度都整幅放下,不需要横向滚动。
+     34.5 = 字符画最长行字符数 × mono 字符宽比(0.6em) */
   .th-figlet {
-    font-size: 9.5px;
-    overflow-x: auto;
+    font-size: min(11px, calc((100vw - 32px) / 34.5));
   }
   .th-tool-btn > span {
     display: none;
