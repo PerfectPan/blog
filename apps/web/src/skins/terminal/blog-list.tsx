@@ -31,21 +31,6 @@ function groupByYear(
     }));
 }
 
-const PERM_CLASS: Record<PostSummary['visibility'], string> = {
-  public: 'th-perm th-perm-pub',
-  member: 'th-perm th-perm-mem',
-  vip: 'th-perm th-perm-vip',
-  admin: 'th-perm th-perm-adm',
-  password: 'th-perm th-perm-pw',
-};
-const PERM_BITS: Record<PostSummary['visibility'], string> = {
-  public: '-r--r--r--',
-  member: '-r--r-----',
-  vip: '-r----r--',
-  admin: '-r--------',
-  password: '-r--------',
-};
-
 export function TerminalBlogList({
   data,
   showDevHint,
@@ -55,6 +40,8 @@ export function TerminalBlogList({
   data: BlogListData;
   showDevHint: boolean;
   devScopeHint: string;
+  /** The vis column only earns its space when visibility actually varies
+   * (non-public posts exist); for an all-public list it is pure noise. */
   showVisibility: boolean;
 }) {
   const blogGroups = groupByYear(data.posts);
@@ -66,16 +53,15 @@ export function TerminalBlogList({
         <span className='th-prompt-at'>@</span>
         <span className='th-prompt-h'>blog</span>{' '}
         <span className='th-prompt-p'>~/posts %</span>{' '}
-        <span className='th-cmd'>ls -la --group-directories-first</span>
+        <span className='th-cmd'>ls --group-directories-first</span>
       </div>
 
       {showDevHint ? (
         <div className='th-devhint mt-4'>{devScopeHint}</div>
       ) : null}
 
-      <div className={showVisibility ? 'th-ls' : 'th-ls th-ls--no-vis'}>
+      <div className={showVisibility ? 'th-ls th-ls--vis' : 'th-ls'}>
         <div className='th-ls-row th-ls-head'>
-          <span>perms</span>
           <span>date</span>
           {showVisibility ? <span>vis</span> : null}
           <span>title</span>
@@ -93,9 +79,6 @@ export function TerminalBlogList({
                 params={{ slug: blog.slug }}
                 className='th-ls-row'
               >
-                <span className={PERM_CLASS[blog.visibility]}>
-                  {PERM_BITS[blog.visibility]}
-                </span>
                 <span className='th-ls-date'>
                   {new Date(blog.publishedAt).toLocaleDateString('en-US', {
                     month: '2-digit',
@@ -137,16 +120,6 @@ export function TerminalBlogList({
             <span className='th-pager-off'>next →</span>
           )}
         </nav>
-      ) : null}
-
-      {showVisibility ? (
-        <p className='th-legend'>
-          # perms = 可见性：owner / member / guest 读权限
-          <br /># <span className='th-perm th-perm-pub'>-r--r--r--</span> 公开 ·{' '}
-          <span className='th-perm th-perm-mem'>-r--r-----</span> 登录可见 ·{' '}
-          <span className='th-perm th-perm-vip'>-r----r--</span> VIP ·{' '}
-          <span className='th-perm th-perm-pw'>-r--------</span> 需密码
-        </p>
       ) : null}
 
       <hr className='th-hr' />
