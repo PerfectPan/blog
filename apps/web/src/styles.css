@@ -199,10 +199,10 @@ html[data-theme="terminal"] {
   --radius: 0.375rem;
 
   /* terminal LIGHT (paper terminal): default */
-  --t-bg: #f4f2ec;
-  --t-term: #fbfaf7;
-  --t-panel: #f0ede5;
-  --t-line: #ddd8cb;
+  --t-bg: #ffffff;
+  --t-term: #fcfcfc;
+  --t-panel: #f6f6f6;
+  --t-line: #e4e4e4;
   --t-text: #33363b;
   --t-dim: #6f7480;
   --t-faint: #a6a49a;
@@ -211,12 +211,12 @@ html[data-theme="terminal"] {
   --t-green: #3c7a52;
   --t-red: #b8483f;
   --t-violet: #7a5fa8;
-  --t-sel: #ece7da;
-  --t-titlebar-a: #f7f5ef;
-  --t-titlebar-b: #f4f2ec;
-  --t-tmux-bg: #eeebe2;
+  --t-sel: #ececec;
+  --t-titlebar-a: #ffffff;
+  --t-titlebar-b: #fcfcfc;
+  --t-tmux-bg: #f4f4f4;
   --t-tmux-ink: #33363b;
-  --t-pre-bg: #fbfaf7;
+  --t-pre-bg: #fafafa;
   --t-heading: #2b2f36;
   --t-amber-ink: #fbfaf7;
   --t-mono:
@@ -589,11 +589,6 @@ a.th-cmd:hover {
 }
 .th-home-links .k {
   color: var(--t-amber);
-}
-.th-home-links small {
-  display: block;
-  color: var(--t-dim);
-  margin-top: 2px;
 }
 
 /* ---------- ls table (blog list) ---------- */

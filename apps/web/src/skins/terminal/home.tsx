@@ -26,11 +26,9 @@ export function TerminalHomePage() {
       <div className='th-home-links'>
         <Link to='/blog'>
           <span className='k'>open blog/</span>
-          <small>算法 / TypeScript / 随笔</small>
         </Link>
         <Link to='/projects'>
           <span className='k'>open projects/</span>
-          <small>Rust / TS / Moonbit 开源项目</small>
         </Link>
       </div>
     </div>
