@@ -389,6 +389,10 @@ a.th-tmux-win:hover {
   color: var(--t-amber);
   box-shadow: inset 0 0 0 1px var(--t-line);
 }
+.th-tmux-center {
+  margin-inline: auto; /* tmux 中段:提示信息居中于左右集群之间 */
+  color: var(--t-faint);
+}
 .th-tmux-right {
   margin-left: auto;
   color: var(--t-faint);
