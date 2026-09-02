@@ -36,8 +36,6 @@ export function TerminalHeader() {
       <span className='th-term-title'>
         <Link to='/' className='th-home-link'>
           <b>perfectpan@blog</b>
-          <span className='th-term-sep'> — </span>
-          <span className='th-path'>~/perfectpan.org</span>
         </Link>
       </span>
 
