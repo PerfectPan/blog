@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import { PROJECTS, type Project } from '../../lib/projects.js';
+import { Page } from './page.js';
 
 function sortProjects(projects: Project[]): Project[] {
   return [...projects].sort((a, b) => {
@@ -14,7 +15,7 @@ export function TerminalProjectsPage() {
   const projects = sortProjects(PROJECTS);
 
   return (
-    <div className='th-page'>
+    <Page>
       <div className='th-prompt'>
         <span className='th-prompt-u'>perfectpan</span>
         <span className='th-prompt-at'>@</span>
@@ -68,6 +69,6 @@ export function TerminalProjectsPage() {
           cd ..
         </Link>
       </div>
-    </div>
+    </Page>
   );
 }

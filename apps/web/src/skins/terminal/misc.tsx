@@ -1,8 +1,9 @@
 import { Link } from '@tanstack/react-router';
+import { Page } from './page.js';
 
 export function TerminalNotFound() {
   return (
-    <div className='th-page'>
+    <Page>
       <div className='nf'>
         <div className='th-prompt'>
           <span className='th-prompt-u'>guest</span>
@@ -22,13 +23,13 @@ export function TerminalNotFound() {
           <span className='th-comment'> ← 回到博客列表</span>
         </p>
       </div>
-    </div>
+    </Page>
   );
 }
 
 export function TerminalError({ error }: { error: unknown }) {
   return (
-    <div className='th-page'>
+    <Page>
       <div className='th-prompt'>
         <span className='th-prompt-u'>guest</span>
         <span className='th-prompt-at'>@</span>
@@ -40,6 +41,6 @@ export function TerminalError({ error }: { error: unknown }) {
       <Link to='/blog' className='th-cd'>
         cd ~/blog
       </Link>
-    </div>
+    </Page>
   );
 }

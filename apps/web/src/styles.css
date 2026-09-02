@@ -340,8 +340,8 @@ html[data-theme="terminal"] ::selection {
 
 .th-page {
   width: 100%;
-  /* 与文章阅读列同一宽度(74ch),列表/首页/文章全站一致 */
-  max-width: 74ch;
+  /* 全站唯一容器宽度(Page 组件);文章正文另由 .md 的 74ch 阅读列约束 */
+  max-width: 880px;
   margin: 0 auto;
   padding: 26px 22px 46px;
 }
@@ -720,10 +720,8 @@ a.th-ls-row:hover {
   flex-wrap: wrap;
 }
 
-/* markdown body (article prose) */
-html[data-theme="terminal"] .md {
-  max-width: 74ch;
-}
+/* markdown body (article prose) — fills the 880px container; the reading
+   measure comes from the container itself, not a per-element cap. */
 html[data-theme="terminal"] .md p {
   margin: 14px 0;
   color: var(--t-text);

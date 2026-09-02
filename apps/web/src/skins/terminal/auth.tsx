@@ -1,6 +1,7 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState, useTransition } from 'react';
 import { authClient } from '../../lib/auth-client.js';
+import { Page } from './page.js';
 
 export function TerminalLoginPage() {
   const navigate = useNavigate();
@@ -19,14 +20,14 @@ export function TerminalLoginPage() {
 
   if (sessionData?.user?.id || isSessionPending) {
     return (
-      <div className='th-page'>
+      <Page>
         <p className='th-comment'># checking session…</p>
-      </div>
+      </Page>
     );
   }
 
   return (
-    <div className='th-page'>
+    <Page>
       <div className='th-prompt'>
         <span className='th-prompt-u'>guest</span>
         <span className='th-prompt-at'>@</span>
@@ -120,7 +121,7 @@ export function TerminalLoginPage() {
         <span className='th-comment'># 还没有账号？</span>{' '}
         <Link to='/signup'>signup</Link>
       </p>
-    </div>
+    </Page>
   );
 }
 
@@ -142,14 +143,14 @@ export function TerminalSignupPage() {
 
   if (sessionData?.user?.id || isSessionPending) {
     return (
-      <div className='th-page'>
+      <Page>
         <p className='th-comment'># checking session…</p>
-      </div>
+      </Page>
     );
   }
 
   return (
-    <div className='th-page'>
+    <Page>
       <div className='th-prompt'>
         <span className='th-prompt-u'>guest</span>
         <span className='th-prompt-at'>@</span>
@@ -253,7 +254,7 @@ export function TerminalSignupPage() {
           </p>
         ) : null}
       </form>
-    </div>
+    </Page>
   );
 }
 
@@ -273,7 +274,7 @@ export function TerminalUnlockPage({
         : undefined;
 
   return (
-    <div className='th-page'>
+    <Page>
       <div className='th-prompt'>
         <span className='th-prompt-u'>guest</span>
         <span className='th-prompt-at'>@</span>
@@ -314,6 +315,6 @@ export function TerminalUnlockPage({
           </p>
         ) : null}
       </form>
-    </div>
+    </Page>
   );
 }

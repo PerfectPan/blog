@@ -2,6 +2,7 @@ import type { CommentThread, SessionUser } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
 import { Markdown } from '../../components/markdown.js';
 import { TerminalComments } from './comments.js';
+import { Page } from './page.js';
 
 type TerminalArticleProps = {
   post: {
@@ -32,7 +33,7 @@ export function TerminalArticle({
   });
 
   return (
-    <div className='th-page'>
+    <Page>
       <div className='th-prompt'>
         <span className='th-prompt-u'>perfectpan</span>
         <span className='th-prompt-at'>@</span>
@@ -79,6 +80,6 @@ export function TerminalArticle({
         initialTotal={totalComments}
         sessionUser={sessionUser}
       />
-    </div>
+    </Page>
   );
 }
