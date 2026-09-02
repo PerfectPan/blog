@@ -21,21 +21,12 @@ export function TerminalProjectsPage() {
         <span className='th-prompt-at'>@</span>
         <span className='th-prompt-h'>blog</span>{' '}
         <span className='th-prompt-p'>~ %</span>{' '}
-        <span className='th-cmd'>ls -la ~/projects</span>
+        <span className='th-cmd'>ls --group-directories-first ~/projects</span>
       </div>
 
       <div className='th-ls mt-3'>
-        <div className='th-ls-proj th-ls-proj-head'>
-          <span>star</span>
-          <span>project</span>
-          <span className='text-right'>stack</span>
-          <span>link</span>
-        </div>
         {projects.map((project) => (
           <div key={project.name} className='th-ls-proj'>
-            <span className={project.featured ? 'th-perm-pw' : 'th-comment'}>
-              {project.featured ? '★' : ' '}
-            </span>
             <span>
               <span className='th-ls-title'>{project.name}</span>
               <span className='th-comment'> — {project.description}</span>

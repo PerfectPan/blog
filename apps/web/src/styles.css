@@ -685,19 +685,15 @@ a.th-ls-row:hover {
 /* projects ls rows: star / project+desc / stack / links */
 .th-ls-proj {
   display: grid;
-  grid-template-columns: 4ch 1fr 18ch auto;
+  grid-template-columns: 1fr 18ch auto;
   gap: 0 16px;
   padding: 8px;
   border-radius: 4px;
   align-items: baseline;
 }
-.th-ls-proj-head {
-  color: var(--t-faint);
-  font-size: 12.5px;
-}
 @media (max-width: 720px) {
   .th-ls-proj {
-    grid-template-columns: 4ch 1fr;
+    grid-template-columns: 1fr;
   }
   .th-ls-proj .th-ls-tags,
   .th-ls-proj .th-ls-link {
