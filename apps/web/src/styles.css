@@ -340,7 +340,8 @@ html[data-theme="terminal"] ::selection {
 
 .th-page {
   width: 100%;
-  max-width: 1020px;
+  /* 与文章阅读列同一宽度(74ch),列表/首页/文章全站一致 */
+  max-width: 74ch;
   margin: 0 auto;
   padding: 26px 22px 46px;
 }
