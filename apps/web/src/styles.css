@@ -511,8 +511,10 @@ a.th-cmd:hover {
   font-weight: 700;
 }
 .th-btn-primary:hover {
-  /* 与模式无关的轻微压暗:浅色/暗色的琥珀底都适用 */
+  /* 与模式无关的轻微压暗:浅色/暗色的琥珀底都适用。
+     color 必须显式压回墨色——th-btn:hover 会把文字变琥珀,琥珀底上就隐形了 */
   filter: brightness(0.92);
+  color: #171106;
 }
 
 .th-field {
