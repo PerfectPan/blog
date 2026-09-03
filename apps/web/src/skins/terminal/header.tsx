@@ -23,6 +23,15 @@ function getRoleLabel(role?: string | null): string {
   return 'MEMBER';
 }
 
+/** Split an email for the prompt-style chip (local@host). */
+function splitEmail(email: string): { local: string; host: string } {
+  const at = email.indexOf('@');
+  if (at < 0) {
+    return { local: email, host: '' };
+  }
+  return { local: email.slice(0, at), host: email.slice(at + 1) };
+}
+
 /** Terminal title bar: window dots + session name + right-aligned tools. */
 export function TerminalHeader() {
   const { data: sessionData } = authClient.useSession();
@@ -41,9 +50,12 @@ export function TerminalHeader() {
 
       <div className='th-tools'>
         {sessionUser ? (
-          <span className='th-user-chip'>
-            <UserRound size={13} aria-hidden='true' />
-            <span className='max-w-[220px] truncate'>{sessionUser.email}</span>
+          <span className='th-user-chip' title={sessionUser.email}>
+            <span className='th-user-email'>
+              <span className='u'>{splitEmail(sessionUser.email).local}</span>
+              <span className='at'>@</span>
+              <span className='h'>{splitEmail(sessionUser.email).host}</span>
+            </span>
             <span className='th-role-badge'>
               {getRoleLabel(sessionUser.role)}
             </span>
@@ -63,11 +75,11 @@ export function TerminalHeader() {
           <>
             <Link to='/login' data-testid='nav-login' className='th-tool-btn'>
               <UserRound size={15} aria-hidden='true' />
-              <span>login</span>
+              <span className='hidden sm:inline'>login</span>
             </Link>
             <Link to='/signup' data-testid='nav-signup' className='th-tool-btn'>
               <UserRoundPlus size={15} aria-hidden='true' />
-              <span>signup</span>
+              <span className='hidden sm:inline'>signup</span>
             </Link>
           </>
         )}
@@ -89,7 +101,7 @@ export function TerminalHeader() {
           className='th-tool-btn'
         >
           <Github size={15} aria-hidden='true' />
-          <span>github</span>
+          <span className='hidden sm:inline'>github</span>
         </a>
         <a
           href='/rss.xml'
@@ -99,7 +111,7 @@ export function TerminalHeader() {
           className='th-tool-btn'
         >
           <Rss size={15} aria-hidden='true' />
-          <span>rss</span>
+          <span className='hidden sm:inline'>rss</span>
         </a>
       </div>
     </header>
