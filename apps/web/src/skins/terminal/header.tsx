@@ -23,15 +23,6 @@ function getRoleLabel(role?: string | null): string {
   return 'MEMBER';
 }
 
-/** Split an email for the prompt-style chip (local@host). */
-function splitEmail(email: string): { local: string; host: string } {
-  const at = email.indexOf('@');
-  if (at < 0) {
-    return { local: email, host: '' };
-  }
-  return { local: email.slice(0, at), host: email.slice(at + 1) };
-}
-
 /** Terminal title bar: window dots + session name + right-aligned tools. */
 export function TerminalHeader() {
   const { data: sessionData } = authClient.useSession();
@@ -51,10 +42,8 @@ export function TerminalHeader() {
       <div className='th-tools'>
         {sessionUser ? (
           <span className='th-user-chip' title={sessionUser.email}>
-            <span className='th-user-email'>
-              <span className='u'>{splitEmail(sessionUser.email).local}</span>
-              <span className='at'>@</span>
-              <span className='h'>{splitEmail(sessionUser.email).host}</span>
+            <span className='th-user-name'>
+              {sessionUser.name || sessionUser.email}
             </span>
             <span className='th-role-badge'>
               {getRoleLabel(sessionUser.role)}
@@ -67,6 +56,11 @@ export function TerminalHeader() {
             data-testid='nav-logout'
             className='th-tool-btn'
             aria-label='Logout'
+            onClick={(event) => {
+              if (!window.confirm('确定要退出登录吗？')) {
+                event.preventDefault();
+              }
+            }}
           >
             <LogOut size={15} aria-hidden='true' />
             <span className='hidden md:inline'>logout</span>

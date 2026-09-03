@@ -477,8 +477,8 @@ a.th-cmd:hover {
   text-decoration: none;
 }
 .th-user-chip {
-  /* 登录态徽章:终端原生观感——mini prompt(user@host 用 prompt 配色),
-     方角、24px 高与工具按钮对齐;全宽度可见,邮箱超长自动截断 */
+  /* 登录态徽章:只展示用户名(邮箱在悬停提示里),方角、24px 高与工具按钮
+     对齐;名字超长自动截断 */
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -491,33 +491,14 @@ a.th-cmd:hover {
   line-height: 1;
   min-width: 0;
 }
-.th-user-email {
+.th-user-name {
   display: block;
   min-width: 0;
-  max-width: 24ch;
+  max-width: 16ch;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-/* 窄屏下只显示用户名部分(截断域名中段很难看),长用户名再省略;
-   768 以下与按钮图标化同档进入紧凑模式 */
-@media (max-width: 767px) {
-  .th-user-chip .at,
-  .th-user-chip .h {
-    display: none;
-  }
-  .th-user-email {
-    max-width: 12ch;
-  }
-}
-.th-user-chip .u {
   color: var(--t-cyan);
-}
-.th-user-chip .at {
-  color: var(--t-faint);
-}
-.th-user-chip .h {
-  color: var(--t-green);
 }
 .th-user-chip .th-role-badge {
   flex-shrink: 0;
