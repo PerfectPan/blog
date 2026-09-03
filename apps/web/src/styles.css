@@ -289,6 +289,7 @@ html[data-theme="terminal"] ::selection {
 }
 
 .th-titlebar {
+  position: relative; /* ⋯ 展开面板(.th-tools-sheet)的定位上下文 */
   display: flex;
   align-items: center;
   gap: 8px;
@@ -475,6 +476,55 @@ a.th-cmd:hover {
 .th-tool-btn:hover {
   color: var(--t-amber);
   text-decoration: none;
+}
+/* ≤480px:工具收进 ⋯ 菜单;面板在 titlebar 下方平铺展开(无抽屉无动画) */
+.th-tools-toggle {
+  display: none;
+}
+.th-tools-sheet {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--t-line);
+  background: linear-gradient(var(--t-titlebar-a), var(--t-titlebar-b));
+  padding: 4px 12px 10px;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.28);
+}
+.th-tools-sheet a,
+.th-tools-sheet button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px;
+  font-family: var(--t-mono);
+  font-size: 13px;
+  color: var(--t-dim);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+}
+.th-tools-sheet a:hover,
+.th-tools-sheet button:hover {
+  color: var(--t-amber);
+  text-decoration: none;
+}
+@media (max-width: 480px) {
+  .th-tools > :not(.th-tools-toggle):not(.th-user-chip) {
+    display: none;
+  }
+  .th-tools-toggle {
+    display: inline-flex;
+  }
+}
+@media (min-width: 481px) {
+  .th-tools-sheet {
+    display: none;
+  }
 }
 .th-user-chip {
   /* 登录态徽章:只展示用户名(邮箱在悬停提示里),方角、24px 高与工具按钮
@@ -1013,6 +1063,12 @@ html[data-theme="terminal"] .md .th-pre code {
    terminal window, mono throughout, `~ %` prompt instead of a magnifier. */
 /* ---------- confirm dialog(shadcn Dialog 的终端皮肤化,同 th-pal) ---------- */
 .th-confirm {
+  /* 居中改用独立的 translate 属性:tailwindcss-animate 的 keyframe 会整个
+     覆盖 transform,若靠 translate-x/y 工具类居中,缩放动画就会从未居中的
+     位置(视觉上右下角)飞入——th-pal 同款解法 */
+  top: 50%;
+  transform: none;
+  translate: -50% -50%;
   max-width: min(440px, calc(100vw - 32px));
   border: 1px solid var(--t-line);
   border-radius: 10px;

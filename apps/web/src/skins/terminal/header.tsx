@@ -2,12 +2,14 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import {
   Github,
   LogOut,
+  MoreHorizontal,
   Rss,
   Search,
   UserRound,
   UserRoundPlus,
+  X,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ConfirmDialog } from '../../components/confirm-dialog.js';
 import { DarkMode } from '../../components/dark-mode.js';
 import { searchPalette } from '../../components/search-palette-store.js';
@@ -25,12 +27,28 @@ function getRoleLabel(role?: string | null): string {
   return 'MEMBER';
 }
 
-/** Terminal title bar: window dots + session name + right-aligned tools. */
+/** Terminal title bar: window dots + session name + right-aligned tools.
+ *  ≤480px the tool buttons collapse behind a ⋯ toggle that expands a flat
+ *  text sheet under the bar (no drawer, no animation — terminals don't slide). */
 export function TerminalHeader() {
   const { data: sessionData } = authClient.useSession();
   const sessionUser = sessionData?.user ?? null;
   const navigate = useNavigate();
   const [logoutOpen, setLogoutOpen] = useState(false);
+  const [toolsOpen, setToolsOpen] = useState(false);
+
+  useEffect(() => {
+    if (!toolsOpen) {
+      return;
+    }
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setToolsOpen(false);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [toolsOpen]);
 
   return (
     <header className='th-titlebar'>
@@ -110,7 +128,78 @@ export function TerminalHeader() {
           <Rss size={15} aria-hidden='true' />
           <span className='hidden md:inline'>rss</span>
         </a>
+        <button
+          type='button'
+          className='th-tool-btn th-tools-toggle'
+          aria-label={toolsOpen ? 'Close tools menu' : 'Open tools menu'}
+          aria-expanded={toolsOpen}
+          onClick={() => {
+            setToolsOpen(!toolsOpen);
+          }}
+        >
+          {toolsOpen ? (
+            <X size={15} aria-hidden='true' />
+          ) : (
+            <MoreHorizontal size={15} aria-hidden='true' />
+          )}
+        </button>
       </div>
+      {toolsOpen ? (
+        // Flat text sheet under the bar; any action inside closes it.
+        <div
+          role='toolbar'
+          aria-label='Site tools'
+          className='th-tools-sheet'
+          onClick={() => {
+            setToolsOpen(false);
+          }}
+          onKeyDown={(event) => {
+            if (event.key === 'Escape') {
+              setToolsOpen(false);
+            }
+          }}
+        >
+          {sessionUser ? (
+            <button
+              type='button'
+              onClick={() => {
+                setToolsOpen(false);
+                setLogoutOpen(true);
+              }}
+            >
+              <LogOut size={14} aria-hidden='true' /> logout
+            </button>
+          ) : (
+            <>
+              <Link to='/login'>
+                <UserRound size={14} aria-hidden='true' /> login
+              </Link>
+              <Link to='/signup'>
+                <UserRoundPlus size={14} aria-hidden='true' /> signup
+              </Link>
+            </>
+          )}
+          <button
+            type='button'
+            onClick={() => {
+              setToolsOpen(false);
+              searchPalette.open();
+            }}
+          >
+            <Search size={14} aria-hidden='true' /> grep
+          </button>
+          <a
+            href='https://github.com/PerfectPan'
+            target='_blank'
+            rel='noreferrer'
+          >
+            <Github size={14} aria-hidden='true' /> github
+          </a>
+          <a href='/rss.xml' target='_blank' rel='noreferrer'>
+            <Rss size={14} aria-hidden='true' /> rss
+          </a>
+        </div>
+      ) : null}
       <ConfirmDialog
         open={logoutOpen}
         onOpenChange={setLogoutOpen}
