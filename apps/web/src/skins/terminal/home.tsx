@@ -18,7 +18,7 @@ export function TerminalHomePage() {
         <span className='th-prompt-p'>~ %</span>{' '}
         <span className='th-cmd'>whoami --verbose</span>
       </div>
-      <div className='th-out'>
+      <div className='th-out mt-3'>
         <pre className='th-figlet' aria-hidden='true'>
           {FIGLET}
           <b>.org</b>

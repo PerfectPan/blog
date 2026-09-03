@@ -20,14 +20,14 @@ export function TerminalLoginPage() {
 
   if (sessionData?.user?.id || isSessionPending) {
     return (
-      <Page>
+      <Page className='th-auth'>
         <p className='th-comment'># checking session…</p>
       </Page>
     );
   }
 
   return (
-    <Page>
+    <Page className='th-auth'>
       <div className='th-prompt'>
         <span className='th-prompt-u'>guest</span>
         <span className='th-prompt-at'>@</span>
@@ -143,14 +143,14 @@ export function TerminalSignupPage() {
 
   if (sessionData?.user?.id || isSessionPending) {
     return (
-      <Page>
+      <Page className='th-auth'>
         <p className='th-comment'># checking session…</p>
       </Page>
     );
   }
 
   return (
-    <Page>
+    <Page className='th-auth'>
       <div className='th-prompt'>
         <span className='th-prompt-u'>guest</span>
         <span className='th-prompt-at'>@</span>
@@ -274,7 +274,7 @@ export function TerminalUnlockPage({
         : undefined;
 
   return (
-    <Page>
+    <Page className='th-auth'>
       <div className='th-prompt'>
         <span className='th-prompt-u'>guest</span>
         <span className='th-prompt-at'>@</span>

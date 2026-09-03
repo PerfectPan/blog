@@ -425,7 +425,9 @@ a.th-cmd:hover {
   color: var(--t-amber);
 }
 .th-out {
-  margin: 4px 0;
+  /* 只管 margin-bottom:自定义规则在 Tailwind utilities 之后,若在这里写
+     margin 简写/top,会永远压过元素上的 mt-2/mt-4 等间距工具类 */
+  margin-bottom: 4px;
 }
 .th-comment {
   color: var(--t-faint);
@@ -490,12 +492,14 @@ a.th-cmd:hover {
 .th-btn {
   font-family: var(--t-mono);
   font-size: 13.5px;
+  /* 控件显式收紧行高:继承正文 1.75 会把按钮撑到 44px 高,视觉笨重 */
+  line-height: 1.4;
   cursor: pointer;
   background: var(--t-panel);
   color: var(--t-text);
   border: 1px solid var(--t-line);
   border-radius: 6px;
-  padding: 9px 18px;
+  padding: 7px 14px;
   transition:
     border-color 0.12s,
     color 0.12s;
@@ -517,14 +521,20 @@ a.th-cmd:hover {
   color: #171106;
 }
 
+/* ---------- buttons / forms ---------- */
+/* 表单页(登录/注册/解锁)整体字号比正文低一档:表单是聚焦场景,文字应该更安静 */
+.th-auth {
+  font-size: 13px;
+}
+
 .th-field {
   margin: 14px 0;
-  max-width: 460px;
+  max-width: 420px;
 }
 .th-field label {
   display: block;
   color: var(--t-dim);
-  font-size: 13px;
+  font-size: 12.5px;
   margin-bottom: 5px;
 }
 .th-field label::before {
@@ -533,12 +543,13 @@ a.th-cmd:hover {
 }
 .th-input {
   font-family: var(--t-mono);
-  font-size: 14px;
+  font-size: 13.5px;
+  line-height: 1.4;
   color: var(--t-text);
   background: var(--t-panel);
   border: 1px solid var(--t-line);
   border-radius: 6px;
-  padding: 9px 12px;
+  padding: 8px 10px;
   width: 100%;
 }
 .th-input::placeholder {
