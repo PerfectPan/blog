@@ -514,7 +514,7 @@ a.th-cmd:hover {
   text-decoration: none;
 }
 @media (max-width: 480px) {
-  .th-tools > :not(.th-tools-toggle):not(.th-user-chip) {
+  .th-tools > :not(.th-tools-toggle):not(.th-user-chip):not(.th-dark-btn) {
     display: none;
   }
   .th-tools-toggle {
@@ -786,7 +786,7 @@ a.th-ls-row:hover {
 .th-proj-name {
   font-size: 15px;
   font-weight: 600;
-  color: var(--t-ink);
+  color: var(--t-text);
 }
 .th-proj-links {
   display: flex;
@@ -1221,9 +1221,6 @@ html[data-theme="terminal"] .md .th-pre code {
      34.5 = 字符画最长行字符数 × mono 字符宽比(0.6em) */
   .th-figlet {
     font-size: min(11px, calc((100vw - 32px) / 34.5));
-  }
-  .th-tool-btn > span {
-    display: none;
   }
   .th-page {
     padding: 20px 14px 40px;

@@ -23,7 +23,7 @@ export function DarkMode() {
     document.documentElement.classList.toggle('dark', isDarkMode);
     document
       .querySelector('meta[name="theme-color"]')
-      ?.setAttribute('content', isDarkMode ? '#0a0f14' : '#f4f2ec');
+      ?.setAttribute('content', isDarkMode ? '#0a0f14' : '#ffffff');
   }, [isDarkMode]);
 
   const onTrigger = () => {
@@ -93,7 +93,7 @@ export function DarkMode() {
       type='button'
       ref={ref}
       aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-      className='th-tool-btn'
+      className='th-tool-btn th-dark-btn'
       onClick={onTrigger}
     >
       {isDarkMode ? <Moon size={15} /> : <Sun size={15} />}

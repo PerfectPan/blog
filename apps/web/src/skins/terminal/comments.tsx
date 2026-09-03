@@ -92,7 +92,7 @@ function Composer({
       <div className='flex items-center justify-between gap-2'>
         <span className='th-cmt-hint'>
           {remaining < 200 ? `${remaining} 字剩余` : '支持 Markdown'}
-          {error ? <span className='th-err ml-2 inline'>{error}</span> : null}
+          {error ? <span className='th-err inline'>{error}</span> : null}
         </span>
         <button
           type='submit'

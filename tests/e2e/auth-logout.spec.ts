@@ -21,6 +21,12 @@ test('signup then logout returns to guest header state', async ({ page }) => {
 
   await page.getByTestId('nav-logout').click();
 
+  // The terminal theme asks for confirmation before signing out.
+  await page
+    .getByRole('dialog')
+    .getByRole('button', { name: 'logout' })
+    .click();
+
   await page.waitForURL('**/blog');
   await expect(page.getByTestId('nav-login')).toBeVisible();
   await expect(page.getByTestId('nav-logout')).toHaveCount(0);

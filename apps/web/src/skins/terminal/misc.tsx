@@ -4,7 +4,7 @@ import { Page } from './page.js';
 export function TerminalNotFound() {
   return (
     <Page>
-      <div className='nf'>
+      <div>
         <div className='th-prompt'>
           <span className='th-prompt-u'>guest</span>
           <span className='th-prompt-at'>@</span>

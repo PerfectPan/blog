@@ -119,7 +119,9 @@ export function TerminalLoginPage() {
       </form>
       <p className='th-out mt-4'>
         <span className='th-comment'># 还没有账号？</span>{' '}
-        <Link to='/signup'>signup</Link>
+        <Link to='/signup' className='th-cd'>
+          signup
+        </Link>
       </p>
     </Page>
   );

@@ -56,7 +56,7 @@ export function TerminalHeader() {
       <span className='th-dot th-dot-y' aria-hidden='true' />
       <span className='th-dot th-dot-g' aria-hidden='true' />
       <span className='th-term-title'>
-        <Link to='/' className='th-home-link'>
+        <Link to='/'>
           <b>perfectpan@blog</b>
         </Link>
       </span>
@@ -145,20 +145,9 @@ export function TerminalHeader() {
         </button>
       </div>
       {toolsOpen ? (
-        // Flat text sheet under the bar; any action inside closes it.
-        <div
-          role='toolbar'
-          aria-label='Site tools'
-          className='th-tools-sheet'
-          onClick={() => {
-            setToolsOpen(false);
-          }}
-          onKeyDown={(event) => {
-            if (event.key === 'Escape') {
-              setToolsOpen(false);
-            }
-          }}
-        >
+        // Flat text sheet under the bar; every item closes it as its action
+        // (the window-level Escape listener covers Esc as well).
+        <div className='th-tools-sheet'>
           {sessionUser ? (
             <button
               type='button'
@@ -171,10 +160,20 @@ export function TerminalHeader() {
             </button>
           ) : (
             <>
-              <Link to='/login'>
+              <Link
+                to='/login'
+                onClick={() => {
+                  setToolsOpen(false);
+                }}
+              >
                 <UserRound size={14} aria-hidden='true' /> login
               </Link>
-              <Link to='/signup'>
+              <Link
+                to='/signup'
+                onClick={() => {
+                  setToolsOpen(false);
+                }}
+              >
                 <UserRoundPlus size={14} aria-hidden='true' /> signup
               </Link>
             </>
@@ -192,10 +191,20 @@ export function TerminalHeader() {
             href='https://github.com/PerfectPan'
             target='_blank'
             rel='noreferrer'
+            onClick={() => {
+              setToolsOpen(false);
+            }}
           >
             <Github size={14} aria-hidden='true' /> github
           </a>
-          <a href='/rss.xml' target='_blank' rel='noreferrer'>
+          <a
+            href='/rss.xml'
+            target='_blank'
+            rel='noreferrer'
+            onClick={() => {
+              setToolsOpen(false);
+            }}
+          >
             <Rss size={14} aria-hidden='true' /> rss
           </a>
         </div>
