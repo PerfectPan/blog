@@ -69,17 +69,17 @@ export function TerminalHeader() {
             aria-label='Logout'
           >
             <LogOut size={15} aria-hidden='true' />
-            <span className='hidden sm:inline'>logout</span>
+            <span className='hidden md:inline'>logout</span>
           </Link>
         ) : (
           <>
             <Link to='/login' data-testid='nav-login' className='th-tool-btn'>
               <UserRound size={15} aria-hidden='true' />
-              <span className='hidden sm:inline'>login</span>
+              <span className='hidden md:inline'>login</span>
             </Link>
             <Link to='/signup' data-testid='nav-signup' className='th-tool-btn'>
               <UserRoundPlus size={15} aria-hidden='true' />
-              <span className='hidden sm:inline'>signup</span>
+              <span className='hidden md:inline'>signup</span>
             </Link>
           </>
         )}
@@ -91,7 +91,7 @@ export function TerminalHeader() {
           className='th-tool-btn'
         >
           <Search size={15} aria-hidden='true' />
-          <span className='hidden sm:inline'>grep</span>
+          <span className='hidden md:inline'>grep</span>
         </button>
         <a
           href='https://github.com/PerfectPan'
@@ -101,7 +101,7 @@ export function TerminalHeader() {
           className='th-tool-btn'
         >
           <Github size={15} aria-hidden='true' />
-          <span className='hidden sm:inline'>github</span>
+          <span className='hidden md:inline'>github</span>
         </a>
         <a
           href='/rss.xml'
@@ -111,7 +111,7 @@ export function TerminalHeader() {
           className='th-tool-btn'
         >
           <Rss size={15} aria-hidden='true' />
-          <span className='hidden sm:inline'>rss</span>
+          <span className='hidden md:inline'>rss</span>
         </a>
       </div>
     </header>

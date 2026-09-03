@@ -499,15 +499,15 @@ a.th-cmd:hover {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* 窄屏下邮箱分档截断,给图标按钮群让位 */
-@media (max-width: 640px) {
+/* 窄屏下只显示用户名部分(截断域名中段很难看),长用户名再省略;
+   768 以下与按钮图标化同档进入紧凑模式 */
+@media (max-width: 767px) {
+  .th-user-chip .at,
+  .th-user-chip .h {
+    display: none;
+  }
   .th-user-email {
     max-width: 12ch;
-  }
-}
-@media (max-width: 430px) {
-  .th-user-email {
-    max-width: 9ch;
   }
 }
 .th-user-chip .u {
