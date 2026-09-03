@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import {
   Github,
   LogOut,
@@ -7,6 +7,8 @@ import {
   UserRound,
   UserRoundPlus,
 } from 'lucide-react';
+import { useState } from 'react';
+import { ConfirmDialog } from '../../components/confirm-dialog.js';
 import { DarkMode } from '../../components/dark-mode.js';
 import { searchPalette } from '../../components/search-palette-store.js';
 import { authClient } from '../../lib/auth-client.js';
@@ -27,6 +29,8 @@ function getRoleLabel(role?: string | null): string {
 export function TerminalHeader() {
   const { data: sessionData } = authClient.useSession();
   const sessionUser = sessionData?.user ?? null;
+  const navigate = useNavigate();
+  const [logoutOpen, setLogoutOpen] = useState(false);
 
   return (
     <header className='th-titlebar'>
@@ -57,9 +61,8 @@ export function TerminalHeader() {
             className='th-tool-btn'
             aria-label='Logout'
             onClick={(event) => {
-              if (!window.confirm('确定要退出登录吗？')) {
-                event.preventDefault();
-              }
+              event.preventDefault();
+              setLogoutOpen(true);
             }}
           >
             <LogOut size={15} aria-hidden='true' />
@@ -108,6 +111,17 @@ export function TerminalHeader() {
           <span className='hidden md:inline'>rss</span>
         </a>
       </div>
+      <ConfirmDialog
+        open={logoutOpen}
+        onOpenChange={setLogoutOpen}
+        command='logout'
+        description='确定要退出登录吗？退出后需要重新登录。'
+        confirmLabel='logout'
+        onConfirm={() => {
+          setLogoutOpen(false);
+          navigate({ to: '/logout' });
+        }}
+      />
     </header>
   );
 }

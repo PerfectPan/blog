@@ -1011,6 +1011,29 @@ html[data-theme="terminal"] .md .th-pre code {
 /* ---------- terminal search palette (grep) ---------- */
 /* Scoped reskin of the shadcn Dialog + cmdk palette: drop from the top like a
    terminal window, mono throughout, `~ %` prompt instead of a magnifier. */
+/* ---------- confirm dialog(shadcn Dialog 的终端皮肤化,同 th-pal) ---------- */
+.th-confirm {
+  max-width: min(440px, calc(100vw - 32px));
+  border: 1px solid var(--t-line);
+  border-radius: 10px;
+  background: var(--t-term);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+  font-family: var(--t-mono);
+  gap: 14px;
+  text-align: left;
+}
+.th-confirm > button {
+  display: none; /* 终端用 esc/取消关闭,不显示 ✕ */
+}
+.th-confirm-prompt {
+  color: var(--t-amber);
+}
+.th-confirm-desc {
+  color: var(--t-dim);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
 .th-pal {
   top: 14vh;
   transform: none;
