@@ -29,7 +29,6 @@ export function TerminalFooter() {
           </Link>
         ) : null}
       </nav>
-      <span className='th-tmux-center'>⌘K = grep</span>
       <span className='th-tmux-right'>
         <span>perfectpan.org</span>
         <span>© {new Date().getFullYear()}</span>
