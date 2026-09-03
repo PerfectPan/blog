@@ -41,6 +41,9 @@ importers:
       '@radix-ui/react-dialog':
         specifier: ^1.1.20
         version: 1.1.20(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@remotion/player':
+        specifier: ^4.0.520
+        version: 4.0.520(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@shikijs/rehype':
         specifier: ^3.1.0
         version: 3.23.0
@@ -95,6 +98,9 @@ importers:
       remark-math:
         specifier: ^6.0.0
         version: 6.0.0
+      remotion:
+        specifier: ^4.0.520
+        version: 4.0.520(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       shiki:
         specifier: ^3.1.0
         version: 3.23.0
@@ -983,6 +989,12 @@ packages:
   '@react-grab/cli@0.1.50':
     resolution: {integrity: sha512-Px/Hwhhyk2PubCA4ZaRFsfvwxhbxXsetJyvqC6aFFi8WhJhA+oVC33aTzuAeWmM3fhb4/8ce8YsHXI1d6ChcKg==}
     hasBin: true
+
+  '@remotion/player@4.0.520':
+    resolution: {integrity: sha512-EicD4D0anUAT2SWmx8otX1WiUpOanO6MQlt3fsiwo2hxjWSZCytJWiLrSAp2IO2Wvzi1W9ZQw/bAIk2gPwz/ig==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
 
   '@rolldown/pluginutils@1.0.0-rc.3':
     resolution: {integrity: sha512-eybk3TjzzzV97Dlj5c+XrBFW57eTNhzod66y9HrBlzJ6NsCrWCp/2kaPS3K9wJmurBC0Tdw4yPjXKZqlznim3Q==}
@@ -2568,6 +2580,12 @@ packages:
   remark-stringify@11.0.0:
     resolution: {integrity: sha512-1OSmLd3awB/t8qdoEOMazZkNsfVTeY4fTsgzcQFdXNq8ToTN4ZGwrMnlda4K6smTFKD+GRV6O48i6Z4iKgPPpw==}
 
+  remotion@4.0.520:
+    resolution: {integrity: sha512-dORllOm7QdlHW/ZHNNWNXfQnO7pk9lwWIlSJ8p9V1URvjI75+pX+pTbrs6tVyRz6KQIXwI8MaeE22pC5U4EXIw==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+
   resolve@1.22.12:
     resolution: {integrity: sha512-TyeJ1zif53BPfHootBGwPRYT1RUt6oGWsaQr8UyZW/eAm9bKoijtvruSDEmZHm92CwS9nj7/fWttqPCgzep8CA==}
     engines: {node: '>= 0.4'}
@@ -3737,6 +3755,12 @@ snapshots:
       picocolors: 1.1.1
       prompts: 2.4.2
       tinyexec: 1.3.0
+
+  '@remotion/player@4.0.520(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+    dependencies:
+      react: 19.2.7
+      react-dom: 19.2.7(react@19.2.7)
+      remotion: 4.0.520(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
 
   '@rolldown/pluginutils@1.0.0-rc.3': {}
 
@@ -5553,6 +5577,11 @@ snapshots:
       '@types/mdast': 4.0.4
       mdast-util-to-markdown: 2.1.2
       unified: 11.0.5
+
+  remotion@4.0.520(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
+    dependencies:
+      react: 19.2.7
+      react-dom: 19.2.7(react@19.2.7)
 
   resolve@1.22.12:
     dependencies:

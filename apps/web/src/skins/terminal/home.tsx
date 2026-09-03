@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router';
+import { FigletPlayer } from './figlet-player.js';
 import { Page } from './page.js';
 
 const FIGLET = `                  __           _                     
@@ -19,10 +20,7 @@ export function TerminalHomePage() {
         <span className='th-cmd'>whoami --verbose</span>
       </div>
       <div className='th-out mt-3'>
-        <pre className='th-figlet' aria-hidden='true'>
-          {FIGLET}
-          <b>.org</b>
-        </pre>
+        <FigletPlayer art={FIGLET} suffix='.org' />
       </div>
       <div className='th-home-links'>
         <Link to='/blog'>
