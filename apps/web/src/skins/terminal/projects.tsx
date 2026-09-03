@@ -44,16 +44,6 @@ export function TerminalProjectsPage() {
           </div>
         ))}
       </div>
-
-      <div className='th-prompt mt-6'>
-        <span className='th-prompt-u'>perfectpan</span>
-        <span className='th-prompt-at'>@</span>
-        <span className='th-prompt-h'>blog</span>{' '}
-        <span className='th-prompt-p'>~ %</span>{' '}
-        <Link to='/' className='th-cmd th-cmd-dim'>
-          cd ..
-        </Link>
-      </div>
     </Page>
   );
 }

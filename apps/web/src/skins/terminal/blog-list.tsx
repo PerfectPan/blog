@@ -124,15 +124,6 @@ export function TerminalBlogList({
       ) : null}
 
       <hr className='th-hr' />
-      <div className='th-prompt'>
-        <span className='th-prompt-u'>perfectpan</span>
-        <span className='th-prompt-at'>@</span>
-        <span className='th-prompt-h'>blog</span>{' '}
-        <span className='th-prompt-p'>~/posts %</span>{' '}
-        <Link to='/' className='th-cmd th-cmd-dim'>
-          cd ..
-        </Link>
-      </div>
     </Page>
   );
 }
