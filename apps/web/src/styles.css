@@ -681,22 +681,49 @@ a.th-ls-row:hover {
 }
 
 /* projects ls rows: star / project+desc / stack / links */
-.th-ls-proj {
-  display: grid;
-  grid-template-columns: 1fr 18ch auto;
-  gap: 0 16px;
-  padding: 8px;
-  border-radius: 4px;
-  align-items: baseline;
+.th-proj-list {
+  margin-top: 12px;
 }
-@media (max-width: 720px) {
-  .th-ls-proj {
-    grid-template-columns: 1fr;
-  }
-  .th-ls-proj .th-ls-tags,
-  .th-ls-proj .th-ls-link {
-    display: none;
-  }
+.th-proj-card {
+  padding: 16px 0;
+  border-bottom: 1px dashed var(--t-line);
+}
+.th-proj-card:last-child {
+  border-bottom: none;
+}
+.th-proj-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.th-proj-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--t-ink);
+}
+.th-proj-links {
+  display: flex;
+  gap: 12px;
+  flex: none;
+}
+.th-proj-links a {
+  color: var(--t-amber);
+  font-size: 13px;
+}
+.th-proj-links a:hover {
+  text-decoration: underline;
+}
+.th-proj-desc {
+  margin-top: 4px;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--t-dim);
+}
+.th-proj-tags {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--t-faint);
 }
 
 /* ---------- article ---------- */

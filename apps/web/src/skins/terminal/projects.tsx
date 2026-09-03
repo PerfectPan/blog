@@ -20,33 +20,27 @@ export function TerminalProjectsPage() {
         <span className='th-prompt-u'>perfectpan</span>
         <span className='th-prompt-at'>@</span>
         <span className='th-prompt-h'>blog</span>{' '}
-        <span className='th-prompt-p'>~ %</span>{' '}
-        <span className='th-cmd'>ls --group-directories-first ~/projects</span>
+        <span className='th-prompt-p'>~/projects</span>
       </div>
 
-      <div className='th-ls mt-3'>
+      <div className='th-proj-list'>
         {projects.map((project) => (
-          <div key={project.name} className='th-ls-proj'>
-            <span>
-              <span className='th-ls-title'>{project.name}</span>
-              <span className='th-comment'> — {project.description}</span>
-            </span>
-            <span className='th-ls-tags text-right'>
-              {project.tags.join(' · ')}
-            </span>
-            <span className='th-ls-link'>
-              <a href={project.repo} target='_blank' rel='noreferrer'>
-                code ↗
-              </a>
-              {project.demo ? (
-                <>
-                  {' '}
+          <div key={project.name} className='th-proj-card'>
+            <div className='th-proj-top'>
+              <span className='th-proj-name'>{project.name}</span>
+              <span className='th-proj-links'>
+                <a href={project.repo} target='_blank' rel='noreferrer'>
+                  code ↗
+                </a>
+                {project.demo ? (
                   <a href={project.demo} target='_blank' rel='noreferrer'>
                     demo ↗
                   </a>
-                </>
-              ) : null}
-            </span>
+                ) : null}
+              </span>
+            </div>
+            <p className='th-proj-desc'>{project.description}</p>
+            <div className='th-proj-tags'>{project.tags.join(' · ')}</div>
           </div>
         ))}
       </div>
