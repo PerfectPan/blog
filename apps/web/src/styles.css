@@ -511,8 +511,8 @@ a.th-cmd:hover {
   font-weight: 700;
 }
 .th-btn-primary:hover {
-  background: #f0c268;
-  color: #171106;
+  /* 与模式无关的轻微压暗:浅色/暗色的琥珀底都适用 */
+  filter: brightness(0.92);
 }
 
 .th-field {
