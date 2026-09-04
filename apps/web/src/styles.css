@@ -684,6 +684,10 @@ a.th-cmd:hover {
   content: "▸ ";
   color: var(--t-amber);
 }
+.th-panel .th-input {
+  /* 同上:面板内控件的底色不能与面板同色 */
+  background: var(--t-bg);
+}
 .th-btn-danger {
   color: var(--t-red);
   border-color: color-mix(in srgb, var(--t-red) 45%, transparent);
@@ -752,7 +756,8 @@ a.th-cmd:hover {
   gap: 6px;
   border: 1px solid var(--t-line);
   border-radius: 6px;
-  background: var(--t-panel);
+  /* 面板内的控件用页面底色,和 --t-panel 面板拉开层次 */
+  background: var(--t-bg);
   padding: 6px 10px;
   cursor: text;
 }
