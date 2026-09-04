@@ -99,6 +99,36 @@ export const listAdminPostsServerFn = createServerFn({ method: 'GET' }).handler(
   },
 );
 
+/** Distinct tags across all posts, most-used first (for tag suggestions). */
+export const listPostTagsServerFn = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    await requireAdmin();
+    const result = await getD1()
+      .prepare('SELECT tags FROM "post"')
+      .all<{ tags: string }>();
+    const counts = new Map<string, number>();
+    for (const row of result.results ?? []) {
+      try {
+        const parsed = JSON.parse(row.tags) as unknown;
+        if (Array.isArray(parsed)) {
+          for (const tag of parsed.map(String)) {
+            if (tag) {
+              counts.set(tag, (counts.get(tag) ?? 0) + 1);
+            }
+          }
+        }
+      } catch {
+        // Malformed tags JSON on one row should not break the listing.
+      }
+    }
+    return {
+      tags: [...counts.entries()]
+        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+        .map(([tag]) => tag),
+    };
+  },
+);
+
 export const getAdminPostServerFn = createServerFn({ method: 'GET' })
   .inputValidator(z.object({ slug: z.string().min(1) }))
   .handler(async ({ data }) => {

@@ -163,8 +163,8 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
   }
 
   return (
-    <div className='overflow-hidden rounded-md border border-slate-300 dark:border-slate-700'>
-      <div className='flex flex-wrap items-center gap-1 border-b border-slate-200 bg-black/[0.02] px-2 py-1.5 dark:border-slate-700 dark:bg-white/[0.03]'>
+    <div className='overflow-hidden rounded-md border border-[color:var(--t-line)] bg-[color:var(--t-panel)]'>
+      <div className='flex flex-wrap items-center gap-1 border-b border-[color:var(--t-line)] px-2 py-1.5'>
         <ToolButton label='加粗' onClick={() => wrap('**', '**')}>
           <Bold size={16} />
         </ToolButton>
@@ -205,7 +205,7 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
           <ImageIcon size={16} />
         </ToolButton>
         {uploading ? (
-          <span className='ml-1 inline-flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400'>
+          <span className='ml-1 inline-flex items-center gap-1 text-xs text-[color:var(--t-dim)]'>
             <Loader2 size={12} className='animate-spin' />
             上传中…
           </span>
@@ -265,9 +265,9 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
               }
             }}
             spellCheck={false}
-            className={`h-full resize-none bg-white px-3 py-3 font-mono text-sm leading-6 outline-none dark:bg-wash-dark dark:text-slate-100 ${
+            className={`h-full resize-none bg-[color:var(--t-bg)] px-3 py-3 font-mono text-sm leading-6 text-[color:var(--t-text)] outline-none ${
               mode === 'split'
-                ? 'border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-slate-700'
+                ? 'border-b border-[color:var(--t-line)] lg:border-b-0 lg:border-r'
                 : ''
             }`}
             placeholder='在这里写下 Markdown 正文…'
@@ -275,7 +275,7 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
         ) : null}
         {mode !== 'write' ? (
           <div
-            className={`h-full overflow-auto bg-white px-4 py-3 text-sm leading-7 dark:bg-wash-dark ${
+            className={`h-full overflow-auto bg-[color:var(--t-bg)] px-4 py-3 text-sm leading-7 ${
               mode === 'split' ? 'hidden lg:block' : ''
             }`}
           >
@@ -306,7 +306,7 @@ function ToolButton({
       title={label}
       aria-label={label}
       onClick={onClick}
-      className='flex h-7 w-7 items-center justify-center rounded text-slate-600 transition-colors hover:bg-black/[0.06] dark:text-slate-300 dark:hover:bg-white/10'
+      className='flex h-7 w-7 items-center justify-center rounded text-[color:var(--t-dim)] transition-colors hover:text-[color:var(--t-amber)]'
     >
       {children}
     </button>
@@ -314,7 +314,7 @@ function ToolButton({
 }
 
 function Divider() {
-  return <span className='mx-1 h-5 w-px bg-slate-200 dark:bg-slate-600' />;
+  return <span className='mx-1 h-5 w-px bg-[color:var(--t-line)]' />;
 }
 
 function ModeButton({
@@ -332,8 +332,8 @@ function ModeButton({
       onClick={onClick}
       className={`rounded px-2 py-1 text-xs font-medium transition-colors ${
         active
-          ? 'bg-black text-white dark:bg-white dark:text-neutral-900'
-          : 'text-slate-600 hover:bg-black/[0.06] dark:text-slate-300 dark:hover:bg-white/10'
+          ? 'bg-[color:var(--t-amber)] text-[color:var(--t-amber-ink)]'
+          : 'text-[color:var(--t-dim)] hover:text-[color:var(--t-amber)]'
       }`}
     >
       {children}

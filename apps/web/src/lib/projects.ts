@@ -21,15 +21,6 @@ export type Project = {
  */
 export const PROJECTS: Project[] = [
   {
-    name: 'blog',
-    description:
-      '本博客 —— TanStack Start 前台，全量部署在 Cloudflare Workers + D1 上。',
-    tags: ['TanStack Start', 'Cloudflare', 'TypeScript'],
-    repo: 'https://github.com/PerfectPan/blog',
-    demo: 'https://perfectpan.org',
-    featured: true,
-  },
-  {
     name: 'logseq-plugin-code-formatter',
     description:
       'Logseq 插件 —— 用 Prettier 一键格式化代码块，支持 JS / TS / HTML / CSS / Markdown / JSON。',
