@@ -15,17 +15,14 @@ export type FigletMetrics = {
 };
 
 /**
- * The home hero figlet. The static art is ALWAYS rendered (server, pre-
- * hydration, and as the base layer afterwards); once mounted — and only
- * when the user is OK with motion — the Remotion player is layered on top
- * of it with a 1:1 composition box and plays the reveal once. If the player
- * is slow to load or rAF-throttled, the static art simply stays visible:
- * the hero can never go blank. Clicking the hero replays the animation.
+ * The home hero figlet. Renders the identical static art on the server and
+ * before hydration; after mount (and only when the user is OK with motion)
+ * measures the static <pre> and swaps in the Remotion player with a 1:1
+ * composition box, so the swap is pixel-stable at any viewport width.
  */
 export function FigletPlayer({ art, suffix }: { art: string; suffix: string }) {
   const preRef = useRef<HTMLPreElement>(null);
   const [metrics, setMetrics] = useState<FigletMetrics | null>(null);
-  const [runId, setRunId] = useState(0);
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -45,36 +42,20 @@ export function FigletPlayer({ art, suffix }: { art: string; suffix: string }) {
     });
   }, []);
 
+  const staticArt = (
+    <pre ref={preRef} className='th-figlet' aria-hidden='true'>
+      {art}
+      <b>{suffix}</b>
+    </pre>
+  );
+
+  if (!metrics) {
+    return staticArt;
+  }
+
   return (
-    // The static art stays in flow (owns the height, zero layout shift);
-    // the player is a transparent overlay that draws the animated lines
-    // over the identical static glyphs.
-    <div
-      style={{ position: 'relative', cursor: metrics ? 'pointer' : undefined }}
-      title={metrics ? '点击重播动画' : undefined}
-      aria-hidden='true'
-      onClick={
-        metrics
-          ? () => {
-              setRunId((n) => n + 1);
-            }
-          : undefined
-      }
-    >
-      <pre ref={preRef} className='th-figlet'>
-        {art}
-        <b>{suffix}</b>
-      </pre>
-      {metrics ? (
-        <Suspense fallback={null}>
-          <AnimatedFiglet
-            key={runId}
-            art={art}
-            suffix={suffix}
-            metrics={metrics}
-          />
-        </Suspense>
-      ) : null}
-    </div>
+    <Suspense fallback={staticArt}>
+      <AnimatedFiglet art={art} suffix={suffix} metrics={metrics} />
+    </Suspense>
   );
 }
