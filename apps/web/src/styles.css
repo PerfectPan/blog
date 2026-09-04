@@ -656,6 +656,16 @@ a.th-cmd:hover {
   border-color: var(--t-amber);
   box-shadow: 0 0 0 2px rgba(233, 180, 76, 0.15);
 }
+/* 原生 select 去系统外观,自绘箭头:与右侧留出间距,中灰箭头双主题可读 */
+select.th-input {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237a7f8a' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+}
+
 .th-err {
   color: var(--t-red);
   margin: 10px 0;
@@ -685,8 +695,9 @@ a.th-cmd:hover {
   color: var(--t-amber);
 }
 .th-panel .th-input {
-  /* 同上:面板内控件的底色不能与面板同色 */
-  background: var(--t-bg);
+  /* 同上:面板内控件的底色不能与面板同色。
+     用 background-color 而非简写,保住 select 自绘箭头的 background-image */
+  background-color: var(--t-bg);
 }
 .th-btn-danger {
   color: var(--t-red);
