@@ -718,10 +718,6 @@ a.th-cmd:hover {
 .th-ls--vis .th-ls-row {
   grid-template-columns: 7ch 8ch 1fr auto;
 }
-.th-ls-head {
-  color: var(--t-faint);
-  font-size: 12.5px;
-}
 a.th-ls-row {
   color: var(--t-text);
 }
@@ -780,7 +776,6 @@ a.th-ls-row:hover {
   .th-ls-row {
     grid-template-columns: 7ch 1fr;
   }
-  .th-ls-head,
   .th-ls-vis,
   .th-ls-tags {
     display: none;

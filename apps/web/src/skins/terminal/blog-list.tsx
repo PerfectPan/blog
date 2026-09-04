@@ -62,12 +62,6 @@ export function TerminalBlogList({
       ) : null}
 
       <div className={showVisibility ? 'th-ls th-ls--vis' : 'th-ls'}>
-        <div className='th-ls-row th-ls-head'>
-          <span>date</span>
-          {showVisibility ? <span>vis</span> : null}
-          <span>title</span>
-          <span className='text-right'>tags</span>
-        </div>
         {blogGroups.map((group) => (
           <div key={group.year}>
             <div className='th-ls-row'>

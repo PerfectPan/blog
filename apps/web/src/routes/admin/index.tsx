@@ -59,10 +59,6 @@ function AdminListPage() {
         </div>
       ) : (
         <div className='overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700'>
-          <div className='hidden grid-cols-[1fr_auto] items-center gap-4 border-b border-slate-200 bg-black/[0.02] px-4 py-2 text-xs font-semibold tracking-wide opacity-60 sm:grid dark:border-slate-700 dark:bg-white/[0.03]'>
-            <span>标题 / slug</span>
-            <span>属性</span>
-          </div>
           <ul className='divide-y divide-slate-200 dark:divide-slate-700'>
             {posts.map((post: AdminPost) => (
               <li
