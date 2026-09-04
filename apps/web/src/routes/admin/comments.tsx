@@ -2,6 +2,7 @@ import type { Comment, CommentStatus } from '@blog/shared';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useMemo, useState } from 'react';
 import { CommentMarkdown } from '../../components/comment-markdown.js';
+import { ConfirmDialog } from '../../components/confirm-dialog.js';
 import {
   deleteCommentServerFn,
   listCommentsServerFn,
@@ -27,10 +28,9 @@ const STATUS_LABEL: Record<StatusFilter, string> = {
 };
 
 const STATUS_BADGE: Record<CommentStatus, string> = {
-  visible:
-    'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
-  hidden: 'bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-300',
-  spam: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
+  visible: 'th-badge th-badge-green',
+  hidden: 'th-badge th-badge-faint',
+  spam: 'th-badge th-badge-red',
 };
 
 function AdminCommentsPage() {
@@ -40,6 +40,7 @@ function AdminCommentsPage() {
   const [slugQuery, setSlugQuery] = useState('');
   const [busy, setBusy] = useState<Set<string>>(() => new Set());
   const [error, setError] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const needle = slugQuery.trim().toLowerCase();
@@ -76,9 +77,6 @@ function AdminCommentsPage() {
   }
 
   async function remove(id: string) {
-    if (!window.confirm('永久删除这条评论？此操作不可恢复。')) {
-      return;
-    }
     setError(null);
     setBusy((prev) => new Set(prev).add(id));
     try {
@@ -97,13 +95,14 @@ function AdminCommentsPage() {
 
   return (
     <div className='mx-auto w-full self-start max-w-5xl px-4 pt-8 sm:px-6'>
-      <Link
-        to='/admin'
-        className='mb-4 inline-block text-sm opacity-60 hover:opacity-100'
-      >
+      <div className='th-prompt mb-2'>
+        <span className='th-prompt-p'>~ %</span>{' '}
+        <span className='th-cmd'>comments --moderate</span>
+      </div>
+      <Link to='/admin' className='th-cd mb-4 inline-block text-sm'>
         ← 返回管理
       </Link>
-      <h1 className='mb-4 text-2xl font-black'>评论审核</h1>
+      <h1 className='th-admin-title mb-4'>评论审核</h1>
 
       <div className='mb-4 flex flex-wrap items-center gap-2'>
         {STATUS_FILTERS.map((filter) => (
@@ -111,10 +110,8 @@ function AdminCommentsPage() {
             key={filter}
             type='button'
             onClick={() => setStatusFilter(filter)}
-            className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors ${
-              statusFilter === filter
-                ? 'bg-black text-white dark:bg-neutral-900'
-                : 'bg-black/[0.04] opacity-70 hover:opacity-100 dark:bg-white/[0.06]'
+            className={`th-btn th-btn-sm ${
+              statusFilter === filter ? 'th-btn-primary' : ''
             }`}
           >
             {STATUS_LABEL[filter]}
@@ -125,29 +122,24 @@ function AdminCommentsPage() {
           value={slugQuery}
           onChange={(event) => setSlugQuery(event.target.value)}
           placeholder='按 slug 筛选…'
-          className='ml-auto w-48 rounded-md border border-zinc-300 bg-transparent px-2 py-1 text-xs outline-none focus:border-zinc-400 dark:border-zinc-600'
+          className='th-input ml-auto w-48 py-1 text-xs'
         />
       </div>
 
-      {error ? <p className='mb-3 text-sm text-red-500'>{error}</p> : null}
+      {error ? <p className='th-err mb-3'>{error}</p> : null}
 
       {filtered.length === 0 ? (
-        <div className='rounded-lg border border-dashed border-slate-300 px-6 py-16 text-center text-sm opacity-70 dark:border-slate-700'>
-          没有符合条件的评论。
+        <div className='th-comment px-6 py-16 text-center'>
+          # 没有符合条件的评论。
         </div>
       ) : (
         <ul className='flex flex-col gap-3'>
           {filtered.map((comment) => (
-            <li
-              key={comment.id}
-              className='rounded-lg border border-slate-200 p-4 dark:border-slate-700'
-            >
+            <li key={comment.id} className='th-panel'>
               <div className='mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs'>
                 <span className='font-semibold'>{comment.author.name}</span>
                 {comment.author.role === 'admin' ? (
-                  <span className='rounded bg-zinc-900 px-1 py-0.5 text-[10px] font-semibold text-white dark:bg-white dark:text-zinc-900'>
-                    Author
-                  </span>
+                  <span className='th-badge th-badge-amber'>AUTHOR</span>
                 ) : null}
                 <span
                   className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${STATUS_BADGE[comment.status]}`}
@@ -182,7 +174,7 @@ function AdminCommentsPage() {
                     type='button'
                     disabled={busy.has(comment.id)}
                     onClick={() => setStatus(comment.id, 'spam')}
-                    className='text-amber-600/80 hover:text-amber-600 disabled:opacity-40'
+                    className='th-cd disabled:opacity-40'
                   >
                     标垃圾
                   </button>
@@ -192,7 +184,7 @@ function AdminCommentsPage() {
                     type='button'
                     disabled={busy.has(comment.id)}
                     onClick={() => setStatus(comment.id, 'visible')}
-                    className='text-emerald-600/80 hover:text-emerald-600 disabled:opacity-40'
+                    className='th-cd disabled:opacity-40'
                   >
                     恢复
                   </button>
@@ -200,7 +192,9 @@ function AdminCommentsPage() {
                 <button
                   type='button'
                   disabled={busy.has(comment.id)}
-                  onClick={() => remove(comment.id)}
+                  onClick={() => {
+                    setPendingDelete(comment.id);
+                  }}
                   className='ml-auto text-red-500/70 hover:text-red-500 disabled:opacity-40'
                 >
                   删除
@@ -210,6 +204,25 @@ function AdminCommentsPage() {
           ))}
         </ul>
       )}
+
+      <ConfirmDialog
+        open={pendingDelete != null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingDelete(null);
+          }
+        }}
+        command='rm comment'
+        description='永久删除这条评论？此操作不可恢复。'
+        confirmLabel='delete'
+        onConfirm={() => {
+          const id = pendingDelete;
+          setPendingDelete(null);
+          if (id) {
+            remove(id);
+          }
+        }}
+      />
     </div>
   );
 }

@@ -1,6 +1,9 @@
 import { createFileRoute, Link, notFound } from '@tanstack/react-router';
 import { PostEditor } from '../../components/post-editor.js';
-import { getAdminPostServerFn } from '../../lib/admin-service.js';
+import {
+  getAdminPostServerFn,
+  listPostTagsServerFn,
+} from '../../lib/admin-service.js';
 
 export const Route = createFileRoute('/admin/$slug')({
   head: () => ({ meta: [{ title: 'Admin · 编辑文章' }] }),
@@ -11,25 +14,27 @@ export const Route = createFileRoute('/admin/$slug')({
     if (!post) {
       throw notFound();
     }
-    return { post };
+    const { tags } = await listPostTagsServerFn();
+    return { post, allTags: tags };
   },
   component: EditPostPage,
 });
 
 function EditPostPage() {
-  const { post } = Route.useLoaderData();
+  const { post, allTags } = Route.useLoaderData();
   return (
     <div className='mx-auto w-full self-start max-w-5xl px-4 pt-8 sm:px-6'>
-      <Link
-        to='/admin'
-        className='mb-4 inline-block text-sm opacity-60 hover:opacity-100'
-      >
+      <div className='th-prompt mb-2'>
+        <span className='th-prompt-p'>~ %</span>{' '}
+        <span className='th-cmd'>vi /posts/{post.slug}.md</span>
+      </div>
+      <Link to='/admin' className='th-cd mb-4 inline-block text-sm'>
         ← 返回列表
       </Link>
-      <h1 className='mb-6 truncate text-2xl font-black'>
+      <h1 className='th-admin-title mb-6 truncate'>
         编辑 · {post.title || post.slug}
       </h1>
-      <PostEditor mode='edit' initial={post} />
+      <PostEditor mode='edit' initial={post} allTags={allTags} />
     </div>
   );
 }

@@ -661,6 +661,135 @@ a.th-cmd:hover {
   margin: 10px 0;
   font-size: 13.5px;
 }
+
+/* ---------- admin(后台)终端化:与前台共用色板与节奏 ---------- */
+.th-admin-title {
+  color: var(--t-heading);
+  font-size: 17px;
+  font-weight: 600;
+}
+.th-panel {
+  border: 1px dashed var(--t-line);
+  border-radius: 6px;
+  background: var(--t-panel);
+  padding: 16px;
+}
+.th-flabel {
+  display: block;
+  color: var(--t-dim);
+  font-size: 12.5px;
+  margin-bottom: 5px;
+}
+.th-flabel::before {
+  content: "▸ ";
+  color: var(--t-amber);
+}
+.th-btn-danger {
+  color: var(--t-red);
+  border-color: color-mix(in srgb, var(--t-red) 45%, transparent);
+}
+.th-btn-danger:hover {
+  border-color: var(--t-red);
+  color: var(--t-red);
+  background: color-mix(in srgb, var(--t-red) 10%, transparent);
+}
+.th-btn-sm {
+  padding: 3px 10px;
+  font-size: 12.5px;
+}
+.th-badge {
+  display: inline-block;
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  padding: 0 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.7;
+}
+.th-badge-green {
+  color: var(--t-green);
+}
+.th-badge-cyan {
+  color: var(--t-cyan);
+}
+.th-badge-amber {
+  color: var(--t-amber);
+}
+.th-badge-red {
+  color: var(--t-red);
+}
+.th-badge-faint {
+  color: var(--t-faint);
+}
+.th-admin-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 4px;
+  border-bottom: 1px dashed var(--t-line);
+}
+.th-admin-row:last-child {
+  border-bottom: none;
+}
+.th-admin-row:hover {
+  background: var(--t-sel);
+}
+@media (max-width: 640px) {
+  .th-admin-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+}
+.th-admin-title-link:hover {
+  color: var(--t-amber);
+}
+.th-tagbox {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--t-line);
+  border-radius: 6px;
+  background: var(--t-panel);
+  padding: 6px 10px;
+  cursor: text;
+}
+.th-tagbox:focus-within {
+  border-color: var(--t-amber);
+  box-shadow: 0 0 0 2px rgba(233, 180, 76, 0.15);
+}
+.th-tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--t-line);
+  border-radius: 3px;
+  padding: 1px 7px;
+  font-size: 12px;
+  color: var(--t-amber);
+}
+.th-tag-chip button {
+  color: var(--t-faint);
+}
+.th-tag-chip button:hover {
+  color: var(--t-red);
+}
+.th-tag-suggest {
+  border: 1px dashed var(--t-line);
+  border-radius: 3px;
+  padding: 1px 7px;
+  font-size: 12px;
+  color: var(--t-cyan);
+  background: none;
+  cursor: pointer;
+  font-family: var(--t-mono);
+}
+.th-tag-suggest:hover {
+  color: var(--t-amber);
+  border-color: var(--t-amber);
+}
 .th-err::before {
   content: "✗ ";
 }

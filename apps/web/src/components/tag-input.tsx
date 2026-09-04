@@ -1,20 +1,29 @@
 import { X } from 'lucide-react';
-import { type KeyboardEvent, useRef, useState } from 'react';
+import { type KeyboardEvent, useState } from 'react';
 
 type TagInputProps = {
   value: string[];
   onChange: (tags: string[]) => void;
   placeholder?: string;
+  /** All tags already in use across posts, most-used first. */
+  suggestions?: string[];
 };
 
 /**
  * Chip-style tag editor: type and press Enter/comma (half- or full-width) to
- * add a tag, click × (or Backspace on an empty field) to remove one. The wire
- * format stays a plain string[] — no comma-splitting on submit.
+ * add a tag, click × (or Backspace on an empty field) to remove one. Existing
+ * tags from other posts are offered as one-click suggestions (filtered by the
+ * current draft) so reuse beats retyping. The wire format stays a plain
+ * string[] — no comma-splitting on submit.
  */
-export function TagInput({ value, onChange, placeholder }: TagInputProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
+export function TagInput({
+  value,
+  onChange,
+  placeholder,
+  suggestions = [],
+}: TagInputProps) {
   const [draft, setDraft] = useState('');
+  const [focused, setFocused] = useState(false);
 
   function commit(raw: string) {
     const tag = raw.trim();
@@ -45,48 +54,80 @@ export function TagInput({ value, onChange, placeholder }: TagInputProps) {
     }
   }
 
+  const needle = draft.trim().toLowerCase();
+  const available = suggestions
+    .filter(
+      (tag) =>
+        !value.some((existing) => existing.toLowerCase() === tag.toLowerCase()),
+    )
+    .filter((tag) => !needle || tag.toLowerCase().includes(needle))
+    .slice(0, 12);
+  const showSuggestions = focused && available.length > 0;
+
   return (
-    // biome-ignore lint/a11y/noStaticElementInteractions: click-to-focus convenience; the enclosed <input> is the keyboard-accessible control.
-    <div
-      onMouseDown={(event) => {
-        // Focus the input when pressing anywhere on the field (not on a chip).
-        if (event.target === event.currentTarget) {
-          event.preventDefault();
-          inputRef.current?.focus();
-        }
-      }}
-      className='flex cursor-text flex-wrap items-center gap-1.5 rounded-md border border-slate-300 px-2 py-1.5 transition-colors focus-within:border-black/60 dark:border-slate-700 dark:bg-wash-dark dark:focus-within:border-slate-400'
-    >
-      {value.map((tag) => (
-        <span
-          key={tag}
-          className='inline-flex items-center gap-1 rounded-full bg-black/[0.06] px-2 py-0.5 text-xs font-medium dark:bg-white/10'
-        >
-          {tag}
-          <button
-            type='button'
-            onClick={(event) => {
-              event.stopPropagation();
-              remove(tag);
-            }}
-            className='opacity-50 transition-opacity hover:opacity-100'
-            aria-label={`移除标签 ${tag}`}
-          >
-            <X size={12} />
-          </button>
-        </span>
-      ))}
-      <input
-        ref={inputRef}
-        value={draft}
-        onChange={(event) => setDraft(event.target.value)}
-        onKeyDown={onKeyDown}
-        onBlur={() => commit(draft)}
-        placeholder={
-          value.length === 0 ? (placeholder ?? '输入后回车添加') : ''
-        }
-        className='min-w-[8ch] flex-1 bg-transparent py-0.5 text-sm outline-none placeholder:text-sm placeholder:opacity-40'
-      />
+    <div className='grid gap-2'>
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: click-to-focus convenience; the enclosed <input> is the keyboard-accessible control. */}
+      <div
+        className='th-tagbox'
+        onMouseDown={(event) => {
+          // Focus the input when pressing anywhere on the field (not on a chip).
+          if (event.target === event.currentTarget) {
+            event.preventDefault();
+            event.currentTarget.querySelector('input')?.focus();
+          }
+        }}
+      >
+        {value.map((tag) => (
+          <span key={tag} className='th-tag-chip'>
+            {tag}
+            <button
+              type='button'
+              onClick={() => {
+                remove(tag);
+              }}
+              aria-label={`移除标签 ${tag}`}
+            >
+              <X size={12} />
+            </button>
+          </span>
+        ))}
+        <input
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+          onKeyDown={onKeyDown}
+          onFocus={() => {
+            setFocused(true);
+          }}
+          onBlur={() => {
+            setFocused(false);
+            commit(draft);
+          }}
+          placeholder={
+            value.length === 0 ? (placeholder ?? '输入后回车添加') : ''
+          }
+          className='min-w-[8ch] flex-1 bg-transparent py-0.5 text-sm outline-none placeholder:opacity-40'
+        />
+      </div>
+      {showSuggestions ? (
+        <div className='flex flex-wrap items-center gap-1.5'>
+          {available.map((tag) => (
+            <button
+              key={tag}
+              type='button'
+              className='th-tag-suggest'
+              // preventDefault keeps the input focused (no blur commit).
+              onMouseDown={(event) => {
+                event.preventDefault();
+              }}
+              onClick={() => {
+                commit(tag);
+              }}
+            >
+              + {tag}
+            </button>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

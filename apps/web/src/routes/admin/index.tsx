@@ -12,13 +12,11 @@ export const Route = createFileRoute('/admin/')({
 });
 
 const visibilityStyles: Record<PostVisibility, string> = {
-  public:
-    'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
-  member: 'bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300',
-  vip: 'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300',
-  admin: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
-  password:
-    'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+  public: 'th-badge th-badge-green',
+  member: 'th-badge th-badge-cyan',
+  vip: 'th-badge th-badge-amber',
+  admin: 'th-badge th-badge-red',
+  password: 'th-badge th-badge-faint',
 };
 
 function AdminListPage() {
@@ -29,51 +27,46 @@ function AdminListPage() {
 
   return (
     <div className='mx-auto w-full self-start max-w-5xl px-4 pt-8 sm:px-6'>
+      <div className='th-prompt mb-2'>
+        <span className='th-prompt-p'>~ %</span>{' '}
+        <span className='th-cmd'>admin --manage</span>
+      </div>
       <div className='mb-6 flex flex-wrap items-center justify-between gap-3'>
         <div>
-          <h1 className='text-2xl font-black'>文章管理</h1>
-          <p className='mt-1 text-sm opacity-60'>
-            共 {posts.length} 篇
+          <h1 className='th-admin-title'>文章管理</h1>
+          <p className='th-comment mt-1'>
+            # 共 {posts.length} 篇
             {draftCount > 0 ? ` · ${draftCount} 篇草稿` : ''}
           </p>
         </div>
         <div className='flex items-center gap-4'>
-          <Link
-            to='/admin/comments'
-            className='text-sm opacity-70 transition-opacity hover:opacity-100'
-          >
+          <Link to='/admin/comments' className='th-cd text-sm'>
             评论审核
           </Link>
-          <Link
-            to='/admin/new'
-            className='rounded-md bg-black px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 dark:bg-neutral-900'
-          >
+          <Link to='/admin/new' className='th-btn th-btn-primary'>
             + 新建文章
           </Link>
         </div>
       </div>
 
       {posts.length === 0 ? (
-        <div className='rounded-lg border border-dashed border-slate-300 px-6 py-16 text-center text-sm opacity-70 dark:border-slate-700'>
-          还没有文章。点 “+ 新建文章” 写第一篇吧。
+        <div className='th-comment px-6 py-16 text-center'>
+          # 还没有文章。点 “+ 新建文章” 写第一篇吧。
         </div>
       ) : (
-        <div className='overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700'>
-          <ul className='divide-y divide-slate-200 dark:divide-slate-700'>
+        <div>
+          <ul>
             {posts.map((post: AdminPost) => (
-              <li
-                key={post.slug}
-                className='grid grid-cols-1 items-center gap-2 px-4 py-3 transition-colors hover:bg-black/[0.02] sm:grid-cols-[1fr_auto] sm:gap-4 dark:hover:bg-white/[0.03]'
-              >
+              <li key={post.slug} className='th-admin-row'>
                 <div className='min-w-0'>
                   <Link
                     to='/admin/$slug'
                     params={{ slug: post.slug }}
-                    className='block truncate font-medium hover:underline'
+                    className='th-admin-title-link block truncate'
                   >
                     {post.title || post.slug}
                   </Link>
-                  <div className='truncate text-xs opacity-50'>
+                  <div className='th-comment truncate text-xs'>
                     /blog/{post.slug}
                   </div>
                 </div>
@@ -84,14 +77,12 @@ function AdminListPage() {
                     {post.visibility}
                   </span>
                   {post.status === 'draft' ? (
-                    <span className='rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'>
-                      draft
-                    </span>
+                    <span className='th-badge th-badge-amber'>draft</span>
                   ) : null}
                   <Link
                     to='/blog/$slug'
                     params={{ slug: post.slug }}
-                    className='ml-1 text-xs opacity-60 hover:opacity-100'
+                    className='th-cd text-xs'
                     title='在前台查看'
                   >
                     查看 →
@@ -103,10 +94,7 @@ function AdminListPage() {
         </div>
       )}
 
-      <Link
-        to='/'
-        className='mt-8 inline-block text-sm opacity-60 hover:opacity-100'
-      >
+      <Link to='/' className='th-cd mt-8 inline-block text-sm'>
         ← 返回首页
       </Link>
     </div>

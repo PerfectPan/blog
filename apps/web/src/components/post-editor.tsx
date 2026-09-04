@@ -6,6 +6,7 @@ import {
   deletePostServerFn,
   upsertPostServerFn,
 } from '../lib/admin-service.js';
+import { ConfirmDialog } from './confirm-dialog.js';
 import { MarkdownEditor } from './markdown-editor.js';
 import { TagInput } from './tag-input.js';
 
@@ -61,20 +62,14 @@ const EMPTY: AdminPost = {
   publishedAt: todayIso(),
 };
 
-const card =
-  'rounded-lg border border-slate-200 bg-black/[0.015] p-4 dark:border-slate-700 dark:bg-white/[0.02]';
-
-const inputClass =
-  'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm transition-colors focus:border-black/60 focus:outline-none dark:border-slate-600 dark:bg-wash-dark dark:focus:border-slate-400';
-
-const labelClass = 'mb-1 block text-sm font-semibold';
-
 export function PostEditor({
   initial,
   mode,
+  allTags = [],
 }: {
   initial?: AdminPost | null;
   mode: 'new' | 'edit';
+  allTags?: string[];
 }) {
   const router = useRouter();
   const [fields, dispatch] = useReducer(
@@ -84,6 +79,7 @@ export function PostEditor({
   );
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   function setField<K extends keyof FormState>(field: K, value: FormState[K]) {
     dispatch({ field, value } as FormAction);
@@ -116,9 +112,6 @@ export function PostEditor({
   }
 
   async function onDelete() {
-    if (!confirm(`删除文章 “${fields.slug}”？`)) {
-      return;
-    }
     setSaving(true);
     try {
       await deletePostServerFn({ data: { slug: fields.slug } });
@@ -132,19 +125,16 @@ export function PostEditor({
   return (
     <form onSubmit={onSubmit} className='grid gap-5'>
       {error ? (
-        <p
-          role='alert'
-          className='rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300'
-        >
+        <p role='alert' className='th-err'>
           {error}
         </p>
       ) : null}
 
-      <section className={`${card} grid gap-4`}>
+      <section className='th-panel grid gap-4'>
         <label className='grid'>
-          <span className={labelClass}>标题</span>
+          <span className='th-flabel'>标题</span>
           <input
-            className={inputClass}
+            className='th-input'
             value={fields.title}
             onChange={(event) => setField('title', event.target.value)}
             placeholder='文章标题'
@@ -154,9 +144,9 @@ export function PostEditor({
 
         <div className='grid gap-4 sm:grid-cols-2'>
           <label className='grid'>
-            <span className={labelClass}>Slug</span>
+            <span className='th-flabel'>Slug</span>
             <input
-              className={inputClass}
+              className='th-input'
               value={fields.slug}
               onChange={(event) => setField('slug', event.target.value)}
               placeholder='my-post'
@@ -165,10 +155,10 @@ export function PostEditor({
             />
           </label>
           <label className='grid'>
-            <span className={labelClass}>发布日期</span>
+            <span className='th-flabel'>发布日期</span>
             <input
               type='date'
-              className={inputClass}
+              className='th-input'
               value={fields.publishedAt}
               onChange={(event) => setField('publishedAt', event.target.value)}
               required
@@ -177,9 +167,9 @@ export function PostEditor({
         </div>
 
         <label className='grid'>
-          <span className={labelClass}>摘要</span>
+          <span className='th-flabel'>摘要</span>
           <textarea
-            className={`${inputClass} min-h-[64px] resize-y`}
+            className='th-input min-h-[64px] resize-y'
             value={fields.description}
             onChange={(event) => setField('description', event.target.value)}
             placeholder='一句话描述这篇文章'
@@ -188,21 +178,22 @@ export function PostEditor({
         </label>
       </section>
 
-      <section className={`${card} grid gap-4`}>
-        <div>
-          <span className={labelClass}>标签</span>
+      <section className='th-panel grid gap-4'>
+        <div className='grid gap-2'>
+          <span className='th-flabel'>标签</span>
           <TagInput
             value={fields.tags}
             onChange={(tags) => setField('tags', tags)}
-            placeholder='输入后回车添加，例如：ICPC'
+            placeholder='输入后回车添加，或点击下方已有标签'
+            suggestions={allTags}
           />
         </div>
 
         <div className='grid gap-4 sm:grid-cols-3'>
           <label className='grid'>
-            <span className={labelClass}>可见性</span>
+            <span className='th-flabel'>可见性</span>
             <select
-              className={inputClass}
+              className='th-input'
               value={fields.visibility}
               onChange={(event) =>
                 setField(
@@ -219,9 +210,9 @@ export function PostEditor({
             </select>
           </label>
           <label className='grid'>
-            <span className={labelClass}>状态</span>
+            <span className='th-flabel'>状态</span>
             <select
-              className={inputClass}
+              className='th-input'
               value={fields.status}
               onChange={(event) =>
                 setField('status', event.target.value as FormState['status'])
@@ -233,9 +224,9 @@ export function PostEditor({
           </label>
           {fields.visibility === 'password' ? (
             <label className='grid'>
-              <span className={labelClass}>密码</span>
+              <span className='th-flabel'>密码</span>
               <input
-                className={inputClass}
+                className='th-input'
                 value={fields.password}
                 onChange={(event) => setField('password', event.target.value)}
                 placeholder='访问密码'
@@ -246,7 +237,7 @@ export function PostEditor({
       </section>
 
       <section className='grid gap-2'>
-        <span className={labelClass}>正文（Markdown）</span>
+        <span className='th-flabel'>正文（Markdown）</span>
         <MarkdownEditor
           value={fields.body}
           onChange={(body) => setField('body', body)}
@@ -257,21 +248,35 @@ export function PostEditor({
         <button
           type='submit'
           disabled={saving}
-          className='rounded-md bg-black px-5 py-2 font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50 dark:bg-neutral-900'
+          className='th-btn th-btn-primary'
         >
           {saving ? '保存中…' : '保存'}
         </button>
         {mode === 'edit' ? (
           <button
             type='button'
-            onClick={onDelete}
+            onClick={() => {
+              setConfirmDelete(true);
+            }}
             disabled={saving}
-            className='rounded-md border border-red-300 px-4 py-2 text-red-700 transition-colors hover:bg-red-50 disabled:opacity-50 dark:border-red-800 dark:text-red-300 dark:hover:bg-red-950'
+            className='th-btn th-btn-danger ml-auto'
           >
             删除
           </button>
         ) : null}
       </div>
+
+      <ConfirmDialog
+        open={confirmDelete}
+        onOpenChange={setConfirmDelete}
+        command='rm post'
+        description={`确定删除文章 “${fields.slug}”？此操作不可恢复。`}
+        confirmLabel='delete'
+        onConfirm={() => {
+          setConfirmDelete(false);
+          onDelete();
+        }}
+      />
     </form>
   );
 }
