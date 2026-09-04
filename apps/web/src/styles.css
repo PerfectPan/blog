@@ -413,6 +413,21 @@ a.th-tmux-win:hover {
     display: none;
   }
 }
+/* 超窄屏(≤430)再收:去掉会话徽标、收紧窗口链接,保证单行 */
+@media (max-width: 430px) {
+  .th-tmux {
+    gap: 2px;
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  .th-tmux-sess {
+    display: none;
+    margin-right: 0;
+  }
+  .th-tmux-win {
+    padding: 1px 6px;
+  }
+}
 
 /* ---------- prompt primitives ---------- */
 .th-prompt {
