@@ -94,7 +94,7 @@ function AdminCommentsPage() {
   }
 
   return (
-    <div className='mx-auto w-full self-start max-w-5xl px-4 pt-8 sm:px-6'>
+    <div className='mx-auto w-full self-start max-w-5xl px-4 pt-8 pb-12 sm:px-6'>
       <div className='th-prompt mb-2'>
         <span className='th-prompt-p'>~ %</span>{' '}
         <span className='th-cmd'>comments --moderate</span>

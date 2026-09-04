@@ -23,7 +23,7 @@ export const Route = createFileRoute('/admin/$slug')({
 function EditPostPage() {
   const { post, allTags } = Route.useLoaderData();
   return (
-    <div className='mx-auto w-full self-start max-w-5xl px-4 pt-8 sm:px-6'>
+    <div className='mx-auto w-full self-start max-w-5xl px-4 pt-8 pb-12 sm:px-6'>
       <div className='th-prompt mb-2'>
         <span className='th-prompt-p'>~ %</span>{' '}
         <span className='th-cmd'>vi /posts/{post.slug}.md</span>
