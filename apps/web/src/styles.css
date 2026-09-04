@@ -605,16 +605,16 @@ a.th-cmd:hover {
   color: var(--t-amber);
 }
 .th-btn-primary {
-  /* 主按钮 = 琥珀描边幽灵款:面板底、琥珀边框与文字,与皮肤的高亮语言
-     (悬停/提示符)同源;主次之别只靠琥珀描边,安静不抢眼 */
-  background: var(--t-panel);
+  /* 主按钮 = 编辑器模式切换的激活态同款:琥珀底 + amber-ink 字,
+     主题各自取色(浅色是柔和的棕琥珀+奶油字,暗色是亮琥珀+墨字) */
+  background: var(--t-amber);
   border-color: var(--t-amber);
-  color: var(--t-amber);
+  color: var(--t-amber-ink);
 }
 .th-btn-primary:hover {
-  background: color-mix(in srgb, var(--t-amber) 12%, transparent);
+  filter: brightness(0.94);
   border-color: var(--t-amber);
-  color: var(--t-amber);
+  color: var(--t-amber-ink);
 }
 
 /* ---------- buttons / forms ---------- */
