@@ -9,6 +9,13 @@ import {
 import { ConfirmDialog } from './confirm-dialog.js';
 import { MarkdownEditor } from './markdown-editor.js';
 import { TagInput } from './tag-input.js';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from './ui/select.js';
 
 function todayIso(): string {
   return new Date().toISOString();
@@ -190,38 +197,43 @@ export function PostEditor({
         </div>
 
         <div className='grid gap-4 sm:grid-cols-3'>
-          <label className='grid'>
+          <div className='grid gap-2'>
             <span className='th-flabel'>可见性</span>
-            <select
-              className='th-input'
+            <Select
               value={fields.visibility}
-              onChange={(event) =>
-                setField(
-                  'visibility',
-                  event.target.value as FormState['visibility'],
-                )
+              onValueChange={(value) =>
+                setField('visibility', value as FormState['visibility'])
               }
             >
-              {POST_VISIBILITIES.map((value) => (
-                <option key={value} value={value}>
-                  {value}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className='grid'>
+              <SelectTrigger className='th-input' aria-label='可见性'>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {POST_VISIBILITIES.map((value) => (
+                  <SelectItem key={value} value={value}>
+                    {value}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className='grid gap-2'>
             <span className='th-flabel'>状态</span>
-            <select
-              className='th-input'
+            <Select
               value={fields.status}
-              onChange={(event) =>
-                setField('status', event.target.value as FormState['status'])
+              onValueChange={(value) =>
+                setField('status', value as FormState['status'])
               }
             >
-              <option value='published'>published</option>
-              <option value='draft'>draft</option>
-            </select>
-          </label>
+              <SelectTrigger className='th-input' aria-label='状态'>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='published'>published</SelectItem>
+                <SelectItem value='draft'>draft</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           {fields.visibility === 'password' ? (
             <label className='grid'>
               <span className='th-flabel'>密码</span>
