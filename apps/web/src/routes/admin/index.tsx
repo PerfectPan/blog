@@ -67,7 +67,7 @@ function AdminListPage() {
             {posts.map((post: AdminPost) => (
               <li
                 key={post.slug}
-                className='grid grid-cols-[1fr_auto] items-center gap-4 px-4 py-3 transition-colors hover:bg-black/[0.02] dark:hover:bg-white/[0.03]'
+                className='grid grid-cols-1 items-center gap-2 px-4 py-3 transition-colors hover:bg-black/[0.02] sm:grid-cols-[1fr_auto] sm:gap-4 dark:hover:bg-white/[0.03]'
               >
                 <div className='min-w-0'>
                   <Link
@@ -81,7 +81,7 @@ function AdminListPage() {
                     /blog/{post.slug}
                   </div>
                 </div>
-                <div className='flex flex-wrap items-center justify-end gap-1.5'>
+                <div className='flex flex-wrap items-center gap-1.5 sm:justify-end'>
                   <span
                     className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${visibilityStyles[post.visibility]}`}
                   >

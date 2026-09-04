@@ -407,6 +407,12 @@ a.th-tmux-win:hover {
   display: flex;
   gap: 14px;
 }
+/* 窄屏 tmux 条单行放不下,收起右侧版权(非关键信息) */
+@media (max-width: 560px) {
+  .th-tmux-right {
+    display: none;
+  }
+}
 
 /* ---------- prompt primitives ---------- */
 .th-prompt {
