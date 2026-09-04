@@ -605,15 +605,16 @@ a.th-cmd:hover {
   color: var(--t-amber);
 }
 .th-btn-primary {
-  background: var(--t-amber);
+  /* 主按钮 = 琥珀描边幽灵款:面板底、琥珀边框与文字,与皮肤的高亮语言
+     (悬停/提示符)同源;主次之别只靠琥珀描边,安静不抢眼 */
+  background: var(--t-panel);
   border-color: var(--t-amber);
-  color: #171106;
+  color: var(--t-amber);
 }
 .th-btn-primary:hover {
-  /* 与模式无关的轻微压暗:浅色/暗色的琥珀底都适用。
-     color 必须显式压回墨色——th-btn:hover 会把文字变琥珀,琥珀底上就隐形了 */
-  filter: brightness(0.92);
-  color: #171106;
+  background: color-mix(in srgb, var(--t-amber) 12%, transparent);
+  border-color: var(--t-amber);
+  color: var(--t-amber);
 }
 
 /* ---------- buttons / forms ---------- */
