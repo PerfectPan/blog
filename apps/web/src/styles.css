@@ -608,7 +608,6 @@ a.th-cmd:hover {
   background: var(--t-amber);
   border-color: var(--t-amber);
   color: #171106;
-  font-weight: 700;
 }
 .th-btn-primary:hover {
   /* 与模式无关的轻微压暗:浅色/暗色的琥珀底都适用。

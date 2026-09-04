@@ -259,7 +259,7 @@ export function PostEditor({
               setConfirmDelete(true);
             }}
             disabled={saving}
-            className='th-btn th-btn-danger ml-auto'
+            className='th-btn th-btn-danger'
           >
             删除
           </button>
