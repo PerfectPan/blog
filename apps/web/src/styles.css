@@ -511,9 +511,11 @@ a.th-cmd:hover {
   display: flex;
   flex-direction: column;
   border-bottom: 1px solid var(--t-line);
-  background: linear-gradient(var(--t-titlebar-a), var(--t-titlebar-b));
+  /* 面板色(同 tmux 底栏一族)而非纯白:窄屏下这块悬浮区要读作 header 的
+     延伸,一张带重阴影的纯白卡片会和细条 header 割裂 */
+  background: var(--t-panel);
   padding: 4px 12px 10px;
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14);
 }
 .th-tools-sheet a,
 .th-tools-sheet button {
