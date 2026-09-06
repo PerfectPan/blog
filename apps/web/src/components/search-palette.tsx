@@ -70,10 +70,14 @@ export function SearchPalette() {
         next ? searchPalette.open() : searchPalette.close()
       }
     >
-      <DialogContent className='overflow-hidden p-0'>
+      {/* Below sm the palette is a full-screen top-anchored sheet, not the
+          desktop floating window: under a mobile soft keyboard a centered
+          dialog collapses into a sliver, and its overlay-click/esc closing is
+          unreachable. The ✕ (visible by default) stays as the touch close. */}
+      <DialogContent className='max-sm:inset-x-0 max-sm:bottom-0 max-sm:top-0 max-sm:translate-x-0 max-sm:translate-y-0 max-sm:max-w-none max-sm:rounded-none max-sm:border-x-0 max-sm:border-t-0 max-sm:flex max-sm:flex-col overflow-hidden p-0'>
         <Command
           shouldFilter={false}
-          className='[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-4 [&_[cmdk-input-wrapper]_svg]:w-4 [&_[cmdk-input]]:h-11 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-2'
+          className='[&_[cmdk-list]]:max-sm:max-h-none [&_[cmdk-list]]:max-sm:flex-1 [&_[cmdk-input-wrapper]]:max-sm:pr-11 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-4 [&_[cmdk-input-wrapper]_svg]:w-4 [&_[cmdk-input]]:h-11 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-2'
         >
           <CommandInput
             value={query}
