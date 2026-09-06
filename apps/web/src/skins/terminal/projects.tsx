@@ -34,7 +34,7 @@ export function TerminalProjectsPage() {
                 </a>
                 {project.demo ? (
                   <a href={project.demo} target='_blank' rel='noreferrer'>
-                    demo ↗
+                    {project.demoLabel ?? 'demo'} ↗
                   </a>
                 ) : null}
               </span>
