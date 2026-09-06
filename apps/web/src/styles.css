@@ -1370,6 +1370,47 @@ html[data-theme="terminal"] .md .th-pre code {
   font-size: 11.5px;
 }
 
+/* ---------- search palette: mobile = full-screen sheet ---------- */
+/* 居中小窗是桌面命令面板的形态;触屏上它悬在软键盘上方只剩一条缝,且 esc/↑↓
+   提示全部失效。窄屏改为贴顶通栏的 full-screen sheet,由右上角 ✕ 负责关闭。 */
+@media (max-width: 640px) {
+  .th-pal {
+    top: 0;
+    left: 0;
+    right: 0;
+    translate: none;
+    width: 100%;
+    max-width: none;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    border-radius: 0;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+  /* 全屏铺开后 overlay 不可点、触屏也没有 esc——把被桌面隐藏的 ✕ 找回来 */
+  .th-pal > button {
+    display: flex;
+    color: var(--t-text);
+  }
+  /* ✕ 落在输入行右端,给输入文字让位 */
+  .th-pal [cmdk-input-wrapper] {
+    padding-right: 44px;
+  }
+  .th-pal-cmd {
+    flex: 1;
+    min-height: 0;
+  }
+  .th-pal [cmdk-list] {
+    flex: 1;
+    max-height: none;
+  }
+  .th-pal-foot {
+    display: none; /* ↑↓/↵/esc 是键盘暗示,触屏上无意义 */
+  }
+}
+
 /* ---------- terminal titlebar: small screens ---------- */
 @media (max-width: 640px) {
   .th-titlebar {
