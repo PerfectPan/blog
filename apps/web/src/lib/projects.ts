@@ -9,6 +9,8 @@ export type Project = {
   repo: string;
   /** Optional live demo / homepage URL. */
   demo?: string;
+  /** Custom label for the `demo` link (defaults to "demo"), e.g. 官网 for a landing page. */
+  demoLabel?: string;
   /** Mark a couple of projects as featured to pin them to the top. */
   featured?: boolean;
 };
@@ -43,6 +45,7 @@ export const PROJECTS: Project[] = [
     tags: ['TypeScript', 'CLI', 'Feishu'],
     repo: 'https://github.com/PerfectPan/agent-presence',
     demo: 'https://agent-presence.vercel.app',
+    demoLabel: '官网',
   },
   {
     name: 'base64',
