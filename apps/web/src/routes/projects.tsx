@@ -74,7 +74,7 @@ function ProjectsPage() {
                   className='inline-flex items-center gap-1 opacity-70 hover:opacity-100'
                 >
                   <ExternalLink size={15} />
-                  Demo
+                  {project.demoLabel ?? 'Demo'}
                 </a>
               ) : null}
             </div>
