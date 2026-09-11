@@ -2,12 +2,26 @@ import { type CommentThread, canAccessVisibility } from '@blog/shared';
 import { createFileRoute, notFound, redirect } from '@tanstack/react-router';
 import { getBlogPostServerFn } from '../../lib/blog-service.js';
 import { getCommentsServerFn } from '../../lib/comments-service.js';
+import { useSkin } from '../../skins/context.js';
+import { JournalArticle } from '../../skins/journal/article.js';
 import { TerminalArticle } from '../../skins/terminal/article.js';
 
 export const Route = createFileRoute('/blog/$slug')({
-  head: () => ({
-    meta: [{ title: "Blog | PerfectPan's Blog" }],
-  }),
+  head: ({ match }) => {
+    // The router's own head-time typing resolves this route's loaderData to
+    // `never`; at runtime the match always carries the awaited loader result.
+    const post = (match.loaderData as { post?: { title: string } } | undefined)
+      ?.post;
+    return {
+      meta: [
+        {
+          title: post
+            ? `${post.title} | PerfectPan's Blog`
+            : "Blog | PerfectPan's Blog",
+        },
+      ],
+    };
+  },
   loader: async ({ params }) => {
     const data = await getBlogPostServerFn({ data: { slug: params.slug } });
     const post = data.post;
@@ -59,11 +73,23 @@ export const Route = createFileRoute('/blog/$slug')({
 
 function BlogDetailPage() {
   const data = Route.useLoaderData();
+  const { skin } = useSkin();
   const post = data.post;
   if (!post) {
     return null;
   }
 
+  if (skin === 'journal') {
+    return (
+      <JournalArticle
+        post={post}
+        comments={data.comments.comments}
+        hasMoreComments={data.comments.hasMore}
+        totalComments={data.comments.total}
+        sessionUser={data.sessionUser}
+      />
+    );
+  }
   return (
     <TerminalArticle
       post={post}

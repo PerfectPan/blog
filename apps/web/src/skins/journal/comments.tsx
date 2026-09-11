@@ -1,0 +1,307 @@
+'use client';
+
+import type { Comment, CommentThread, SessionUser } from '@blog/shared';
+import { Link } from '@tanstack/react-router';
+import { useState } from 'react';
+import { CommentMarkdown } from '../../components/comment-markdown.js';
+import { formatRelative } from '../../lib/format.js';
+import { useCommentsThread } from '../../lib/use-comments-thread.js';
+
+type CommentsProps = {
+  slug: string;
+  initialComments: CommentThread[];
+  initialHasMore: boolean;
+  initialTotal: number;
+  sessionUser: SessionUser | null;
+};
+
+type ComposerProps = {
+  placeholder: string;
+  submitting: boolean;
+  onSubmit: (body: string) => Promise<void>;
+  compact?: boolean;
+};
+
+function Composer({
+  placeholder,
+  submitting,
+  onSubmit,
+  compact,
+}: ComposerProps) {
+  const [body, setBody] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const remaining = 2000 - body.length;
+
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    const trimmed = body.trim();
+    if (!trimmed || submitting) {
+      return;
+    }
+    setError(null);
+    try {
+      await onSubmit(trimmed);
+      setBody('');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '评论失败，请重试');
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className='j-cmt-form flex flex-col gap-2'>
+      <textarea
+        value={body}
+        onChange={(event) => setBody(event.target.value)}
+        placeholder={placeholder}
+        rows={compact ? 2 : 3}
+        maxLength={2000}
+      />
+      <div className='j-cmt-foot'>
+        <span className='j-cmt-hint'>
+          {remaining < 200 ? `${remaining} 字剩余` : '支持 Markdown'}
+          {error ? <span className='j-err'>{error}</span> : null}
+        </span>
+        <button
+          type='submit'
+          disabled={submitting || !body.trim()}
+          className='j-btn j-btn-red'
+        >
+          {submitting ? '发送中…' : '发送'}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+type CommentItemProps = {
+  thread: CommentThread;
+  sessionUser: SessionUser | null;
+  onReply: (parentId: string, body: string) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
+  replyingTo: string | null;
+  setReplyingTo: (id: string | null) => void;
+  replySubmitting: Set<string>;
+};
+
+function CommentItem({
+  thread,
+  sessionUser,
+  onReply,
+  onDelete,
+  replyingTo,
+  setReplyingTo,
+  replySubmitting,
+}: CommentItemProps) {
+  const canAct =
+    sessionUser != null && (thread.isOwn || sessionUser.role === 'admin');
+
+  async function handleDelete() {
+    if (!canAct) {
+      return;
+    }
+    if (!window.confirm('删除这条评论？')) {
+      return;
+    }
+    // onDelete (the parent handleDelete) catches its own errors and surfaces
+    // them via topError, so it does not throw — no swallow, no unhandled reject.
+    await onDelete(thread.id);
+  }
+
+  return (
+    <li className='flex flex-col gap-2'>
+      <CommentView
+        comment={thread}
+        canAct={canAct}
+        canReply={sessionUser != null}
+        onReply={() =>
+          setReplyingTo(replyingTo === thread.id ? null : thread.id)
+        }
+        onDelete={handleDelete}
+      />
+
+      {replyingTo === thread.id && sessionUser ? (
+        <div className='ml-10'>
+          <Composer
+            placeholder={`回复 @${thread.author.name}…`}
+            submitting={replySubmitting.has(thread.id)}
+            onSubmit={(body) => onReply(thread.id, body)}
+            compact
+          />
+        </div>
+      ) : null}
+
+      {thread.replies.length > 0 ? (
+        <ul className='flex flex-col gap-2'>
+          {thread.replies.map((reply) => {
+            const replyCanAct =
+              sessionUser != null &&
+              (reply.isOwn || sessionUser.role === 'admin');
+            return (
+              <CommentView
+                key={reply.id}
+                comment={reply}
+                canAct={replyCanAct}
+                canReply={false}
+                onReply={undefined}
+                onDelete={async () => {
+                  if (!window.confirm('删除这条回复？')) {
+                    return;
+                  }
+                  await onDelete(reply.id);
+                }}
+              />
+            );
+          })}
+        </ul>
+      ) : null}
+    </li>
+  );
+}
+
+type CommentViewProps = {
+  comment: Comment;
+  canAct: boolean;
+  canReply?: boolean;
+  onReply?: () => void;
+  onDelete: () => void | Promise<void>;
+};
+
+function CommentView({
+  comment,
+  canAct,
+  canReply,
+  onReply,
+  onDelete,
+}: CommentViewProps) {
+  const isReply = comment.parentId !== null;
+
+  return (
+    <div className={isReply ? 'j-letter j-letter-reply' : 'j-letter'}>
+      <div className='j-lhead'>
+        <span className='who'>{comment.author.name}</span>
+        {comment.author.role === 'admin' ? (
+          <span className='badge'>作者</span>
+        ) : null}
+        {comment.status !== 'visible' ? (
+          <span style={{ color: 'var(--j-red)' }}>{comment.status}</span>
+        ) : null}
+        <span className='when'>{formatRelative(comment.createdAt)}</span>
+      </div>
+      <div className='j-lbody'>
+        <CommentMarkdown content={comment.body} />
+      </div>
+      {canReply && onReply ? (
+        <div className='j-lops'>
+          <button type='button' onClick={onReply}>
+            回复
+          </button>
+          {canAct ? (
+            <button type='button' onClick={() => onDelete()}>
+              删除
+            </button>
+          ) : null}
+        </div>
+      ) : null}
+      {!(canReply && onReply) && canAct ? (
+        <div className='j-lops'>
+          <button type='button' onClick={() => onDelete()}>
+            删除
+          </button>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+export function JournalComments({
+  slug,
+  initialComments,
+  initialHasMore,
+  initialTotal,
+  sessionUser,
+}: CommentsProps) {
+  const {
+    threads,
+    hasMore,
+    total,
+    submitting,
+    topError,
+    loadingMore,
+    replyingTo,
+    setReplyingTo,
+    replySubmitting,
+    handleCreateTopLevel,
+    handleReply,
+    handleDelete,
+    handleLoadMore,
+  } = useCommentsThread(slug, {
+    comments: initialComments,
+    hasMore: initialHasMore,
+    total: initialTotal,
+  });
+
+  return (
+    <section className='mt-10'>
+      <h3 className='j-blockhead'>评论 {total > 0 ? `(${total})` : ''}</h3>
+
+      {sessionUser ? (
+        <div className='mb-6'>
+          <Composer
+            placeholder='写下你的评论…（支持 Markdown）'
+            submitting={submitting}
+            onSubmit={handleCreateTopLevel}
+          />
+        </div>
+      ) : (
+        <p
+          className='mb-6 text-sm'
+          style={{ color: 'var(--j-faded)', fontFamily: 'var(--j-sans)' }}
+        >
+          <Link to='/login' className='underline'>
+            入会
+          </Link>{' '}
+          后即可评论。
+        </p>
+      )}
+
+      {topError ? <p className='j-err mb-4'>{topError}</p> : null}
+
+      {threads.length === 0 ? (
+        <p
+          className='py-8 text-center text-sm'
+          style={{ color: 'var(--j-faint)', fontFamily: 'var(--j-sans)' }}
+        >
+          还没有评论，来抢沙发。
+        </p>
+      ) : (
+        <ul className='flex flex-col gap-3'>
+          {threads.map((thread) => (
+            <CommentItem
+              key={thread.id}
+              thread={thread}
+              sessionUser={sessionUser}
+              onReply={handleReply}
+              onDelete={handleDelete}
+              replyingTo={replyingTo}
+              setReplyingTo={setReplyingTo}
+              replySubmitting={replySubmitting}
+            />
+          ))}
+        </ul>
+      )}
+
+      {hasMore ? (
+        <div className='mt-6 text-center'>
+          <button
+            type='button'
+            onClick={handleLoadMore}
+            disabled={loadingMore}
+            className='j-btn'
+          >
+            {loadingMore ? '加载中…' : '加载更多'}
+          </button>
+        </div>
+      ) : null}
+    </section>
+  );
+}

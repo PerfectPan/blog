@@ -1,5 +1,6 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import {
+  BookOpen,
   Github,
   LogOut,
   MoreHorizontal,
@@ -14,18 +15,8 @@ import { ConfirmDialog } from '../../components/confirm-dialog.js';
 import { DarkMode } from '../../components/dark-mode.js';
 import { searchPalette } from '../../components/search-palette-store.js';
 import { authClient } from '../../lib/auth-client.js';
-
-function getRoleLabel(role?: string | null): string {
-  if (role === 'admin') {
-    return 'ADMIN';
-  }
-
-  if (role === 'vip') {
-    return 'VIP';
-  }
-
-  return 'MEMBER';
-}
+import { getRoleLabel } from '../../lib/format.js';
+import { useSkin } from '../context.js';
 
 /** Terminal title bar: window dots + session name + right-aligned tools.
  *  ≤480px the tool buttons collapse behind a ⋯ toggle that expands a flat
@@ -36,6 +27,7 @@ export function TerminalHeader() {
   const navigate = useNavigate();
   const [logoutOpen, setLogoutOpen] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
+  const { setSkin } = useSkin();
   const barRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -111,6 +103,15 @@ export function TerminalHeader() {
           </>
         )}
         <DarkMode />
+        <button
+          type='button'
+          aria-label='Switch to journal theme'
+          onClick={() => setSkin('journal')}
+          className='th-tool-btn'
+        >
+          <BookOpen size={15} aria-hidden='true' />
+          <span className='hidden md:inline'>journal</span>
+        </button>
         <button
           type='button'
           aria-label='Search posts (Cmd+K)'
@@ -198,6 +199,15 @@ export function TerminalHeader() {
             }}
           >
             <Search size={14} aria-hidden='true' /> grep
+          </button>
+          <button
+            type='button'
+            aria-label='Switch to journal theme'
+            onClick={() => {
+              setSkin('journal');
+            }}
+          >
+            <BookOpen size={14} aria-hidden='true' /> journal
           </button>
           <a
             href='https://github.com/PerfectPan'

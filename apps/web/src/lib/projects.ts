@@ -54,3 +54,13 @@ export const PROJECTS: Project[] = [
     repo: 'https://github.com/PerfectPan/base64',
   },
 ];
+
+/** Featured first, then alphabetical — the /projects card order. */
+export function sortProjects(projects: Project[]): Project[] {
+  return [...projects].sort((a, b) => {
+    if (Boolean(a.featured) === Boolean(b.featured)) {
+      return a.name.localeCompare(b.name);
+    }
+    return a.featured ? -1 : 1;
+  });
+}
