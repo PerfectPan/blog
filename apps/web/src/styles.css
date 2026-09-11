@@ -494,9 +494,12 @@ a.th-cmd:hover {
   font-size: 13px;
   font-family: inherit;
 }
-.th-tool-btn:hover {
-  color: var(--t-amber);
-  text-decoration: none;
+/* 触屏没有真 hover,点按后 :hover 态会粘滞到下一次点按——hover 只给指针设备 */
+@media (hover: hover) {
+  .th-tool-btn:hover {
+    color: var(--t-amber);
+    text-decoration: none;
+  }
 }
 /* ≤480px:工具收进 ⋯ 菜单;面板在 titlebar 下方平铺展开(无抽屉无动画) */
 .th-tools-toggle {
@@ -529,10 +532,12 @@ a.th-cmd:hover {
   cursor: pointer;
   text-align: left;
 }
-.th-tools-sheet a:hover,
-.th-tools-sheet button:hover {
-  color: var(--t-amber);
-  text-decoration: none;
+@media (hover: hover) {
+  .th-tools-sheet a:hover,
+  .th-tools-sheet button:hover {
+    color: var(--t-amber);
+    text-decoration: none;
+  }
 }
 @media (max-width: 480px) {
   .th-tools > :not(.th-tools-toggle):not(.th-user-chip):not(.th-dark-btn) {
