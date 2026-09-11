@@ -9,7 +9,7 @@ import {
   UserRoundPlus,
   X,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ConfirmDialog } from '../../components/confirm-dialog.js';
 import { DarkMode } from '../../components/dark-mode.js';
 import { searchPalette } from '../../components/search-palette-store.js';
@@ -36,6 +36,7 @@ export function TerminalHeader() {
   const navigate = useNavigate();
   const [logoutOpen, setLogoutOpen] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
+  const barRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     if (!toolsOpen) {
@@ -46,12 +47,23 @@ export function TerminalHeader() {
         setToolsOpen(false);
       }
     };
+    // Tapping outside the bar closes the sheet — on touch there is no Esc,
+    // so an outside tap is the natural dismissal gesture.
+    const onPointerDown = (event: PointerEvent) => {
+      if (barRef.current && !barRef.current.contains(event.target as Node)) {
+        setToolsOpen(false);
+      }
+    };
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.removeEventListener('pointerdown', onPointerDown);
+    };
   }, [toolsOpen]);
 
   return (
-    <header className='th-titlebar'>
+    <header className='th-titlebar' ref={barRef}>
       <span className='th-dot th-dot-r' aria-hidden='true' />
       <span className='th-dot th-dot-y' aria-hidden='true' />
       <span className='th-dot th-dot-g' aria-hidden='true' />
