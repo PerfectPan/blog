@@ -57,24 +57,11 @@ export const Route = createRootRoute({
       { rel: 'manifest', href: '/manifest.webmanifest' },
     ],
   }),
-  errorComponent: ({ error }) => (
-    <RootDocument>
-      <SkinPage>
-        <AppLayout>
-          <SkinError error={error} />
-        </AppLayout>
-      </SkinPage>
-    </RootDocument>
-  ),
-  notFoundComponent: () => (
-    <RootDocument>
-      <SkinPage>
-        <AppLayout>
-          <SkinNotFound />
-        </AppLayout>
-      </SkinPage>
-    </RootDocument>
-  ),
+  // notFound/error render INSIDE RootComponent's tree — the root document,
+  // skin page and app layout chrome are already there. Wrapping again (as
+  // this used to) doubles the header and footer on 404/error pages.
+  errorComponent: ({ error }) => <SkinError error={error} />,
+  notFoundComponent: () => <SkinNotFound />,
   component: RootComponent,
 });
 

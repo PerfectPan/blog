@@ -20,14 +20,21 @@ type MarkdownProps = {
 };
 
 /** Per-skin class names for the code block chrome + inline code. */
-const SKIN_CLASSES: Partial<
-  Record<Skin, { wrap: string; copy: string; pre: string; inline: string }>
+const SKIN_CLASSES: Record<
+  Skin,
+  { wrap: string; copy: string; pre: string; inline: string }
 > = {
   terminal: {
     wrap: 'th-code group relative',
     copy: 'th-code-copy',
     pre: 'shiki th-pre w-full overflow-x-auto',
     inline: 'md-inline',
+  },
+  journal: {
+    wrap: 'j-code group relative',
+    copy: 'j-code-copy',
+    pre: 'shiki j-pre w-full overflow-x-auto',
+    inline: 'j-inline',
   },
 };
 
@@ -146,23 +153,20 @@ function CodeBlock({ children, skin }: { children?: ReactNode; skin: Skin }) {
     };
   }, []);
 
+  const c = SKIN_CLASSES[skin];
+
   return (
-    <div className={SKIN_CLASSES.terminal?.wrap ?? 'th-code group relative'}>
+    <div className={c.wrap}>
       <button
         type='button'
         onClick={onCopy}
         aria-label='Copy code'
-        className={SKIN_CLASSES.terminal?.copy ?? 'th-code-copy'}
+        className={c.copy}
       >
         {copied ? <Check size={12} /> : <Copy size={12} />}
         {copied ? 'Copied' : 'Copy'}
       </button>
-      <pre
-        ref={preRef}
-        className={
-          SKIN_CLASSES.terminal?.pre ?? 'shiki th-pre w-full overflow-x-auto'
-        }
-      >
+      <pre ref={preRef} className={c.pre}>
         {children}
       </pre>
     </div>
@@ -226,9 +230,7 @@ export function Markdown({ content, skin = 'terminal' }: MarkdownProps) {
             return isBlock ? (
               <code className={className}>{children}</code>
             ) : (
-              <code className={SKIN_CLASSES.terminal?.inline ?? 'md-inline'}>
-                {children}
-              </code>
+              <code className={SKIN_CLASSES[skin].inline}>{children}</code>
             );
           },
         }}
