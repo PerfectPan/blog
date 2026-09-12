@@ -24,11 +24,13 @@ export function readSkinFromCookie(cookie: string | null): Skin {
 }
 
 /**
- * Runtime skin switcher for the two UX themes (terminal / journal). The
- * initial value comes from the root loader (cookie), so SSR and the first
- * client render agree — no flash, no hydration mismatch. Switching updates
- * <html data-theme>, persists the cookie, and drops `dark` when entering the
- * light-only journal skin.
+ * Runtime skin switcher for the two UX themes (terminal / journal). SSR and
+ * the first client render always start on `terminal` (workerd's request
+ * context is sticky across requests, so the cookie cannot be trusted
+ * server-side); a pre-paint boot script in __root hides the body for journal
+ * cookies, and this provider applies the cookie skin after hydration and
+ * removes the hiding style. Switching updates <html data-theme>, persists
+ * the cookie, and drops `dark` when entering the light-only journal skin.
  */
 export function SkinProvider({
   initial,

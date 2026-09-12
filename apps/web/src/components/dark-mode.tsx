@@ -17,14 +17,13 @@ export function DarkMode() {
   const ref = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-      document.body.classList.add('dark:bg-wash-dark', 'dark:text-white');
-      return;
-    }
-
-    document.documentElement.classList.remove('dark');
-    document.body.classList.remove('dark:bg-wash-dark', 'dark:text-white');
+    // The terminal theme carries its own dark palette via html.dark custom
+    // properties; no legacy body utility classes are needed. Keep the
+    // browser-chrome theme-color meta in sync with the surface color.
+    document.documentElement.classList.toggle('dark', isDarkMode);
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute('content', isDarkMode ? '#0a0f14' : '#ffffff');
   }, [isDarkMode]);
 
   const onTrigger = () => {
@@ -94,10 +93,11 @@ export function DarkMode() {
       type='button'
       ref={ref}
       aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-      className='inline-flex cursor-pointer items-center opacity-70 transition-opacity hover:opacity-100'
+      className='th-tool-btn th-dark-btn'
       onClick={onTrigger}
     >
-      {isDarkMode ? <Moon size={24} /> : <Sun size={24} />}
+      {isDarkMode ? <Moon size={15} /> : <Sun size={15} />}
+      <span className='hidden md:inline'>dark</span>
     </button>
   );
 }

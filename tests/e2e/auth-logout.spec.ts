@@ -8,18 +8,26 @@ function createUniqueEmail(): string {
 test('signup then logout returns to guest header state', async ({ page }) => {
   await page.goto('/signup', { waitUntil: 'domcontentloaded' });
 
-  await page.getByLabel('Name').fill('E2E Logout');
-  await page.getByLabel('Email').fill(createUniqueEmail());
-  await page.getByLabel('Password').fill('Playwright!12345');
-  await page.getByRole('button', { name: 'Sign Up' }).click();
+  // Form anchors are theme-stable: field ids on /signup + the submit button.
+  // Header anchors use data-testid because each UX theme words them
+  // differently (login / 入会 / SIGN IN …).
+  await page.locator('#name').fill('E2E Logout');
+  await page.locator('#email').fill(createUniqueEmail());
+  await page.locator('#password').fill('Playwright!12345');
+  await page.locator('form button[type="submit"]').click();
 
   await page.waitForURL('**/blog');
-  await expect(page.getByRole('link', { name: 'Logout' })).toBeVisible();
+  await expect(page.getByTestId('nav-logout')).toBeVisible();
 
-  await page.getByRole('link', { name: 'Logout' }).click();
+  await page.getByTestId('nav-logout').click();
+
+  // The terminal theme asks for confirmation before signing out.
+  await page
+    .getByRole('dialog')
+    .getByRole('button', { name: 'logout' })
+    .click();
 
   await page.waitForURL('**/blog');
-  await expect(page.getByRole('link', { name: 'Login' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Sign Up' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Logout' })).toHaveCount(0);
+  await expect(page.getByTestId('nav-login')).toBeVisible();
+  await expect(page.getByTestId('nav-logout')).toHaveCount(0);
 });

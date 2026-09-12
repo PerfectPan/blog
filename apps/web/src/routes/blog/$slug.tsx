@@ -1,14 +1,8 @@
 import { type CommentThread, canAccessVisibility } from '@blog/shared';
-import {
-  createFileRoute,
-  Link,
-  notFound,
-  redirect,
-} from '@tanstack/react-router';
-import { Comments } from '../../components/comments.js';
-import { Markdown } from '../../components/markdown.js';
+import { createFileRoute, notFound, redirect } from '@tanstack/react-router';
 import { getBlogPostServerFn } from '../../lib/blog-service.js';
 import { getCommentsServerFn } from '../../lib/comments-service.js';
+import { TerminalArticle } from '../../skins/terminal/article.js';
 
 export const Route = createFileRoute('/blog/$slug')({
   head: () => ({
@@ -70,31 +64,13 @@ function BlogDetailPage() {
     return null;
   }
 
-  const date = new Date(post.publishedAt).toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  });
-
   return (
-    <div className='mx-auto w-full self-start max-w-[80ch] pt-8'>
-      <div className='m-auto mb-8 flex flex-col gap-2'>
-        <div className='text-3xl font-black'>{post.title}</div>
-        <div className='opacity-60'>{date}</div>
-      </div>
-      <Markdown content={post.contentMdx} />
-      <Link to='/blog' className='mt-4 inline-block'>
-        <span className='opacity-70'>&gt;&nbsp;&nbsp;&nbsp;</span>
-        <span className='underline opacity-70 hover:opacity-100'>cd ..</span>
-      </Link>
-      <Comments
-        key={post.slug}
-        slug={post.slug}
-        initialComments={data.comments.comments}
-        initialHasMore={data.comments.hasMore}
-        initialTotal={data.comments.total}
-        sessionUser={data.sessionUser}
-      />
-    </div>
+    <TerminalArticle
+      post={post}
+      comments={data.comments.comments}
+      hasMoreComments={data.comments.hasMore}
+      totalComments={data.comments.total}
+      sessionUser={data.sessionUser}
+    />
   );
 }

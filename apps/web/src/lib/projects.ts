@@ -9,6 +9,8 @@ export type Project = {
   repo: string;
   /** Optional live demo / homepage URL. */
   demo?: string;
+  /** Custom label for the `demo` link (defaults to "demo"), e.g. 官网 for a landing page. */
+  demoLabel?: string;
   /** Mark a couple of projects as featured to pin them to the top. */
   featured?: boolean;
 };
@@ -20,15 +22,6 @@ export type Project = {
  * and pushing is the entire workflow for adding/removing a project.
  */
 export const PROJECTS: Project[] = [
-  {
-    name: 'blog',
-    description:
-      '本博客 —— TanStack Start 前台，全量部署在 Cloudflare Workers + D1 上。',
-    tags: ['TanStack Start', 'Cloudflare', 'TypeScript'],
-    repo: 'https://github.com/PerfectPan/blog',
-    demo: 'https://perfectpan.org',
-    featured: true,
-  },
   {
     name: 'logseq-plugin-code-formatter',
     description:
@@ -52,6 +45,7 @@ export const PROJECTS: Project[] = [
     tags: ['TypeScript', 'CLI', 'Feishu'],
     repo: 'https://github.com/PerfectPan/agent-presence',
     demo: 'https://agent-presence.vercel.app',
+    demoLabel: '官网',
   },
   {
     name: 'base64',
