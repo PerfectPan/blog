@@ -57,9 +57,15 @@ jobs:
       - uses: actions/checkout@v7
         with:
           # pull_request_target defaults to checking out master; build the PR
-          # head instead. For fork PRs that's untrusted code — the actor gate
-          # above restricts this path to the maintainer's own accounts.
+          # head instead. For fork PRs that's untrusted code, and checkout v7
+          # refuses it under pull_request_target by default — the explicit opt
+          # in is the documented escape hatch (gh.io/securely-using-
+          # pull_request_target). Safe here because the actor gate above
+          # restricts this path to the maintainer's own accounts: the pwn
+          # request risk is a third-party fork running with repo secrets,
+          # which the gate excludes.
           ref: ${{ github.event.pull_request.head.sha }}
+          allow-unsafe-pr-checkout: true
 
       - uses: pnpm/action-setup@v6
         with:
