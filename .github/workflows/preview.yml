@@ -10,6 +10,18 @@ name: Preview Deploy
 # that Workers Builds can't alias into a DNS label). This gives every PR a
 # clickable, Vercel-style preview URL.
 #
+# Why two triggers: repo secrets are invisible to fork PRs under plain
+# `pull_request` (fork previews failed with an empty CLOUDFLARE_API_TOKEN —
+# GitHub never injects them and approving the run doesn't help), so the deploy
+# also listens on `pull_request_target` (base-repo context, secrets available).
+# That lets fork code run with the deploy token, which is only acceptable for
+# the maintainer's own fork — hence the actor gate. Dependabot branches
+# (same-repo) must keep using `pull_request`: GitHub strips secrets from
+# Dependabot-triggered `pull_request_target` runs. For any given PR exactly
+# one trigger passes the job gate, so there's never a double deploy; the
+# concurrency group includes the event name so the idle run can't cancel the
+# live one.
+#
 # Recommended: disable Workers Builds' "non-production branch builds"
 # (dashboard → blog-web → Settings → Builds) so this is the sole preview
 # mechanism; Workers Builds then only deploys `master` (production).
@@ -20,21 +32,34 @@ name: Preview Deploy
 on:
   pull_request:
     types: [opened, synchronize, reopened, closed]
+  pull_request_target:
+    types: [opened, synchronize, reopened, closed]
 
 permissions:
   contents: read
   pull-requests: write
 
 concurrency:
-  group: preview-pr-${{ github.event.pull_request.number }}
+  group: preview-${{ github.event_name }}-pr-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
   preview:
-    if: github.event.action != 'closed' && github.event.pull_request.head.ref != 'master'
+    if: >-
+      github.event.action != 'closed' &&
+      github.event.pull_request.head.ref != 'master' &&
+      (
+        (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) ||
+        (github.event_name == 'pull_request_target' && (github.actor == github.repository_owner || github.actor == 'nyx-cell'))
+      )
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          # pull_request_target defaults to checking out master; build the PR
+          # head instead. For fork PRs that's untrusted code — the actor gate
+          # above restricts this path to the maintainer's own accounts.
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - uses: pnpm/action-setup@v6
         with:
@@ -112,7 +137,12 @@ jobs:
             }
 
   cleanup:
-    if: github.event.action == 'closed'
+    if: >-
+      github.event.action == 'closed' &&
+      (
+        (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) ||
+        (github.event_name == 'pull_request_target' && (github.actor == github.repository_owner || github.actor == 'nyx-cell'))
+      )
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
