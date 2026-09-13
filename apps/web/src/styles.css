@@ -283,6 +283,11 @@ html.dark {
 
 /* ---------- shell: title bar / main / tmux bar ---------- */
 .th-shell {
+  /* Sits above the fixed particles canvas (which is z-index 0, pointer-events
+     none); the shell itself stays transparent so the constellation shows
+     through the content area. */
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   height: 100dvh;
@@ -347,7 +352,16 @@ html.dark {
 .th-main {
   flex: 1;
   overflow-y: auto;
-  background: var(--t-term);
+  /* Transparent: the particles canvas behind the shell provides the surface
+     (body paints --t-bg; --t-term differed by ~2 RGB points only). */
+  background: transparent;
+}
+
+.th-particles {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
 }
 
 .th-page {
