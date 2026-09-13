@@ -1,7 +1,7 @@
 'use client';
 
-import { Moon, Sun } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { Monitor, Moon, Sun } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 
 type ViewTransitionLike = {
@@ -12,22 +12,71 @@ type ViewTransitionDocument = Document & {
   startViewTransition?: (cb: () => void) => ViewTransitionLike;
 };
 
+/** User intent, persisted in localStorage. Absent key = follow the system. */
+type ThemePref = 'light' | 'dark' | 'system';
+
+const THEME_KEY = 'blog-theme';
+const DARK_QUERY = '(prefers-color-scheme: dark)';
+const PREFS: ThemePref[] = ['light', 'dark', 'system'];
+
+function readStoredPref(): ThemePref {
+  try {
+    const raw = localStorage.getItem(THEME_KEY);
+    return PREFS.includes(raw as ThemePref) ? (raw as ThemePref) : 'system';
+  } catch {
+    return 'system';
+  }
+}
+
 export function DarkMode() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  // 'system' on the server AND on the first client render (hydration must
+  // match); the mount effect syncs the stored pref + system media. Until that
+  // sync lands, the class-sync effect is gated OFF: the boot script in
+  // __root already painted the right palette, and re-asserting the not-yet-
+  // synced default here would flash light for a frame.
+  const [pref, setPref] = useState<ThemePref>('system');
+  const [systemDark, setSystemDark] = useState(false);
+  const [synced, setSynced] = useState(false);
   const ref = useRef<HTMLButtonElement>(null);
 
+  const isDarkMode = pref === 'dark' || (pref === 'system' && systemDark);
+
   useEffect(() => {
+    setPref(readStoredPref());
+    const media = window.matchMedia(DARK_QUERY);
+    setSystemDark(media.matches);
+    setSynced(true);
+    const onMedia = (event: MediaQueryListEvent) => {
+      setSystemDark(event.matches);
+    };
+    media.addEventListener('change', onMedia);
+    return () => media.removeEventListener('change', onMedia);
+  }, []);
+
+  useEffect(() => {
+    if (!synced) {
+      return;
+    }
     // The terminal theme carries its own dark palette via html.dark custom
-    // properties; no legacy body utility classes are needed. Keep the
-    // browser-chrome theme-color meta in sync with the surface color.
+    // properties. Keep the browser-chrome theme-color meta in sync with the
+    // surface color.
     document.documentElement.classList.toggle('dark', isDarkMode);
     document
       .querySelector('meta[name="theme-color"]')
       ?.setAttribute('content', isDarkMode ? '#0a0f14' : '#ffffff');
-  }, [isDarkMode]);
+  }, [isDarkMode, synced]);
+
+  const applyPref = useCallback((next: ThemePref) => {
+    setPref(next);
+    try {
+      localStorage.setItem(THEME_KEY, next);
+    } catch {
+      // Storage unavailable (private mode etc.) — choice lasts the session.
+    }
+  }, []);
 
   const onTrigger = () => {
-    const newIsDarkMode = !isDarkMode;
+    const next = PREFS[(PREFS.indexOf(pref) + 1) % PREFS.length];
     const doc = document as ViewTransitionDocument;
 
     if (
@@ -35,7 +84,7 @@ export function DarkMode() {
       !doc.startViewTransition ||
       window.matchMedia('(prefers-reduced-motion: reduce)').matches
     ) {
-      setIsDarkMode(newIsDarkMode);
+      applyPref(next);
       return;
     }
 
@@ -78,7 +127,7 @@ export function DarkMode() {
 
     const transition = doc.startViewTransition(() => {
       flushSync(() => {
-        setIsDarkMode(newIsDarkMode);
+        applyPref(next);
       });
     });
     transition.finished
@@ -88,16 +137,24 @@ export function DarkMode() {
       );
   };
 
+  const next = PREFS[(PREFS.indexOf(pref) + 1) % PREFS.length];
+
   return (
     <button
       type='button'
       ref={ref}
-      aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+      aria-label={`Switch to ${next} mode (current: ${pref})`}
       className='th-tool-btn th-dark-btn'
       onClick={onTrigger}
     >
-      {isDarkMode ? <Moon size={15} /> : <Sun size={15} />}
-      <span className='hidden md:inline'>dark</span>
+      {pref === 'light' ? (
+        <Sun size={15} />
+      ) : pref === 'dark' ? (
+        <Moon size={15} />
+      ) : (
+        <Monitor size={15} />
+      )}
+      <span className='hidden md:inline'>{pref}</span>
     </button>
   );
 }
