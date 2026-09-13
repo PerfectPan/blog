@@ -2,8 +2,8 @@ import type { PostSummary, SessionUser } from '@blog/shared';
 import { createFileRoute } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import { z } from 'zod';
+import { BlogList } from '../../components/blog-list.js';
 import { getBlogListServerFn } from '../../lib/blog-service.js';
-import { TerminalBlogList } from '../../skins/terminal/blog-list.js';
 
 function getDevScopeHint(sessionUser: SessionUser | null | undefined): string {
   if (!sessionUser) {
@@ -58,7 +58,7 @@ function BlogListPage() {
   }, [data.page]);
 
   return (
-    <TerminalBlogList
+    <BlogList
       data={data}
       showDevHint={showDevHint}
       devScopeHint={devScopeHint}

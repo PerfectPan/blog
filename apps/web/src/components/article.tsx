@@ -1,10 +1,10 @@
 import type { CommentThread, SessionUser } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
-import { Markdown } from '../../components/markdown.js';
-import { TerminalComments } from './comments.js';
+import { Comments } from './comments.js';
+import { Markdown } from './markdown.js';
 import { Page } from './page.js';
 
-type TerminalArticleProps = {
+type ArticlePageProps = {
   post: {
     slug: string;
     title: string;
@@ -19,13 +19,13 @@ type TerminalArticleProps = {
   sessionUser: SessionUser | null;
 };
 
-export function TerminalArticle({
+export function ArticlePage({
   post,
   comments,
   hasMoreComments,
   totalComments,
   sessionUser,
-}: TerminalArticleProps) {
+}: ArticlePageProps) {
   const date = new Date(post.publishedAt).toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
@@ -58,7 +58,7 @@ export function TerminalArticle({
           ) : null}
         </div>
       </div>
-      <Markdown content={post.contentMdx} skin='terminal' />
+      <Markdown content={post.contentMdx} />
       <div className='th-prompt mt-6'>
         <span className='th-prompt-u'>perfectpan</span>
         <span className='th-prompt-at'>@</span>
@@ -72,7 +72,7 @@ export function TerminalArticle({
           cd ..
         </Link>
       </div>
-      <TerminalComments
+      <Comments
         key={post.slug}
         slug={post.slug}
         initialComments={comments}

@@ -1,8 +1,8 @@
 import { type CommentThread, canAccessVisibility } from '@blog/shared';
 import { createFileRoute, notFound, redirect } from '@tanstack/react-router';
+import { ArticlePage } from '../../components/article.js';
 import { getBlogPostServerFn } from '../../lib/blog-service.js';
 import { getCommentsServerFn } from '../../lib/comments-service.js';
-import { TerminalArticle } from '../../skins/terminal/article.js';
 
 export const Route = createFileRoute('/blog/$slug')({
   head: () => ({
@@ -65,7 +65,7 @@ function BlogDetailPage() {
   }
 
   return (
-    <TerminalArticle
+    <ArticlePage
       post={post}
       comments={data.comments.comments}
       hasMoreComments={data.comments.hasMore}

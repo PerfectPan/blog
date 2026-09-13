@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { TerminalSignupPage } from '../skins/terminal/auth.js';
+import { SignupPage } from '../components/auth.js';
 
 export const Route = createFileRoute('/signup')({
   server: {
@@ -17,5 +17,5 @@ export const Route = createFileRoute('/signup')({
 });
 
 function SignUpPage() {
-  return <TerminalSignupPage />;
+  return <SignupPage />;
 }

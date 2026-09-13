@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { TerminalHomePage } from '../skins/terminal/home.js';
+import { HomePage } from '../components/home.js';
 
 export const Route = createFileRoute('/')({
   head: () => ({
@@ -7,7 +7,3 @@ export const Route = createFileRoute('/')({
   }),
   component: HomePage,
 });
-
-function HomePage() {
-  return <TerminalHomePage />;
-}

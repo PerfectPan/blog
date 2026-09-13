@@ -8,7 +8,7 @@
  * rendered site is unchanged — the tokens only power the new ui/* primitives
  * (Command/Dialog). Light = white/near-black, dark = wash-dark/white, borders
  * = slate-300/slate-700. Nothing here re-styles body; the terminal skin
- * drives its own surface colors from html[data-theme='terminal'] tokens.
+ * drives its own surface colors from html dark-mode tokens.
  */
 @layer base {
   :root {
@@ -175,7 +175,7 @@ html.dark ::-webkit-scrollbar-thumb:hover {
  * visibility. Dual theme: LIGHT paper-terminal by default, dark via the
  * header toggle (html.dark).
  * =================================================================== */
-html[data-theme="terminal"] {
+:root {
   /* shadcn token layer → terminal LIGHT palette (search palette & dialogs) */
   --background: 45 25% 95%;
   --foreground: 215 15% 22%;
@@ -224,7 +224,7 @@ html[data-theme="terminal"] {
     "PingFang SC", "Microsoft YaHei", monospace;
 }
 
-html[data-theme="terminal"].dark {
+html.dark {
   /* shadcn token layer → terminal DARK palette */
   --background: 210 29% 7%;
   --foreground: 210 20% 83%;
@@ -269,7 +269,7 @@ html[data-theme="terminal"].dark {
   --t-amber-ink: #171106;
 }
 
-html[data-theme="terminal"] body {
+:root body {
   font-family: var(--t-mono);
   background-color: var(--t-bg);
   color: var(--t-text);
@@ -277,7 +277,7 @@ html[data-theme="terminal"] body {
   line-height: 1.75;
 }
 
-html[data-theme="terminal"] ::selection {
+:root ::selection {
   background: rgba(233, 180, 76, 0.25);
 }
 
@@ -1021,42 +1021,42 @@ a.th-ls-row:hover {
 
 /* markdown body (article prose) — fills the 880px container; the reading
    measure comes from the container itself, not a per-element cap. */
-html[data-theme="terminal"] .md p {
+:root .md p {
   margin: 14px 0;
   color: var(--t-text);
 }
-html[data-theme="terminal"] .md h2 {
+:root .md h2 {
   font-size: 17px;
   color: var(--t-heading);
   font-weight: 700;
   margin: 30px 0 10px;
   scroll-margin-top: 20px;
 }
-html[data-theme="terminal"] .md h2::before {
+:root .md h2::before {
   content: "## ";
   color: var(--t-faint);
   font-weight: 400;
 }
-html[data-theme="terminal"] .md h2 a {
+:root .md h2 a {
   color: inherit;
 }
-html[data-theme="terminal"] .md ul {
+:root .md ul {
   margin: 12px 0 12px 22px;
   list-style: disc;
 }
-html[data-theme="terminal"] .md li {
+:root .md li {
   margin: 4px 0;
 }
-html[data-theme="terminal"] .md li::marker {
+:root .md li::marker {
   color: var(--t-amber);
 }
-html[data-theme="terminal"] .md a {
+:root .md a {
   color: var(--t-cyan);
 }
-html[data-theme="terminal"] .md a:hover {
+:root .md a:hover {
   text-decoration: underline;
 }
-html[data-theme="terminal"] .md blockquote {
+:root .md blockquote {
   border-left: 2px solid var(--t-amber);
   background: var(--t-panel);
   padding: 10px 16px;
@@ -1064,7 +1064,7 @@ html[data-theme="terminal"] .md blockquote {
   color: var(--t-dim);
   border-radius: 0 6px 6px 0;
 }
-html[data-theme="terminal"] .th-cmt-body code {
+:root .th-cmt-body code {
   background: var(--t-panel);
   border: 1px solid var(--t-line);
   border-radius: 4px;
@@ -1072,7 +1072,7 @@ html[data-theme="terminal"] .th-cmt-body code {
   font-size: 0.9em;
   color: var(--t-amber);
 }
-html[data-theme="terminal"] .md code.md-inline {
+:root .md code.md-inline {
   background: var(--t-panel);
   border: 1px solid var(--t-line);
   padding: 1px 6px;
@@ -1112,7 +1112,7 @@ html[data-theme="terminal"] .md code.md-inline {
     opacity: 0.75;
   }
 }
-html[data-theme="terminal"] .md pre.th-pre {
+:root .md pre.th-pre {
   background: var(--t-pre-bg);
   border: 1px solid var(--t-line);
   border-radius: 8px;
@@ -1124,19 +1124,19 @@ html[data-theme="terminal"] .md pre.th-pre {
 }
 /* shiki writes inline light bg on <pre>; force the themed panel (light keeps
    the vitesse-light tokens, dark swaps to vitesse-dark via the span rule). */
-html[data-theme="terminal"] .md pre.th-pre {
+:root .md pre.th-pre {
   /* biome-ignore lint/complexity/noImportantStyles: shiki inline light bg must be overridden. */
   background: var(--t-pre-bg) !important;
 }
-html[data-theme="terminal"].dark .md pre.th-pre {
+html.dark .md pre.th-pre {
   /* biome-ignore lint/complexity/noImportantStyles: shiki inline light color must be overridden in dark mode. */
   color: var(--t-text) !important;
 }
-html[data-theme="terminal"].dark .md pre.th-pre span {
+html.dark .md pre.th-pre span {
   /* biome-ignore lint/complexity/noImportantStyles: force shiki dark tokens in dark mode (SSR-safe). */
   color: var(--shiki-dark) !important;
 }
-html[data-theme="terminal"] .md .th-pre code {
+:root .md .th-pre code {
   background: none;
   padding: 0;
 }
