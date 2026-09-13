@@ -6,17 +6,9 @@ import {
 } from '@tanstack/react-router';
 import { type ReactNode, useEffect } from 'react';
 import { AppLayout } from '../components/layout.js';
+import { ErrorPage, NotFoundPage } from '../components/misc.js';
 import { SearchPalette } from '../components/search-palette.js';
-import { SkinProvider } from '../skins/context.js';
-import { TerminalError, TerminalNotFound } from '../skins/terminal/misc.js';
 import '../styles.css';
-
-/**
- * Runs before first paint: if the cookie picks the journal skin, hide the
- * body so the terminal-themed SSR HTML never flashes; React applies the
- * journal skin right after hydration and SkinProvider removes this style.
- */
-const SKIN_BOOT_SCRIPT = `(function(){try{if(/(?:^|;\\s*)blog-skin=journal(?:;|$)/.test(document.cookie)){var s=document.createElement('style');s.id='skin-boot';s.textContent='body{visibility:hidden}';document.head.appendChild(s);}}catch(e){}})();`;
 
 export const Route = createRootRoute({
   head: () => ({
@@ -43,24 +35,12 @@ export const Route = createRootRoute({
       { rel: 'manifest', href: '/manifest.webmanifest' },
     ],
   }),
-  errorComponent: ({ error }) => (
-    <RootDocument>
-      <SkinPage>
-        <AppLayout>
-          <SkinError error={error} />
-        </AppLayout>
-      </SkinPage>
-    </RootDocument>
-  ),
-  notFoundComponent: () => (
-    <RootDocument>
-      <SkinPage>
-        <AppLayout>
-          <SkinNotFound />
-        </AppLayout>
-      </SkinPage>
-    </RootDocument>
-  ),
+  // notFound/error render INSIDE RootComponent's tree — the root document
+  // and app layout chrome are already there. Wrapping them again nests a
+  // second <html>, which the parser drops and the 404/error content
+  // silently disappears (the 404 body rendered empty because of this).
+  errorComponent: ({ error }) => <ErrorPage error={error} />,
+  notFoundComponent: () => <NotFoundPage />,
   component: RootComponent,
 });
 
@@ -82,40 +62,18 @@ function RootComponent() {
 
   return (
     <RootDocument>
-      <SkinPage>
-        <AppLayout>
-          <Outlet />
-        </AppLayout>
-        <SearchPalette />
-      </SkinPage>
+      <AppLayout>
+        <Outlet />
+      </AppLayout>
+      <SearchPalette />
     </RootDocument>
   );
 }
 
-/**
- * SSR always renders the default (terminal) skin — the framework's
- * per-request context proved unreliable on workerd — and the provider applies
- * the cookie skin immediately after hydration (see context.tsx), so the boot
- * script above is the only thing a journal user ever sees pre-skin.
- */
-function SkinPage({ children }: { children: ReactNode }) {
-  return <SkinProvider initial='terminal'>{children}</SkinProvider>;
-}
-
-function SkinNotFound() {
-  return <TerminalNotFound />;
-}
-
-function SkinError({ error }: { error: unknown }) {
-  return <TerminalError error={error} />;
-}
-
 function RootDocument({ children }: { children: ReactNode }) {
   return (
-    <html lang='zh-CN' data-theme='terminal'>
+    <html lang='zh-CN'>
       <head>
-        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static, code-reviewed boot script (no user input). */}
-        <script dangerouslySetInnerHTML={{ __html: SKIN_BOOT_SCRIPT }} />
         <HeadContent />
       </head>
       <body>

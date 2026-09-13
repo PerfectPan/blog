@@ -8,7 +8,7 @@ const FIGLET = `                  __           _
 | .__/ \\___|_|  |_|  \\___|\\___|\\__| .__/ \\__,_|_| |_|
 |_|                               |_|                `;
 
-export function TerminalHomePage() {
+export function HomePage() {
   return (
     <Page>
       <div className='th-prompt'>

@@ -1,4 +1,5 @@
 import { createFileRoute, useParams } from '@tanstack/react-router';
+import { UnlockPage } from '../../components/auth.js';
 import {
   buildUnlockCookieHeader,
   createUnlockCookieValue,
@@ -8,7 +9,6 @@ import {
   isUnlockRateLimited,
   recordUnlockFailure,
 } from '../../lib/unlock-rate-limit.js';
-import { TerminalUnlockPage } from '../../skins/terminal/auth.js';
 
 function getClientIp(request: Request): string | null {
   const forwardedFor = request.headers.get('x-forwarded-for');
@@ -69,11 +69,11 @@ export const Route = createFileRoute('/unlock/$slug')({
       },
     },
   },
-  component: UnlockPage,
+  component: UnlockRoute,
 });
 
-function UnlockPage() {
+function UnlockRoute() {
   const { slug } = useParams({ from: '/unlock/$slug' });
   const search = Route.useSearch() as Record<string, string | undefined>;
-  return <TerminalUnlockPage slug={slug} search={search} />;
+  return <UnlockPage slug={slug} search={search} />;
 }

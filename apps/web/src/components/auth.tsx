@@ -1,9 +1,9 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState, useTransition } from 'react';
-import { authClient } from '../../lib/auth-client.js';
+import { authClient } from '../lib/auth-client.js';
 import { Page } from './page.js';
 
-export function TerminalLoginPage() {
+export function LoginPage() {
   const navigate = useNavigate();
   const { data: sessionData, isPending: isSessionPending } =
     authClient.useSession();
@@ -127,7 +127,7 @@ export function TerminalLoginPage() {
   );
 }
 
-export function TerminalSignupPage() {
+export function SignupPage() {
   const navigate = useNavigate();
   const { data: sessionData, isPending: isSessionPending } =
     authClient.useSession();
@@ -260,7 +260,7 @@ export function TerminalSignupPage() {
   );
 }
 
-export function TerminalUnlockPage({
+export function UnlockPage({
   slug,
   search,
 }: {

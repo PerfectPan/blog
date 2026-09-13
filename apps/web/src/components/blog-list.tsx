@@ -32,7 +32,7 @@ function groupByYear(
     }));
 }
 
-export function TerminalBlogList({
+export function BlogList({
   data,
   showDevHint,
   devScopeHint,

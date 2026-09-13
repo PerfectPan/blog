@@ -10,10 +10,10 @@ import {
   X,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { ConfirmDialog } from '../../components/confirm-dialog.js';
-import { DarkMode } from '../../components/dark-mode.js';
-import { searchPalette } from '../../components/search-palette-store.js';
-import { authClient } from '../../lib/auth-client.js';
+import { authClient } from '../lib/auth-client.js';
+import { ConfirmDialog } from './confirm-dialog.js';
+import { DarkMode } from './dark-mode.js';
+import { searchPalette } from './search-palette-store.js';
 
 function getRoleLabel(role?: string | null): string {
   if (role === 'admin') {
@@ -30,7 +30,7 @@ function getRoleLabel(role?: string | null): string {
 /** Terminal title bar: window dots + session name + right-aligned tools.
  *  ≤480px the tool buttons collapse behind a ⋯ toggle that expands a flat
  *  text sheet under the bar (no drawer, no animation — terminals don't slide). */
-export function TerminalHeader() {
+export function Header() {
   const { data: sessionData } = authClient.useSession();
   const sessionUser = sessionData?.user ?? null;
   const navigate = useNavigate();

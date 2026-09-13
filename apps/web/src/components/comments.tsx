@@ -3,12 +3,12 @@
 import type { Comment, CommentThread, SessionUser } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
-import { CommentMarkdown } from '../../components/comment-markdown.js';
 import {
   createCommentServerFn,
   deleteCommentServerFn,
   getCommentsServerFn,
-} from '../../lib/comments-service.js';
+} from '../lib/comments-service.js';
+import { CommentMarkdown } from './comment-markdown.js';
 
 type CommentsProps = {
   slug: string;
@@ -244,7 +244,7 @@ function CommentView({
   );
 }
 
-export function TerminalComments({
+export function Comments({
   slug,
   initialComments,
   initialHasMore,

@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { Page } from './page.js';
 
-export function TerminalNotFound() {
+export function NotFoundPage() {
   return (
     <Page>
       <div>
@@ -27,7 +27,7 @@ export function TerminalNotFound() {
   );
 }
 
-export function TerminalError({ error }: { error: unknown }) {
+export function ErrorPage({ error }: { error: unknown }) {
   return (
     <Page>
       <div className='th-prompt'>

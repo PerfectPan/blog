@@ -6,8 +6,10 @@ import { parseCookies } from './unlock-cookie.js';
  * per-request CPU limit intermittently — a cached HTML response turns every
  * repeat view into a zero-compute hit. Admin writes purge precisely.
  */
-// Cookies that don't change the server-rendered HTML (both are applied
-// client-side: skin + dark mode). ANY other cookie — session, per-post
+// Cookies that don't change the server-rendered HTML. blog-skin / blog-dark
+// are legacy from the removed skin switcher and the old dark toggle — nothing
+// writes them anymore, but they stay listed so stale browser cookies don't
+// force a year-long cache bypass. ANY other cookie — session, per-post
 // unlock — means the response could be personalized, so bypass the cache.
 const BENIGN_COOKIES = new Set(['blog-dark', 'blog-skin']);
 

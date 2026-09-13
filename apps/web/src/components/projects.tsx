@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { PROJECTS, type Project } from '../../lib/projects.js';
+import { PROJECTS, type Project } from '../lib/projects.js';
 import { Page } from './page.js';
 
 function sortProjects(projects: Project[]): Project[] {
@@ -11,7 +11,7 @@ function sortProjects(projects: Project[]): Project[] {
   });
 }
 
-export function TerminalProjectsPage() {
+export function ProjectsPage() {
   const projects = sortProjects(PROJECTS);
 
   return (

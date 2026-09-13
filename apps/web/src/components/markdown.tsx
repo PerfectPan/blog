@@ -12,23 +12,16 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import type { HighlighterCore } from 'shiki/core';
 
-type Skin = 'terminal' | 'journal';
-
 type MarkdownProps = {
   content: string;
-  skin?: Skin;
 };
 
-/** Per-skin class names for the code block chrome + inline code. */
-const SKIN_CLASSES: Partial<
-  Record<Skin, { wrap: string; copy: string; pre: string; inline: string }>
-> = {
-  terminal: {
-    wrap: 'th-code group relative',
-    copy: 'th-code-copy',
-    pre: 'shiki th-pre w-full overflow-x-auto',
-    inline: 'md-inline',
-  },
+/** Class names for the code block chrome + inline code. */
+const CODE_CLASSES = {
+  wrap: 'th-code group relative',
+  copy: 'th-code-copy',
+  pre: 'shiki th-pre w-full overflow-x-auto',
+  inline: 'md-inline',
 };
 
 function scrollToHeading(id: string) {
@@ -93,7 +86,7 @@ function getHighlighter() {
  * block in the browser. Reads the rendered textContent (post-markdown) so it
  * works regardless of how the code was tokenized.
  */
-function CodeBlock({ children, skin }: { children?: ReactNode; skin: Skin }) {
+function CodeBlock({ children }: { children?: ReactNode }) {
   const preRef = useRef<HTMLPreElement>(null);
   const [copied, setCopied] = useState(false);
 
@@ -147,29 +140,24 @@ function CodeBlock({ children, skin }: { children?: ReactNode; skin: Skin }) {
   }, []);
 
   return (
-    <div className={SKIN_CLASSES.terminal?.wrap ?? 'th-code group relative'}>
+    <div className={CODE_CLASSES.wrap}>
       <button
         type='button'
         onClick={onCopy}
         aria-label='Copy code'
-        className={SKIN_CLASSES.terminal?.copy ?? 'th-code-copy'}
+        className={CODE_CLASSES.copy}
       >
         {copied ? <Check size={12} /> : <Copy size={12} />}
         {copied ? 'Copied' : 'Copy'}
       </button>
-      <pre
-        ref={preRef}
-        className={
-          SKIN_CLASSES.terminal?.pre ?? 'shiki th-pre w-full overflow-x-auto'
-        }
-      >
+      <pre ref={preRef} className={CODE_CLASSES.pre}>
         {children}
       </pre>
     </div>
   );
 }
 
-export function Markdown({ content, skin = 'terminal' }: MarkdownProps) {
+export function Markdown({ content }: MarkdownProps) {
   useEffect(() => {
     const hash = window.location.hash;
     if (!hash.startsWith('#')) {
@@ -214,7 +202,7 @@ export function Markdown({ content, skin = 'terminal' }: MarkdownProps) {
           ),
           strong: ({ children }) => <b className='font-bold'>{children}</b>,
           ul: ({ children }) => <ul>{children}</ul>,
-          pre: ({ children }) => <CodeBlock skin={skin}>{children}</CodeBlock>,
+          pre: ({ children }) => <CodeBlock>{children}</CodeBlock>,
           code: ({ className, children }) => {
             // Block code from shiki carries `language-*` — but some shiki
             // versions drop it, so also treat multi-line content as block.
@@ -226,9 +214,7 @@ export function Markdown({ content, skin = 'terminal' }: MarkdownProps) {
             return isBlock ? (
               <code className={className}>{children}</code>
             ) : (
-              <code className={SKIN_CLASSES.terminal?.inline ?? 'md-inline'}>
-                {children}
-              </code>
+              <code className={CODE_CLASSES.inline}>{children}</code>
             );
           },
         }}
