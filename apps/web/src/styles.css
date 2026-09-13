@@ -856,7 +856,7 @@ a.th-cmd:hover {
 }
 .th-home-links {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 12px;
   margin-top: 22px;
 }
@@ -875,6 +875,70 @@ a.th-cmd:hover {
 }
 .th-home-links .k {
   color: var(--t-amber);
+}
+/* Hero prompt: the home's single command line, one notch above body size.
+   The ls prompt lives inside the panel header instead — a second full
+   prompt repeated the whoami prefix. */
+.th-home-prompt {
+  font-size: 17.5px;
+}
+.th-home-panel {
+  margin-top: 28px;
+  border: 1px solid var(--t-line);
+  border-radius: 8px;
+  background: var(--t-term);
+  overflow: hidden;
+}
+.th-home-panel-head,
+.th-home-panel-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 9px 16px;
+  background: var(--t-panel);
+  color: var(--t-dim);
+  font-size: 12.5px;
+}
+.th-home-panel-head {
+  border-bottom: 1px solid var(--t-line);
+  color: var(--t-faint);
+  letter-spacing: 0.08em;
+}
+.th-home-panel-foot {
+  border-top: 1px solid var(--t-line);
+  font-size: 13px;
+}
+.th-home-panel-foot a {
+  color: var(--t-amber);
+}
+.th-home-panel-foot a:hover {
+  text-decoration: underline;
+}
+.th-home-row {
+  display: grid;
+  grid-template-columns: 5.5ch 1fr;
+  gap: 14px;
+  align-items: baseline;
+  padding: 11px 16px;
+  color: var(--t-text);
+}
+.th-home-row + .th-home-row {
+  border-top: 1px dashed var(--t-line);
+}
+a.th-home-row:hover {
+  background: var(--t-sel);
+  text-decoration: none;
+}
+.th-home-date {
+  color: var(--t-dim);
+  font-size: 12.5px;
+}
+.th-home-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 15px;
 }
 
 /* ---------- ls table (blog list) ---------- */

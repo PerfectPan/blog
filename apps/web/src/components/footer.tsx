@@ -23,9 +23,12 @@ export function Footer() {
         <Link to='/projects' className='th-tmux-win'>
           2:projects
         </Link>
+        <Link to='/about' className='th-tmux-win'>
+          3:about
+        </Link>
         {isAdmin ? (
           <Link to='/admin' className='th-tmux-win'>
-            3:admin
+            4:admin
           </Link>
         ) : null}
       </nav>
