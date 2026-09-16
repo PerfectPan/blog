@@ -1,5 +1,5 @@
 import { POST_VISIBILITIES } from '@blog/shared';
-import { useRouter } from '@tanstack/react-router';
+import { useHydrated, useRouter } from '@tanstack/react-router';
 import { useReducer, useState } from 'react';
 import {
   type AdminPost,
@@ -79,6 +79,7 @@ export function PostEditor({
   allTags?: string[];
 }) {
   const router = useRouter();
+  const hydrated = useHydrated();
   const [fields, dispatch] = useReducer(
     formReducer,
     initial ?? EMPTY,
@@ -130,165 +131,174 @@ export function PostEditor({
   }
 
   return (
-    <form onSubmit={onSubmit} className='grid gap-5'>
-      {error ? (
-        <p role='alert' className='th-err'>
-          {error}
-        </p>
-      ) : null}
+    <form onSubmit={onSubmit}>
+      {/* Before hydration, React can overwrite typed input and submission
+          bypasses onSubmit as a native GET. */}
+      <fieldset
+        disabled={!hydrated}
+        className='m-0 grid min-w-0 gap-5 border-0 p-0'
+      >
+        {error ? (
+          <p role='alert' className='th-err'>
+            {error}
+          </p>
+        ) : null}
 
-      <section className='th-panel grid gap-4'>
-        <label className='grid'>
-          <span className='th-flabel'>标题</span>
-          <input
-            className='th-input'
-            value={fields.title}
-            onChange={(event) => setField('title', event.target.value)}
-            placeholder='文章标题'
-            required
-          />
-        </label>
-
-        <div className='grid gap-4 sm:grid-cols-2'>
+        <section className='th-panel grid gap-4'>
           <label className='grid'>
-            <span className='th-flabel'>Slug</span>
+            <span className='th-flabel'>标题</span>
             <input
               className='th-input'
-              value={fields.slug}
-              onChange={(event) => setField('slug', event.target.value)}
-              placeholder='my-post'
-              disabled={mode === 'edit'}
+              value={fields.title}
+              onChange={(event) => setField('title', event.target.value)}
+              placeholder='文章标题'
               required
             />
           </label>
-          <label className='grid'>
-            <span className='th-flabel'>发布日期</span>
-            <input
-              type='date'
-              className='th-input'
-              value={fields.publishedAt}
-              onChange={(event) => setField('publishedAt', event.target.value)}
-              required
-            />
-          </label>
-        </div>
 
-        <label className='grid'>
-          <span className='th-flabel'>摘要</span>
-          <textarea
-            className='th-input min-h-[64px] resize-y'
-            value={fields.description}
-            onChange={(event) => setField('description', event.target.value)}
-            placeholder='一句话描述这篇文章'
-            rows={2}
-          />
-        </label>
-      </section>
-
-      <section className='th-panel grid gap-4'>
-        <div className='grid gap-2'>
-          <span className='th-flabel'>标签</span>
-          <TagInput
-            value={fields.tags}
-            onChange={(tags) => setField('tags', tags)}
-            placeholder='输入后回车添加，或点击下方已有标签'
-            suggestions={allTags}
-          />
-        </div>
-
-        <div className='grid gap-4 sm:grid-cols-3'>
-          <div className='grid gap-2'>
-            <span className='th-flabel'>可见性</span>
-            <Select
-              value={fields.visibility}
-              onValueChange={(value) =>
-                setField('visibility', value as FormState['visibility'])
-              }
-            >
-              <SelectTrigger className='th-input' aria-label='可见性'>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {POST_VISIBILITIES.map((value) => (
-                  <SelectItem key={value} value={value}>
-                    {value}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className='grid gap-2'>
-            <span className='th-flabel'>状态</span>
-            <Select
-              value={fields.status}
-              onValueChange={(value) =>
-                setField('status', value as FormState['status'])
-              }
-            >
-              <SelectTrigger className='th-input' aria-label='状态'>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='published'>published</SelectItem>
-                <SelectItem value='draft'>draft</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          {fields.visibility === 'password' ? (
+          <div className='grid gap-4 sm:grid-cols-2'>
             <label className='grid'>
-              <span className='th-flabel'>密码</span>
+              <span className='th-flabel'>Slug</span>
               <input
                 className='th-input'
-                value={fields.password}
-                onChange={(event) => setField('password', event.target.value)}
-                placeholder='访问密码'
+                value={fields.slug}
+                onChange={(event) => setField('slug', event.target.value)}
+                placeholder='my-post'
+                disabled={mode === 'edit'}
+                required
               />
             </label>
+            <label className='grid'>
+              <span className='th-flabel'>发布日期</span>
+              <input
+                type='date'
+                className='th-input'
+                value={fields.publishedAt}
+                onChange={(event) =>
+                  setField('publishedAt', event.target.value)
+                }
+                required
+              />
+            </label>
+          </div>
+
+          <label className='grid'>
+            <span className='th-flabel'>摘要</span>
+            <textarea
+              className='th-input min-h-[64px] resize-y'
+              value={fields.description}
+              onChange={(event) => setField('description', event.target.value)}
+              placeholder='一句话描述这篇文章'
+              rows={2}
+            />
+          </label>
+        </section>
+
+        <section className='th-panel grid gap-4'>
+          <div className='grid gap-2'>
+            <span className='th-flabel'>标签</span>
+            <TagInput
+              value={fields.tags}
+              onChange={(tags) => setField('tags', tags)}
+              placeholder='输入后回车添加，或点击下方已有标签'
+              suggestions={allTags}
+            />
+          </div>
+
+          <div className='grid gap-4 sm:grid-cols-3'>
+            <div className='grid gap-2'>
+              <span className='th-flabel'>可见性</span>
+              <Select
+                value={fields.visibility}
+                onValueChange={(value) =>
+                  setField('visibility', value as FormState['visibility'])
+                }
+              >
+                <SelectTrigger className='th-input' aria-label='可见性'>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {POST_VISIBILITIES.map((value) => (
+                    <SelectItem key={value} value={value}>
+                      {value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className='grid gap-2'>
+              <span className='th-flabel'>状态</span>
+              <Select
+                value={fields.status}
+                onValueChange={(value) =>
+                  setField('status', value as FormState['status'])
+                }
+              >
+                <SelectTrigger className='th-input' aria-label='状态'>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='published'>published</SelectItem>
+                  <SelectItem value='draft'>draft</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {fields.visibility === 'password' ? (
+              <label className='grid'>
+                <span className='th-flabel'>密码</span>
+                <input
+                  className='th-input'
+                  value={fields.password}
+                  onChange={(event) => setField('password', event.target.value)}
+                  placeholder='访问密码'
+                />
+              </label>
+            ) : null}
+          </div>
+        </section>
+
+        <section className='grid gap-2'>
+          <span className='th-flabel'>正文（Markdown）</span>
+          <MarkdownEditor
+            value={fields.body}
+            onChange={(body) => setField('body', body)}
+          />
+        </section>
+
+        <div className='flex items-center gap-3'>
+          <button
+            type='submit'
+            disabled={saving}
+            className='th-btn th-btn-primary'
+          >
+            {saving ? '保存中…' : '保存'}
+          </button>
+          {mode === 'edit' ? (
+            <button
+              type='button'
+              onClick={() => {
+                setConfirmDelete(true);
+              }}
+              disabled={saving}
+              className='th-btn th-btn-danger'
+            >
+              删除
+            </button>
           ) : null}
         </div>
-      </section>
 
-      <section className='grid gap-2'>
-        <span className='th-flabel'>正文（Markdown）</span>
-        <MarkdownEditor
-          value={fields.body}
-          onChange={(body) => setField('body', body)}
+        <ConfirmDialog
+          open={confirmDelete}
+          onOpenChange={setConfirmDelete}
+          command='rm post'
+          description={`确定删除文章 “${fields.slug}”？此操作不可恢复。`}
+          confirmLabel='delete'
+          onConfirm={() => {
+            setConfirmDelete(false);
+            onDelete();
+          }}
         />
-      </section>
-
-      <div className='flex items-center gap-3'>
-        <button
-          type='submit'
-          disabled={saving}
-          className='th-btn th-btn-primary'
-        >
-          {saving ? '保存中…' : '保存'}
-        </button>
-        {mode === 'edit' ? (
-          <button
-            type='button'
-            onClick={() => {
-              setConfirmDelete(true);
-            }}
-            disabled={saving}
-            className='th-btn th-btn-danger'
-          >
-            删除
-          </button>
-        ) : null}
-      </div>
-
-      <ConfirmDialog
-        open={confirmDelete}
-        onOpenChange={setConfirmDelete}
-        command='rm post'
-        description={`确定删除文章 “${fields.slug}”？此操作不可恢复。`}
-        confirmLabel='delete'
-        onConfirm={() => {
-          setConfirmDelete(false);
-          onDelete();
-        }}
-      />
+      </fieldset>
     </form>
   );
 }
