@@ -49,7 +49,9 @@ export function BlogList({
 
   return (
     <Page>
-      <Prompt cwd='~/posts %'>ls --group-directories-first</Prompt>
+      <Prompt user='perfectpan' host='blog' cwd='~/posts %'>
+        ls --group-directories-first
+      </Prompt>
 
       {showDevHint ? (
         <div className='mb-4.5 rounded-lg border border-dashed border-[color-mix(in_srgb,var(--primary)_50%,transparent)] bg-[color-mix(in_srgb,var(--primary)_6%,transparent)] px-3.5 py-2 text-xs text-primary mt-4'>

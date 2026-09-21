@@ -16,7 +16,7 @@ export function ProjectsPage() {
 
   return (
     <Page>
-      <Prompt cwd='~/projects' />
+      <Prompt user='perfectpan' host='blog' cwd='~/projects' />
 
       <div className='mt-3'>
         {projects.map((project) => (

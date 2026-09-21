@@ -35,7 +35,9 @@ export function HomePage({
       {/* Hero prompt: the home's single command line — the ls echo lives in
           the panel header instead of repeating the whoami prefix a second
           time. Same shared Prompt as every page. */}
-      <Prompt cwd='~ %'>whoami --verbose</Prompt>
+      <Prompt user='perfectpan' host='blog' cwd='~ %'>
+        whoami --verbose
+      </Prompt>
       <div className='mb-1 mt-3'>
         <pre
           className='mt-4.5 select-none text-[min(11px,calc((100vw-32px)/34.5))] leading-tight whitespace-pre text-muted-foreground/50'

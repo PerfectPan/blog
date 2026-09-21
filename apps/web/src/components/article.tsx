@@ -34,7 +34,7 @@ export function ArticlePage({
 
   return (
     <Page>
-      <Prompt cwd='~/posts %'>
+      <Prompt user='perfectpan' host='blog' cwd='~/posts %'>
         cat {new Date(post.publishedAt).getFullYear()}/{post.slug}.md
       </Prompt>
 
