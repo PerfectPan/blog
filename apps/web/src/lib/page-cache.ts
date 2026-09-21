@@ -5,6 +5,11 @@ import { parseCookies } from './unlock-cookie.js';
  * react-markdown render) is expensive enough on the free plan to blow the
  * per-request CPU limit intermittently — a cached HTML response turns every
  * repeat view into a zero-compute hit. Admin writes purge precisely.
+ *
+ * Bump the namespace string whenever a deploy changes what SSR emits
+ * (styling, markup) — edge entries live for the full TTL and a deploy
+ * does not invalidate them, so old-styled pages would otherwise linger
+ * for days after the new code ships.
  */
 // Cookies that don't change the server-rendered HTML. blog-skin / blog-dark
 // are legacy from the removed skin switcher and the old dark toggle — nothing
@@ -14,7 +19,7 @@ import { parseCookies } from './unlock-cookie.js';
 const BENIGN_COOKIES = new Set(['blog-dark', 'blog-skin']);
 
 const cachePromise: Promise<Cache> | null =
-  'caches' in globalThis ? caches.open('article-page-v1') : null;
+  'caches' in globalThis ? caches.open('article-page-v2') : null;
 
 async function getCache(): Promise<Cache | undefined> {
   return (await cachePromise) ?? undefined;
