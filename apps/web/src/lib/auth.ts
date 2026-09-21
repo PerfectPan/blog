@@ -15,6 +15,8 @@ const kysely = new Kysely<Record<string, unknown>>({
 
 const githubEnabled = Boolean(env.githubClientId && env.githubClientSecret);
 
+export const githubProviderEnabled = githubEnabled;
+
 // vite dev (pnpm dev) serves on :5173 while APPS_WEB_URL points at the
 // wrangler-dev origin (:8787) — allow the vite origin in dev only, otherwise
 // every sign-in from the dev server dies on Better Auth's origin check.

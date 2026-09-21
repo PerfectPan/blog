@@ -3,7 +3,13 @@ import { useEffect, useState, useTransition } from 'react';
 import { authClient } from '../lib/auth-client.js';
 import { Page, Prompt } from './page.js';
 
-export function LoginPage() {
+export function LoginPage({
+  githubEnabled,
+  oauthError,
+}: {
+  githubEnabled: boolean;
+  oauthError?: string;
+}) {
   const navigate = useNavigate();
   const { data: sessionData, isPending: isSessionPending } =
     authClient.useSession();
@@ -32,7 +38,9 @@ export function LoginPage() {
         ssh member@perfectpan.org
       </Prompt>
       <p className='mb-1 text-xs text-muted-foreground/60 mt-2'>
-        # 邮箱密码登录；或者走 GitHub OAuth。
+        {githubEnabled
+          ? '# 邮箱密码登录；或者走 GitHub OAuth。'
+          : '# 邮箱密码登录。'}
       </p>
       <form
         className='mt-4'
@@ -94,23 +102,30 @@ export function LoginPage() {
           >
             {isPending ? 'signing in…' : 'sign in'}
           </button>
-          <button
-            type='button'
-            className='cursor-pointer rounded-lg border border-border bg-secondary px-3.5 py-1.75 text-sm text-foreground transition-[border-color,color] duration-100 hover:border-primary hover:text-primary'
-            onClick={async () => {
-              setError(null);
-              const result = await authClient.signIn.social({
-                provider: 'github',
-                callbackURL: '/blog',
-              });
-              if (result.error) {
-                setError(result.error.message ?? 'GitHub 登录失败');
-              }
-            }}
-          >
-            continue with github
-          </button>
+          {githubEnabled ? (
+            <button
+              type='button'
+              className='cursor-pointer rounded-lg border border-border bg-secondary px-3.5 py-1.75 text-sm text-foreground transition-[border-color,color] duration-100 hover:border-primary hover:text-primary'
+              onClick={async () => {
+                setError(null);
+                const result = await authClient.signIn.social({
+                  provider: 'github',
+                  callbackURL: '/blog',
+                });
+                if (result.error) {
+                  setError(result.error.message ?? 'GitHub 登录失败');
+                }
+              }}
+            >
+              continue with github
+            </button>
+          ) : null}
         </div>
+        {oauthError ? (
+          <p role='alert' className='my-2.5 text-sm text-destructive'>
+            GitHub 登录失败（{oauthError}）
+          </p>
+        ) : null}
         {error ? (
           <p role='alert' className='my-2.5 text-sm text-destructive'>
             {error}
@@ -130,7 +145,13 @@ export function LoginPage() {
   );
 }
 
-export function SignupPage() {
+export function SignupPage({
+  githubEnabled,
+  oauthError,
+}: {
+  githubEnabled: boolean;
+  oauthError?: string;
+}) {
   const navigate = useNavigate();
   const { data: sessionData, isPending: isSessionPending } =
     authClient.useSession();
@@ -238,23 +259,30 @@ export function SignupPage() {
           >
             {isPending ? 'creating…' : 'create account'}
           </button>
-          <button
-            type='button'
-            className='cursor-pointer rounded-lg border border-border bg-secondary px-3.5 py-1.75 text-sm text-foreground transition-[border-color,color] duration-100 hover:border-primary hover:text-primary'
-            onClick={async () => {
-              setError(null);
-              const result = await authClient.signIn.social({
-                provider: 'github',
-                callbackURL: '/blog',
-              });
-              if (result.error) {
-                setError(result.error.message ?? 'GitHub 注册失败');
-              }
-            }}
-          >
-            continue with github
-          </button>
+          {githubEnabled ? (
+            <button
+              type='button'
+              className='cursor-pointer rounded-lg border border-border bg-secondary px-3.5 py-1.75 text-sm text-foreground transition-[border-color,color] duration-100 hover:border-primary hover:text-primary'
+              onClick={async () => {
+                setError(null);
+                const result = await authClient.signIn.social({
+                  provider: 'github',
+                  callbackURL: '/blog',
+                });
+                if (result.error) {
+                  setError(result.error.message ?? 'GitHub 注册失败');
+                }
+              }}
+            >
+              continue with github
+            </button>
+          ) : null}
         </div>
+        {oauthError ? (
+          <p role='alert' className='my-2.5 text-sm text-destructive'>
+            GitHub 注册失败（{oauthError}）
+          </p>
+        ) : null}
         {error ? (
           <p role='alert' className='my-2.5 text-sm text-destructive'>
             {error}

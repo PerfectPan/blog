@@ -8,7 +8,10 @@ BETTER_AUTH_SECRET=""
 # Public origin of the site (also set as a [vars] entry in wrangler.jsonc for prod).
 APPS_WEB_URL="http://127.0.0.1:8787"
 
-# Optional: GitHub OAuth. Leave unset to disable the GitHub sign-in button.
+# Optional: GitHub OAuth. Leave unset to hide the GitHub sign-in button.
+# The OAuth app callback URL must be exactly:
+#   local dev: http://127.0.0.1:8787/api/auth/callback/github
+#   production: https://perfectpan.org/api/auth/callback/github
 GITHUB_CLIENT_ID=""
 GITHUB_CLIENT_SECRET=""
 
