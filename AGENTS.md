@@ -72,7 +72,7 @@ pnpm deploy
 
 ```bash
 pnpm typecheck
-pnpm biome check ./apps ./packages
+pnpm lint   # = biome check + oxlint（shadcn token 规则，与 CI lint job 一致）
 pnpm --filter @blog/web build
 pnpm --filter @blog/web exec wrangler deploy -c dist/server/wrangler.json --dry-run  # 守 3 MiB
 ```

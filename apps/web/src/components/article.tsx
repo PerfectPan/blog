@@ -2,7 +2,7 @@ import type { CommentThread, SessionUser } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
 import { Comments } from './comments.js';
 import { Markdown } from './markdown.js';
-import { Page } from './page.js';
+import { Page, Prompt } from './page.js';
 
 type ArticlePageProps = {
   post: {
@@ -34,19 +34,13 @@ export function ArticlePage({
 
   return (
     <Page>
-      <div className='th-prompt'>
-        <span className='th-prompt-u'>perfectpan</span>
-        <span className='th-prompt-at'>@</span>
-        <span className='th-prompt-h'>blog</span>{' '}
-        <span className='th-prompt-p'>~/posts %</span>{' '}
-        <span className='th-cmd'>
-          cat {new Date(post.publishedAt).getFullYear()}/{post.slug}.md
-        </span>
-      </div>
+      <Prompt cwd='~/posts %'>
+        cat {new Date(post.publishedAt).getFullYear()}/{post.slug}.md
+      </Prompt>
 
-      <div className='th-art-head'>
-        <h1 className='th-art-title'>{post.title}</h1>
-        <div className='th-art-meta'>
+      <div className='mt-4 mb-6.5'>
+        <h1 className='text-3xl font-bold text-foreground'>{post.title}</h1>
+        <div className='mt-1.5 flex flex-wrap gap-4 text-xs text-muted-foreground'>
           <span>{date}</span>
           <span>·</span>
           <span>{post.visibility}</span>
@@ -59,19 +53,15 @@ export function ArticlePage({
         </div>
       </div>
       <Markdown content={post.contentMdx} />
-      <div className='th-prompt mt-6'>
-        <span className='th-prompt-u'>perfectpan</span>
-        <span className='th-prompt-at'>@</span>
-        <span className='th-prompt-h'>blog</span>{' '}
-        <span className='th-prompt-p'>~/posts %</span>{' '}
+      <Prompt cwd='~/posts %' className='mt-6'>
         <Link
           to='/blog'
           activeOptions={{ exact: true }}
-          className='th-cmd th-cmd-dim'
+          className='text-muted-foreground hover:text-primary'
         >
           cd ..
         </Link>
-      </div>
+      </Prompt>
       <Comments
         key={post.slug}
         slug={post.slug}
