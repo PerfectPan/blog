@@ -1,7 +1,7 @@
 # PerfectPan's Blog
 
-My personal blog at [perfectpan.org](https://perfectpan.org). It runs entirely
-on Cloudflare and costs $0/month.
+My personal blog at [perfectpan.org](https://perfectpan.org). It runs
+entirely on Cloudflare.
 
 ## Stack
 
@@ -30,3 +30,7 @@ pnpm --filter @blog/web preview                    # wrangler dev
 Pushes to `master` build and deploy automatically through Cloudflare Workers
 Builds, and PR branches get preview URLs. The RSS feed is at
 [`/rss.xml`](https://perfectpan.org/rss.xml).
+
+## License
+
+[MIT](./LICENSE)
