@@ -59,6 +59,49 @@
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
+
+  /* Page intros. term-type grows max-width in whole characters — Prompt
+     (page.tsx) sets --chars, --type-ms and the max-width it grows to.
+     term-caret holds solid through its delay (the typing: backwards fill
+     shows the first keyframe), blinks twice, then goes out. term-print
+     uncovers the home FIGLET one text line per step, top down.
+     Fill backwards only, for the reason given at ENTER in term.ts; every
+     end state here equals the element's own style anyway. */
+  --animate-term-type: term-type var(--type-ms) steps(var(--chars)) backwards;
+  --animate-term-caret: term-caret 700ms linear var(--type-ms) backwards;
+  --animate-term-print: term-print 220ms steps(6) 80ms backwards;
+
+  @keyframes term-type {
+    from {
+      max-width: 0;
+    }
+  }
+  @keyframes term-caret {
+    0%,
+    25% {
+      opacity: 1;
+    }
+    26%,
+    50% {
+      opacity: 0;
+    }
+    51%,
+    75% {
+      opacity: 1;
+    }
+    76%,
+    100% {
+      opacity: 0;
+    }
+  }
+  @keyframes term-print {
+    from {
+      clip-path: inset(0 0 100% 0);
+    }
+    to {
+      clip-path: inset(0);
+    }
+  }
 }
 
 /* shadcn v4 base: v4 defaults borders to currentColor, the spec restores

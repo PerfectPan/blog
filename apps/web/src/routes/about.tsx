@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { Markdown } from '../components/markdown.js';
-import { Page } from '../components/page.js';
+import { Page, Prompt } from '../components/page.js';
+import { BODY_ENTER_DELAY_MS, ENTER, enterDelay } from '../components/term.js';
 
 /**
  * About copy. Single edit point — change the markdown here and push; no CMS,
@@ -30,25 +31,17 @@ export const Route = createFileRoute('/about')({
 function AboutPage() {
   return (
     <Page>
-      <div className='flex flex-wrap items-baseline gap-2.5'>
-        <span className='text-chart-1'>perfectpan</span>
-        <span className='text-muted-foreground/60'>@</span>
-        <span className='text-chart-2'>blog</span>{' '}
-        <span className='text-primary'>~ %</span>{' '}
-        <span className='text-foreground hover:text-primary'>
-          cat ~/about.md
-        </span>
+      <Prompt user='perfectpan' host='blog' cwd='~ %' typed>
+        cat ~/about.md
+      </Prompt>
+      <div className={ENTER} style={enterDelay(BODY_ENTER_DELAY_MS)}>
+        <Markdown content={ABOUT_MD} />
       </div>
-      <Markdown content={ABOUT_MD} />
-      <div className='flex flex-wrap items-baseline gap-2.5 mt-6'>
-        <span className='text-chart-1'>perfectpan</span>
-        <span className='text-muted-foreground/60'>@</span>
-        <span className='text-chart-2'>blog</span>{' '}
-        <span className='text-primary'>~ %</span>{' '}
+      <Prompt user='perfectpan' host='blog' cwd='~ %' className='mt-6'>
         <Link to='/' className='text-muted-foreground hover:text-primary'>
           cd ~
         </Link>
-      </div>
+      </Prompt>
     </Page>
   );
 }

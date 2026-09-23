@@ -1,6 +1,7 @@
 import type { PostSummary } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
 import { Page, Prompt } from './page.js';
+import { ENTER, ENTER_ROW, enterDelay } from './term.js';
 
 const FIGLET = `                  __           _
  _ __   ___ _ __ / _| ___  ___| |_ _ __   __ _ _ __
@@ -19,7 +20,14 @@ const CARD =
 // Rows live in their own wrapper so first: means "first row", not "the child
 // after the panel header" — the header already carries a solid border-b.
 const ROW =
-  'grid grid-cols-[10ch_1fr] items-baseline gap-3.5 border-t border-dashed border-border px-4 py-2.75 text-foreground first:border-t-0 hover:bg-accent hover:no-underline';
+  'group grid grid-cols-[10ch_1fr] items-baseline gap-3.5 border-t border-dashed border-border px-4 py-2.75 text-foreground first:border-t-0 hover:bg-accent hover:no-underline';
+
+// Intro: the command types out while the FIGLET prints and the cards and
+// posts panel rise in — overlapped, not chained, so the content never waits
+// on the flourish; all of it is done by ~700ms.
+// Start times in ms from first paint, overlapping the typing and FIGLET.
+const DELAY_MS = { blog: 120, projects: 160, panel: 200, rows: 240 };
+const ROW_STAGGER_MS = 35;
 
 export function HomePage({
   posts,
@@ -35,12 +43,12 @@ export function HomePage({
       {/* Hero prompt: the home's single command line — the ls echo lives in
           the panel header instead of repeating the whoami prefix a second
           time. Same shared Prompt as every page. */}
-      <Prompt user='perfectpan' host='blog' cwd='~ %'>
+      <Prompt user='perfectpan' host='blog' cwd='~ %' typed>
         whoami --verbose
       </Prompt>
       <div className='mb-1 mt-3'>
         <pre
-          className='mt-4.5 select-none text-[min(11px,calc((100vw-32px)/34.5))] leading-tight whitespace-pre text-muted-foreground/50'
+          className='mt-4.5 select-none text-[min(11px,calc((100vw-32px)/34.5))] leading-tight whitespace-pre text-muted-foreground/50 motion-safe:animate-term-print'
           aria-hidden='true'
         >
           {FIGLET}
@@ -48,15 +56,26 @@ export function HomePage({
         </pre>
       </div>
       <div className='mt-5.5 grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-3'>
-        <Link to='/blog' className={CARD}>
+        <Link
+          to='/blog'
+          className={`${CARD} ${ENTER}`}
+          style={enterDelay(DELAY_MS.blog)}
+        >
           <span className='text-primary'>open blog/</span>
         </Link>
-        <Link to='/projects' className={CARD}>
+        <Link
+          to='/projects'
+          className={`${CARD} ${ENTER}`}
+          style={enterDelay(DELAY_MS.projects)}
+        >
           <span className='text-primary'>open projects/</span>
         </Link>
       </div>
 
-      <div className='mt-7 overflow-hidden rounded-md border border-border bg-card'>
+      <div
+        className={`mt-7 overflow-hidden rounded-md border border-border bg-card ${ENTER}`}
+        style={enterDelay(DELAY_MS.panel)}
+      >
         <div className='flex items-baseline justify-between gap-3 border-b border-border bg-muted/50 px-4 py-3 text-sm tracking-widest text-muted-foreground'>
           <span>ls -t ~/posts | head -5</span>
           <span>{total} 篇文章</span>
@@ -70,12 +89,13 @@ export function HomePage({
           </div>
         ) : (
           <div>
-            {latest.map((post: PostSummary) => (
+            {latest.map((post: PostSummary, i) => (
               <Link
                 key={post.slug}
                 to='/blog/$slug'
                 params={{ slug: post.slug }}
-                className={ROW}
+                className={`${ROW} ${ENTER_ROW}`}
+                style={enterDelay(DELAY_MS.rows + i * ROW_STAGGER_MS)}
               >
                 <span className='text-sm text-muted-foreground'>
                   {new Date(post.publishedAt)
@@ -83,7 +103,9 @@ export function HomePage({
                     .slice(0, 10)
                     .replaceAll('-', '/')}
                 </span>
-                <span className='truncate'>{post.title}</span>
+                <span className='truncate transition-[translate,color] duration-200 group-hover:translate-x-1 group-hover:text-primary'>
+                  {post.title}
+                </span>
               </Link>
             ))}
           </div>
