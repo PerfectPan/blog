@@ -9,9 +9,11 @@ import { createWave, DOT_PITCH } from './dot-wave.js';
  * one grid cell per tick, sometimes turns 45°, sometimes forks, and ends in a
  * small square node.
  *
- * Traces live only in the gutters beside the content column: the column is
- * measured from the <Page> container (`data-page`) and is a hard wall, so
- * nothing ever runs behind text. When the gutters are too narrow to hold a
+ * Traces grow in the gutters beside the content column, measured from the
+ * <Page> container (`data-page`). The column is a soft wall: now and then a
+ * trace slips in, but it cannot fork there and dies within a few steps, and
+ * the mask draws it at a tenth of full strength — enough to tie the two
+ * sides together without lines running across the text. When the gutters are too narrow to hold a
  * trace (phones), the backdrop switches to the rolling dot-grid surface in
  * dot-wave.ts, dimmed toward the center. Routes without a <Page> (admin)
  * draw nothing. Moving between pages that share the column keeps the
@@ -37,8 +39,17 @@ const SURVIVE = 0.985;
 const SURVIVE_DECAY = 0.0006;
 const TURN = 0.12;
 const FORK = 0.035;
-// Clearance in px kept between traces and the column's text box.
+// Clearance in px between the gutters and the column's text box.
 const CLEARANCE = 16;
+// Odds a trace at the column's edge continues into it (per attempt), and
+// per-step survival once inside (mean ~10 steps before it ends).
+const ENTER_COLUMN = 0.3;
+const SURVIVE_IN_COLUMN = 0.9;
+// Mask strength at the column's edge and inside it.
+const MASK_EDGE = 0.3;
+const MASK_COLUMN = 0.1;
+// Width in px over which the mask eases from the edge to the column value.
+const MASK_FADE = 48;
 // Gutters narrower than this many cells are left empty.
 const MIN_GUTTER = 6;
 // The dot wave redraws at most this often: its motion is slow, and a
@@ -65,7 +76,7 @@ type Drawing = {
   nodes: number[];
 };
 
-/** Grid columns [lo, hi] (inclusive) that traces may not enter. */
+/** Grid columns [lo, hi] (inclusive) of the column, which traces rarely enter. */
 type Wall = { lo: number; hi: number };
 
 function createGrower(cols: number, rows: number, wall: Wall) {
@@ -104,22 +115,23 @@ function createGrower(cols: number, rows: number, wall: Wall) {
     occupied[t.y * cols + t.x] = 1;
   }
 
-  const open = (x: number, y: number) =>
+  const open = (x: number, y: number, mayEnter: boolean) =>
     x >= 0 &&
     y >= 0 &&
     x < cols &&
     y < rows &&
     occupied[y * cols + x] === 0 &&
-    !inWall(x);
+    (mayEnter || !inWall(x));
 
   // Heading, else a 45° then 90° swerve (random side first) — traces route
   // along the column and around each other instead of dying on contact.
   const route = (t: Tip) => {
     const side = Math.random() < 0.5 ? 1 : 7;
+    const mayEnter = inWall(t.x) || Math.random() < ENTER_COLUMN;
     for (const turn of [0, side, 8 - side, side * 2, 16 - side * 2]) {
       const dir = (t.dir + turn) % 8;
       const [dx, dy] = DIRS[dir];
-      if (open(t.x + dx, t.y + dy)) {
+      if (open(t.x + dx, t.y + dy, mayEnter)) {
         return dir;
       }
     }
@@ -145,11 +157,13 @@ function createGrower(cols: number, rows: number, wall: Wall) {
       drawing.segments.push(t.x, t.y, nx, ny);
 
       const depth = t.depth + 1;
+      const inside = inWall(nx);
       let spawned = false;
       // Survival decays with depth so branches stay near their edge.
       if (
-        depth < MIN_DEPTH ||
-        Math.random() < SURVIVE - depth * SURVIVE_DECAY
+        inside
+          ? Math.random() < SURVIVE_IN_COLUMN
+          : depth < MIN_DEPTH || Math.random() < SURVIVE - depth * SURVIVE_DECAY
       ) {
         const turn = Math.random();
         const dir =
@@ -161,7 +175,7 @@ function createGrower(cols: number, rows: number, wall: Wall) {
         next.push({ x: nx, y: ny, dir, depth });
         spawned = true;
       }
-      if (Math.random() < FORK) {
+      if (!inside && Math.random() < FORK) {
         // Forks leave at 45° or 90° to the parent.
         const offset = [1, 2, 6, 7][Math.floor(Math.random() * 4)];
         next.push({ x: nx, y: ny, dir: (heading + offset) % 8, depth });
@@ -289,8 +303,8 @@ export function TraceBackground() {
     };
 
     const startTraces = (w: number, h: number, left: number, right: number) => {
-      // Fade toward the column so traces thin out before the wall.
-      canvas.style.maskImage = `linear-gradient(90deg, #000, rgb(0 0 0 / 0.25) ${left}px, transparent ${left}px, transparent ${right}px, rgb(0 0 0 / 0.25) ${right}px, #000)`;
+      // Fade toward the column; the few traces inside stay faint.
+      canvas.style.maskImage = `linear-gradient(90deg, #000, rgb(0 0 0 / ${MASK_EDGE}) ${left}px, rgb(0 0 0 / ${MASK_COLUMN}) ${left + MASK_FADE}px, rgb(0 0 0 / ${MASK_COLUMN}) ${right - MASK_FADE}px, rgb(0 0 0 / ${MASK_EDGE}) ${right}px, #000)`;
       const grower = createGrower(Math.ceil(w / STEP), Math.ceil(h / STEP), {
         // Cell x's trace point sits at x * STEP + STEP / 2.
         lo: Math.floor(left / STEP),
