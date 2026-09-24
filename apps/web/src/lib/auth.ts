@@ -32,6 +32,11 @@ const authOptions = {
     enabled: true,
     autoSignIn: true,
   },
+  account: {
+    // Linking only runs from a signed-in session (/account), so a GitHub
+    // account whose email differs from the user's still belongs to them.
+    accountLinking: { allowDifferentEmails: true },
+  },
   socialProviders: githubEnabled
     ? {
         github: {

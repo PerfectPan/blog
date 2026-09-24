@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { z } from 'zod';
 import { SignupPage } from '../components/auth.js';
 
 export const Route = createFileRoute('/signup')({
@@ -13,9 +14,12 @@ export const Route = createFileRoute('/signup')({
         }),
     },
   },
+  // `error` is set by Better Auth when a GitHub sign-up fails.
+  validateSearch: z.object({ error: z.string().optional() }),
   component: SignUpPage,
 });
 
 function SignUpPage() {
-  return <SignupPage />;
+  const { error } = Route.useSearch();
+  return <SignupPage searchError={error} />;
 }

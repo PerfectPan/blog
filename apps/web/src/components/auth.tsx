@@ -3,13 +3,29 @@ import { useEffect, useState, useTransition } from 'react';
 import { authClient } from '../lib/auth-client.js';
 import { Page, Prompt } from './page.js';
 
-export function LoginPage() {
+// Better Auth reports OAuth failures as `?error=<code>` on the
+// errorCallbackURL; these are the codes a user can actually cause.
+const AUTH_ERRORS: Record<string, string> = {
+  account_not_linked:
+    '这个邮箱已经有密码账号。先用邮箱密码登录，再到 account 页绑定 GitHub。',
+  account_already_linked_to_different_user:
+    '这个 GitHub 账号已经绑定了另一个用户。',
+  unable_to_link_account: 'GitHub 邮箱未验证，无法绑定。',
+};
+
+export function authErrorMessage(code: string): string {
+  return AUTH_ERRORS[code] ?? `GitHub 登录失败（${code}）`;
+}
+
+export function LoginPage({ searchError }: { searchError?: string }) {
   const navigate = useNavigate();
   const { data: sessionData, isPending: isSessionPending } =
     authClient.useSession();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    searchError ? authErrorMessage(searchError) : null,
+  );
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
@@ -102,6 +118,7 @@ export function LoginPage() {
               const result = await authClient.signIn.social({
                 provider: 'github',
                 callbackURL: '/blog',
+                errorCallbackURL: '/login',
               });
               if (result.error) {
                 setError(result.error.message ?? 'GitHub 登录失败');
@@ -130,14 +147,16 @@ export function LoginPage() {
   );
 }
 
-export function SignupPage() {
+export function SignupPage({ searchError }: { searchError?: string }) {
   const navigate = useNavigate();
   const { data: sessionData, isPending: isSessionPending } =
     authClient.useSession();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    searchError ? authErrorMessage(searchError) : null,
+  );
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
@@ -246,6 +265,7 @@ export function SignupPage() {
               const result = await authClient.signIn.social({
                 provider: 'github',
                 callbackURL: '/blog',
+                errorCallbackURL: '/signup',
               });
               if (result.error) {
                 setError(result.error.message ?? 'GitHub 注册失败');

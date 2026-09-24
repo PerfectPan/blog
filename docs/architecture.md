@@ -91,7 +91,9 @@ fetch 里（`apps/web/src/server.tsx`）。
 4. **详情 `GET /blog/:slug`**：`getBlogPostServerFn` → `getPostBySlug()`（D1）→
    **在数据层就按可见性裁剪正文**（无权则返回空 body），route loader 再做 redirect/401/403。
 5. **认证**：前台 Better Auth（`/api/auth/*`），经 `kysely-d1` 直连 D1；GitHub OAuth 可选
-   （secret 未配则自动禁用）。
+   （secret 未配则自动禁用）。同邮箱已有密码账号时，GitHub 登录不会自动合并（本地邮箱未验证，
+   Better Auth 默认拒绝，防账号预劫持），会回到 `/login?error=account_not_linked`；用户先用密码
+   登录，再在 `/account` 手动绑定 GitHub（`linkSocial`，允许 GitHub 邮箱与账号邮箱不同）。
 
 ## 6. 权限模型（**两层都要守**）
 
