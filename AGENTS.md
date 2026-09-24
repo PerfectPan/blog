@@ -82,8 +82,10 @@ pnpm --filter @blog/web exec wrangler deploy -c dist/server/wrangler.json --dry-
 ## 8. 提交与 PR 规范
 
 - **commit message 与 PR 标题一律用 conventional commits + 英文**：`type(scope): imperative subject`，
-  例如 `fix(web): ...`、`feat(web): ...`、`ci: ...`、`docs: ...`、`chore: ...`。**不要写中文标题**
-  （正文描述可中文）。`type` 取最主导的那类（安全修优先 `fix`）。
+  例如 `fix(web): ...`、`feat(web): ...`、`ci: ...`、`docs: ...`、`chore: ...`。**不要写中文标题**。
+  `type` 取最主导的那类（安全修优先 `fix`）。
+- **commit 正文与 PR / MR 描述也一律用英文**，包括改动说明、验证结果和未验证项；不要写中文正文。
+  代码里的中文内容（文案、文章）照常，这条只管提交和 PR 的描述文字。
 - PR 标题由 `.github/workflows/pr-title.yml`（`amannn/action-semantic-pull-request`）自动校验，
   不符合 conventional 格式会标红；如需"拦死"在 GitHub 设置里把它设为必需检查。
 - 一个 PR 尽量单一关注点；混合时标题用主导类型，其余在正文说明。
