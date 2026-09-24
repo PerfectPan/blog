@@ -1,29 +1,25 @@
 name: Preview Deploy
 
-# Deploy a standalone, fully-running preview Worker per PR and post its URL.
+# Deploy a Worker Preview of `blog-web` per PR (`wrangler preview`) at
+# https://pr-<number>.preview.perfectpan.org and post the URL. A Preview runs
+# under the production Worker with its own code, static assets, config and
+# URL; its bindings come from the `previews` block in apps/web/wrangler.jsonc,
+# which points DB and MEDIA_BUCKET at a separate preview D1 and R2 bucket, so a
+# preview can never touch production data. The preview host is the
+# `preview.perfectpan.org` route in wrangler.jsonc. The preview D1 holds a
+# copy of the public posts; refresh it with
+# `pnpm --filter @blog/web db:sync-preview`.
 #
-# Why a standalone Worker (not `wrangler versions upload --preview-alias`):
-# versions uploaded via a GitHub Actions API token are *not* exposed as a
-# serving preview URL (only Cloudflare's Workers Builds integration can do
-# that). A real `wrangler deploy` of a separate Worker always serves, for any
-# branch name — including dependabot's `dependabot/...` (slashes/underscores
-# that Workers Builds can't alias into a DNS label). This gives every PR a
-# clickable, Vercel-style preview URL.
-#
-# Same-repo branches only. Deploying needs CLOUDFLARE_API_TOKEN, and the
-# preview Worker shares the production D1, so whatever code a preview builds
-# can use the token and read/write production data. Fork PRs don't get repo
-# secrets under `pull_request`, and the way around that (`pull_request_target`
-# plus checking out the fork's head) runs untrusted code with the token —
-# the "pwn request" pattern GitHub disables by default for public repos. So
-# fork PRs get no preview (see AGENTS.md §9 for how contributions flow).
+# Same-repo branches only. Deploying needs CLOUDFLARE_API_TOKEN. Fork PRs
+# don't get repo secrets under `pull_request`, and the way around that
+# (`pull_request_target` plus checking out the fork's head) runs untrusted
+# code with the token — the "pwn request" pattern GitHub disables by default
+# for public repos. So fork PRs get no preview (see AGENTS.md §9 for how
+# contributions flow).
 #
 # Recommended: disable Workers Builds' "non-production branch builds"
 # (dashboard → blog-web → Settings → Builds) so this is the sole preview
 # mechanism; Workers Builds then only deploys `master` (production).
-#
-# The preview Worker shares the production D1 (`blog`) — reads are safe; admin
-# writes on a preview hit prod, but previews are for viewing, not editing.
 
 on:
   pull_request:
@@ -63,54 +59,55 @@ jobs:
 
       - run: pnpm --filter @blog/web build
 
-      # Derive a standalone preview config from the BUILT wrangler.json: unique
-      # name per PR, workers.dev on, no routes (perfectpan.org is owned by the
-      # prod Worker), APPS_WEB_URL pointed at the preview origin so better-auth
-      # trusts it (otherwise the SSR session fetch 500s every route).
-      - name: Generate preview config
-        env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          node <<'EOF'
-          const fs = require('fs');
-          const cfg = JSON.parse(fs.readFileSync('apps/web/dist/server/wrangler.json', 'utf8'));
-          const name = `blog-web-pr-${process.env.PR_NUMBER}`;
-          const url = `https://${name}.perfectpan325.workers.dev`;
-          cfg.name = name;
-          cfg.topLevelName = name;
-          cfg.workers_dev = true;
-          delete cfg.routes;
-          cfg.vars = { ...(cfg.vars || {}), APPS_WEB_URL: url };
-          fs.writeFileSync('apps/web/dist/server/wrangler.preview.json', JSON.stringify(cfg, null, 2));
-          console.log(`preview URL: ${url}`);
-          EOF
-
-      # BETTER_AUTH_SECRET is required at init (getWebEnv throws without it →
-      # 500 on every route). A throwaway random value is fine: password verify
-      # is bcrypt/secret-independent; the secret only signs preview sessions.
-      # Must run BEFORE the first deploy: a brand-new Worker is rejected by
-      # deploy-time validation without it, and this step never gets reached
-      # afterwards. Modern wrangler creates a placeholder Worker for the
-      # secret when the script doesn't exist yet.
-      - name: Set BETTER_AUTH_SECRET on preview Worker
-        run: |
-          printf '%s' "$(openssl rand -hex 32)" | pnpm --filter @blog/web exec wrangler secret put BETTER_AUTH_SECRET -c dist/server/wrangler.preview.json
+      # The preview D1 is shared by every open PR, so a PR that adds a
+      # migration applies it there for all of them. Idempotent otherwise.
+      - name: Apply migrations to the preview D1
+        run: pnpm --filter @blog/web db:migrate:preview
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
-      - name: Deploy preview Worker
-        run: pnpm --filter @blog/web exec wrangler deploy -c dist/server/wrangler.preview.json
+      # APPS_WEB_URL must equal the preview origin or better-auth rejects it
+      # (the SSR session fetch then 500s every route), so it is derived from
+      # the Preview URL format and checked against what wrangler reports.
+      # `--json` still prints the module table first, so the JSON is the
+      # output from its first line starting with `{`.
+      # BETTER_AUTH_SECRET is required at init; a throwaway random value per
+      # deploy is fine, it only signs preview sessions. Previews don't inherit
+      # production secrets.
+      - name: Deploy Worker Preview
+        id: preview
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          PREVIEW_NAME: pr-${{ github.event.pull_request.number }}
+        working-directory: apps/web
+        run: |
+          set -euo pipefail
+          url="https://${PREVIEW_NAME}.preview.perfectpan.org"
+          secrets="$(mktemp)"
+          trap 'rm -f "$secrets"' EXIT
+          printf '{"BETTER_AUTH_SECRET":"%s"}' "$(openssl rand -hex 32)" > "$secrets"
+          out="$(pnpm exec wrangler preview --name "$PREVIEW_NAME" --json \
+            -c dist/server/wrangler.json \
+            --var "APPS_WEB_URL:$url" \
+            --secrets-file "$secrets")"
+          printf '%s\n' "$out"
+          actual="$(printf '%s\n' "$out" | sed -n '/^{/,$p' | jq -er '.preview.urls[0]')"
+          if [ "$actual" != "$url" ]; then
+            echo "::error::Preview URL is $actual but APPS_WEB_URL was set to $url"
+            exit 1
+          fi
+          echo "url=$url" >> "$GITHUB_OUTPUT"
 
       - name: Comment preview URL on PR
         uses: actions/github-script@v9
+        env:
+          PREVIEW_URL: ${{ steps.preview.outputs.url }}
         with:
           script: |
             const num = context.payload.pull_request.number;
-            const url = `https://blog-web-pr-${num}.perfectpan325.workers.dev`;
+            const url = process.env.PREVIEW_URL;
             const marker = '<!-- preview-deploy -->';
-            const body = `${marker}\n\n### 🌐 Preview deploy\n\n${url}\n\n_(public; rebuilt on every push)_`;
+            const body = `${marker}\n\n### 🌐 Preview deploy\n\n${url}\n\n_(public; rebuilt on every push; uses the preview D1 and R2, not production data)_`;
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner, repo: context.repo.repo, issue_number: num,
             });
@@ -144,7 +141,7 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Delete preview Worker
-        run: echo y | pnpm --filter @blog/web exec wrangler delete --name blog-web-pr-${{ github.event.pull_request.number }} --force
+      - name: Delete Worker Preview
+        run: pnpm --filter @blog/web exec wrangler preview delete --name pr-${{ github.event.pull_request.number }} --skip-confirmation
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
