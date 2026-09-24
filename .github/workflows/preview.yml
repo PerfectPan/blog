@@ -10,22 +10,15 @@ name: Preview Deploy
 # that Workers Builds can't alias into a DNS label). This gives every PR a
 # clickable, Vercel-style preview URL.
 #
-# Why two triggers: repo secrets are invisible to fork PRs under plain
-# `pull_request` (fork previews failed with an empty CLOUDFLARE_API_TOKEN —
-# GitHub never injects them and approving the run doesn't help), so the deploy
-# also listens on `pull_request_target` (base-repo context, secrets available).
-# That lets fork code run with the deploy token, which is only acceptable for
-# the maintainer's own fork — hence the actor gate. Dependabot branches
-# (same-repo) must keep using `pull_request`: GitHub strips secrets from
-# Dependabot-triggered `pull_request_target` runs.
-#
-# Exactly one trigger may pass the job gate per PR: same-repo PRs take
-# `pull_request`, fork PRs take `pull_request_target` (the head-repo check
-# below). Without that split, a maintainer's same-repo PR passes both — the
-# actor gate alone matches — and the two runs race on one preview Worker:
-# `wrangler secret put` fails whenever the other run has uploaded a version
-# it has not deployed yet. The concurrency group includes the event name so
-# the idle run can't cancel the live one.
+# Same-repo branches only. Deploying needs CLOUDFLARE_API_TOKEN, and the
+# preview Worker shares the production D1, so whatever code a preview builds
+# can use the token and read/write production data. Fork PRs don't get repo
+# secrets under `pull_request`, and the way around that (`pull_request_target`
+# plus checking out the fork's head) runs untrusted code with the token —
+# the "pwn request" pattern GitHub disables by default for public repos. So
+# forks get no preview: contributors with write access push branches to this
+# repo instead, and merging into master stays admin-only via the `master`
+# ruleset (see AGENTS.md §9).
 #
 # Recommended: disable Workers Builds' "non-production branch builds"
 # (dashboard → blog-web → Settings → Builds) so this is the sole preview
@@ -37,15 +30,13 @@ name: Preview Deploy
 on:
   pull_request:
     types: [opened, synchronize, reopened, closed]
-  pull_request_target:
-    types: [opened, synchronize, reopened, closed]
 
 permissions:
   contents: read
   pull-requests: write
 
 concurrency:
-  group: preview-${{ github.event_name }}-pr-${{ github.event.pull_request.number }}
+  group: preview-pr-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
@@ -53,24 +44,13 @@ jobs:
     if: >-
       github.event.action != 'closed' &&
       github.event.pull_request.head.ref != 'master' &&
-      (
-        (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) ||
-        (github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository && (github.actor == github.repository_owner || github.actor == 'nyx-cell'))
-      )
+      github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
         with:
-          # pull_request_target defaults to checking out master; build the PR
-          # head instead. For fork PRs that's untrusted code, and checkout v7
-          # refuses it under pull_request_target by default — the explicit opt
-          # in is the documented escape hatch (gh.io/securely-using-
-          # pull_request_target). Safe here because the actor gate above
-          # restricts this path to the maintainer's own accounts: the pwn
-          # request risk is a third-party fork running with repo secrets,
-          # which the gate excludes.
+          # Build the branch as pushed, not the merge with master.
           ref: ${{ github.event.pull_request.head.sha }}
-          allow-unsafe-pr-checkout: true
 
       - uses: pnpm/action-setup@v6
         with:
@@ -150,10 +130,7 @@ jobs:
   cleanup:
     if: >-
       github.event.action == 'closed' &&
-      (
-        (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) ||
-        (github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository && (github.actor == github.repository_owner || github.actor == 'nyx-cell'))
-      )
+      github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
