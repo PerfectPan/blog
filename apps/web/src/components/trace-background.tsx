@@ -11,8 +11,8 @@ import { createWave, DOT_PITCH } from './dot-wave.js';
  *
  * Traces grow in the gutters beside the content column, measured from the
  * <Page> container (`data-page`). The column is a soft wall: now and then a
- * trace slips in, but it cannot fork there and dies within a few steps, and
- * the mask draws it at a tenth of full strength — enough to tie the two
+ * trace runs in, but it cannot fork there and ends sooner than in the
+ * gutters, and the mask fades it to a sixth of full strength — enough to tie the two
  * sides together without lines running across the text. When the gutters
  * are too narrow to hold a trace (phones), the backdrop switches to the
  * rolling dot-grid surface in dot-wave.ts, dimmed toward the center. Routes
@@ -42,14 +42,14 @@ const FORK = 0.035;
 // Clearance in px between the gutters and the column's text box.
 const CLEARANCE = 16;
 // Odds a trace at the column's edge continues into it (per attempt), and
-// per-step survival once inside (mean ~10 steps before it ends).
-const ENTER_COLUMN = 0.3;
-const SURVIVE_IN_COLUMN = 0.9;
+// per-step survival once inside (mean ~25 steps before it ends).
+const ENTER_COLUMN = 0.5;
+const SURVIVE_IN_COLUMN = 0.96;
 // Mask strength at the column's edge and inside it.
-const MASK_EDGE = 0.3;
-const MASK_COLUMN = 0.1;
+const MASK_EDGE = 0.35;
+const MASK_COLUMN = 0.15;
 // Width in px over which the mask eases from the edge to the column value.
-const MASK_FADE = 48;
+const MASK_FADE = 120;
 // Gutters narrower than this many cells are left empty.
 const MIN_GUTTER = 6;
 // The dot wave redraws at most this often: its motion is slow, and a
