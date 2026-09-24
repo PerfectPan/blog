@@ -17,10 +17,15 @@ name: Preview Deploy
 # That lets fork code run with the deploy token, which is only acceptable for
 # the maintainer's own fork — hence the actor gate. Dependabot branches
 # (same-repo) must keep using `pull_request`: GitHub strips secrets from
-# Dependabot-triggered `pull_request_target` runs. For any given PR exactly
-# one trigger passes the job gate, so there's never a double deploy; the
-# concurrency group includes the event name so the idle run can't cancel the
-# live one.
+# Dependabot-triggered `pull_request_target` runs.
+#
+# Exactly one trigger may pass the job gate per PR: same-repo PRs take
+# `pull_request`, fork PRs take `pull_request_target` (the head-repo check
+# below). Without that split, a maintainer's same-repo PR passes both — the
+# actor gate alone matches — and the two runs race on one preview Worker:
+# `wrangler secret put` fails whenever the other run has uploaded a version
+# it has not deployed yet. The concurrency group includes the event name so
+# the idle run can't cancel the live one.
 #
 # Recommended: disable Workers Builds' "non-production branch builds"
 # (dashboard → blog-web → Settings → Builds) so this is the sole preview
@@ -50,7 +55,7 @@ jobs:
       github.event.pull_request.head.ref != 'master' &&
       (
         (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) ||
-        (github.event_name == 'pull_request_target' && (github.actor == github.repository_owner || github.actor == 'nyx-cell'))
+        (github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository && (github.actor == github.repository_owner || github.actor == 'nyx-cell'))
       )
     runs-on: ubuntu-latest
     steps:
@@ -147,7 +152,7 @@ jobs:
       github.event.action == 'closed' &&
       (
         (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) ||
-        (github.event_name == 'pull_request_target' && (github.actor == github.repository_owner || github.actor == 'nyx-cell'))
+        (github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository && (github.actor == github.repository_owner || github.actor == 'nyx-cell'))
       )
     runs-on: ubuntu-latest
     steps:
