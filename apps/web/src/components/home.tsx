@@ -1,5 +1,6 @@
 import type { PostSummary } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
+import { cn } from '../lib/utils.js';
 import { Page, Prompt } from './page.js';
 import { ENTER, ENTER_ROW, enterDelay } from './term.js';
 
@@ -58,14 +59,14 @@ export function HomePage({
       <div className='mt-5.5 grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-3'>
         <Link
           to='/blog'
-          className={`${CARD} ${ENTER}`}
+          className={cn(CARD, ENTER)}
           style={enterDelay(DELAY_MS.blog)}
         >
           <span className='text-primary'>open blog/</span>
         </Link>
         <Link
           to='/projects'
-          className={`${CARD} ${ENTER}`}
+          className={cn(CARD, ENTER)}
           style={enterDelay(DELAY_MS.projects)}
         >
           <span className='text-primary'>open projects/</span>
@@ -73,7 +74,10 @@ export function HomePage({
       </div>
 
       <div
-        className={`mt-7 overflow-hidden rounded-md border border-border bg-card ${ENTER}`}
+        className={cn(
+          'mt-7 overflow-hidden rounded-md border border-border bg-card',
+          ENTER,
+        )}
         style={enterDelay(DELAY_MS.panel)}
       >
         <div className='flex items-baseline justify-between gap-3 border-b border-border bg-muted/50 px-4 py-3 text-sm tracking-widest text-muted-foreground'>
@@ -94,7 +98,7 @@ export function HomePage({
                 key={post.slug}
                 to='/blog/$slug'
                 params={{ slug: post.slug }}
-                className={`${ROW} ${ENTER_ROW}`}
+                className={cn(ROW, ENTER_ROW)}
                 style={enterDelay(DELAY_MS.rows + i * ROW_STAGGER_MS)}
               >
                 <span className='text-sm text-muted-foreground'>

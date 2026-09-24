@@ -1,5 +1,6 @@
 import type { CommentThread, SessionUser } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
+import { cn } from '../lib/utils.js';
 import { Comments } from './comments.js';
 import { Markdown } from './markdown.js';
 import { Page, Prompt } from './page.js';
@@ -43,7 +44,7 @@ export function ArticlePage({
       </Prompt>
 
       <div
-        className={`mt-4 mb-6.5 ${ENTER}`}
+        className={cn('mt-4 mb-6.5', ENTER)}
         style={enterDelay(TITLE_DELAY_MS)}
       >
         <h1 className='text-3xl font-bold text-foreground'>{post.title}</h1>

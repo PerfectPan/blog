@@ -1,5 +1,6 @@
 import type { PostSummary } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
+import { cn } from '../lib/utils.js';
 import { Page, Prompt } from './page.js';
 import { ENTER_ROW, enterDelay } from './term.js';
 
@@ -80,7 +81,10 @@ export function BlogList({
         {blogGroups.map((group) => (
           <div key={group.year}>
             <div
-              className={`mt-5 px-2 py-1.25 font-bold text-primary ${ENTER_ROW}`}
+              className={cn(
+                'mt-5 px-2 py-1.25 font-bold text-primary',
+                ENTER_ROW,
+              )}
               style={lineDelay(line++)}
             >
               <span className='font-normal text-muted-foreground/60'>
@@ -93,7 +97,13 @@ export function BlogList({
                 key={blog.slug}
                 to='/blog/$slug'
                 params={{ slug: blog.slug }}
-                className={`${ROW} ${showVisibility ? 'grid-cols-[7ch_8ch_1fr_auto]' : 'grid-cols-[7ch_1fr_auto]'} ${ENTER_ROW}`}
+                className={cn(
+                  ROW,
+                  showVisibility
+                    ? 'grid-cols-[7ch_8ch_1fr_auto]'
+                    : 'grid-cols-[7ch_1fr_auto]',
+                  ENTER_ROW,
+                )}
                 style={lineDelay(line++)}
               >
                 <span className='text-xs text-muted-foreground'>
