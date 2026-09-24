@@ -16,9 +16,7 @@ name: Preview Deploy
 # secrets under `pull_request`, and the way around that (`pull_request_target`
 # plus checking out the fork's head) runs untrusted code with the token —
 # the "pwn request" pattern GitHub disables by default for public repos. So
-# forks get no preview: contributors with write access push branches to this
-# repo instead, and merging into master stays admin-only via the `master`
-# ruleset (see AGENTS.md §9).
+# fork PRs get no preview (see AGENTS.md §9 for how contributions flow).
 #
 # Recommended: disable Workers Builds' "non-production branch builds"
 # (dashboard → blog-web → Settings → Builds) so this is the sole preview
