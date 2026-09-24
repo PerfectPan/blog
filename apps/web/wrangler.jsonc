@@ -10,7 +10,19 @@
   },
   "routes": [
     { "pattern": "perfectpan.org", "custom_domain": true },
-    { "pattern": "www.perfectpan.org", "custom_domain": true }
+    { "pattern": "www.perfectpan.org", "custom_domain": true },
+    // Serves Worker Previews only (`enabled: false` keeps production off it):
+    // <preview-name>.preview.perfectpan.org. Cloudflare issues the wildcard
+    // DNS record and certificate for *.preview.perfectpan.org when the first
+    // Preview is created. Keep it one level under the apex — a deeper host
+    // needs Advanced Certificate Manager. Previews stay off workers.dev
+    // (`preview_urls` unset), which would also expose Version URLs.
+    {
+      "pattern": "preview.perfectpan.org",
+      "custom_domain": true,
+      "previews_enabled": true,
+      "enabled": false
+    }
   ],
   "assets": {
     "directory": "./dist/client",
@@ -32,5 +44,31 @@
   ],
   "observability": {
     "enabled": true
+  },
+  // Worker Previews (`wrangler preview`). Previews inherit nothing from the
+  // settings above, so every var and binding they need is listed here; DB
+  // and MEDIA_BUCKET point at a separate D1 and R2 bucket, so a preview —
+  // including code under review — can never touch production data. The
+  // preview D1 holds a copy of the public posts only; refresh it with
+  // `pnpm db:sync-preview` (scripts/preview-db.mjs). APPS_WEB_URL differs per
+  // preview, so it is passed with --var at deploy time.
+  "previews": {
+    "vars": {
+      "ADMIN_EMAIL_ALLOWLIST": "perfectpan325@gmail.com"
+    },
+    "d1_databases": [
+      {
+        "binding": "DB",
+        "database_name": "blog-preview",
+        "database_id": "94ecdec7-d2dc-401e-bc9f-3db14d891158",
+        "migrations_dir": "./migrations"
+      }
+    ],
+    "r2_buckets": [
+      {
+        "binding": "MEDIA_BUCKET",
+        "bucket_name": "blog-assets-preview"
+      }
+    ]
   }
 }

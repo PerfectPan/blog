@@ -35,6 +35,8 @@ pnpm --filter @blog/web preview       # wrangler dev（真实 worker 运行时�
 # D1 迁移
 pnpm --filter @blog/web db:migrate:local
 pnpm --filter @blog/web db:migrate     # 远端
+pnpm --filter @blog/web db:migrate:preview  # 远端 preview D1（blog-preview）
+pnpm --filter @blog/web db:sync-preview     # 用生产的公开文章覆盖 preview D1 的 post 表
 
 # 类型检查
 pnpm typecheck
@@ -45,7 +47,9 @@ pnpm deploy
 
 ## 4. 环境变量 / 绑定关键点
 
-- 绑定：`DB`（D1，数据库名 `blog`，已 provision），`ASSETS`（静态资源）。
+- 绑定：`DB`（D1，数据库名 `blog`，已 provision），`MEDIA_BUCKET`（R2 `blog-assets`），`ASSETS`（静态资源）。
+- Worker Previews 用 `wrangler.jsonc` 的 `previews` 块：`DB` → `blog-preview`、`MEDIA_BUCKET` → `blog-assets-preview`，
+  不继承上面任何设置；域名 `<preview>.preview.perfectpan.org`（`routes` 里 `enabled: false` 的那条）。
 - 变量：`APPS_WEB_URL`（`wrangler.jsonc` 的 `[vars]`）。
 - 密钥：`BETTER_AUTH_SECRET`（必需）、`GITHUB_CLIENT_ID/SECRET`（可选）。
 - 本地：`apps/web/.dev.vars`（从 `.dev.vars.example` 复制）。
