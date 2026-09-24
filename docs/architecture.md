@@ -209,5 +209,6 @@ pnpm --filter @blog/web dev                            # vite dev
 
 - 迁移决策与取舍：`docs/plans/2026-06-22-cloudflare-migration-design.md`
 - 页面访问调用链：`docs/request-flow.md`
+- 动效（背景走线 / 点阵波面、入场动画）的名称、约束与调参：`docs/motion.md`
 - 复盘记录：`docs/retrospectives/`
 - **已归档（2026-02 旧栈，仅供参考）**：`docs/deploy-vercel-railway.md`、`docs/selection.md`

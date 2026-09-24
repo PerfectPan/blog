@@ -1,8 +1,13 @@
 import type { CommentThread, SessionUser } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
+import { cn } from '../lib/utils.js';
 import { Comments } from './comments.js';
 import { Markdown } from './markdown.js';
 import { Page, Prompt } from './page.js';
+import { BODY_ENTER_DELAY_MS, ENTER, enterDelay } from './term.js';
+
+// The title block rises in just ahead of the body.
+const TITLE_DELAY_MS = 100;
 
 type ArticlePageProps = {
   post: {
@@ -34,11 +39,14 @@ export function ArticlePage({
 
   return (
     <Page>
-      <Prompt user='perfectpan' host='blog' cwd='~/posts %'>
+      <Prompt user='perfectpan' host='blog' cwd='~/posts %' typed>
         cat {new Date(post.publishedAt).getFullYear()}/{post.slug}.md
       </Prompt>
 
-      <div className='mt-4 mb-6.5'>
+      <div
+        className={cn('mt-4 mb-6.5', ENTER)}
+        style={enterDelay(TITLE_DELAY_MS)}
+      >
         <h1 className='text-3xl font-bold text-foreground'>{post.title}</h1>
         <div className='mt-1.5 flex flex-wrap gap-4 text-xs text-muted-foreground'>
           <span>{date}</span>
@@ -52,7 +60,9 @@ export function ArticlePage({
           ) : null}
         </div>
       </div>
-      <Markdown content={post.contentMdx} />
+      <div className={ENTER} style={enterDelay(BODY_ENTER_DELAY_MS)}>
+        <Markdown content={post.contentMdx} />
+      </div>
       <Prompt cwd='~/posts %' className='mt-6'>
         <Link
           to='/blog'

@@ -28,7 +28,7 @@ export function LoginPage() {
 
   return (
     <Page>
-      <Prompt user='guest' host='perfectpan.org' cwd='~ %'>
+      <Prompt user='guest' host='perfectpan.org' cwd='~ %' typed>
         ssh member@perfectpan.org
       </Prompt>
       <p className='mb-1 text-xs text-muted-foreground/60 mt-2'>
@@ -156,7 +156,7 @@ export function SignupPage() {
 
   return (
     <Page>
-      <Prompt user='guest' host='perfectpan.org' cwd='~ %'>
+      <Prompt user='guest' host='perfectpan.org' cwd='~ %' typed>
         useradd --join
       </Prompt>
       <p className='mb-1 text-xs text-muted-foreground/60 mt-2'>
@@ -282,7 +282,7 @@ export function UnlockPage({
 
   return (
     <Page>
-      <Prompt user='guest' host='perfectpan.org' cwd='~ %'>
+      <Prompt user='guest' host='perfectpan.org' cwd='~ %' typed>
         cat posts/{slug}.md
       </Prompt>
       <p className='mb-1'>

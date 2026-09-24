@@ -21,3 +21,19 @@ export const TOOL_BTN_TOGGLE =
 // Sheet row inside the ⋯ menu (≤480px only).
 export const SHEET_ROW =
   'flex cursor-pointer items-center gap-2 bg-transparent px-2.5 py-[9px] text-left text-sm text-muted-foreground hover:text-primary hover:no-underline';
+
+// Page-intro enter recipe (tw-animate-css): fade + rise, held invisible
+// through its delay. Backwards fill and animation-only durations are
+// required; see docs/motion.md §3. Pair with enterDelay() to stagger.
+export const ENTER =
+  'motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:animation-duration-400 motion-safe:ease-out motion-safe:fill-mode-backwards';
+
+// Same recipe for list rows: shorter and sideways, like lines scrolling in.
+export const ENTER_ROW =
+  'motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-left-1 motion-safe:animation-duration-300 motion-safe:fill-mode-backwards';
+
+export const enterDelay = (ms: number) => ({ animationDelay: `${ms}ms` });
+
+// When a page body (article, about) starts rising in: while its prompt is
+// still typing, so the content never waits on the flourish.
+export const BODY_ENTER_DELAY_MS = 180;

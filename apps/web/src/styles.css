@@ -59,6 +59,49 @@
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
+
+  /* Page intros. term-type grows max-width in whole characters — Prompt
+     (page.tsx) sets --chars, --type-ms and the max-width it grows to.
+     term-caret holds solid through its delay (the typing: backwards fill
+     shows the first keyframe), blinks twice, then goes out. term-print
+     uncovers the home FIGLET one text line per step, top down.
+     Backwards fill only (docs/motion.md §3); every end state here equals
+     the element's own style. */
+  --animate-term-type: term-type var(--type-ms) steps(var(--chars)) backwards;
+  --animate-term-caret: term-caret 700ms linear var(--type-ms) backwards;
+  --animate-term-print: term-print 220ms steps(6) 80ms backwards;
+
+  @keyframes term-type {
+    from {
+      max-width: 0;
+    }
+  }
+  @keyframes term-caret {
+    0%,
+    25% {
+      opacity: 1;
+    }
+    26%,
+    50% {
+      opacity: 0;
+    }
+    51%,
+    75% {
+      opacity: 1;
+    }
+    76%,
+    100% {
+      opacity: 0;
+    }
+  }
+  @keyframes term-print {
+    from {
+      clip-path: inset(0 0 100% 0);
+    }
+    to {
+      clip-path: inset(0);
+    }
+  }
 }
 
 /* shadcn v4 base: v4 defaults borders to currentColor, the spec restores
@@ -137,10 +180,15 @@ html.dark {
        lives on the content scroll container in layout.tsx; the header sits
        outside it and stays put. */
     background-color: var(--background);
+    /* The root never scrolls, but Safari/iOS still rubber-band it when a
+       scroll chains up from `main`, dragging the header and status bar
+       along. `main` contains its own overscroll; this stops the rest. */
+    overscroll-behavior: none;
   }
 
   body {
     font-family: var(--font-mono);
+    overscroll-behavior: none;
     background-color: var(--background);
     color: var(--foreground);
     font-size: 15.5px;
