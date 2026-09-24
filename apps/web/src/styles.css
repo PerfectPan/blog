@@ -180,10 +180,15 @@ html.dark {
        lives on the content scroll container in layout.tsx; the header sits
        outside it and stays put. */
     background-color: var(--background);
+    /* The root never scrolls, but Safari/iOS still rubber-band it when a
+       scroll chains up from `main`, dragging the header and status bar
+       along. `main` contains its own overscroll; this stops the rest. */
+    overscroll-behavior: none;
   }
 
   body {
     font-family: var(--font-mono);
+    overscroll-behavior: none;
     background-color: var(--background);
     color: var(--foreground);
     font-size: 15.5px;

@@ -30,8 +30,10 @@ export function AppLayout({ children }: AppLayoutProps) {
       <Header />
       {/* Stable gutter: classic (non-overlay) scrollbars would otherwise
           shift the centered column between short and long pages, which
-          jumps the content and makes the backdrop regrow its traces. */}
-      <main className='min-h-0 flex-1 overflow-y-auto bg-transparent [scrollbar-gutter:stable]'>
+          jumps the content and makes the backdrop regrow its traces.
+          overscroll-y-contain keeps main's own bounce but stops the scroll
+          chaining up to the root (see html in styles.css). */}
+      <main className='min-h-0 flex-1 overflow-y-auto overscroll-y-contain bg-transparent [scrollbar-gutter:stable]'>
         {children}
       </main>
       <Footer />
