@@ -85,8 +85,10 @@ export function Header() {
         aria-hidden='true'
       />
       <span className='ml-2.5 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-xs text-muted-foreground max-[599px]:hidden'>
-        <Link to='/' className='text-inherit no-underline'>
-          <b className='font-semibold text-foreground'>perfectpan@blog</b>
+        <Link to='/' className='group text-inherit no-underline'>
+          <b className='font-semibold text-foreground group-hover:text-primary'>
+            perfectpan@blog
+          </b>
         </Link>
       </span>
 
