@@ -98,6 +98,7 @@ pnpm --filter @blog/web exec wrangler deploy -c dist/server/wrangler.json --dry-
 2. **默认不自动合并，等用户批准。** 完成 + 回归验证后，把结果（实测数据 / 截图 / preview URL）交给用户，**等明确批准**再 `gh pr merge`。一次「你都帮我做了」**不等于**永久授权自动合并。
 3. **合并后回归出问题，立刻回滚。** 优先 `git revert` 回到上一个已知可用状态，再重新修；不要在生产环境「一边坏一边猜」。
 4. **master 由 ruleset `master` 保护，只有仓库 admin 能经 PR 合入。** 其他协作者（含 agent 使用的账号）有写权限，
-   但不能直推 master、不能合入 PR（Restrict updates），PR 需要在最后一次 push 之后的 1 个审批；admin 也只能经 PR 绕过。
+   但不能直推 master、不能合入 PR（Restrict updates）；不要求审批。admin 合入时需主动选择绕过规则
+   （PR 页勾选 bypass 或 `gh pr merge --admin`），且只能经 PR 绕过、不能直推。
    - 从**本仓库分支**提 PR，不要从 fork 提：preview deploy 只给同仓库分支（`.github/workflows/preview.yml` 顶部说明原因）。
    - 规则改动在 GitHub Settings → Rules，不在仓库里；改完用 `gh api repos/PerfectPan/blog/rules/branches/master` 回查。
