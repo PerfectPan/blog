@@ -65,8 +65,8 @@
      term-caret holds solid through its delay (the typing: backwards fill
      shows the first keyframe), blinks twice, then goes out. term-print
      uncovers the home FIGLET one text line per step, top down.
-     Fill backwards only, for the reason given at ENTER in term.ts; every
-     end state here equals the element's own style anyway. */
+     Backwards fill only (docs/motion.md §3); every end state here equals
+     the element's own style. */
   --animate-term-type: term-type var(--type-ms) steps(var(--chars)) backwards;
   --animate-term-caret: term-caret 700ms linear var(--type-ms) backwards;
   --animate-term-print: term-print 220ms steps(6) 80ms backwards;

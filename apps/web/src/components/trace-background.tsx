@@ -13,11 +13,11 @@ import { createWave, DOT_PITCH } from './dot-wave.js';
  * <Page> container (`data-page`). The column is a soft wall: now and then a
  * trace slips in, but it cannot fork there and dies within a few steps, and
  * the mask draws it at a tenth of full strength — enough to tie the two
- * sides together without lines running across the text. When the gutters are too narrow to hold a
- * trace (phones), the backdrop switches to the rolling dot-grid surface in
- * dot-wave.ts, dimmed toward the center. Routes without a <Page> (admin)
- * draw nothing. Moving between pages that share the column keeps the
- * drawing as is.
+ * sides together without lines running across the text. When the gutters
+ * are too narrow to hold a trace (phones), the backdrop switches to the
+ * rolling dot-grid surface in dot-wave.ts, dimmed toward the center. Routes
+ * without a <Page> (admin) draw nothing. Moving between pages that share
+ * the column keeps the drawing as is.
  *
  * Colors are read from the theme tokens at draw time; a class change on
  * <html> (the dark-mode toggle) repaints every stored segment in the new

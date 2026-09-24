@@ -23,10 +23,8 @@ export const SHEET_ROW =
   'flex cursor-pointer items-center gap-2 bg-transparent px-2.5 py-[9px] text-left text-sm text-muted-foreground hover:text-primary hover:no-underline';
 
 // Page-intro enter recipe (tw-animate-css): fade + rise, held invisible
-// through its delay by fill-mode-backwards. Not `both`: a forwards fill keeps
-// the finished transform/filter/opacity effect applied, which leaves every
-// row and article body a composited layer and stacking context for the life
-// of the page. Pair with enterDelay() to stagger; reduced motion skips it.
+// through its delay. Backwards fill and animation-only durations are
+// required; see docs/motion.md §3. Pair with enterDelay() to stagger.
 export const ENTER =
   'motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:animation-duration-400 motion-safe:ease-out motion-safe:fill-mode-backwards';
 
