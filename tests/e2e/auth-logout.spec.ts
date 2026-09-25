@@ -16,8 +16,12 @@ test('signup then logout returns to guest header state', async ({ page }) => {
   await page.locator('#password').fill('Playwright!12345');
   await page.locator('form button[type="submit"]').click();
 
-  await page.waitForURL('**/blog');
+  // Sign-up lands on /account, which shows the new, unverified account
+  // (the e2e server has no mail configured).
+  await page.waitForURL('**/account');
   await expect(page.getByTestId('nav-logout')).toBeVisible();
+  await expect(page.getByText('(not verified)')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'link github' })).toBeVisible();
 
   await page.getByTestId('nav-logout').click();
 
