@@ -22,6 +22,7 @@ export function AccountPage({ searchError }: { searchError?: string }) {
   const [error, setError] = useState<string | null>(
     searchError ? authErrorMessage(searchError) : null,
   );
+  const [notice, setNotice] = useState<string | null>(null);
   const [unlinkOpen, setUnlinkOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
@@ -71,7 +72,16 @@ export function AccountPage({ searchError }: { searchError?: string }) {
       </Prompt>
       <dl className='mt-2 grid max-w-105 grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-sm [&_dt]:text-muted-foreground'>
         <dt>email</dt>
-        <dd className='min-w-0 break-all'>{user.email}</dd>
+        <dd className='min-w-0 break-all'>
+          {user.email}{' '}
+          <span
+            className={
+              user.emailVerified ? 'text-muted-foreground' : 'text-destructive'
+            }
+          >
+            ({user.emailVerified ? 'verified' : 'not verified'})
+          </span>
+        </dd>
         <dt>role</dt>
         <dd>{user.role ?? 'member'}</dd>
         <dt>password</dt>
@@ -79,6 +89,35 @@ export function AccountPage({ searchError }: { searchError?: string }) {
         <dt>github</dt>
         <dd>{github ? `linked (id ${github.accountId})` : 'not linked'}</dd>
       </dl>
+      {user.emailVerified ? null : (
+        <div className='mt-4'>
+          <p className='mb-1 text-xs text-muted-foreground/60'>
+            # 验证邮箱后，用同一邮箱的 GitHub 登录会自动合并进这个账号。
+          </p>
+          <button
+            type='button'
+            className={BTN_SECONDARY}
+            disabled={isPending}
+            onClick={() => {
+              setError(null);
+              setNotice(null);
+              startTransition(async () => {
+                const result = await authClient.sendVerificationEmail({
+                  email: user.email,
+                  callbackURL: '/account',
+                });
+                if (result.error) {
+                  setError(result.error.message ?? '发送验证邮件失败');
+                  return;
+                }
+                setNotice(`验证邮件已发到 ${user.email}，1 小时内有效。`);
+              });
+            }}
+          >
+            send verification email
+          </button>
+        </div>
+      )}
       <p className='mb-1 mt-4 text-xs text-muted-foreground/60'>
         {github
           ? '# 已绑定 GitHub，可以直接用 continue with github 登录这个账号。'
@@ -121,6 +160,11 @@ export function AccountPage({ searchError }: { searchError?: string }) {
           </button>
         )}
       </div>
+      {notice ? (
+        <p role='status' className='my-2.5 text-sm text-muted-foreground'>
+          {notice}
+        </p>
+      ) : null}
       {error ? (
         <p role='alert' className='my-2.5 text-sm text-destructive'>
           {error}

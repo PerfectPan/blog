@@ -51,7 +51,7 @@ pnpm deploy
 - Worker Previews 用 `wrangler.jsonc` 的 `previews` 块：`DB` → `blog-preview`、`MEDIA_BUCKET` → `blog-assets-preview`，
   不继承上面任何设置；域名 `<preview>.preview.perfectpan.org`（`routes` 里 `enabled: false` 的那条）。
 - 变量：`APPS_WEB_URL`（`wrangler.jsonc` 的 `[vars]`）。
-- 密钥：`BETTER_AUTH_SECRET`（必需）、`GITHUB_CLIENT_ID/SECRET`（可选）。
+- 密钥：`BETTER_AUTH_SECRET`（必需）、`GITHUB_CLIENT_ID/SECRET`（可选）、`RESEND_API_KEY`（可选，发邮箱验证邮件；未设置则关闭邮箱验证）。
 - 本地：`apps/web/.dev.vars`（从 `.dev.vars.example` 复制）。
 
 ## 5. 数据与权限

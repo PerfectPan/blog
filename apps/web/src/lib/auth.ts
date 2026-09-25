@@ -5,6 +5,12 @@ import { Kysely } from 'kysely';
 import { D1Dialect } from 'kysely-d1';
 import { getD1 } from './db.js';
 import { getWebEnv } from './env.js';
+import {
+  mailEnabled,
+  sendMail,
+  VERIFY_LINK_TTL_S,
+  verificationMail,
+} from './mail.js';
 
 const env = getWebEnv();
 
@@ -31,6 +37,37 @@ const authOptions = {
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
+  },
+  // A verified email lets a later GitHub sign-in with the same address merge
+  // into the account automatically (Better Auth only merges into verified
+  // local accounts). Without mail configured (local dev, previews) the
+  // endpoints report that verification isn't enabled.
+  emailVerification: mailEnabled
+    ? {
+        sendOnSignUp: true,
+        autoSignInAfterVerification: true,
+        expiresIn: VERIFY_LINK_TTL_S,
+        // On sign-up this runs after the user row is written, so a throw
+        // would fail a sign-up that already succeeded. Log instead; the user
+        // can resend from /account.
+        sendVerificationEmail: async ({ user, url }) => {
+          try {
+            await sendMail({
+              to: user.email,
+              ...verificationMail(user.name || user.email, url),
+            });
+          } catch (error) {
+            console.error('[web] verification mail failed', error);
+          }
+        },
+      }
+    : undefined,
+  // Resend's free tier allows 100 mails a day; keep one visitor from
+  // spending it. The limiter is per isolate, so this is a speed bump.
+  rateLimit: {
+    customRules: {
+      '/send-verification-email': { window: 60, max: 2 },
+    },
   },
   account: {
     // Linking only runs from a signed-in session (/account), so a GitHub

@@ -3,14 +3,16 @@ import { useEffect, useState, useTransition } from 'react';
 import { authClient } from '../lib/auth-client.js';
 import { Page, Prompt } from './page.js';
 
-// Better Auth reports OAuth failures as `?error=<code>` on the
-// errorCallbackURL; these are the codes a user can actually cause.
+// Better Auth reports OAuth and email-verification failures as
+// `?error=<code>` on the callback URL; these are the codes a user can cause.
 const AUTH_ERRORS: Record<string, string> = {
   account_not_linked:
-    '这个邮箱已经有密码账号。先用邮箱密码登录，再到 account 页绑定 GitHub。',
+    '这个邮箱已经有账号但还没验证。先用邮箱密码登录，再到 account 页验证邮箱或绑定 GitHub。',
   account_already_linked_to_different_user:
     '这个 GitHub 账号已经绑定了另一个用户。',
   unable_to_link_account: 'GitHub 邮箱未验证，无法绑定。',
+  invalid_token: '验证链接无效，请重新发送验证邮件。',
+  token_expired: '验证链接已过期，请重新发送验证邮件。',
 };
 
 export function authErrorMessage(code: string): string {
@@ -160,8 +162,10 @@ export function SignupPage({ searchError }: { searchError?: string }) {
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
+    // Also runs right after sign-up (autoSignIn), so it goes where the
+    // submit handler goes: /account, which shows the verification state.
     if (sessionData?.user?.id) {
-      navigate({ to: '/blog', replace: true });
+      navigate({ to: '/account', replace: true });
     }
   }, [navigate, sessionData?.user?.id]);
 
@@ -188,11 +192,12 @@ export function SignupPage({ searchError }: { searchError?: string }) {
           event.preventDefault();
           setError(null);
           startTransition(async () => {
+            // callbackURL is where the verification link lands.
             const result = await authClient.signUp.email({
               email,
               password,
               name,
-              callbackURL: '/blog',
+              callbackURL: '/account',
             });
 
             if (result.error) {
@@ -200,7 +205,7 @@ export function SignupPage({ searchError }: { searchError?: string }) {
               return;
             }
 
-            navigate({ to: '/blog' });
+            navigate({ to: '/account' });
           });
         }}
       >

@@ -6,7 +6,9 @@
   "main": "src/server.tsx",
   "vars": {
     "APPS_WEB_URL": "https://perfectpan.org",
-    "ADMIN_EMAIL_ALLOWLIST": "perfectpan325@gmail.com"
+    "ADMIN_EMAIL_ALLOWLIST": "perfectpan325@gmail.com",
+    // Sender for verification mail; the domain is verified in Resend.
+    "MAIL_FROM": "PerfectPan's Blog <noreply@mail.perfectpan.org>"
   },
   "routes": [
     { "pattern": "perfectpan.org", "custom_domain": true },
