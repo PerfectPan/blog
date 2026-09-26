@@ -27,12 +27,16 @@ export function AccountPage({ searchError }: { searchError?: string }) {
   const [isPending, startTransition] = useTransition();
 
   const loadAccounts = useCallback(async () => {
-    const result = await authClient.listAccounts();
-    if (result.error) {
-      setError(result.error.message ?? '读取登录方式失败');
-      return;
+    try {
+      const result = await authClient.listAccounts();
+      if (result.error) {
+        setError(result.error.message ?? '读取登录方式失败');
+        return;
+      }
+      setAccounts(result.data);
+    } catch {
+      setError('读取登录方式失败，请重试');
     }
-    setAccounts(result.data);
   }, []);
 
   useEffect(() => {
@@ -50,7 +54,26 @@ export function AccountPage({ searchError }: { searchError?: string }) {
   if (!user || !accounts) {
     return (
       <Page>
-        <p className='text-muted-foreground/60'># checking session…</p>
+        {error ? (
+          <>
+            <p role='alert' className='my-2.5 text-sm text-destructive'>
+              {error}
+            </p>
+            <button
+              type='button'
+              className={BTN_SECONDARY}
+              disabled={isPending}
+              onClick={() => {
+                setError(null);
+                startTransition(loadAccounts);
+              }}
+            >
+              retry
+            </button>
+          </>
+        ) : (
+          <p className='text-muted-foreground/60'># checking session…</p>
+        )}
       </Page>
     );
   }

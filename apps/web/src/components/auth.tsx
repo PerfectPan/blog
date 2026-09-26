@@ -69,8 +69,6 @@ export function LoginPage({ searchError }: { searchError?: string }) {
               setError(result.error.message ?? '登录失败');
               return;
             }
-
-            navigate({ to: '/blog' });
           });
         }}
       >
@@ -162,8 +160,8 @@ export function SignupPage({ searchError }: { searchError?: string }) {
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    // Also runs right after sign-up (autoSignIn), so it goes where the
-    // submit handler goes: /account, which shows the verification state.
+    // Wait for Better Auth's session refresh before entering /account;
+    // navigating on the signup response can still expose the guest store.
     if (sessionData?.user?.id) {
       navigate({ to: '/account', replace: true });
     }
@@ -204,8 +202,6 @@ export function SignupPage({ searchError }: { searchError?: string }) {
               setError(result.error.message ?? '注册失败');
               return;
             }
-
-            navigate({ to: '/account' });
           });
         }}
       >
