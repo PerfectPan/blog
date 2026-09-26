@@ -183,8 +183,7 @@ pnpm --filter @blog/web dev                            # vite dev
   再调用 `wrangler preview` 并探测登录页、会话接口。控制台启用状态及切换门禁见
   [预览部署说明](preview-deployments.md)；合并仓库代码不会自动打开云端开关。
 - **预览资源**：`wrangler.jsonc.previews` 指向 `blog-preview` 和 `blog-assets-preview`，
-  所有 PR 共用；PR 地址为 `pr-<number>.preview.perfectpan.org`，无 PR 的分支使用
-  规范化分支名及哈希作为临时地址，`APPS_WEB_URL` 与部署地址一致。
+  所有 PR 共用；分支名称经规范化并附加哈希形成稳定域名，`APPS_WEB_URL` 与其一致。
   `BETTER_AUTH_SECRET` 在 Previews Base 设置一次，不复用生产值、不随构建重置。
   `.github/workflows/preview.yml` 仅在同仓库 PR 关闭时清理对应分支预览；不存在即完成。
 - **生产 D1 迁移**：`.github/workflows/migrate.yml` 在 push `master` 且迁移文件变化时执行，

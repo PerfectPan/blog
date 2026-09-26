@@ -3,19 +3,9 @@ import { createHash } from 'node:crypto';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export function previewTarget(branch, pullRequestNumber) {
+export function previewTarget(branch) {
   if (!branch || branch === 'HEAD' || branch === 'master') {
     throw new Error('A non-production branch is required for a Preview');
-  }
-  if (pullRequestNumber !== undefined) {
-    if (
-      !/^[1-9]\d*$/.test(String(pullRequestNumber)) ||
-      !Number.isSafeInteger(Number(pullRequestNumber))
-    ) {
-      throw new Error('Invalid pull request number');
-    }
-    const name = `pr-${pullRequestNumber}`;
-    return { name, url: `https://${name}.preview.perfectpan.org` };
   }
   const slug =
     branch
@@ -28,44 +18,6 @@ export function previewTarget(branch, pullRequestNumber) {
   const hash = createHash('sha256').update(branch).digest('hex').slice(0, 8);
   const name = `${slug}-${hash}`;
   return { name, url: `https://${name}.preview.perfectpan.org` };
-}
-
-export async function findPullRequestNumber(branch, fetcher = fetch) {
-  const url = new URL('https://api.github.com/repos/PerfectPan/blog/pulls');
-  url.search = new URLSearchParams({
-    state: 'open',
-    head: `PerfectPan:${branch}`,
-    base: 'master',
-    per_page: '100',
-  }).toString();
-  const response = await fetcher(url, {
-    headers: {
-      Accept: 'application/vnd.github+json',
-      'User-Agent': 'blog-preview-build',
-    },
-    signal: AbortSignal.timeout(30_000),
-  });
-  // A failed lookup is not evidence that the branch has no PR.
-  if (!response.ok)
-    throw new Error(`GitHub PR lookup returned ${response.status}`);
-  const pulls = await response.json();
-  if (!Array.isArray(pulls)) throw new Error('Invalid GitHub PR response');
-  const matches = pulls.filter(
-    (pr) =>
-      pr.state === 'open' &&
-      pr.head?.ref === branch &&
-      pr.head?.repo?.full_name === 'PerfectPan/blog' &&
-      pr.base?.ref === 'master',
-  );
-  if (matches.length > 1)
-    throw new Error('Multiple open PRs match this branch');
-  return matches[0]?.number;
-}
-
-export function cleanupTargets(branch, pullRequestNumber) {
-  if (!pullRequestNumber)
-    throw new Error('PR cleanup requires its event number');
-  return [previewTarget(branch, pullRequestNumber), previewTarget(branch)];
 }
 
 export function assertPreviewIsolation(config) {
@@ -115,35 +67,26 @@ async function main() {
     execFileSync('git', ['branch', '--show-current'], {
       encoding: 'utf8',
     }).trim();
+  const { name, url } = previewTarget(branch);
   if (command === 'delete') {
-    for (const { name } of cleanupTargets(
-      branch,
-      process.env.PREVIEW_PR_NUMBER,
-    )) {
-      const result = wrangler([
-        'preview',
-        'delete',
-        '--name',
-        name,
-        '--skip-confirmation',
-      ]);
-      // A closed PR may never have deployed; permission/network errors still fail.
-      if (
-        result.status !== 0 &&
-        !/Preview not found\. \[code: 10025\]/.test(
-          `${result.stdout}\n${result.stderr}`,
-        )
-      ) {
-        throw new Error('Preview cleanup failed');
-      }
+    const result = wrangler([
+      'preview',
+      'delete',
+      '--name',
+      name,
+      '--skip-confirmation',
+    ]);
+    // A closed PR may never have deployed; permission/network errors still fail.
+    if (
+      result.status !== 0 &&
+      !/Preview not found\. \[code: 10025\]/.test(
+        `${result.stdout}\n${result.stderr}`,
+      )
+    ) {
+      throw new Error('Preview cleanup failed');
     }
     return;
   }
-  previewTarget(branch);
-  const pullRequestNumber = await findPullRequestNumber(branch);
-  const { name, url } = previewTarget(branch, pullRequestNumber);
-  if (pullRequestNumber)
-    process.env.PULL_REQUEST_NUMBER = String(pullRequestNumber);
   const { unstable_readConfig } = await import('wrangler');
   assertPreviewIsolation(unstable_readConfig({ config: 'wrangler.jsonc' }));
   assertPreviewIsolation(

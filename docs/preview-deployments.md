@@ -15,11 +15,8 @@ Cloudflare 已启用原生 Preview Builds，预览专用 Base 密钥已设置。
 迁移 preview D1 → `wrangler preview` → 校验 URL 与 `APPS_WEB_URL` 一致 → 探测登录页与会话接口。
 Workers Builds 负责 PR 链接；GitHub Action 仅保留关闭 PR 时的清理。
 
-有对应的同仓库、目标为 master 的 open PR 时，预览地址为 `pr-<number>.preview.perfectpan.org`。
-脚本通过 GitHub 公开 API 按分支查找 PR，不需要额外的 GitHub token；API 失败或匹配不唯一时停止部署。
-没有 PR 时，分支名规范化后附加八位哈希作为临时预览地址，避免分支之间冲突。
-若 PR 在分支构建结束后才创建，下次 push 或重试原生构建时才会生成 PR 编号地址。
-关闭 PR 时使用事件中的编号清理 PR 预览及临时分支预览。
+预览名称由分支名规范化后附加八位哈希组成，避免 `feature/a` 和 `feature-a` 相互覆盖；
+域名是 `<name>.preview.perfectpan.org`。部署和清理使用同一个命名函数。
 禁止以 `master`、缺失分支或 detached HEAD 创建预览。
 
 `wrangler.jsonc.previews` 是变量和数据绑定的来源。Previews Base 保存稳定的预览专用
@@ -45,8 +42,6 @@ Workers Builds 负责 PR 链接；GitHub Action 仅保留关闭 PR 时的清理�
 PR 关闭清理尚待实际关闭事件验收；它只删除 Preview，不删除共享 D1/R2。
 
 ## 数据与认证边界
-
-GitHub 未认证 API 存在请求限额；遇到限流时构建会明确失败，不会悄悄退回分支地址。
 
 preview 数据库迁移会影响所有 PR，破坏性 schema 变更应使用另一个独立测试数据库。
 Builds 并发运行时也可能争用共享数据库；应使用向后兼容迁移，迁移冲突需处理后重试，
