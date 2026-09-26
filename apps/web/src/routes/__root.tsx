@@ -3,11 +3,13 @@ import {
   HeadContent,
   Outlet,
   Scripts,
+  useRouter,
 } from '@tanstack/react-router';
-import { type ReactNode, useEffect } from 'react';
+import { type ReactNode, useEffect, useRef } from 'react';
 import { AppLayout } from '../components/layout.js';
 import { ErrorPage, NotFoundPage } from '../components/misc.js';
 import { SearchPalette } from '../components/search-palette.js';
+import { authClient } from '../lib/auth-client.js';
 import '../styles.css';
 
 /**
@@ -54,6 +56,28 @@ export const Route = createRootRoute({
 });
 
 function RootComponent() {
+  const router = useRouter();
+  const { data: session, isPending, error } = authClient.useSession();
+  const user = session?.user;
+  const identity = JSON.stringify([
+    user?.id ?? null,
+    user?.role ?? null,
+    user?.emailVerified ?? null,
+  ]);
+  const previousIdentity = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (isPending || error) return;
+    const previous = previousIdentity.current;
+    previousIdentity.current = identity;
+    if (previous !== undefined && previous !== identity) {
+      // Better Auth updates its own store, but route loaders have a separate
+      // cache. Also covers session changes received from another tab.
+      router.clearCache();
+      void router.invalidate();
+    }
+  }, [error, identity, isPending, router]);
+
   useEffect(() => {
     if (import.meta.env.DEV) {
       void import('react-grab');
