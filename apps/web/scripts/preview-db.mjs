@@ -4,7 +4,9 @@
  *
  *   node scripts/preview-db.mjs migrate     apply migrations/ to the preview DB
  *   node scripts/preview-db.mjs sync-posts  replace its posts with production's
- *                                            public, published posts
+ *                                            public, published posts, and copy
+ *                                            the media they reference into the
+ *                                            preview bucket
  *
  * `wrangler d1` only resolves databases from the top-level `d1_databases`, so
  * each command runs against a throwaway config holding just the preview DB.
@@ -34,11 +36,17 @@ const POST_COLUMNS = [
 const config = unstable_readConfig({ config: 'wrangler.jsonc' });
 const production = config.d1_databases.find((d) => d.binding === 'DB');
 const preview = config.previews?.d1_databases?.find((d) => d.binding === 'DB');
-if (!production || !preview) {
+const previewBucket = config.previews?.r2_buckets?.find(
+  (b) => b.binding === 'MEDIA_BUCKET',
+);
+if (!production || !preview || !previewBucket) {
   throw new Error(
-    'wrangler.jsonc needs a DB binding at the top level and in previews',
+    'wrangler.jsonc needs DB and MEDIA_BUCKET bindings at the top level and in previews',
   );
 }
+
+// Post bodies reference media as /api/asset/<key> (routes/api/asset/$.ts).
+const ASSET_REF = /\/api\/asset\/([^\s)"'<>]+)/g;
 
 const work = mkdtempSync(join(tmpdir(), 'preview-db-'));
 const previewConfig = join(work, 'wrangler.json');
@@ -101,6 +109,44 @@ function syncPosts() {
   console.log(
     `Copied ${rows.length} public posts into ${preview.database_name}.`,
   );
+  return rows;
+}
+
+// Media of public posts is public, so it is read through the production
+// site, which also reports each object's content type.
+async function syncMedia(rows) {
+  const keys = new Set(
+    rows.flatMap((row) =>
+      [...String(row.body).matchAll(ASSET_REF)].map((match) => match[1]),
+    ),
+  );
+  let copied = 0;
+  for (const key of keys) {
+    const response = await fetch(
+      new URL(`/api/asset/${key}`, config.vars.APPS_WEB_URL),
+    );
+    if (!response.ok) {
+      console.warn(`skip ${key}: production returned ${response.status}`);
+      continue;
+    }
+    const file = join(work, 'object');
+    writeFileSync(file, Buffer.from(await response.arrayBuffer()));
+    wrangler([
+      'r2',
+      'object',
+      'put',
+      `${previewBucket.bucket_name}/${key}`,
+      '--remote',
+      '--file',
+      file,
+      '--content-type',
+      response.headers.get('content-type') ?? 'application/octet-stream',
+    ]);
+    copied += 1;
+  }
+  console.log(
+    `Copied ${copied} of ${keys.size} media objects into ${previewBucket.bucket_name}.`,
+  );
 }
 
 try {
@@ -116,7 +162,7 @@ try {
       previewConfig,
     ]);
   } else if (command === 'sync-posts') {
-    syncPosts();
+    await syncMedia(syncPosts());
   } else {
     console.error('usage: node scripts/preview-db.mjs <migrate|sync-posts>');
     process.exitCode = 1;

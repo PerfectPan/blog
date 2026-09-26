@@ -36,7 +36,7 @@ pnpm --filter @blog/web preview       # wrangler dev（真实 worker 运行时�
 pnpm --filter @blog/web db:migrate:local
 pnpm --filter @blog/web db:migrate     # 远端
 pnpm --filter @blog/web db:migrate:preview  # 远端 preview D1（blog-preview）
-pnpm --filter @blog/web db:sync-preview     # 用生产的公开文章覆盖 preview D1 的 post 表
+pnpm --filter @blog/web db:sync-preview     # 用生产的公开文章覆盖 preview D1 的 post 表，并把它们引用的图片复制到 preview R2
 
 # 类型检查
 pnpm typecheck
