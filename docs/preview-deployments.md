@@ -2,7 +2,7 @@
 
 ## 切换状态
 
-仓库迁移已准备；Cloudflare 的 Preview Builds 尚未启用，运行时 Base 密钥尚未设置，
+预览专用 Base 密钥已设置；控制台正在切换到原生 Preview Builds，
 实际分支预览尚未验收。不要仅因本地检查通过就合并并视为切换完成。
 
 生产继续使用 Workers Builds，preview 继续绑定独立的 `blog-preview` D1 和
