@@ -68,8 +68,10 @@ pnpm deploy
 2. 部署产物里 `dist/server/wrangler.json` 由 `@cloudflare/vite-plugin` 生成，
    `wrangler deploy` 用它。
 3. **主部署通道是 Cloudflare Workers Builds**（CF Git 集成）：push `master` 自动 build + 部署，
-   PR 分支自动出 preview URL。**D1 迁移**由 `.github/workflows/migrate.yml`（push `master` 触发）
-   单独跑（仅 `migrations/` 有变化时触发，另可手动 `workflow_dispatch`；Workers Builds 的 token 无 D1 权限）。
+   非生产分支启用 Preview Builds 后执行 `pnpm preview:deploy`，先迁移独立 preview D1，再发布并探测。
+   `.github/workflows/preview.yml` 仅清理关闭 PR 的预览；控制台切换与验收见 `docs/preview-deployments.md`。
+   **生产 D1 迁移**由 `.github/workflows/migrate.yml`（push `master` 触发）
+   单独跑（仅 `migrations/` 有变化时触发，另可手动 `workflow_dispatch`；与生产构建独立执行）。
    手动 `/deploy` 后务必 push，否则和 Workers Builds 分叉。
 
 ## 7. 提交前最低验证
