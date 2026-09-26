@@ -2,8 +2,9 @@
 
 ## 切换状态
 
-预览专用 Base 密钥已设置；控制台正在切换到原生 Preview Builds，
-实际分支预览尚未验收。不要仅因本地检查通过就合并并视为切换完成。
+Cloudflare 已启用原生 Preview Builds，预览专用 Base 密钥已设置。
+迁移分支已实测：push 自动构建、迁移检查、发布、登录/会话探测及 PR 链接回贴均成功。
+实际部署的 DB/R2 绑定也已在控制台核验；仓库变更仍须经 PR 批准合入 master。
 
 生产继续使用 Workers Builds，preview 继续绑定独立的 `blog-preview` D1 和
 `blog-assets-preview` R2。不同 PR 共用预览数据，不共享生产的账号、会话或评论。
@@ -36,8 +37,9 @@ Workers Builds 负责 PR 链接；GitHub Action 仅保留关闭 PR 时的清理�
 5. 验证 Builds 成功、PR 链接可用、实际绑定为 preview D1/R2，页面和会话接口正常；
    再经用户批准合并。确认旧 Action 不再部署，关闭测试 PR 时只删除对应预览。
 
-仓库原有 GitHub Actions 部署脚本在此迁移中移除。设置切换与 PR 验收需要配套完成；
-如果云端权限或 Base 密钥未准备好，保持 Preview Builds 关闭，勿合并此迁移。
+仓库原有 GitHub Actions 部署脚本在此迁移中移除。在迁移 PR 合入前，其他旧分支仍可能
+包含旧的预览 workflow，且没有新的部署命令；开始新工作前应同步迁移后的 master。
+PR 关闭清理尚待实际关闭事件验收；它只删除 Preview，不删除共享 D1/R2。
 
 ## 数据与认证边界
 
