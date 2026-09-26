@@ -7,6 +7,7 @@
     "dev": "vite dev",
     "build": "vite build",
     "preview": "wrangler dev",
+    "preview:deploy": "pnpm db:migrate:preview && wrangler preview -c dist/server/wrangler.json",
     "deploy": "vite build && wrangler deploy",
     "cf-typegen": "wrangler types",
     "db:migrate:local": "wrangler d1 migrations apply blog --local",

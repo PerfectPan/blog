@@ -1,147 +1,42 @@
-name: Preview Deploy
+name: Preview Cleanup
 
-# Deploy a Worker Preview of `blog-web` per PR (`wrangler preview`) at
-# https://pr-<number>.preview.perfectpan.org and post the URL. A Preview runs
-# under the production Worker with its own code, static assets, config and
-# URL; its bindings come from the `previews` block in apps/web/wrangler.jsonc,
-# which points DB and MEDIA_BUCKET at a separate preview D1 and R2 bucket, so a
-# preview can never touch production data. The preview host is the
-# `preview.perfectpan.org` route in wrangler.jsonc. The preview D1 holds a
-# copy of the public posts, and the preview R2 the media they reference;
-# refresh both with `pnpm --filter @blog/web db:sync-preview`.
-#
-# Same-repo branches only. Deploying needs CLOUDFLARE_API_TOKEN. Fork PRs
-# don't get repo secrets under `pull_request`, and the way around that
-# (`pull_request_target` plus checking out the fork's head) runs untrusted
-# code with the token — the "pwn request" pattern GitHub disables by default
-# for public repos. So fork PRs get no preview (see AGENTS.md §9 for how
-# contributions flow).
-#
-# Recommended: disable Workers Builds' "non-production branch builds"
-# (dashboard → blog-web → Settings → Builds) so this is the sole preview
-# mechanism; Workers Builds then only deploys `master` (production).
-
+# Workers Builds owns Preview deployment and PR URL comments.
+# Fork code never receives Cloudflare credentials.
 on:
   pull_request:
-    types: [opened, synchronize, reopened, closed]
+    types: [closed]
 
 permissions:
   contents: read
-  pull-requests: write
 
 concurrency:
-  group: preview-pr-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+  group: preview-cleanup-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
 
 jobs:
-  preview:
+  cleanup:
     if: >-
-      github.event.action != 'closed' &&
       github.event.pull_request.head.ref != 'master' &&
       github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-        with:
-          # Build the branch as pushed, not the merge with master.
-          ref: ${{ github.event.pull_request.head.sha }}
-
       - uses: pnpm/action-setup@v6
         with:
           run_install: false
-
       - uses: actions/setup-node@v7
         with:
           node-version: '24'
           cache: 'pnpm'
-
       - run: pnpm install --frozen-lockfile
-
-      - run: pnpm --filter @blog/web build
-
-      # The preview D1 is shared by every open PR, so a PR that adds a
-      # migration applies it there for all of them. Idempotent otherwise.
-      - name: Apply migrations to the preview D1
-        run: pnpm --filter @blog/web db:migrate:preview
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-
-      # APPS_WEB_URL must equal the preview origin or better-auth rejects it
-      # (the SSR session fetch then 500s every route), so it is derived from
-      # the Preview URL format and checked against what wrangler reports.
-      # `--json` still prints the module table first, so the JSON is the
-      # output from its first line starting with `{`.
-      # BETTER_AUTH_SECRET is required at init; a throwaway random value per
-      # deploy is fine, it only signs preview sessions. Previews don't inherit
-      # production secrets.
-      - name: Deploy Worker Preview
-        id: preview
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          PREVIEW_NAME: pr-${{ github.event.pull_request.number }}
-        working-directory: apps/web
+      - name: Delete branch Preview
         run: |
-          set -euo pipefail
-          url="https://${PREVIEW_NAME}.preview.perfectpan.org"
-          secrets="$(mktemp)"
-          trap 'rm -f "$secrets"' EXIT
-          printf '{"BETTER_AUTH_SECRET":"%s"}' "$(openssl rand -hex 32)" > "$secrets"
-          out="$(pnpm exec wrangler preview --name "$PREVIEW_NAME" --json \
-            -c dist/server/wrangler.json \
-            --var "APPS_WEB_URL:$url" \
-            --secrets-file "$secrets")"
-          printf '%s\n' "$out"
-          actual="$(printf '%s\n' "$out" | sed -n '/^{/,$p' | jq -er '.preview.urls[0]')"
-          if [ "$actual" != "$url" ]; then
-            echo "::error::Preview URL is $actual but APPS_WEB_URL was set to $url"
-            exit 1
+          status=0
+          output=$(pnpm --filter @blog/web exec wrangler preview delete --name "$GITHUB_HEAD_REF" --skip-confirmation 2>&1) || status=$?
+          printf '%s\n' "$output"
+          if [ "$status" -ne 0 ] && [[ "$output" != *"Preview not found. [code: 10025]"* ]]; then
+            exit "$status"
           fi
-          echo "url=$url" >> "$GITHUB_OUTPUT"
-
-      - name: Comment preview URL on PR
-        uses: actions/github-script@v9
-        env:
-          PREVIEW_URL: ${{ steps.preview.outputs.url }}
-        with:
-          script: |
-            const num = context.payload.pull_request.number;
-            const url = process.env.PREVIEW_URL;
-            const marker = '<!-- preview-deploy -->';
-            const body = `${marker}\n\n### 🌐 Preview deploy\n\n${url}\n\n_(public; rebuilt on every push; uses the preview D1 and R2, not production data)_`;
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner, repo: context.repo.repo, issue_number: num,
-            });
-            const existing = comments.find((c) => c.body && c.body.includes(marker));
-            if (existing) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner, repo: context.repo.repo, comment_id: existing.id, body,
-              });
-            } else {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner, repo: context.repo.repo, issue_number: num, body,
-              });
-            }
-
-  cleanup:
-    if: >-
-      github.event.action == 'closed' &&
-      github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: pnpm/action-setup@v6
-        with:
-          run_install: false
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: '24'
-          cache: 'pnpm'
-
-      - run: pnpm install --frozen-lockfile
-
-      - name: Delete Worker Preview
-        run: pnpm --filter @blog/web exec wrangler preview delete --name pr-${{ github.event.pull_request.number }} --skip-confirmation
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          GITHUB_HEAD_REF: ${{ github.event.pull_request.head.ref }}

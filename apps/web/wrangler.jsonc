@@ -47,17 +47,19 @@
   "observability": {
     "enabled": true
   },
-  // Worker Previews (`wrangler preview`). Previews inherit nothing from the
-  // settings above, so every var and binding they need is listed here; DB
+  // Worker Previews (`wrangler preview`). Runtime vars and storage bindings
+  // must be specified separately from production; DB
   // and MEDIA_BUCKET point at a separate D1 and R2 bucket, so a preview —
   // including code under review — can never touch production data. The
   // preview D1 holds a copy of the public posts only, and the preview bucket
   // the media they reference; refresh both with
-  // `pnpm db:sync-preview` (scripts/preview-db.mjs). APPS_WEB_URL differs per
-  // preview, so it is passed with --var at deploy time.
+  // `pnpm db:sync-preview` (scripts/preview-db.mjs). APPS_WEB_URL stays the
+  // canonical site URL; Better Auth resolves each Preview's request origin.
   "previews": {
     "vars": {
-      "ADMIN_EMAIL_ALLOWLIST": "perfectpan325@gmail.com"
+      "ADMIN_EMAIL_ALLOWLIST": "perfectpan325@gmail.com",
+      "APPS_WEB_URL": "https://perfectpan.org",
+      "AUTH_ALLOWED_HOSTS": "*.preview.perfectpan.org"
     },
     "d1_databases": [
       {

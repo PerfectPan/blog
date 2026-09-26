@@ -175,25 +175,24 @@ pnpm --filter @blog/web dev                            # vite dev
 
 ## 12. 部署
 
-- **主部署通道 = Cloudflare Workers Builds（CF Git 集成）**：push 到 `master` → 自动
-  `pnpm build` + `wrangler deploy -c dist/server/wrangler.json`，新版本自动提升为 Active
-  Deployment。**PR 分支**自动出 **preview URL**（`<branch>-blog-web.<subdomain>.workers.dev`，
-  评论到 PR）。Workers Builds 用自动生成的 token，**没有 D1 权限**。
-  配置（dashboard → blog-web → Settings → Builds）：root dir `apps/web`、build
-  `pnpm install --frozen-lockfile && pnpm build`、deploy `npx wrangler deploy -c dist/server/wrangler.json`、
-  non-prod deploy `npx wrangler versions upload -c dist/server/wrangler.json`。
-- **D1 迁移**：`.github/workflows/migrate.yml`（push `master` **且 `apps/web/migrations/**` 有变化时**
-  触发；另支持手动 `workflow_dispatch`）→ `wrangler d1 migrations apply blog --remote`，用仓库
-  secret（有 D1 权限）。与 Workers Builds 并行触发，迁移幂等（无新文件即 no-op）。
-- **PR 门**：`.github/workflows/pull-request.yml` → typecheck + biome + test + build + 体积守门。
-- **手动**：`/deploy` skill 或 `pnpm --filter @blog/web exec wrangler deploy -c dist/server/wrangler.json`。
-  **别让手动部署和 Workers Builds 分叉**——手动发本地代码、Workers Builds 发 `master`，不一致时
-  下次 push master 会回滚生产；手动部署后务必 commit→push→merge。
-- **必需生产配置**：secret `BETTER_AUTH_SECRET`（运行时 secret，Workers Builds 部署不清掉）；
-  var `APPS_WEB_URL`（已在 `wrangler.jsonc`）；D1 绑定 `DB`（已 provision）。可选 `GITHUB_CLIENT_ID/SECRET`。
-- **Custom Domain 由 `wrangler.jsonc` 的 `routes` 管理**（apex + www）。换域名坑：Custom Domain
-  要求该主机名下无现存 DNS 记录，否则 `409 / code 100117`，而 OAuth token 无 `dns:edit`——
-  需先在 dashboard 删掉冲突记录再部署。
+- **生产**：Cloudflare Workers Builds 监听 `master`，root dir 为 `apps/web`，build 命令为
+  `pnpm install --frozen-lockfile && pnpm build`，deploy 命令为
+  `npx wrangler deploy -c dist/server/wrangler.json`。
+- **预览**：原生 Preview Builds 执行 `pnpm preview:deploy`，先迁移 preview D1，再运行
+  `wrangler preview -c dist/server/wrangler.json`。地址和 PR 评论由 Cloudflare 原生处理。
+- **预览资源**：`wrangler.jsonc.previews` 指向共享的 `blog-preview` D1 和 `blog-assets-preview` R2，
+  与生产分开。Better Auth 通过 `AUTH_ALLOWED_HOSTS` 使用原生动态域名配置；登录密钥由
+  Previews Base 独立设置。关闭 PR 时，Action 按分支名删除预览，不删除共享存储。
+  配置与维护说明见 [预览部署说明](preview-deployments.md)。
+- **生产 D1 迁移**：`.github/workflows/migrate.yml` 在 push `master` 且迁移文件变化时执行，
+  另支持手动触发。它与生产 Builds 并行，不保证先于代码部署；新增 schema 的发布应兼容
+  旧结构或显式协调顺序。原生预览使用的 Builds token 需要 D1 Edit 权限。
+- **PR 门**：`.github/workflows/pull-request.yml` 执行 typecheck、lint、单元测试、
+  build 和体积检查；E2E 由独立 workflow 执行。
+- **手动生产部署**：使用 `pnpm --filter @blog/web exec wrangler deploy -c dist/server/wrangler.json`。
+  手动部署代码必须经 PR 合入 `master`，避免后续 Builds 覆盖为不同代码。
+- **Custom Domain**：由 `wrangler.jsonc.routes` 管理。绑定主机名不能有冲突 DNS 记录；
+  更换域名前先核验 DNS 与所用 token 的权限。
 
 ## 13. 给 Agent 的速查（常见改动）
 
