@@ -7,8 +7,8 @@ name: Preview Deploy
 # which points DB and MEDIA_BUCKET at a separate preview D1 and R2 bucket, so a
 # preview can never touch production data. The preview host is the
 # `preview.perfectpan.org` route in wrangler.jsonc. The preview D1 holds a
-# copy of the public posts; refresh it with
-# `pnpm --filter @blog/web db:sync-preview`.
+# copy of the public posts, and the preview R2 the media they reference;
+# refresh both with `pnpm --filter @blog/web db:sync-preview`.
 #
 # Same-repo branches only. Deploying needs CLOUDFLARE_API_TOKEN. Fork PRs
 # don't get repo secrets under `pull_request`, and the way around that
