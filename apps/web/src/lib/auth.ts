@@ -30,10 +30,12 @@ const devOrigins = import.meta.env.DEV
 
 const authOptions = {
   secret: env.betterAuthSecret,
-  baseURL: env.appsWebUrl,
+  baseURL: env.authAllowedHosts
+    ? { allowedHosts: env.authAllowedHosts, protocol: 'https' }
+    : env.appsWebUrl,
   database: { db: kysely, type: 'sqlite' },
   plugins: [tanstackStartCookies()],
-  trustedOrigins: [env.appsWebUrl, ...devOrigins],
+  trustedOrigins: devOrigins,
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,

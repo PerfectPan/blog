@@ -178,18 +178,16 @@ pnpm --filter @blog/web dev                            # vite dev
 - **生产**：Cloudflare Workers Builds 监听 `master`，root dir 为 `apps/web`，build 命令为
   `pnpm install --frozen-lockfile && pnpm build`，deploy 命令为
   `npx wrangler deploy -c dist/server/wrangler.json`。
-- **预览**：目标入口为原生 Preview Builds，使用相同 root/build 配置，Preview command 为
-  `pnpm preview:deploy`。脚本检查源码和构建产物的 D1/R2 与生产隔离，先迁移 preview D1，
-  再调用 `wrangler preview` 并探测登录页、会话接口。控制台启用状态及切换门禁见
-  [预览部署说明](preview-deployments.md)；合并仓库代码不会自动打开云端开关。
-- **预览资源**：`wrangler.jsonc.previews` 指向 `blog-preview` 和 `blog-assets-preview`，
-  所有 PR 共用；分支名称经规范化并附加哈希形成稳定域名，`APPS_WEB_URL` 与其一致。
-  `BETTER_AUTH_SECRET` 在 Previews Base 设置一次，不复用生产值、不随构建重置。
-  `.github/workflows/preview.yml` 仅在同仓库 PR 关闭时清理对应分支预览；不存在即完成。
+- **预览**：原生 Preview Builds 执行 `pnpm preview:deploy`，先迁移 preview D1，再运行
+  `wrangler preview -c dist/server/wrangler.json`。地址和 PR 评论由 Cloudflare 原生处理。
+- **预览资源**：`wrangler.jsonc.previews` 指向共享的 `blog-preview` D1 和 `blog-assets-preview` R2，
+  与生产分开。Better Auth 通过 `AUTH_ALLOWED_HOSTS` 使用原生动态域名配置；登录密钥由
+  Previews Base 独立设置。关闭 PR 时，Action 按分支名删除预览，不删除共享存储。
+  配置与维护说明见 [预览部署说明](preview-deployments.md)。
 - **生产 D1 迁移**：`.github/workflows/migrate.yml` 在 push `master` 且迁移文件变化时执行，
   另支持手动触发。它与生产 Builds 并行，不保证先于代码部署；新增 schema 的发布应兼容
   旧结构或显式协调顺序。原生预览使用的 Builds token 需要 D1 Edit 权限。
-- **PR 门**：`.github/workflows/pull-request.yml` 执行 typecheck、lint、单元测试、预览隔离测试、
+- **PR 门**：`.github/workflows/pull-request.yml` 执行 typecheck、lint、单元测试、
   build 和体积检查；E2E 由独立 workflow 执行。
 - **手动生产部署**：使用 `pnpm --filter @blog/web exec wrangler deploy -c dist/server/wrangler.json`。
   手动部署代码必须经 PR 合入 `master`，避免后续 Builds 覆盖为不同代码。

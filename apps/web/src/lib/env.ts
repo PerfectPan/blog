@@ -5,6 +5,7 @@ type WebEnv = {
   githubClientId?: string;
   githubClientSecret?: string;
   appsWebUrl: string;
+  authAllowedHosts?: string[];
   cookieDomain?: string;
   adminEmailAllowlist: string[];
   /** R2 public custom domain for media (e.g. https://assets.perfectpan.org).
@@ -78,6 +79,9 @@ export function getWebEnv(): WebEnv {
     githubClientId: process.env.GITHUB_CLIENT_ID,
     githubClientSecret: process.env.GITHUB_CLIENT_SECRET,
     appsWebUrl: requireUrlEnv('APPS_WEB_URL'),
+    authAllowedHosts: process.env.AUTH_ALLOWED_HOSTS?.split(',')
+      .map((host) => host.trim())
+      .filter(Boolean),
     cookieDomain: process.env.COOKIE_DOMAIN,
     adminEmailAllowlist: allowlist,
     assetsBaseUrl: process.env.ASSETS_BASE_URL
