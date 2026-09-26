@@ -10,6 +10,10 @@ type WebEnv = {
   /** R2 public custom domain for media (e.g. https://assets.perfectpan.org).
    *  When unset, media is served through the Worker at /api/asset/<key>. */
   assetsBaseUrl?: string;
+  /** Resend API key; mail (email verification) is off when unset. */
+  resendApiKey?: string;
+  /** Sender, e.g. "PerfectPan's Blog <noreply@mail.perfectpan.org>". */
+  mailFrom?: string;
 };
 
 function requireEnv(name: string): string {
@@ -79,5 +83,7 @@ export function getWebEnv(): WebEnv {
     assetsBaseUrl: process.env.ASSETS_BASE_URL
       ? stripWrappedQuotes(process.env.ASSETS_BASE_URL).replace(/\/$/, '')
       : undefined,
+    resendApiKey: process.env.RESEND_API_KEY,
+    mailFrom: process.env.MAIL_FROM,
   };
 }

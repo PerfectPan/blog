@@ -26,7 +26,7 @@
 | Worker 入口 / `www→apex` 301 | `apps/web/src/server.tsx` |
 | 路由（文件式，自动生成） | `apps/web/src/routes/**`，`routeTree.gen.ts`（生成，勿手改） |
 | 公开博客 | `routes/blog/{index,$slug}.tsx`、`lib/blog-service.ts`、`lib/content-service.ts` |
-| 认证 | `lib/auth.ts`、`lib/auth-client.ts`、`lib/session-core.ts`、`routes/api/auth/$.ts`、`routes/{login,signup,logout}.tsx` |
+| 认证 | `lib/auth.ts`、`lib/auth-client.ts`、`lib/session-core.ts`、`lib/mail.ts`（Resend 发信）、`routes/api/auth/$.ts`、`routes/{login,signup,logout,account}.tsx`、`components/{auth,account}.tsx` |
 | Admin 后台 | `routes/admin/{index,new,$slug}.tsx`、`lib/admin-service.ts`、`components/{post-editor,markdown-editor,tag-input,markdown}.tsx` |
 | 评论（自建，登录 + 后置审核） | `lib/comments-service.ts`、`components/{comments,comment-markdown}.tsx`、`routes/admin/comments.tsx`；共享类型/权限纯函数 `packages/shared`（`Comment`、`canAccessComments`、`canManageComment`）。设计见 `docs/superpowers/specs/2026-07-14-self-hosted-comments-design.md` |
 | 密码文章解锁 | `routes/unlock/$slug.tsx`、`lib/unlock-cookie.ts`、`lib/unlock-rate-limit.ts` |
@@ -91,7 +91,11 @@ fetch 里（`apps/web/src/server.tsx`）。
 4. **详情 `GET /blog/:slug`**：`getBlogPostServerFn` → `getPostBySlug()`（D1）→
    **在数据层就按可见性裁剪正文**（无权则返回空 body），route loader 再做 redirect/401/403。
 5. **认证**：前台 Better Auth（`/api/auth/*`），经 `kysely-d1` 直连 D1；GitHub OAuth 可选
-   （secret 未配则自动禁用）。
+   （secret 未配则自动禁用）。邮箱验证经 Resend 发信（`RESEND_API_KEY` + var `MAIL_FROM`，
+   未配则关闭）：注册即发验证邮件，链接落到 `/account`，也可在 `/account` 重发。
+   同邮箱已有账号时，GitHub 登录只在本地邮箱**已验证**时自动合并（Better Auth 默认规则，防账号
+   预劫持）；未验证则回到 `/login?error=account_not_linked`，用户先用密码登录，再在 `/account`
+   验证邮箱或手动绑定 GitHub（`linkSocial`，允许 GitHub 邮箱与账号邮箱不同）。
 
 ## 6. 权限模型（**两层都要守**）
 
@@ -128,7 +132,7 @@ fetch 里（`apps/web/src/server.tsx`）。
 - **SQL 注入**：所有 D1 查询参数化（`.prepare().bind()`），无字符串拼接。
 - **XSS**：Markdown 经 react-markdown 渲染，**未启用 `rehype-raw`**（不透传原始 HTML）。
 - **CSRF**：会话 cookie `SameSite=Lax` 拦截跨站 POST；Better Auth 校验 origin。
-- **密钥**：`BETTER_AUTH_SECRET`、GitHub OAuth secret 放 Cloudflare **secret**（不入库、不进 git）；
+- **密钥**：`BETTER_AUTH_SECRET`、GitHub OAuth secret、`RESEND_API_KEY` 放 Cloudflare **secret**（不入库、不进 git）；
   `ADMIN_EMAIL_ALLOWLIST` 是 var（非密钥）。
 
 **已知局限（按需加固）：**

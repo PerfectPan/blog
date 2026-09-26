@@ -94,8 +94,10 @@ export function Header() {
 
       <div className='ml-auto flex items-center gap-1 max-[640px]:gap-0.5'>
         {sessionUser ? (
-          <span
-            className='inline-flex h-6 min-w-0 items-center gap-1.5 rounded border border-border bg-secondary px-2 text-xs leading-none'
+          <Link
+            to='/account'
+            data-testid='nav-account'
+            className='inline-flex h-6 min-w-0 items-center gap-1.5 rounded border border-border bg-secondary px-2 text-xs leading-none hover:border-primary hover:no-underline'
             title={sessionUser.email}
           >
             <span className='block min-w-0 max-w-[16ch] overflow-hidden text-ellipsis whitespace-nowrap text-chart-1'>
@@ -104,7 +106,7 @@ export function Header() {
             <span className='shrink-0 rounded-full bg-primary px-1.75 py-px text-xs leading-normal font-bold text-primary-foreground'>
               {getRoleLabel(sessionUser.role)}
             </span>
-          </span>
+          </Link>
         ) : null}
         {sessionUser ? (
           <Link

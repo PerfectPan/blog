@@ -12,6 +12,11 @@ APPS_WEB_URL="http://127.0.0.1:8787"
 GITHUB_CLIENT_ID=""
 GITHUB_CLIENT_SECRET=""
 
+# Optional: email verification mail via Resend. Leave RESEND_API_KEY unset to
+# turn email verification off. MAIL_FROM is a [vars] entry in wrangler.jsonc.
+RESEND_API_KEY=""
+MAIL_FROM=""
+
 # Optional: cookie domain (e.g. ".example.com") and first-admin allowlist.
 COOKIE_DOMAIN=""
 ADMIN_EMAIL_ALLOWLIST=""
