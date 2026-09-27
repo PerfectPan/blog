@@ -1,3 +1,4 @@
+import { DEFAULT_LOCALE } from '@blog/shared';
 import {
   createRootRoute,
   HeadContent,
@@ -10,6 +11,8 @@ import { AppLayout } from '../components/layout.js';
 import { ErrorPage, NotFoundPage } from '../components/misc.js';
 import { SearchPalette } from '../components/search-palette.js';
 import { authClient } from '../lib/auth-client.js';
+import { LocaleProvider } from '../lib/i18n/context.js';
+import { getLocaleServerFn } from '../lib/locale-service.js';
 import '../styles.css';
 
 /**
@@ -22,6 +25,14 @@ import '../styles.css';
 const THEME_BOOT_SCRIPT = `(function(){try{var t=null;try{t=localStorage.getItem('blog-theme')}catch(e){}var d=t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(d){document.documentElement.classList.add('dark');var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content','#0a0f14');}}catch(e){}})();`;
 
 export const Route = createRootRoute({
+  // Locale is a preference, not a URL dimension: the server always knows the
+  // signed-in user's account preference (user.locale) and nothing else. The
+  // guest localStorage read happens client-side after mount (LocaleProvider),
+  // so SSR renders zh and the edge cache for /blog/<slug> stays untouched.
+  loader: async () => {
+    const { locale, isLoggedIn } = await getLocaleServerFn();
+    return { locale: locale ?? DEFAULT_LOCALE, isLoggedIn };
+  },
   head: () => ({
     meta: [
       {
@@ -57,6 +68,7 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   const router = useRouter();
+  const { locale, isLoggedIn } = Route.useLoaderData();
   const { data: session, isPending, error } = authClient.useSession();
   const user = session?.user;
   const identity = JSON.stringify([
@@ -95,10 +107,12 @@ function RootComponent() {
 
   return (
     <RootDocument>
-      <AppLayout>
-        <Outlet />
-      </AppLayout>
-      <SearchPalette />
+      <LocaleProvider initialLocale={locale} isLoggedIn={isLoggedIn}>
+        <AppLayout>
+          <Outlet />
+        </AppLayout>
+        <SearchPalette />
+      </LocaleProvider>
     </RootDocument>
   );
 }

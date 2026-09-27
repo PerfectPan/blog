@@ -1,6 +1,8 @@
+import type { Locale } from '@blog/shared';
 import { Link, useNavigate } from '@tanstack/react-router';
 import {
   Github,
+  Languages,
   LogOut,
   MoreHorizontal,
   Rss,
@@ -11,6 +13,8 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { authClient } from '../lib/auth-client.js';
+import { useLocale } from '../lib/i18n/context.js';
+import { useChrome } from '../lib/i18n/messages/index.js';
 import { ConfirmDialog } from './confirm-dialog.js';
 import { DarkMode } from './dark-mode.js';
 import { searchPalette } from './search-palette-store.js';
@@ -28,6 +32,56 @@ function getRoleLabel(role?: string | null): string {
   return 'MEMBER';
 }
 
+/**
+ * Language switcher in terminal style — reads as `[zh|en]`. Both desktop bar
+ * and ≤480px sheet variants. Buttons carry each language's own name (中文 /
+ * English) and `aria-pressed` marks the active one.
+ */
+function LocaleSwitcher({ variant }: { variant: 'bar' | 'sheet' }) {
+  const { locale, setLocale } = useLocale();
+  const t = useChrome();
+  const langButton = (next: Locale) => (
+    <button
+      type='button'
+      aria-pressed={locale === next}
+      aria-label={next === 'zh' ? t.langZhName : t.langEnName}
+      onClick={() => setLocale(next)}
+      className={
+        locale === next
+          ? 'cursor-pointer text-primary'
+          : 'cursor-pointer text-muted-foreground/60 hover:text-primary'
+      }
+    >
+      {next}
+    </button>
+  );
+  const toggle = (
+    <>
+      <span aria-hidden='true'>[</span>
+      {langButton('zh')}
+      <span aria-hidden='true'>|</span>
+      {langButton('en')}
+      <span aria-hidden='true'>]</span>
+    </>
+  );
+
+  if (variant === 'sheet') {
+    return (
+      <div className={SHEET_ROW}>
+        <Languages size={14} aria-hidden='true' />
+        <span aria-hidden='true'>LANG=</span>
+        {toggle}
+      </div>
+    );
+  }
+
+  return (
+    <div className='inline-flex h-6 shrink-0 items-center gap-px px-1.5 text-xs leading-none text-muted-foreground/60 max-[480px]:hidden'>
+      {toggle}
+    </div>
+  );
+}
+
 // Tools collapse behind the ⋯ toggle on ≤480px; the user chip, theme toggle
 // and the ⋯ itself stay visible.
 const TOOL_VIS = 'max-[480px]:hidden';
@@ -39,6 +93,7 @@ export function Header() {
   const { data: sessionData } = authClient.useSession();
   const sessionUser = sessionData?.user ?? null;
   const navigate = useNavigate();
+  const t = useChrome();
   const [logoutOpen, setLogoutOpen] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
   const barRef = useRef<HTMLElement>(null);
@@ -112,7 +167,7 @@ export function Header() {
           <Link
             to='/logout'
             data-testid='nav-logout'
-            aria-label='Logout'
+            aria-label={t.logoutAria}
             className={`${TOOL_BTN} ${TOOL_VIS}`}
             onClick={(event) => {
               event.preventDefault();
@@ -120,7 +175,7 @@ export function Header() {
             }}
           >
             <LogOut size={15} aria-hidden='true' />
-            <span className='hidden md:inline'>logout</span>
+            <span className='hidden md:inline'>{t.logout}</span>
           </Link>
         ) : (
           <>
@@ -130,7 +185,7 @@ export function Header() {
               className={`${TOOL_BTN} ${TOOL_VIS}`}
             >
               <UserRound size={15} aria-hidden='true' />
-              <span className='hidden md:inline'>login</span>
+              <span className='hidden md:inline'>{t.login}</span>
             </Link>
             <Link
               to='/signup'
@@ -138,44 +193,45 @@ export function Header() {
               className={`${TOOL_BTN} ${TOOL_VIS}`}
             >
               <UserRoundPlus size={15} aria-hidden='true' />
-              <span className='hidden md:inline'>signup</span>
+              <span className='hidden md:inline'>{t.signup}</span>
             </Link>
           </>
         )}
+        <LocaleSwitcher variant='bar' />
         <DarkMode />
         <button
           type='button'
-          aria-label='Search posts (Cmd+K)'
+          aria-label={t.searchAria}
           onClick={() => searchPalette.open()}
           className={`${TOOL_BTN} ${TOOL_VIS}`}
         >
           <Search size={15} aria-hidden='true' />
-          <span className='hidden md:inline'>grep</span>
+          <span className='hidden md:inline'>{t.grep}</span>
         </button>
         <a
           href='https://github.com/PerfectPan'
           target='_blank'
           rel='noreferrer'
-          aria-label='GitHub'
+          aria-label={t.githubAria}
           className={`${TOOL_BTN} ${TOOL_VIS}`}
         >
           <Github size={15} aria-hidden='true' />
-          <span className='hidden md:inline'>github</span>
+          <span className='hidden md:inline'>{t.github}</span>
         </a>
         <a
           href='/rss.xml'
           target='_blank'
           rel='noreferrer'
-          aria-label='RSS'
+          aria-label={t.rssAria}
           className={`${TOOL_BTN} ${TOOL_VIS}`}
         >
           <Rss size={15} aria-hidden='true' />
-          <span className='hidden md:inline'>rss</span>
+          <span className='hidden md:inline'>{t.rss}</span>
         </a>
         <button
           type='button'
           className={`${TOOL_BTN_TOGGLE} hidden`}
-          aria-label={toolsOpen ? 'Close tools menu' : 'Open tools menu'}
+          aria-label={toolsOpen ? t.closeToolsMenu : t.openToolsMenu}
           aria-expanded={toolsOpen}
           onClick={() => {
             setToolsOpen(!toolsOpen);
@@ -201,7 +257,7 @@ export function Header() {
               }}
               className={SHEET_ROW}
             >
-              <LogOut size={14} aria-hidden='true' /> logout
+              <LogOut size={14} aria-hidden='true' /> {t.logout}
             </button>
           ) : (
             <>
@@ -212,7 +268,7 @@ export function Header() {
                 }}
                 className={SHEET_ROW}
               >
-                <UserRound size={14} aria-hidden='true' /> login
+                <UserRound size={14} aria-hidden='true' /> {t.login}
               </Link>
               <Link
                 to='/signup'
@@ -221,7 +277,7 @@ export function Header() {
                 }}
                 className={SHEET_ROW}
               >
-                <UserRoundPlus size={14} aria-hidden='true' /> signup
+                <UserRoundPlus size={14} aria-hidden='true' /> {t.signup}
               </Link>
             </>
           )}
@@ -233,7 +289,7 @@ export function Header() {
             }}
             className={SHEET_ROW}
           >
-            <Search size={14} aria-hidden='true' /> grep
+            <Search size={14} aria-hidden='true' /> {t.grep}
           </button>
           <a
             href='https://github.com/PerfectPan'
@@ -244,7 +300,7 @@ export function Header() {
             }}
             className={SHEET_ROW}
           >
-            <Github size={14} aria-hidden='true' /> github
+            <Github size={14} aria-hidden='true' /> {t.github}
           </a>
           <a
             href='/rss.xml'
@@ -255,15 +311,16 @@ export function Header() {
             }}
             className={SHEET_ROW}
           >
-            <Rss size={14} aria-hidden='true' /> rss
+            <Rss size={14} aria-hidden='true' /> {t.rss}
           </a>
+          <LocaleSwitcher variant='sheet' />
         </div>
       ) : null}
       <ConfirmDialog
         open={logoutOpen}
         onOpenChange={setLogoutOpen}
         command='logout'
-        description='确定要退出登录吗？退出后需要重新登录。'
+        description={t.logoutConfirmDescription}
         confirmLabel='logout'
         onConfirm={() => {
           setLogoutOpen(false);

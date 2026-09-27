@@ -1,3 +1,5 @@
+import type { Locale } from './locale.js';
+
 export const ROLES = ['member', 'vip', 'admin'] as const;
 
 export const POST_VISIBILITIES = [
@@ -24,6 +26,8 @@ export interface SessionUser {
   id: string;
   role: Role;
   email: string;
+  /** UI-language preference from `user.locale`; null/absent means zh. */
+  locale?: Locale | null;
 }
 
 /**

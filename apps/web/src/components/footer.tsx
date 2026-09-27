@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import { authClient } from '../lib/auth-client.js';
+import { useChrome } from '../lib/i18n/messages/index.js';
 
 /**
  * tmux-style status bar: session name + clickable windows on the left, site
@@ -16,13 +17,17 @@ const WIN =
 export function Footer() {
   const { data: sessionData } = authClient.useSession();
   const isAdmin = sessionData?.user?.role === 'admin';
+  const t = useChrome();
 
   return (
     <footer className='flex flex-wrap items-center gap-1 border-t border-border bg-muted px-3.5 py-1.5 text-xs max-[430px]:gap-0.5 max-[430px]:px-2.5'>
       <span className='mr-2 rounded-sm bg-chart-2 px-2 py-px font-bold text-chart-4 max-[430px]:mr-0 max-[430px]:hidden'>
         blog
       </span>
-      <nav aria-label='站点窗口' className='flex flex-wrap items-center gap-1'>
+      <nav
+        aria-label={t.siteWindowsAria}
+        className='flex flex-wrap items-center gap-1'
+      >
         <Link to='/' className={WIN}>
           0:home
         </Link>

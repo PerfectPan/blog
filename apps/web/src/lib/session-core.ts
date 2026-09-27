@@ -1,4 +1,9 @@
-import type { Role, SessionUser } from '@blog/shared';
+import {
+  isLocale,
+  type Locale,
+  type Role,
+  type SessionUser,
+} from '@blog/shared';
 import { getRequest } from '@tanstack/react-start/server';
 import { auth } from './auth.js';
 import { getD1 } from './db.js';
@@ -46,6 +51,25 @@ async function maybePromoteFirstAdmin(
   }
 }
 
+/**
+ * UI-language preference straight from the `user` row (`locale` column, added
+ * by migration 0006). Better Auth doesn't know this column, so it never shows
+ * up in the session payload. Returns null when unset/unknown (means zh) or
+ * when the column isn't there yet (pre-migration window).
+ */
+async function readUserLocale(userId: string): Promise<Locale | null> {
+  try {
+    const row = await getD1()
+      .prepare('SELECT "locale" FROM "user" WHERE "id" = ?')
+      .bind(userId)
+      .first<{ locale: string | null }>();
+    return isLocale(row?.locale) ? row.locale : null;
+  } catch (error) {
+    console.error('[web] read user locale failed', error);
+    return null;
+  }
+}
+
 export async function getSessionUserFromRequest(
   request?: Request | null,
 ): Promise<SessionUser | null> {
@@ -73,6 +97,7 @@ export async function getSessionUserFromRequest(
     id: user.id,
     email: user.email,
     role: user.role ?? 'member',
+    locale: await readUserLocale(user.id),
   };
 
   return maybePromoteFirstAdmin(sessionUser);
