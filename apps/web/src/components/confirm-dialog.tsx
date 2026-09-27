@@ -6,6 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { useMisc } from '../lib/i18n/messages/index.js';
 
 type ConfirmDialogProps = {
   open: boolean;
@@ -29,11 +30,14 @@ export function ConfirmDialog({
   onOpenChange,
   command,
   description,
-  confirmLabel = 'confirm',
-  cancelLabel = 'cancel',
+  confirmLabel,
+  cancelLabel,
   pending,
   onConfirm,
 }: ConfirmDialogProps) {
+  const t = useMisc();
+  const confirmText = confirmLabel ?? t.confirm;
+  const cancelText = cancelLabel ?? t.cancel;
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='max-w-[min(440px,calc(100vw-32px))] gap-3.5 rounded-xl border border-border bg-card p-6 text-left font-mono shadow-[0_18px_60px_rgba(0,0,0,0.35)] [&_[data-slot=dialog-close]]:hidden'>
@@ -52,7 +56,7 @@ export function ConfirmDialog({
             className='cursor-pointer rounded-lg border border-border bg-secondary px-3.5 py-1.75 text-sm text-foreground transition-[border-color,color] duration-100 hover:border-primary hover:text-primary'
             onClick={() => onOpenChange(false)}
           >
-            {cancelLabel}
+            {cancelText}
           </button>
           <button
             type='button'
@@ -60,7 +64,7 @@ export function ConfirmDialog({
             disabled={pending}
             onClick={onConfirm}
           >
-            {confirmLabel}
+            {confirmText}
           </button>
         </DialogFooter>
       </DialogContent>

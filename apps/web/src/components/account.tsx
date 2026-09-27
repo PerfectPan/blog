@@ -1,6 +1,7 @@
 import { useNavigate } from '@tanstack/react-router';
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { authClient } from '../lib/auth-client.js';
+import { usePages } from '../lib/i18n/messages/index.js';
 import { authErrorMessage } from './auth.js';
 import { ConfirmDialog } from './confirm-dialog.js';
 import { Page, Prompt } from './page.js';
@@ -15,6 +16,7 @@ const BTN_SECONDARY =
 /** Signed-in account page: who you are, and link / unlink GitHub sign-in. */
 export function AccountPage({ searchError }: { searchError?: string }) {
   const navigate = useNavigate();
+  const t = usePages();
   const { data: sessionData, isPending: isSessionPending } =
     authClient.useSession();
   const user = sessionData?.user;
@@ -30,14 +32,14 @@ export function AccountPage({ searchError }: { searchError?: string }) {
     try {
       const result = await authClient.listAccounts();
       if (result.error) {
-        setError(result.error.message ?? '读取登录方式失败');
+        setError(result.error.message ?? t.loadAccountsFailed);
         return;
       }
       setAccounts(result.data);
     } catch {
-      setError('读取登录方式失败，请重试');
+      setError(t.loadAccountsFailedRetry);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (!isSessionPending && !user) {
@@ -102,20 +104,20 @@ export function AccountPage({ searchError }: { searchError?: string }) {
               user.emailVerified ? 'text-muted-foreground' : 'text-destructive'
             }
           >
-            ({user.emailVerified ? 'verified' : 'not verified'})
+            ({user.emailVerified ? t.emailVerified : t.emailNotVerified})
           </span>
         </dd>
         <dt>role</dt>
         <dd>{user.role ?? 'member'}</dd>
         <dt>password</dt>
-        <dd>{hasPassword ? 'set' : 'not set'}</dd>
+        <dd>{hasPassword ? t.passwordSet : t.passwordNotSet}</dd>
         <dt>github</dt>
-        <dd>{github ? `linked (id ${github.accountId})` : 'not linked'}</dd>
+        <dd>{github ? t.githubLinked(github.accountId) : t.githubNotLinked}</dd>
       </dl>
       {user.emailVerified ? null : (
         <div className='mt-4'>
           <p className='mb-1 text-xs text-muted-foreground/60'>
-            # 验证邮箱后，用同一邮箱的 GitHub 登录会自动合并进这个账号。
+            # {t.verifyEmailHint}
           </p>
           <button
             type='button'
@@ -130,10 +132,10 @@ export function AccountPage({ searchError }: { searchError?: string }) {
                   callbackURL: '/account',
                 });
                 if (result.error) {
-                  setError(result.error.message ?? '发送验证邮件失败');
+                  setError(result.error.message ?? t.sendVerificationFailed);
                   return;
                 }
-                setNotice(`验证邮件已发到 ${user.email}，1 小时内有效。`);
+                setNotice(t.verificationSent(user.email));
               });
             }}
           >
@@ -142,9 +144,7 @@ export function AccountPage({ searchError }: { searchError?: string }) {
         </div>
       )}
       <p className='mb-1 mt-4 text-xs text-muted-foreground/60'>
-        {github
-          ? '# 已绑定 GitHub，可以直接用 continue with github 登录这个账号。'
-          : '# 绑定后可以用 GitHub 登录这个账号，GitHub 邮箱不必和上面的一致。'}
+        {github ? `# ${t.githubLinkedHint}` : `# ${t.githubNotLinkedHint}`}
       </p>
       <div className='mt-4 flex flex-wrap gap-3'>
         {github ? (
@@ -174,7 +174,7 @@ export function AccountPage({ searchError }: { searchError?: string }) {
                   errorCallbackURL: '/account',
                 });
                 if (result.error) {
-                  setError(result.error.message ?? '绑定 GitHub 失败');
+                  setError(result.error.message ?? t.linkGithubFailed);
                 }
               });
             }}
@@ -197,7 +197,7 @@ export function AccountPage({ searchError }: { searchError?: string }) {
         open={unlinkOpen}
         onOpenChange={setUnlinkOpen}
         command='unlink github'
-        description='解绑后不能再用 GitHub 登录这个账号，邮箱密码登录不受影响。'
+        description={t.unlinkConfirmDescription}
         confirmLabel='unlink'
         pending={isPending}
         onConfirm={() => {
@@ -208,7 +208,7 @@ export function AccountPage({ searchError }: { searchError?: string }) {
             });
             setUnlinkOpen(false);
             if (result.error) {
-              setError(result.error.message ?? '解绑 GitHub 失败');
+              setError(result.error.message ?? t.unlinkGithubFailed);
               return;
             }
             await loadAccounts();

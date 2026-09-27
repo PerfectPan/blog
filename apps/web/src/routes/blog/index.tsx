@@ -4,21 +4,25 @@ import { useEffect } from 'react';
 import { z } from 'zod';
 import { BlogList } from '../../components/blog-list.js';
 import { getBlogListServerFn } from '../../lib/blog-service.js';
+import { type BlogMessages, useBlog } from '../../lib/i18n/messages/index.js';
 
-function getDevScopeHint(sessionUser: SessionUser | null | undefined): string {
+function getDevScopeHint(
+  sessionUser: SessionUser | null | undefined,
+  t: BlogMessages,
+): string {
   if (!sessionUser) {
-    return '当前身份：游客；可见范围：public';
+    return t.devHintGuest;
   }
 
   if (sessionUser.role === 'admin') {
-    return '当前身份：admin；可见范围：全部已发布（含 password）';
+    return t.devHintAdmin;
   }
 
   if (sessionUser.role === 'vip') {
-    return '当前身份：vip；可见范围：public/member/vip';
+    return t.devHintVip;
   }
 
-  return '当前身份：member；可见范围：public/member';
+  return t.devHintMember;
 }
 
 export const Route = createFileRoute('/blog/')({
@@ -44,8 +48,9 @@ export const Route = createFileRoute('/blog/')({
 
 function BlogListPage() {
   const data = Route.useLoaderData();
+  const t = useBlog();
   const showDevHint = data.isDev;
-  const devScopeHint = getDevScopeHint(data.sessionUser);
+  const devScopeHint = getDevScopeHint(data.sessionUser, t);
   const showVisibility = data.posts.some(
     (post: PostSummary) => post.visibility !== 'public',
   );

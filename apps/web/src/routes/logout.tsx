@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { authClient } from '../lib/auth-client.js';
+import { useAuth } from '../lib/i18n/messages/index.js';
 
 export const Route = createFileRoute('/logout')({
   component: LogoutPage,
@@ -8,6 +9,7 @@ export const Route = createFileRoute('/logout')({
 
 function LogoutPage() {
   const navigate = useNavigate();
+  const auth = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -16,13 +18,13 @@ function LogoutPage() {
       setError(null);
       const result = await authClient.signOut();
       if (result.error) {
-        setError(result.error.message ?? 'Logout failed');
+        setError(result.error.message ?? auth.logoutFailed);
         return;
       }
 
       navigate({ to: '/blog', replace: true });
     });
-  }, [navigate]);
+  }, [navigate, auth.logoutFailed]);
 
   useEffect(() => {
     signOut();
@@ -30,9 +32,9 @@ function LogoutPage() {
 
   return (
     <section className='mx-auto w-full max-w-[80ch] self-start px-4 pt-8 pb-12 sm:px-6'>
-      <h1 className='mb-2 text-3xl font-black'>退出登录</h1>
+      <h1 className='mb-2 text-3xl font-black'>{auth.logoutTitle}</h1>
       <p className='mb-6 opacity-70'>
-        {isPending ? '正在退出登录...' : '已退出或退出失败，请重试。'}
+        {isPending ? auth.loggingOut : auth.logoutSettled}
       </p>
       {error ? (
         <p className='mb-4 rounded-md bg-destructive/15 px-3 py-2 text-destructive dark:bg-destructive/20 dark:text-destructive'>
@@ -46,7 +48,7 @@ function LogoutPage() {
           disabled={isPending}
           className='rounded-md bg-black px-4 py-2 font-semibold text-white transition-opacity hover:opacity-90 dark:bg-muted'
         >
-          {isPending ? 'Logging out...' : 'Retry Logout'}
+          {isPending ? auth.logoutButtonPending : auth.logoutRetry}
         </button>
       </div>
     </section>

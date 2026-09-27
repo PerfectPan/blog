@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/command';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { searchPostsServerFn } from '../lib/blog-service.js';
+import { useMisc } from '../lib/i18n/messages/index.js';
 import { searchPalette, useSearchPaletteOpen } from './search-palette-store.js';
 
 /* Terminal grep palette: a shadcn Dialog + cmdk reskinned with utilities —
@@ -32,6 +33,7 @@ const TERMINAL_CMD =
  * own server results; cmdk's built-in client filter is disabled.
  */
 export function SearchPalette() {
+  const t = useMisc();
   const open = useSearchPaletteOpen();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<PostSummary[]>([]);
@@ -90,11 +92,11 @@ export function SearchPalette() {
             icon={null}
             value={query}
             onValueChange={setQuery}
-            placeholder="grep -ri '关键词' ~/posts"
+            placeholder={t.searchPlaceholder}
           />
           <CommandList>
             <CommandEmpty>
-              {query.trim() ? '# no matches found' : '# type to grep ~/posts'}
+              {query.trim() ? t.searchNoMatches : t.searchIdleHint}
             </CommandEmpty>
             <CommandGroup>
               {results.map((post) => (
@@ -119,7 +121,7 @@ export function SearchPalette() {
             </CommandGroup>
           </CommandList>
           <div className='border-t border-border px-4 py-1.75 text-xs text-muted-foreground/60 max-[640px]:hidden'>
-            ↑↓ 选择 · ↵ 打开 · esc 关闭 · 结果按当前身份过滤
+            {t.searchHints}
           </div>
         </Command>
       </DialogContent>

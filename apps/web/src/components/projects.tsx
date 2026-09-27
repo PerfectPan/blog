@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router';
+import { useLocale } from '../lib/i18n/context.js';
 import { PROJECTS, type Project } from '../lib/projects.js';
 import { Page, Prompt } from './page.js';
 
@@ -12,6 +13,7 @@ function sortProjects(projects: Project[]): Project[] {
 }
 
 export function ProjectsPage() {
+  const { locale } = useLocale();
   const projects = sortProjects(PROJECTS);
 
   return (
@@ -34,13 +36,13 @@ export function ProjectsPage() {
                 </a>
                 {project.demo ? (
                   <a href={project.demo} target='_blank' rel='noreferrer'>
-                    {project.demoLabel ?? 'demo'} ↗
+                    {project.demoLabel?.[locale] ?? 'demo'} ↗
                   </a>
                 ) : null}
               </span>
             </div>
             <p className='mt-1 text-sm leading-relaxed text-muted-foreground'>
-              {project.description}
+              {project.description[locale]}
             </p>
             <div className='mt-1.5 text-xs text-muted-foreground/60'>
               {project.tags.join(' · ')}

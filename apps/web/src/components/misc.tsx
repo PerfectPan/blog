@@ -1,7 +1,9 @@
 import { Link } from '@tanstack/react-router';
+import { useMisc } from '../lib/i18n/messages/index.js';
 import { Page } from './page.js';
 
 export function NotFoundPage() {
+  const t = useMisc();
   return (
     <Page>
       <div>
@@ -17,7 +19,7 @@ export function NotFoundPage() {
         <p className='mb-1 text-destructive'>
           bash: cd: /nowhere: No such file or directory
         </p>
-        <p className='mb-1 text-muted-foreground/60'># 你闯入了无人之境。</p>
+        <p className='mb-1 text-muted-foreground/60'>{t.notFoundComment}</p>
         <p className='mb-1 mt-4'>
           <Link
             to='/blog'
@@ -25,7 +27,7 @@ export function NotFoundPage() {
           >
             cd ~/blog
           </Link>
-          <span className='text-muted-foreground/60'> ← 回到博客列表</span>
+          <span className='text-muted-foreground/60'> {t.backToBlogList}</span>
         </p>
       </div>
     </Page>
@@ -33,6 +35,7 @@ export function NotFoundPage() {
 }
 
 export function ErrorPage({ error }: { error: unknown }) {
+  const t = useMisc();
   return (
     <Page>
       <div className='flex flex-wrap items-baseline gap-2.5'>
@@ -44,7 +47,7 @@ export function ErrorPage({ error }: { error: unknown }) {
           curl -I $(hostname)
         </span>
       </div>
-      <p className='mb-1 text-destructive'>Request failed: {String(error)}</p>
+      <p className='mb-1 text-destructive'>{t.requestFailed(String(error))}</p>
       <Link to='/blog' className='text-muted-foreground hover:text-foreground'>
         cd ~/blog
       </Link>

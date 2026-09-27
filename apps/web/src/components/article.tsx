@@ -1,5 +1,7 @@
 import type { CommentThread, SessionUser } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
+import { useLocale } from '../lib/i18n/context.js';
+import { formatDate } from '../lib/i18n/date.js';
 import { cn } from '../lib/utils.js';
 import { Comments } from './comments.js';
 import { Markdown } from './markdown.js';
@@ -31,11 +33,8 @@ export function ArticlePage({
   totalComments,
   sessionUser,
 }: ArticlePageProps) {
-  const date = new Date(post.publishedAt).toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  });
+  const { locale } = useLocale();
+  const date = formatDate(post.publishedAt, locale);
 
   return (
     <Page>

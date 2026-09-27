@@ -1,5 +1,7 @@
 import type { PostSummary } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
+import { useLocale } from '../lib/i18n/context.js';
+import { useBlog } from '../lib/i18n/messages/index.js';
 import { cn } from '../lib/utils.js';
 import { Page, Prompt } from './page.js';
 import { ENTER_ROW, enterDelay } from './term.js';
@@ -61,6 +63,8 @@ export function BlogList({
    * (non-public posts exist); for an all-public list it is pure noise. */
   showVisibility: boolean;
 }) {
+  const { locale } = useLocale();
+  const t = useBlog();
   const blogGroups = groupByYear(data.posts);
   // Stagger slot of the next rendered line (year headers and rows alike).
   let line = 0;
@@ -107,10 +111,16 @@ export function BlogList({
                 style={lineDelay(line++)}
               >
                 <span className='text-xs text-muted-foreground'>
-                  {new Date(blog.publishedAt).toLocaleDateString('en-US', {
-                    month: '2-digit',
-                    day: '2-digit',
-                  })}
+                  {/* Compact date for the fixed-width list column — long-form
+                    formatDate would overflow the 7ch track. zh-CN and en-US
+                    both render MM/DD here, matching the pre-i18n list. */}
+                  {new Date(blog.publishedAt).toLocaleDateString(
+                    locale === 'en' ? 'en-US' : 'zh-CN',
+                    {
+                      month: '2-digit',
+                      day: '2-digit',
+                    },
+                  )}
                 </span>
                 {showVisibility ? (
                   <span className='text-xs text-muted-foreground/60 max-[720px]:hidden'>
@@ -132,24 +142,26 @@ export function BlogList({
       {data.totalPages > 1 ? (
         <nav
           className='mt-6.5 flex justify-center gap-4.5 text-sm text-muted-foreground [&_a]:text-primary'
-          aria-label='Pagination'
+          aria-label={t.paginationAria}
         >
           {data.page > 1 ? (
             <Link to='/blog' search={{ page: data.page - 1 }}>
-              ← prev
+              {t.prevPage}
             </Link>
           ) : (
-            <span className='text-muted-foreground/60 opacity-60'>← prev</span>
+            <span className='text-muted-foreground/60 opacity-60'>
+              {t.prevPage}
+            </span>
           )}
-          <span>
-            page {data.page} / {data.totalPages}
-          </span>
+          <span>{t.pageInfo(data.page, data.totalPages)}</span>
           {data.page < data.totalPages ? (
             <Link to='/blog' search={{ page: data.page + 1 }}>
-              next →
+              {t.nextPage}
             </Link>
           ) : (
-            <span className='text-muted-foreground/60 opacity-60'>next →</span>
+            <span className='text-muted-foreground/60 opacity-60'>
+              {t.nextPage}
+            </span>
           )}
         </nav>
       ) : null}

@@ -3,6 +3,7 @@
 import { Monitor, Moon, Sun } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
+import { useMisc } from '../lib/i18n/messages/index.js';
 import { TOOL_BTN } from './term.js';
 
 type ViewTransitionLike = {
@@ -38,6 +39,7 @@ export function DarkMode() {
   const [pref, setPref] = useState<ThemePref>('system');
   const [systemDark, setSystemDark] = useState(false);
   const [synced, setSynced] = useState(false);
+  const t = useMisc();
   const ref = useRef<HTMLButtonElement>(null);
 
   const isDarkMode = pref === 'dark' || (pref === 'system' && systemDark);
@@ -144,7 +146,7 @@ export function DarkMode() {
     <button
       type='button'
       ref={ref}
-      aria-label={`Switch to ${next} mode (current: ${pref})`}
+      aria-label={t.switchModeAria(next, pref)}
       className={TOOL_BTN}
       onClick={onTrigger}
     >
