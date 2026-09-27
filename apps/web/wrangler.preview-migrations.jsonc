@@ -1,0 +1,12 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  // D1 CLI reads top-level bindings; this targets the same DB as wrangler.jsonc.previews.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "blog-preview",
+      "database_id": "94ecdec7-d2dc-401e-bc9f-3db14d891158",
+      "migrations_dir": "./migrations"
+    }
+  ]
+}

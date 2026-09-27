@@ -1,15 +1,12 @@
 #!/usr/bin/env node
 /**
- * Maintain the Worker Previews D1 (`previews.d1_databases` in wrangler.jsonc).
+ * Manually refresh public Preview content. Not part of deployment.
  *
- *   node scripts/preview-db.mjs migrate     apply migrations/ to the preview DB
  *   node scripts/preview-db.mjs sync-posts  replace its posts with production's
  *                                            public, published posts, and copy
  *                                            the media they reference into the
  *                                            preview bucket
  *
- * `wrangler d1` only resolves databases from the top-level `d1_databases`, so
- * each command runs against a throwaway config holding just the preview DB.
  * sync-posts copies the `post` table only, and only public published rows:
  * every other table holds accounts, sessions or comments, and non-public
  * posts can carry a password.
@@ -17,7 +14,7 @@
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 import { unstable_readConfig } from 'wrangler';
 
 const POST_COLUMNS = [
@@ -49,19 +46,6 @@ if (!production || !preview || !previewBucket) {
 const ASSET_REF = /\/api\/asset\/([^\s)"'<>]+)/g;
 
 const work = mkdtempSync(join(tmpdir(), 'preview-db-'));
-const previewConfig = join(work, 'wrangler.json');
-writeFileSync(
-  previewConfig,
-  JSON.stringify({
-    name: config.name,
-    d1_databases: [
-      {
-        ...preview,
-        migrations_dir: resolve(preview.migrations_dir ?? 'migrations'),
-      },
-    ],
-  }),
-);
 
 const wrangler = (args, options = {}) =>
   execFileSync('pnpm', ['exec', 'wrangler', ...args], {
@@ -104,7 +88,7 @@ function syncPosts() {
     '--file',
     file,
     '-c',
-    previewConfig,
+    'wrangler.preview-migrations.jsonc',
   ]);
   console.log(
     `Copied ${rows.length} public posts into ${preview.database_name}.`,
@@ -151,20 +135,10 @@ async function syncMedia(rows) {
 
 try {
   const command = process.argv[2];
-  if (command === 'migrate') {
-    wrangler([
-      'd1',
-      'migrations',
-      'apply',
-      preview.database_name,
-      '--remote',
-      '-c',
-      previewConfig,
-    ]);
-  } else if (command === 'sync-posts') {
+  if (command === 'sync-posts') {
     await syncMedia(syncPosts());
   } else {
-    console.error('usage: node scripts/preview-db.mjs <migrate|sync-posts>');
+    console.error('usage: node scripts/preview-db.mjs sync-posts');
     process.exitCode = 1;
   }
 } finally {

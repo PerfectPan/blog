@@ -1,3 +1,4 @@
+import { getRequest } from '@tanstack/react-start/server';
 import { parseCookies } from './unlock-cookie.js';
 
 /**
@@ -89,9 +90,7 @@ export async function matchArticleCache(
 export async function purgeArticleCache(slug: string): Promise<void> {
   const cache = await getCache();
   if (!cache) return;
-  const base = process.env.APPS_WEB_URL;
-  if (!base) return;
-  const baseNorm = /^https?:\/\//i.test(base) ? base : `https://${base}`;
-  const target = `${baseNorm.replace(/\/$/, '')}/blog/${slug}`;
+  // Purge the host being edited, including a dynamically named Preview.
+  const target = new URL(`/blog/${slug}`, getRequest().url);
   await cache.delete(new Request(target));
 }
