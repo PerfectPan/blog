@@ -1,7 +1,7 @@
 import { useNavigate } from '@tanstack/react-router';
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { authClient } from '../lib/auth-client.js';
-import { usePages } from '../lib/i18n/messages/index.js';
+import { useAuth, usePages } from '../lib/i18n/messages/index.js';
 import { authErrorMessage } from './auth.js';
 import { ConfirmDialog } from './confirm-dialog.js';
 import { Page, Prompt } from './page.js';
@@ -17,12 +17,13 @@ const BTN_SECONDARY =
 export function AccountPage({ searchError }: { searchError?: string }) {
   const navigate = useNavigate();
   const t = usePages();
+  const auth = useAuth();
   const { data: sessionData, isPending: isSessionPending } =
     authClient.useSession();
   const user = sessionData?.user;
   const [accounts, setAccounts] = useState<LinkedAccount[] | null>(null);
   const [error, setError] = useState<string | null>(
-    searchError ? authErrorMessage(searchError) : null,
+    searchError ? authErrorMessage(searchError, auth) : null,
   );
   const [notice, setNotice] = useState<string | null>(null);
   const [unlinkOpen, setUnlinkOpen] = useState(false);

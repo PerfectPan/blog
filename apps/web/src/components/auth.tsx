@@ -10,8 +10,8 @@ import { Page, Prompt } from './page.js';
 
 // Better Auth reports OAuth and email-verification failures as
 // `?error=<code>` on the callback URL; the copy for the codes a user can
-// cause lives in the auth dictionary. Callers without a locale bundle
-// (account.tsx today) still get the zh messages via the default.
+// cause lives in the auth dictionary. The zh default keeps the function
+// usable without an active locale bundle.
 export function authErrorMessage(
   code: string,
   messages: AuthMessages = authZh,
