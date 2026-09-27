@@ -5,7 +5,7 @@
  * for byte (regression red line).
  */
 export interface SocialMessages {
-  /** Relative timestamps (<30 days); older falls back to formatDate. */
+  /** Relative timestamps (<30 days); older falls back to the en-US short-form date. */
   justNow: string;
   minutesAgo: (n: number) => string;
   hoursAgo: (n: number) => string;

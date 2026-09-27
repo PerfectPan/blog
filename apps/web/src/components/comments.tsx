@@ -1,6 +1,6 @@
 'use client';
 
-import type { Comment, CommentThread, Locale, SessionUser } from '@blog/shared';
+import type { Comment, CommentThread, SessionUser } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
 import {
@@ -8,8 +8,6 @@ import {
   deleteCommentServerFn,
   getCommentsServerFn,
 } from '../lib/comments-service.js';
-import { useLocale } from '../lib/i18n/context.js';
-import { formatDate } from '../lib/i18n/date.js';
 import { type SocialMessages, useSocial } from '../lib/i18n/messages/index.js';
 import { CommentMarkdown } from './comment-markdown.js';
 import { Prompt } from './page.js';
@@ -24,11 +22,7 @@ type CommentsProps = {
 
 const PAGE_SIZE = 20;
 
-function formatRelative(
-  iso: string,
-  locale: Locale,
-  t: SocialMessages,
-): string {
+function formatRelative(iso: string, t: SocialMessages): string {
   const then = new Date(iso).getTime();
   if (Number.isNaN(then)) {
     return iso;
@@ -49,7 +43,11 @@ function formatRelative(
   if (days < 30) {
     return t.daysAgo(days);
   }
-  return formatDate(iso, locale);
+  return new Date(iso).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
 }
 
 type ComposerProps = {
@@ -221,7 +219,6 @@ function CommentView({
   onReply,
   onDelete,
 }: CommentViewProps) {
-  const { locale } = useLocale();
   const t = useSocial();
   return (
     <div className='my-3 overflow-hidden rounded-lg border border-border'>
@@ -237,7 +234,7 @@ function CommentView({
             {comment.status}
           </span>
         ) : null}
-        <span>{formatRelative(comment.createdAt, locale, t)}</span>
+        <span>{formatRelative(comment.createdAt, t)}</span>
       </div>
       <div className='px-3.5 py-2.5'>
         <CommentMarkdown content={comment.body} />

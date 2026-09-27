@@ -7,10 +7,10 @@
  * link github / unlink github / retry, `# checking session…`) are terminal
  * design language and stay verbatim in both languages.
  *
- * zh values must match the pre-i18n UI byte for byte (regression red line)
- * — the one deliberate exception is the `id` panel status values
- * (verified / set / linked), called out by the i18n task as localizable
- * status copy: zh renders them in Chinese, en keeps the original English.
+ * zh values must match the pre-i18n UI byte for byte (regression red line),
+ * including the `id` panel status values (verified / not verified / set /
+ * not set / linked / not linked): the pre-i18n UI rendered them in English
+ * for every visitor, so both locales keep those exact literals.
  */
 export interface PagesMessages {
   /** `id` panel status values. */
@@ -36,12 +36,12 @@ export interface PagesMessages {
 }
 
 export const pagesZh: PagesMessages = {
-  emailVerified: '已验证',
-  emailNotVerified: '未验证',
-  passwordSet: '已设置',
-  passwordNotSet: '未设置',
-  githubLinked: (accountId) => `已绑定 (id ${accountId})`,
-  githubNotLinked: '未绑定',
+  emailVerified: 'verified',
+  emailNotVerified: 'not verified',
+  passwordSet: 'set',
+  passwordNotSet: 'not set',
+  githubLinked: (accountId) => `linked (id ${accountId})`,
+  githubNotLinked: 'not linked',
   verifyEmailHint: '验证邮箱后，用同一邮箱的 GitHub 登录会自动合并进这个账号。',
   verificationSent: (email) => `验证邮件已发到 ${email}，1 小时内有效。`,
   sendVerificationFailed: '发送验证邮件失败',

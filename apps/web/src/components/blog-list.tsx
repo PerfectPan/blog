@@ -111,9 +111,10 @@ export function BlogList({
                 style={lineDelay(line++)}
               >
                 <span className='text-xs text-muted-foreground'>
-                  {/* Compact date for the fixed-width list column — long-form
-                    formatDate would overflow the 7ch track. zh-CN and en-US
-                    both render MM/DD here, matching the pre-i18n list. */}
+                  {/* Compact date for the fixed-width list column — the
+                    long-form article date would overflow the 7ch track.
+                    zh-CN and en-US both render MM/DD here, matching the
+                    pre-i18n list. */}
                   {new Date(blog.publishedAt).toLocaleDateString(
                     locale === 'en' ? 'en-US' : 'zh-CN',
                     {
