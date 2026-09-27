@@ -22,6 +22,7 @@
 4. worker 体积必须守住 Workers 免费版 **3 MiB gzip** 上限——这是 $0 的命根子。
    每次改动后用 `wrangler deploy -c dist/server/wrangler.json --dry-run` 看 gzip 数。
 5. 文章可见性分级靠 `post.visibility` 字段（`public | member | vip | admin | password`），默认 `public`。
+6. 优先使用平台和依赖库的原生能力、声明式配置及 CLI。迁移应减少自维护代码；不为格式偏好或非必要功能重建一层封装。原生能力不足时，先说明业务必要性和维护成本，再决定是否增加脚本。
 
 ## 3. 常用命令
 
@@ -61,6 +62,14 @@ pnpm deploy
 - 首个 admin 自动提升：`ADMIN_EMAIL_ALLOWLIST` 命中且当前无 admin 时提升。
 - password 文章走 `/unlock/:slug` + 签名 HttpOnly cookie（24h）。
 
+### 表结构演进与预览数据
+
+- 远端固定使用生产 `blog` 和共享预览 `blog-preview` 两个数据库；所有 PR 共用预览库。不得默认按 PR 创建数据库。共享库的表结构变更必须兼容仍在运行的其他分支。
+- 改表遵循“扩展 → 迁移 → 清理”：先添加兼容字段或表，再迁移应用与历史数据；确认旧代码退出运行、数据校验通过且回滚窗口结束后，单独删除旧结构。已应用的迁移文件不改写，后续调整新增迁移。
+- 字段替换、拆分等变更按需要采用双写与兼容读取，并安排历史数据回填和一致性验证；新增可选字段不强制双读双写。新增必填字段先解决默认值或回填，再收紧约束。
+- API、后台任务、导入与数据同步工具都属于写入方，必须遵守同一过渡规则。同步不能用旧字段列表覆盖新结构中的数据；无法确认兼容时暂停同步，不能以备份代替兼容性验证。
+- 备份、数据刷新和部署分开管理。部署只应用所需 schema 迁移，不重建数据库或自动覆盖测试数据；定时数据刷新需另行定义覆盖范围和执行窗口。
+
 ## 6. 发布注意事项
 
 1. Better Auth 的 D1 schema 是版本化迁移（`apps/web/migrations/`），**不在请求期建表**。
@@ -68,7 +77,7 @@ pnpm deploy
 2. 部署产物里 `dist/server/wrangler.json` 由 `@cloudflare/vite-plugin` 生成，
    `wrangler deploy` 用它。
 3. **主部署通道是 Cloudflare Workers Builds**（CF Git 集成）：push `master` 自动 build + 部署，
-   非生产分支启用 Preview Builds 后执行 `pnpm preview:deploy`，先迁移独立 preview D1，再发布并探测。
+   非生产分支启用 Preview Builds 后执行 `pnpm preview:deploy`，先迁移独立 preview D1，再原生发布。
    `.github/workflows/preview.yml` 仅清理关闭 PR 的预览；控制台切换与验收见 `docs/preview-deployments.md`。
    **生产 D1 迁移**由 `.github/workflows/migrate.yml`（push `master` 触发）
    单独跑（仅 `migrations/` 有变化时触发，另可手动 `workflow_dispatch`；与生产构建独立执行）。

@@ -10,6 +10,8 @@ Cloudflare 已启用 Worker Previews，生产继续监听 `master`。所有预�
 `pnpm install --frozen-lockfile && pnpm build`，Preview command 为 `pnpm preview:deploy`。
 该命令只按顺序执行 preview D1 迁移和原生 `wrangler preview`。分支名、域名和 PR 链接由
 Cloudflare 处理，不再自定义名称、拼接 URL 或解析部署结果。
+迁移使用原生 D1 CLI 和 `wrangler.preview-migrations.jsonc`，其数据库 ID 必须与运行时
+`previews.d1_databases` 一致；该配置只选择现有数据库，不创建数据库或 Worker。
 
 Better Auth 使用其原生动态 baseURL 配置。只有 preview 设置 `AUTH_ALLOWED_HOSTS`，
 限定为 `*.preview.perfectpan.org` 且使用 HTTPS；生产仍使用固定 `APPS_WEB_URL`。
@@ -27,6 +29,8 @@ Fork PR 不获得部署凭据，使用本地回归。
 
 共享 preview 数据意味着不同 PR 的迁移与编辑会相互影响；迁移应向后兼容。
 `db:sync-preview` 会覆盖预览文章表，避免与编辑回归同时执行。
+改表过渡与所有写入方的兼容要求见 `AGENTS.md` 的“表结构演进与预览数据”。现有手动同步
+仍使用固定文章字段和覆盖写入，执行前必须确认它适用于当前 schema；尚未启用月度自动同步。
 
 控制台已完成切换，仓库变更仍待本 PR 合入。旧分支需要同步迁移后的 master，避免继续
 运行旧的 Actions 部署流程。迁移期间创建的自定义名称预览不会被新的分支名清理命令匹配。
