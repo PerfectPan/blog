@@ -31,6 +31,7 @@
 | 评论（自建，登录 + 后置审核） | `lib/comments-service.ts`、`components/{comments,comment-markdown}.tsx`、`routes/admin/comments.tsx`；共享类型/权限纯函数 `packages/shared`（`Comment`、`canAccessComments`、`canManageComment`）。设计见 `docs/superpowers/specs/2026-07-14-self-hosted-comments-design.md` |
 | 密码文章解锁 | `routes/unlock/$slug.tsx`、`lib/unlock-cookie.ts`、`lib/unlock-rate-limit.ts` |
 | Markdown 渲染 | `components/markdown.tsx`（react-markdown + shiki + katex） |
+| 界面 i18n（zh/en） | `lib/i18n/{messages,context}.ts`、`lib/locale-service.ts`（`user.locale`） |
 | D1 访问 / 迁移 | `lib/db.ts`、`apps/web/migrations/` |
 | 共享类型 / 权限纯函数 | `packages/shared/src/{types,access,index}.ts` |
 | CI / 部署 / 备份 | `.github/workflows/{deploy,pull-request,backup-d1}.yml` |
@@ -58,6 +59,9 @@ www → 301 apex ─┘        ├─ ASSETS  = dist/client 静态资源
   `prepare().bind().all()/run()` 做参数化查询。
 - **better-auth 表**（迁移 `0001`）：`user`（含 `role`：`member|vip|admin`）、`session`、
   `account`（密码 hash）、`verification`。
+  - `user.locale`（迁移 `0006`，可空）：界面语言偏好（`zh` 默认 / `en`）。登录用户经
+    `setLocaleServerFn` 持久化到账号（server fn handler 内校验会话），游客存
+    localStorage（键 `blog-locale`）。
 - **`post` 表**（迁移 `0002`）：`slug`(PK)、`title`、`description`、`body`(markdown 正文)、
   `visibility`、`password`、`status`(`draft|published`)、`tags`(JSON 数组)、`publishedAt`、
   `createdAt`、`updatedAt`。
@@ -160,7 +164,7 @@ fetch 里（`apps/web/src/server.tsx`）。
 ## 10. 体积与成本
 
 - Worker 包 **< 3 MiB gzip**（免费版硬限），PR workflow 在 dry-run 时守门，超了即红；当前
-  约 **1.18 MiB**。改前端别引入重型编辑器（Monaco/CodeMirror 等）。
+  约 **1.09 MiB**（含 i18n 与 `intl-messageformat` 依赖）。改前端别引入重型编辑器（Monaco/CodeMirror 等）。
 - **$0/月**：Workers / D1 / R2 均在免费额度内；备份存储可忽略（每周 ~300KB）。
 
 ## 11. 本地运行
@@ -197,6 +201,14 @@ pnpm --filter @blog/web dev                            # vite dev
 ## 13. 给 Agent 的速查（常见改动）
 
 - **加/改文章**：走 `/admin`（或直接写 D1 `post`）。**不要再加 `content/blog/*.md`**——已废弃。
+- **加/改界面文案**：`apps/web/src/lib/i18n/messages.ts`——每条文案一个 export
+  （CONSTANT_CASE 命名），zh/en 并排；带参数的用 `icu<{ n: number }>(…)` 写标准 ICU
+  MessageFormat 模式（复数 / select 走 ICU 语法）。组件里 `const t = useT()` 取值：
+  `t(NAV_LOGIN)`、`t(POSTS_COUNT, { count: n })`。语言是**界面偏好，不是 URL 维度**：
+  登录用户读 `user.locale`（root loader，SSR 首屏即正确），游客读 localStorage
+  （挂载后切换；首屏 zh→en 闪切是接受的取舍——locale 若进 cookie 会破坏
+  `/blog/<slug>` 的边缘缓存）。admin 后台不翻译；账号页状态值（verified / not verified 等）
+  有 e2e 冻结断言，改前先查 `tests/e2e/`。
 - **加路由**：`apps/web/src/routes/` 下加文件（文件式路由），`routeTree.gen.ts` 在 dev/build 时自动生成。
 - **加 server fn**：`createServerFn(...)` 放 `lib/*`；**鉴权必须在 handler 内部做**——别只靠
   route loader（server fn 可被 RPC 直调，见 §6）。

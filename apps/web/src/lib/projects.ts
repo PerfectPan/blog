@@ -1,8 +1,13 @@
+import type { Locale } from '@blog/shared';
+
+/** Copy that exists in both UI languages; the page picks a side by locale. */
+export type LocalizedText = Record<Locale, string>;
+
 export type Project = {
   /** Display name of the project. */
   name: string;
-  /** One-line description shown under the title. */
-  description: string;
+  /** One-line description shown under the title, per UI locale. */
+  description: LocalizedText;
   /** Primary tech stack / tags. */
   tags: string[];
   /** Source repository URL. */
@@ -10,7 +15,7 @@ export type Project = {
   /** Optional live demo / homepage URL. */
   demo?: string;
   /** Custom label for the `demo` link (defaults to "demo"), e.g. 官网 for a landing page. */
-  demoLabel?: string;
+  demoLabel?: LocalizedText;
   /** Mark a couple of projects as featured to pin them to the top. */
   featured?: boolean;
 };
@@ -24,32 +29,41 @@ export type Project = {
 export const PROJECTS: Project[] = [
   {
     name: 'logseq-plugin-code-formatter',
-    description:
-      'Logseq 插件 —— 用 Prettier 一键格式化代码块，支持 JS / TS / HTML / CSS / Markdown / JSON。',
+    description: {
+      zh: 'Logseq 插件 —— 用 Prettier 一键格式化代码块，支持 JS / TS / HTML / CSS / Markdown / JSON。',
+      en: 'Logseq plugin — format code blocks with Prettier in one click. Supports JS / TS / HTML / CSS / Markdown / JSON.',
+    },
     tags: ['TypeScript', 'Logseq', 'Prettier'],
     repo: 'https://github.com/PerfectPan/logseq-plugin-code-formatter',
     featured: true,
   },
   {
     name: 'ocvm',
-    description:
-      'OpenClaw 版本管理器 —— nvm 风格的 Rust CLI，按项目安装、切换、锁定与回滚 OpenClaw 版本。',
+    description: {
+      zh: 'OpenClaw 版本管理器 —— nvm 风格的 Rust CLI，按项目安装、切换、锁定与回滚 OpenClaw 版本。',
+      en: 'OpenClaw version manager — an nvm-style Rust CLI to install, switch, pin, and roll back OpenClaw versions per project.',
+    },
     tags: ['Rust', 'CLI'],
     repo: 'https://github.com/PerfectPan/ocvm',
     demo: 'https://ocvm.vercel.app',
   },
   {
     name: 'agent-presence',
-    description:
-      '把本地编码 agent（Codex / Claude Code / Gemini CLI 等）的在线状态与 token 用量同步到飞书签名链接预览。',
+    description: {
+      zh: '把本地编码 agent（Codex / Claude Code / Gemini CLI 等）的在线状态与 token 用量同步到飞书签名链接预览。',
+      en: 'Syncs the online presence and token usage of local coding agents (Codex / Claude Code / Gemini CLI, etc.) to a Feishu signature link preview.',
+    },
     tags: ['TypeScript', 'CLI', 'Feishu'],
     repo: 'https://github.com/PerfectPan/agent-presence',
     demo: 'https://agent-presence.vercel.app',
-    demoLabel: '官网',
+    demoLabel: { zh: '官网', en: 'site' },
   },
   {
     name: 'base64',
-    description: 'Moonbit 语言实现的 Base64 编解码库，遵循 RFC 4648。',
+    description: {
+      zh: 'Moonbit 语言实现的 Base64 编解码库，遵循 RFC 4648。',
+      en: 'A Base64 codec written in MoonBit, conforming to RFC 4648.',
+    },
     tags: ['Moonbit'],
     repo: 'https://github.com/PerfectPan/base64',
   },

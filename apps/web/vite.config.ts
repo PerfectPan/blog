@@ -14,4 +14,24 @@ export default defineConfig({
     viteReact(),
     tailwindcss(),
   ],
+  server: {
+    warmup: {
+      // Warm the SSR module graph at dev-server start, before the first
+      // request (belt-and-braces on top of the @tanstack/* patch upgrade for
+      // the dev-mode server-fn deadlock: cold parallel first hits used to
+      // race the `?tss-serverfn-split` provider-module re-transforms and
+      // hang loader-side server-fn calls forever). Warming routes + lib —
+      // and the provider split variants explicitly, since they are only
+      // reachable through the resolver's dynamic import — also cuts the
+      // first-hit latency for `pnpm dev` and the Playwright gate.
+      ssrFiles: [
+        'src/routes/**/*.{ts,tsx}',
+        'src/lib/**/*.ts',
+        'src/lib/admin-service.ts?tss-serverfn-split',
+        'src/lib/blog-service.ts?tss-serverfn-split',
+        'src/lib/comments-service.ts?tss-serverfn-split',
+        'src/lib/locale-service.ts?tss-serverfn-split',
+      ],
+    },
+  },
 });

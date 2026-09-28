@@ -1,32 +1,45 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState, useTransition } from 'react';
 import { authClient } from '../lib/auth-client.js';
+import { useLocale, useT } from '../lib/i18n/context.js';
+import {
+  authErrorMessage,
+  BACK_TO_POST,
+  CHECKING_SESSION,
+  CONTINUE_WITH_GITHUB,
+  CREATE_ACCOUNT,
+  CREATING,
+  EMAIL_LABEL,
+  GITHUB_SIGN_IN_FAILED,
+  GITHUB_SIGN_UP_FAILED,
+  LOGIN_HINT,
+  NAME_LABEL,
+  NO_ACCOUNT_YET,
+  PASSWORD_LABEL,
+  SIGN_IN,
+  SIGN_IN_FAILED,
+  SIGN_UP_FAILED,
+  SIGNING_IN,
+  SIGNUP_HINT,
+  SIGNUP_LINK,
+  SUDO_UNLOCK,
+  UNLOCK_ERROR_INVALID,
+  UNLOCK_ERROR_MISSING,
+  UNLOCK_HINT,
+  UNLOCK_PASSWORD_LABEL,
+} from '../lib/i18n/messages.js';
 import { Page, Prompt } from './page.js';
-
-// Better Auth reports OAuth and email-verification failures as
-// `?error=<code>` on the callback URL; these are the codes a user can cause.
-const AUTH_ERRORS: Record<string, string> = {
-  account_not_linked:
-    '这个邮箱已经有账号但还没验证。先用邮箱密码登录，再到 account 页验证邮箱或绑定 GitHub。',
-  account_already_linked_to_different_user:
-    '这个 GitHub 账号已经绑定了另一个用户。',
-  unable_to_link_account: 'GitHub 邮箱未验证，无法绑定。',
-  invalid_token: '验证链接无效，请重新发送验证邮件。',
-  token_expired: '验证链接已过期，请重新发送验证邮件。',
-};
-
-export function authErrorMessage(code: string): string {
-  return AUTH_ERRORS[code] ?? `GitHub 登录失败（${code}）`;
-}
 
 export function LoginPage({ searchError }: { searchError?: string }) {
   const navigate = useNavigate();
+  const { locale } = useLocale();
+  const t = useT();
   const { data: sessionData, isPending: isSessionPending } =
     authClient.useSession();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(
-    searchError ? authErrorMessage(searchError) : null,
+    searchError ? authErrorMessage(locale, searchError) : null,
   );
   const [isPending, startTransition] = useTransition();
 
@@ -39,7 +52,7 @@ export function LoginPage({ searchError }: { searchError?: string }) {
   if (sessionData?.user?.id || isSessionPending) {
     return (
       <Page>
-        <p className='text-muted-foreground/60'># checking session…</p>
+        <p className='text-muted-foreground/60'>{t(CHECKING_SESSION)}</p>
       </Page>
     );
   }
@@ -50,7 +63,7 @@ export function LoginPage({ searchError }: { searchError?: string }) {
         ssh member@perfectpan.org
       </Prompt>
       <p className='mb-1 text-xs text-muted-foreground/60 mt-2'>
-        # 邮箱密码登录；或者走 GitHub OAuth。
+        {t(LOGIN_HINT)}
       </p>
       <form
         className='mt-4'
@@ -66,7 +79,7 @@ export function LoginPage({ searchError }: { searchError?: string }) {
             });
 
             if (result.error) {
-              setError(result.error.message ?? '登录失败');
+              setError(result.error.message ?? t(SIGN_IN_FAILED));
               return;
             }
           });
@@ -74,7 +87,8 @@ export function LoginPage({ searchError }: { searchError?: string }) {
       >
         <div className='my-3.5 max-w-105 [&_label]:mb-1.25 [&_label]:block [&_label]:text-xs [&_label]:text-muted-foreground'>
           <label htmlFor='email'>
-            <span className='text-primary'>▸ </span>email
+            <span className='text-primary'>▸ </span>
+            {t(EMAIL_LABEL)}
           </label>
           <input
             id='email'
@@ -89,7 +103,8 @@ export function LoginPage({ searchError }: { searchError?: string }) {
         </div>
         <div className='my-3.5 max-w-105 [&_label]:mb-1.25 [&_label]:block [&_label]:text-xs [&_label]:text-muted-foreground'>
           <label htmlFor='password'>
-            <span className='text-primary'>▸ </span>password
+            <span className='text-primary'>▸ </span>
+            {t(PASSWORD_LABEL)}
           </label>
           <input
             id='password'
@@ -108,7 +123,7 @@ export function LoginPage({ searchError }: { searchError?: string }) {
             className='cursor-pointer rounded-lg border border-primary bg-primary px-3.5 py-1.75 text-sm text-primary-foreground transition duration-100 hover:brightness-95'
             disabled={isPending}
           >
-            {isPending ? 'signing in…' : 'sign in'}
+            {isPending ? t(SIGNING_IN) : t(SIGN_IN)}
           </button>
           <button
             type='button'
@@ -121,11 +136,11 @@ export function LoginPage({ searchError }: { searchError?: string }) {
                 errorCallbackURL: '/login',
               });
               if (result.error) {
-                setError(result.error.message ?? 'GitHub 登录失败');
+                setError(result.error.message ?? t(GITHUB_SIGN_IN_FAILED));
               }
             }}
           >
-            continue with github
+            {t(CONTINUE_WITH_GITHUB)}
           </button>
         </div>
         {error ? (
@@ -135,12 +150,12 @@ export function LoginPage({ searchError }: { searchError?: string }) {
         ) : null}
       </form>
       <p className='mb-1 mt-4 text-xs'>
-        <span className='text-muted-foreground/60'># 还没有账号？</span>{' '}
+        <span className='text-muted-foreground/60'>{t(NO_ACCOUNT_YET)}</span>{' '}
         <Link
           to='/signup'
           className='text-muted-foreground hover:text-foreground'
         >
-          signup
+          {t(SIGNUP_LINK)}
         </Link>
       </p>
     </Page>
@@ -149,13 +164,15 @@ export function LoginPage({ searchError }: { searchError?: string }) {
 
 export function SignupPage({ searchError }: { searchError?: string }) {
   const navigate = useNavigate();
+  const { locale } = useLocale();
+  const t = useT();
   const { data: sessionData, isPending: isSessionPending } =
     authClient.useSession();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(
-    searchError ? authErrorMessage(searchError) : null,
+    searchError ? authErrorMessage(locale, searchError) : null,
   );
   const [isPending, startTransition] = useTransition();
 
@@ -170,7 +187,7 @@ export function SignupPage({ searchError }: { searchError?: string }) {
   if (sessionData?.user?.id || isSessionPending) {
     return (
       <Page>
-        <p className='text-muted-foreground/60'># checking session…</p>
+        <p className='text-muted-foreground/60'>{t(CHECKING_SESSION)}</p>
       </Page>
     );
   }
@@ -181,7 +198,7 @@ export function SignupPage({ searchError }: { searchError?: string }) {
         useradd --join
       </Prompt>
       <p className='mb-1 text-xs text-muted-foreground/60 mt-2'>
-        # 注册成为 member，可读 member 可见性的文章。
+        {t(SIGNUP_HINT)}
       </p>
       <form
         className='mt-4'
@@ -199,7 +216,7 @@ export function SignupPage({ searchError }: { searchError?: string }) {
             });
 
             if (result.error) {
-              setError(result.error.message ?? '注册失败');
+              setError(result.error.message ?? t(SIGN_UP_FAILED));
               return;
             }
           });
@@ -207,7 +224,8 @@ export function SignupPage({ searchError }: { searchError?: string }) {
       >
         <div className='my-3.5 max-w-105 [&_label]:mb-1.25 [&_label]:block [&_label]:text-xs [&_label]:text-muted-foreground'>
           <label htmlFor='name'>
-            <span className='text-primary'>▸ </span>name
+            <span className='text-primary'>▸ </span>
+            {t(NAME_LABEL)}
           </label>
           <input
             id='name'
@@ -222,7 +240,8 @@ export function SignupPage({ searchError }: { searchError?: string }) {
         </div>
         <div className='my-3.5 max-w-105 [&_label]:mb-1.25 [&_label]:block [&_label]:text-xs [&_label]:text-muted-foreground'>
           <label htmlFor='email'>
-            <span className='text-primary'>▸ </span>email
+            <span className='text-primary'>▸ </span>
+            {t(EMAIL_LABEL)}
           </label>
           <input
             id='email'
@@ -237,7 +256,8 @@ export function SignupPage({ searchError }: { searchError?: string }) {
         </div>
         <div className='my-3.5 max-w-105 [&_label]:mb-1.25 [&_label]:block [&_label]:text-xs [&_label]:text-muted-foreground'>
           <label htmlFor='password'>
-            <span className='text-primary'>▸ </span>password
+            <span className='text-primary'>▸ </span>
+            {t(PASSWORD_LABEL)}
           </label>
           <input
             id='password'
@@ -256,7 +276,7 @@ export function SignupPage({ searchError }: { searchError?: string }) {
             className='cursor-pointer rounded-lg border border-primary bg-primary px-3.5 py-1.75 text-sm text-primary-foreground transition duration-100 hover:brightness-95'
             disabled={isPending}
           >
-            {isPending ? 'creating…' : 'create account'}
+            {isPending ? t(CREATING) : t(CREATE_ACCOUNT)}
           </button>
           <button
             type='button'
@@ -269,11 +289,11 @@ export function SignupPage({ searchError }: { searchError?: string }) {
                 errorCallbackURL: '/signup',
               });
               if (result.error) {
-                setError(result.error.message ?? 'GitHub 注册失败');
+                setError(result.error.message ?? t(GITHUB_SIGN_UP_FAILED));
               }
             }}
           >
-            continue with github
+            {t(CONTINUE_WITH_GITHUB)}
           </button>
         </div>
         {error ? (
@@ -293,12 +313,13 @@ export function UnlockPage({
   slug: string;
   search?: Record<string, string | undefined>;
 }) {
+  const t = useT();
   const { error: searchError } = (search ?? {}) as { error?: string };
   const errorLabel =
     searchError === 'missing'
-      ? '请输入访问密码'
+      ? t(UNLOCK_ERROR_MISSING)
       : searchError === 'invalid'
-        ? '密码错误，请重试'
+        ? t(UNLOCK_ERROR_INVALID)
         : undefined;
 
   return (
@@ -311,13 +332,12 @@ export function UnlockPage({
           cat: posts/{slug}.md: Permission denied
         </span>
       </p>
-      <p className='mb-1 text-xs text-muted-foreground/60'>
-        # 这篇文章是密码保护的。输入单文密码后 24 小时内免密阅读。
-      </p>
+      <p className='mb-1 text-xs text-muted-foreground/60'>{t(UNLOCK_HINT)}</p>
       <form method='post' className='mt-4'>
         <div className='my-3.5 max-w-105 [&_label]:mb-1.25 [&_label]:block [&_label]:text-xs [&_label]:text-muted-foreground'>
           <label htmlFor='password'>
-            <span className='text-primary'>▸ </span>password for this post
+            <span className='text-primary'>▸ </span>
+            {t(UNLOCK_PASSWORD_LABEL)}
           </label>
           <input
             id='password'
@@ -332,14 +352,14 @@ export function UnlockPage({
             type='submit'
             className='cursor-pointer rounded-lg border border-primary bg-primary px-3.5 py-1.75 text-sm text-primary-foreground transition duration-100 hover:brightness-95'
           >
-            sudo unlock
+            {t(SUDO_UNLOCK)}
           </button>
           <Link
             to='/blog/$slug'
             params={{ slug }}
             className='text-muted-foreground hover:text-foreground'
           >
-            ← 返回文章
+            {t(BACK_TO_POST)}
           </Link>
         </div>
         {errorLabel ? (

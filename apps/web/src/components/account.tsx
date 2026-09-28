@@ -1,7 +1,26 @@
 import { useNavigate } from '@tanstack/react-router';
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { authClient } from '../lib/auth-client.js';
-import { authErrorMessage } from './auth.js';
+import { useLocale, useT } from '../lib/i18n/context.js';
+import {
+  authErrorMessage,
+  EMAIL_NOT_VERIFIED,
+  EMAIL_VERIFIED,
+  GITHUB_LINKED,
+  GITHUB_LINKED_HINT,
+  GITHUB_NOT_LINKED,
+  GITHUB_NOT_LINKED_HINT,
+  LINK_GITHUB_FAILED,
+  LOAD_ACCOUNTS_FAILED,
+  LOAD_ACCOUNTS_FAILED_RETRY,
+  PASSWORD_NOT_SET,
+  PASSWORD_SET,
+  SEND_VERIFICATION_FAILED,
+  UNLINK_CONFIRM_DESCRIPTION,
+  UNLINK_GITHUB_FAILED,
+  VERIFICATION_SENT,
+  VERIFY_EMAIL_HINT,
+} from '../lib/i18n/messages.js';
 import { ConfirmDialog } from './confirm-dialog.js';
 import { Page, Prompt } from './page.js';
 
@@ -15,12 +34,14 @@ const BTN_SECONDARY =
 /** Signed-in account page: who you are, and link / unlink GitHub sign-in. */
 export function AccountPage({ searchError }: { searchError?: string }) {
   const navigate = useNavigate();
+  const { locale } = useLocale();
+  const t = useT();
   const { data: sessionData, isPending: isSessionPending } =
     authClient.useSession();
   const user = sessionData?.user;
   const [accounts, setAccounts] = useState<LinkedAccount[] | null>(null);
   const [error, setError] = useState<string | null>(
-    searchError ? authErrorMessage(searchError) : null,
+    searchError ? authErrorMessage(locale, searchError) : null,
   );
   const [notice, setNotice] = useState<string | null>(null);
   const [unlinkOpen, setUnlinkOpen] = useState(false);
@@ -30,14 +51,14 @@ export function AccountPage({ searchError }: { searchError?: string }) {
     try {
       const result = await authClient.listAccounts();
       if (result.error) {
-        setError(result.error.message ?? '读取登录方式失败');
+        setError(result.error.message ?? t(LOAD_ACCOUNTS_FAILED));
         return;
       }
       setAccounts(result.data);
     } catch {
-      setError('读取登录方式失败，请重试');
+      setError(t(LOAD_ACCOUNTS_FAILED_RETRY));
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (!isSessionPending && !user) {
@@ -102,20 +123,24 @@ export function AccountPage({ searchError }: { searchError?: string }) {
               user.emailVerified ? 'text-muted-foreground' : 'text-destructive'
             }
           >
-            ({user.emailVerified ? 'verified' : 'not verified'})
+            ({user.emailVerified ? t(EMAIL_VERIFIED) : t(EMAIL_NOT_VERIFIED)})
           </span>
         </dd>
         <dt>role</dt>
         <dd>{user.role ?? 'member'}</dd>
         <dt>password</dt>
-        <dd>{hasPassword ? 'set' : 'not set'}</dd>
+        <dd>{hasPassword ? t(PASSWORD_SET) : t(PASSWORD_NOT_SET)}</dd>
         <dt>github</dt>
-        <dd>{github ? `linked (id ${github.accountId})` : 'not linked'}</dd>
+        <dd>
+          {github
+            ? t(GITHUB_LINKED, { accountId: github.accountId })
+            : t(GITHUB_NOT_LINKED)}
+        </dd>
       </dl>
       {user.emailVerified ? null : (
         <div className='mt-4'>
           <p className='mb-1 text-xs text-muted-foreground/60'>
-            # 验证邮箱后，用同一邮箱的 GitHub 登录会自动合并进这个账号。
+            # {t(VERIFY_EMAIL_HINT)}
           </p>
           <button
             type='button'
@@ -130,10 +155,10 @@ export function AccountPage({ searchError }: { searchError?: string }) {
                   callbackURL: '/account',
                 });
                 if (result.error) {
-                  setError(result.error.message ?? '发送验证邮件失败');
+                  setError(result.error.message ?? t(SEND_VERIFICATION_FAILED));
                   return;
                 }
-                setNotice(`验证邮件已发到 ${user.email}，1 小时内有效。`);
+                setNotice(t(VERIFICATION_SENT, { email: user.email }));
               });
             }}
           >
@@ -143,8 +168,8 @@ export function AccountPage({ searchError }: { searchError?: string }) {
       )}
       <p className='mb-1 mt-4 text-xs text-muted-foreground/60'>
         {github
-          ? '# 已绑定 GitHub，可以直接用 continue with github 登录这个账号。'
-          : '# 绑定后可以用 GitHub 登录这个账号，GitHub 邮箱不必和上面的一致。'}
+          ? `# ${t(GITHUB_LINKED_HINT)}`
+          : `# ${t(GITHUB_NOT_LINKED_HINT)}`}
       </p>
       <div className='mt-4 flex flex-wrap gap-3'>
         {github ? (
@@ -174,7 +199,7 @@ export function AccountPage({ searchError }: { searchError?: string }) {
                   errorCallbackURL: '/account',
                 });
                 if (result.error) {
-                  setError(result.error.message ?? '绑定 GitHub 失败');
+                  setError(result.error.message ?? t(LINK_GITHUB_FAILED));
                 }
               });
             }}
@@ -197,7 +222,7 @@ export function AccountPage({ searchError }: { searchError?: string }) {
         open={unlinkOpen}
         onOpenChange={setUnlinkOpen}
         command='unlink github'
-        description='解绑后不能再用 GitHub 登录这个账号，邮箱密码登录不受影响。'
+        description={t(UNLINK_CONFIRM_DESCRIPTION)}
         confirmLabel='unlink'
         pending={isPending}
         onConfirm={() => {
@@ -208,7 +233,7 @@ export function AccountPage({ searchError }: { searchError?: string }) {
             });
             setUnlinkOpen(false);
             if (result.error) {
-              setError(result.error.message ?? '解绑 GitHub 失败');
+              setError(result.error.message ?? t(UNLINK_GITHUB_FAILED));
               return;
             }
             await loadAccounts();

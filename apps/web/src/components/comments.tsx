@@ -8,6 +8,27 @@ import {
   deleteCommentServerFn,
   getCommentsServerFn,
 } from '../lib/comments-service.js';
+import { type TFn, useT } from '../lib/i18n/context.js';
+import {
+  CHARS_LEFT,
+  COMMENT_FAILED,
+  DAYS_AGO,
+  DELETE_COMMENT_CONFIRM,
+  DELETE_FAILED,
+  DELETE_REPLY_CONFIRM,
+  HOURS_AGO,
+  JUST_NOW,
+  LOAD_MORE_FAILED,
+  LOADING,
+  LOGIN_HINT_SUFFIX,
+  LOGIN_LINK,
+  MARKDOWN_HINT,
+  MINUTES_AGO,
+  NEW_COMMENT_PLACEHOLDER,
+  NO_COMMENTS,
+  REPLY_PLACEHOLDER,
+  SENDING,
+} from '../lib/i18n/messages.js';
 import { CommentMarkdown } from './comment-markdown.js';
 import { Prompt } from './page.js';
 
@@ -21,26 +42,26 @@ type CommentsProps = {
 
 const PAGE_SIZE = 20;
 
-function formatRelative(iso: string): string {
+function formatRelative(iso: string, t: TFn): string {
   const then = new Date(iso).getTime();
   if (Number.isNaN(then)) {
     return iso;
   }
   const seconds = Math.floor((Date.now() - then) / 1000);
   if (seconds < 60) {
-    return '刚刚';
+    return t(JUST_NOW);
   }
   const minutes = Math.floor(seconds / 60);
   if (minutes < 60) {
-    return `${minutes} 分钟前`;
+    return t(MINUTES_AGO, { n: minutes });
   }
   const hours = Math.floor(minutes / 60);
   if (hours < 24) {
-    return `${hours} 小时前`;
+    return t(HOURS_AGO, { n: hours });
   }
   const days = Math.floor(hours / 24);
   if (days < 30) {
-    return `${days} 天前`;
+    return t(DAYS_AGO, { n: days });
   }
   return new Date(iso).toLocaleDateString('en-US', {
     month: 'short',
@@ -62,6 +83,7 @@ function Composer({
   onSubmit,
   compact,
 }: ComposerProps) {
+  const t = useT();
   const [body, setBody] = useState('');
   const [error, setError] = useState<string | null>(null);
   const remaining = 2000 - body.length;
@@ -77,7 +99,7 @@ function Composer({
       await onSubmit(trimmed);
       setBody('');
     } catch (err) {
-      setError(err instanceof Error ? err.message : '评论失败，请重试');
+      setError(err instanceof Error ? err.message : t(COMMENT_FAILED));
     }
   }
 
@@ -96,7 +118,7 @@ function Composer({
       />
       <div className='flex items-center justify-between gap-2'>
         <span className='text-xs text-muted-foreground/60'>
-          {remaining < 200 ? `${remaining} 字剩余` : '支持 Markdown'}
+          {remaining < 200 ? t(CHARS_LEFT, { n: remaining }) : t(MARKDOWN_HINT)}
           {error ? (
             <span className='my-2.5 text-sm text-destructive inline'>
               {'✗ '}
@@ -109,7 +131,7 @@ function Composer({
           disabled={submitting || !body.trim()}
           className='cursor-pointer rounded-lg border border-primary bg-primary px-3.5 py-1.75 text-sm text-primary-foreground transition duration-100 hover:brightness-95'
         >
-          {submitting ? '发送中…' : 'reply'}
+          {submitting ? t(SENDING) : 'reply'}
         </button>
       </div>
     </form>
@@ -135,6 +157,7 @@ function CommentItem({
   setReplyingTo,
   replySubmitting,
 }: CommentItemProps) {
+  const t = useT();
   const canAct =
     sessionUser != null && (thread.isOwn || sessionUser.role === 'admin');
 
@@ -142,7 +165,7 @@ function CommentItem({
     if (!canAct) {
       return;
     }
-    if (!window.confirm('删除这条评论？')) {
+    if (!window.confirm(t(DELETE_COMMENT_CONFIRM))) {
       return;
     }
     // onDelete (the parent handleDelete) catches its own errors and surfaces
@@ -165,7 +188,7 @@ function CommentItem({
       {replyingTo === thread.id && sessionUser ? (
         <div className='ml-10'>
           <Composer
-            placeholder={`回复 @${thread.author.name}…`}
+            placeholder={t(REPLY_PLACEHOLDER, { name: thread.author.name })}
             submitting={replySubmitting.has(thread.id)}
             onSubmit={(body) => onReply(thread.id, body)}
             compact
@@ -187,7 +210,7 @@ function CommentItem({
                 canReply={false}
                 onReply={undefined}
                 onDelete={async () => {
-                  if (!window.confirm('删除这条回复？')) {
+                  if (!window.confirm(t(DELETE_REPLY_CONFIRM))) {
                     return;
                   }
                   await onDelete(reply.id);
@@ -216,6 +239,7 @@ function CommentView({
   onReply,
   onDelete,
 }: CommentViewProps) {
+  const t = useT();
   return (
     <div className='my-3 overflow-hidden rounded-lg border border-border'>
       <div className='flex items-center gap-2.5 border-b border-border bg-secondary px-3.5 py-2 text-xs text-muted-foreground'>
@@ -230,7 +254,7 @@ function CommentView({
             {comment.status}
           </span>
         ) : null}
-        <span>{formatRelative(comment.createdAt)}</span>
+        <span>{formatRelative(comment.createdAt, t)}</span>
       </div>
       <div className='px-3.5 py-2.5'>
         <CommentMarkdown content={comment.body} />
@@ -273,6 +297,7 @@ export function Comments({
   initialTotal,
   sessionUser,
 }: CommentsProps) {
+  const t = useT();
   const [threads, setThreads] = useState<CommentThread[]>(initialComments);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [total, setTotal] = useState(initialTotal);
@@ -326,7 +351,7 @@ export function Comments({
     try {
       await deleteCommentServerFn({ data: { id } });
     } catch (err) {
-      setTopError(err instanceof Error ? err.message : '删除失败，请重试');
+      setTopError(err instanceof Error ? err.message : t(DELETE_FAILED));
       return;
     }
     const wasTopLevel = threads.some((thread) => thread.id === id);
@@ -354,7 +379,7 @@ export function Comments({
       setTotal(result.total);
       setTopError(null);
     } catch (err) {
-      setTopError(err instanceof Error ? err.message : '加载更多失败');
+      setTopError(err instanceof Error ? err.message : t(LOAD_MORE_FAILED));
     } finally {
       setLoadingMore(false);
     }
@@ -369,14 +394,15 @@ export function Comments({
       {sessionUser ? (
         <div className='mb-6'>
           <Composer
-            placeholder='写下你的评论…（支持 Markdown）'
+            placeholder={t(NEW_COMMENT_PLACEHOLDER)}
             submitting={submitting}
             onSubmit={handleCreateTopLevel}
           />
         </div>
       ) : (
         <p className='text-muted-foreground/60 mb-6'>
-          # <Link to='/login'>login</Link> 后即可评论。
+          # <Link to='/login'>{t(LOGIN_LINK)}</Link>
+          {t(LOGIN_HINT_SUFFIX)}
         </p>
       )}
       {topError ? (
@@ -384,7 +410,7 @@ export function Comments({
       ) : null}
       {threads.length === 0 ? (
         <p className='text-muted-foreground/60 py-8 text-center'>
-          # 还没有评论，来抢沙发。
+          # {t(NO_COMMENTS)}
         </p>
       ) : (
         <ul className='flex flex-col gap-3'>
@@ -410,7 +436,7 @@ export function Comments({
             disabled={loadingMore}
             className='cursor-pointer rounded-lg border border-border bg-secondary px-3.5 py-1.75 text-sm text-foreground transition-[border-color,color] duration-100 hover:border-primary hover:text-primary'
           >
-            {loadingMore ? '加载中…' : 'tail -f'}
+            {loadingMore ? t(LOADING) : 'tail -f'}
           </button>
         </div>
       ) : null}
