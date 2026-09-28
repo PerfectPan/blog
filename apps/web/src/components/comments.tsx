@@ -53,15 +53,15 @@ function formatRelative(iso: string, t: TFn): string {
   }
   const minutes = Math.floor(seconds / 60);
   if (minutes < 60) {
-    return t(minutesAgo, minutes);
+    return t(minutesAgo, { n: minutes });
   }
   const hours = Math.floor(minutes / 60);
   if (hours < 24) {
-    return t(hoursAgo, hours);
+    return t(hoursAgo, { n: hours });
   }
   const days = Math.floor(hours / 24);
   if (days < 30) {
-    return t(daysAgo, days);
+    return t(daysAgo, { n: days });
   }
   return new Date(iso).toLocaleDateString('en-US', {
     month: 'short',
@@ -118,7 +118,7 @@ function Composer({
       />
       <div className='flex items-center justify-between gap-2'>
         <span className='text-xs text-muted-foreground/60'>
-          {remaining < 200 ? t(charsLeft, remaining) : t(markdownHint)}
+          {remaining < 200 ? t(charsLeft, { n: remaining }) : t(markdownHint)}
           {error ? (
             <span className='my-2.5 text-sm text-destructive inline'>
               {'✗ '}
@@ -188,7 +188,7 @@ function CommentItem({
       {replyingTo === thread.id && sessionUser ? (
         <div className='ml-10'>
           <Composer
-            placeholder={t(replyPlaceholder, thread.author.name)}
+            placeholder={t(replyPlaceholder, { name: thread.author.name })}
             submitting={replySubmitting.has(thread.id)}
             onSubmit={(body) => onReply(thread.id, body)}
             compact

@@ -85,7 +85,7 @@ export function HomePage({
       >
         <div className='flex items-baseline justify-between gap-3 border-b border-border bg-muted/50 px-4 py-3 text-sm tracking-widest text-muted-foreground'>
           <span>ls -t ~/posts | head -5</span>
-          <span>{t(postsCount, total)}</span>
+          <span>{t(postsCount, { count: total })}</span>
         </div>
         {latest.length === 0 ? (
           <div>

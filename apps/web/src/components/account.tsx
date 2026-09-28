@@ -132,7 +132,9 @@ export function AccountPage({ searchError }: { searchError?: string }) {
         <dd>{hasPassword ? t(passwordSet) : t(passwordNotSet)}</dd>
         <dt>github</dt>
         <dd>
-          {github ? t(githubLinked, github.accountId) : t(githubNotLinked)}
+          {github
+            ? t(githubLinked, { accountId: github.accountId })
+            : t(githubNotLinked)}
         </dd>
       </dl>
       {user.emailVerified ? null : (
@@ -156,7 +158,7 @@ export function AccountPage({ searchError }: { searchError?: string }) {
                   setError(result.error.message ?? t(sendVerificationFailed));
                   return;
                 }
-                setNotice(t(verificationSent, user.email));
+                setNotice(t(verificationSent, { email: user.email }));
               });
             }}
           >

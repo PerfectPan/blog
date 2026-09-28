@@ -1,10 +1,12 @@
 import type { Locale } from '@blog/shared';
+import { IntlMessageFormat } from 'intl-messageformat';
 
 /**
  * All UI copy, one export per string, each entry carrying both locales so a
  * bundle includes exactly the entries its call sites reference (tree-shaking
- * works per entry). Resolve with `t(entry)` from `useT()`; entries with
- * parameters are functions per locale and take their args through `t`.
+ * works per entry). Resolve with `t(entry)` from `useT()`; parameterized
+ * entries use standard ICU MessageFormat patterns (`icu` factory) and take a
+ * named-args object through `t`: `t(postsCount, { count: 5 })`.
  *
  * Kept verbatim in BOTH locales on purpose:
  * - terminal output: `#` comment lines, ls / cd / whoami / FIGLET, reply / rm /
@@ -16,10 +18,39 @@ import type { Locale } from '@blog/shared';
  */
 
 export type Msg = { zh: string; en: string };
-export type MsgFn<A extends unknown[] = unknown[]> = {
-  zh: (...args: A) => string;
-  en: (...args: A) => string;
+
+/** ICU-pattern entry; `icu` keeps the arg names in the type so call sites
+ *  passing wrong (or missing) keys fail to compile. */
+export type IcuMsg<A extends Record<string, string | number>> = Msg & {
+  readonly __args?: A;
 };
+
+export const icu = <A extends Record<string, string | number>>(
+  zh: string,
+  en: string,
+): IcuMsg<A> => ({ zh, en });
+
+const formatCache = new Map<string, IntlMessageFormat>();
+const LOCALE_TAGS: Record<Locale, string> = { zh: 'zh-CN', en: 'en' };
+
+/** Resolve an entry in `locale`; patterns are compiled once and cached. */
+export function formatMsg(
+  locale: Locale,
+  entry: Msg,
+  args?: Record<string, string | number>,
+): string {
+  const pattern = entry[locale];
+  if (!pattern.includes('{')) {
+    return pattern;
+  }
+  const key = `${locale}::${pattern}`;
+  let fmt = formatCache.get(key);
+  if (fmt === undefined) {
+    fmt = new IntlMessageFormat(pattern, LOCALE_TAGS[locale]);
+    formatCache.set(key, fmt);
+  }
+  return fmt.format(args ?? {}).toString();
+}
 
 // ── header / footer / home ─────────────────────────────────────────────────
 
@@ -46,15 +77,15 @@ export const closeToolsMenu: Msg = {
 };
 export const langZhName: Msg = { zh: '中文', en: '中文' };
 export const langEnName: Msg = { zh: 'English', en: 'English' };
-export const switchLocale: MsgFn<[name: string]> = {
-  zh: (name) => `切换到${name}`,
-  en: (name) => `Switch to ${name}`,
-};
+export const switchLocale = icu<{ name: string }>(
+  '切换到{name}',
+  'Switch to {name}',
+);
 export const siteWindowsAria: Msg = { zh: '站点窗口', en: 'Site windows' };
-export const postsCount: MsgFn<[n: number]> = {
-  zh: (n) => `${n} 篇文章`,
-  en: (n) => `${n} posts`,
-};
+export const postsCount = icu<{ count: number }>(
+  '{count} 篇文章',
+  '{count, plural, one {# post} other {# posts}}',
+);
 export const noPosts: Msg = { zh: '暂无文章', en: 'no posts yet' };
 export const logoutConfirmDescription: Msg = {
   zh: '确定要退出登录吗？',
@@ -139,10 +170,10 @@ export const logoutRetry: Msg = { zh: '重试退出', en: 'Retry Logout' };
 
 export const prevPage: Msg = { zh: '← prev', en: '← prev' };
 export const nextPage: Msg = { zh: 'next →', en: 'next →' };
-export const pageInfo: MsgFn<[page: number, total: number]> = {
-  zh: (page, total) => `page ${page} / ${total}`,
-  en: (page, total) => `page ${page} / ${total}`,
-};
+export const pageInfo = icu<{ page: number; total: number }>(
+  'page {page} / {total}',
+  'page {page} / {total}',
+);
 export const paginationAria: Msg = { zh: 'Pagination', en: 'Pagination' };
 // Dev-only scope hints (visible with `pnpm dev`); roles and visibility levels
 // are data literals and stay untranslated.
@@ -166,22 +197,22 @@ export const devHintMember: Msg = {
 // ── comments ───────────────────────────────────────────────────────────────
 
 export const justNow: Msg = { zh: '刚刚', en: 'just now' };
-export const minutesAgo: MsgFn<[n: number]> = {
-  zh: (n) => `${n} 分钟前`,
-  en: (n) => (n === 1 ? '1 minute ago' : `${n} minutes ago`),
-};
-export const hoursAgo: MsgFn<[n: number]> = {
-  zh: (n) => `${n} 小时前`,
-  en: (n) => (n === 1 ? '1 hour ago' : `${n} hours ago`),
-};
-export const daysAgo: MsgFn<[n: number]> = {
-  zh: (n) => `${n} 天前`,
-  en: (n) => (n === 1 ? '1 day ago' : `${n} days ago`),
-};
-export const charsLeft: MsgFn<[n: number]> = {
-  zh: (n) => `${n} 字剩余`,
-  en: (n) => `${n} characters left`,
-};
+export const minutesAgo = icu<{ n: number }>(
+  '{n} 分钟前',
+  '{n, plural, one {# minute ago} other {# minutes ago}}',
+);
+export const hoursAgo = icu<{ n: number }>(
+  '{n} 小时前',
+  '{n, plural, one {# hour ago} other {# hours ago}}',
+);
+export const daysAgo = icu<{ n: number }>(
+  '{n} 天前',
+  '{n, plural, one {# day ago} other {# days ago}}',
+);
+export const charsLeft = icu<{ n: number }>(
+  '{n} 字剩余',
+  '{n, plural, one {# character left} other {# characters left}}',
+);
 export const markdownHint: Msg = {
   zh: '支持 Markdown',
   en: 'Markdown supported',
@@ -190,10 +221,10 @@ export const newCommentPlaceholder: Msg = {
   zh: '写下你的评论…（支持 Markdown）',
   en: 'Write a comment… (Markdown supported)',
 };
-export const replyPlaceholder: MsgFn<[authorName: string]> = {
-  zh: (authorName) => `回复 @${authorName}…`,
-  en: (authorName) => `Reply to @${authorName}…`,
-};
+export const replyPlaceholder = icu<{ name: string }>(
+  '回复 @{name}…',
+  'Reply to @{name}…',
+);
 export const sending: Msg = { zh: '发送中…', en: 'Sending…' };
 export const commentFailed: Msg = {
   zh: '评论失败，请重试',
@@ -233,19 +264,19 @@ export const emailNotVerified: Msg = {
 };
 export const passwordSet: Msg = { zh: 'set', en: 'set' };
 export const passwordNotSet: Msg = { zh: 'not set', en: 'not set' };
-export const githubLinked: MsgFn<[accountId: string]> = {
-  zh: (accountId) => `linked (id ${accountId})`,
-  en: (accountId) => `linked (id ${accountId})`,
-};
+export const githubLinked = icu<{ accountId: string }>(
+  'linked (id {accountId})',
+  'linked (id {accountId})',
+);
 export const githubNotLinked: Msg = { zh: 'not linked', en: 'not linked' };
 export const verifyEmailHint: Msg = {
   zh: '验证邮箱后，用同一邮箱的 GitHub 登录会自动合并进这个账号。',
   en: 'Verify your email and a GitHub sign-in with the same address will merge into this account automatically.',
 };
-export const verificationSent: MsgFn<[email: string]> = {
-  zh: (email) => `验证邮件已发到 ${email}，1 小时内有效。`,
-  en: (email) => `Verification email sent to ${email}, valid for 1 hour.`,
-};
+export const verificationSent = icu<{ email: string }>(
+  '验证邮件已发到 {email}，1 小时内有效。',
+  'Verification email sent to {email}, valid for 1 hour.',
+);
 export const sendVerificationFailed: Msg = {
   zh: '发送验证邮件失败',
   en: 'Failed to send the verification email.',
@@ -289,18 +320,18 @@ export const backToBlogList: Msg = {
   zh: '← 回到博客列表',
   en: '← back to the blog list',
 };
-export const requestFailed: MsgFn<[error: string]> = {
-  zh: (error) => `Request failed: ${error}`,
-  en: (error) => `Request failed: ${error}`,
-};
-export const switchModeAria: MsgFn<[next: string, current: string]> = {
-  zh: (next, current) => `切换到${next}模式（当前：${current}）`,
-  en: (next, current) => `Switch to ${next} mode (current: ${current})`,
-};
-export const themeLabel: MsgFn<[pref: 'light' | 'dark' | 'system']> = {
-  zh: (pref) => (pref === 'light' ? '浅色' : pref === 'dark' ? '深色' : '系统'),
-  en: (pref) => pref,
-};
+export const requestFailed = icu<{ error: string }>(
+  'Request failed: {error}',
+  'Request failed: {error}',
+);
+export const switchModeAria = icu<{ next: string; current: string }>(
+  '切换到{next}模式（当前：{current}）',
+  'Switch to {next} mode (current: {current})',
+);
+export const themeLabel = icu<{ pref: string }>(
+  '{pref, select, light {浅色} dark {深色} system {系统} other {{pref}}}',
+  '{pref}',
+);
 export const copyAria: Msg = { zh: '复制代码', en: 'Copy code' };
 export const copyLabel: Msg = { zh: '复制', en: 'Copy' };
 export const copiedLabel: Msg = { zh: '已复制', en: 'Copied' };
@@ -348,12 +379,15 @@ const authErrorCodes: Record<Locale, Record<string, string>> = {
   },
 };
 
-const authErrorFallback: MsgFn<[code: string]> = {
-  zh: (code) => `GitHub 登录失败（${code}）`,
-  en: (code) => `GitHub sign-in failed (${code})`,
+const authErrorFallback: Msg = {
+  zh: 'GitHub 登录失败（{code}）',
+  en: 'GitHub sign-in failed ({code})',
 };
 
 /** Copy for a Better Auth `?error=<code>` in the active locale. */
 export function authErrorMessage(locale: Locale, code: string): string {
-  return authErrorCodes[locale][code] ?? authErrorFallback[locale](code);
+  return (
+    authErrorCodes[locale][code] ??
+    formatMsg(locale, authErrorFallback, { code })
+  );
 }

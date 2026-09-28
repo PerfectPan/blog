@@ -147,7 +147,10 @@ export function DarkMode() {
     <button
       type='button'
       ref={ref}
-      aria-label={t(switchModeAria, t(themeLabel, next), t(themeLabel, pref))}
+      aria-label={t(switchModeAria, {
+        next: t(themeLabel, { pref: next }),
+        current: t(themeLabel, { pref }),
+      })}
       className={TOOL_BTN}
       onClick={onTrigger}
     >
@@ -158,7 +161,7 @@ export function DarkMode() {
       ) : (
         <Monitor size={15} />
       )}
-      <span className='hidden md:inline'>{t(themeLabel, pref)}</span>
+      <span className='hidden md:inline'>{t(themeLabel, { pref: pref })}</span>
     </button>
   );
 }

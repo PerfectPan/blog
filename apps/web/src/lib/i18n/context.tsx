@@ -10,7 +10,7 @@ import {
   useState,
 } from 'react';
 import { setLocaleServerFn } from '../locale-service.js';
-import type { Msg, MsgFn } from './messages.js';
+import { formatMsg, type IcuMsg, type Msg } from './messages.js';
 
 /**
  * Client-side locale state for the UI i18n (zh default, en optional).
@@ -141,20 +141,21 @@ export function useLocale(): LocaleContextValue {
   return useContext(LocaleContext) ?? FALLBACK;
 }
 
-/** `t(entry)` resolves a message entry in the active locale; parameterized
- *  entries take their args after the entry: `t(postsCount, 5)`. */
+/** `t(entry)` resolves a message entry in the active locale; ICU entries take
+ *  a named-args object: `t(postsCount, { count: 5 })`. */
 export type TFn = {
-  (entry: Msg): string;
-  <A extends unknown[]>(entry: MsgFn<A>, ...args: A): string;
+  (entry: Msg & { __args?: never }): string;
+  <A extends Record<string, string | number>>(
+    entry: IcuMsg<A>,
+    args: A,
+  ): string;
 };
 
 export function useT(): TFn {
   const { locale } = useLocale();
   return useCallback(
-    (entry: Msg | MsgFn, ...args: unknown[]): string => {
-      const value: string | ((...a: unknown[]) => string) = entry[locale];
-      return typeof value === 'function' ? value(...args) : value;
-    },
+    (entry: Msg, args?: Record<string, string | number>): string =>
+      formatMsg(locale, entry, args),
     [locale],
   ) as TFn;
 }

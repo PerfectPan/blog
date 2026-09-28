@@ -52,7 +52,9 @@ export function ErrorPage({ error }: { error: unknown }) {
           curl -I $(hostname)
         </span>
       </div>
-      <p className='mb-1 text-destructive'>{t(requestFailed, String(error))}</p>
+      <p className='mb-1 text-destructive'>
+        {t(requestFailed, { error: String(error) })}
+      </p>
       <Link to='/blog' className='text-muted-foreground hover:text-foreground'>
         cd ~/blog
       </Link>

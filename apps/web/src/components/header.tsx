@@ -60,7 +60,7 @@ function LocaleSwitcher({ variant }: { variant: 'bar' | 'sheet' }) {
   const t = useT();
   const next: Locale = locale === 'zh' ? 'en' : 'zh';
   const label = next === 'zh' ? t(langZhName) : t(langEnName);
-  const ariaLabel = t(switchLocale, label);
+  const ariaLabel = t(switchLocale, { name: label });
 
   if (variant === 'sheet') {
     return (

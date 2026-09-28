@@ -159,7 +159,9 @@ export function BlogList({
               {t(prevPage)}
             </span>
           )}
-          <span>{t(pageInfo, data.page, data.totalPages)}</span>
+          <span>
+            {t(pageInfo, { page: data.page, total: data.totalPages })}
+          </span>
           {data.page < data.totalPages ? (
             <Link to='/blog' search={{ page: data.page + 1 }}>
               {t(nextPage)}
