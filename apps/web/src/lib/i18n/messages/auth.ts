@@ -65,7 +65,7 @@ export const authZh: AuthMessages = {
   passwordLabel: '密码',
   signIn: '登录',
   signingIn: '登录中…',
-  continueWithGithub: '使用 GitHub 继续',
+  continueWithGithub: '使用 GitHub 登录',
   signInFailed: '登录失败',
   githubSignInFailed: 'GitHub 登录失败',
   noAccountYet: '# 还没有账号？',
