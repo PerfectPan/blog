@@ -3,11 +3,9 @@
  * logout page, and the Better Auth error codes reported as `?error=<code>`
  * on the callback URL.
  *
- * The forms read like an SSH session: field labels (email / password / name)
- * and command-style buttons (sign in, continue with github, sudo unlock, …)
- * are part of the design language and keep the same value in zh and en;
- * prose hints and error copy are localized. zh values must match the
- * pre-i18n UI byte for byte (regression red line).
+ * Functional form copy is localized; only the en bundle keeps the SSH-session
+ * flavor (sign in, continue with github, sudo unlock, …). `#`-prefixed hint
+ * lines stay shell comments in both locales.
  */
 export interface AuthMessages {
   /** Better Auth error-code → copy, for the codes a user can cause. */
@@ -61,35 +59,35 @@ export const authZh: AuthMessages = {
     token_expired: '验证链接已过期，请重新发送验证邮件。',
   },
   authErrorFallback: (code) => `GitHub 登录失败（${code}）`,
-  checkingSession: '# checking session…',
+  checkingSession: '# 正在检查登录状态…',
   loginHint: '# 邮箱密码登录；或者走 GitHub OAuth。',
-  emailLabel: 'email',
-  passwordLabel: 'password',
-  signIn: 'sign in',
-  signingIn: 'signing in…',
-  continueWithGithub: 'continue with github',
+  emailLabel: '邮箱',
+  passwordLabel: '密码',
+  signIn: '登录',
+  signingIn: '登录中…',
+  continueWithGithub: '使用 GitHub 继续',
   signInFailed: '登录失败',
   githubSignInFailed: 'GitHub 登录失败',
   noAccountYet: '# 还没有账号？',
-  signupLink: 'signup',
+  signupLink: '注册',
   signupHint: '# 注册成为 member，可读 member 可见性的文章。',
-  nameLabel: 'name',
-  createAccount: 'create account',
-  creating: 'creating…',
+  nameLabel: '用户名',
+  createAccount: '创建账号',
+  creating: '创建中…',
   signUpFailed: '注册失败',
   githubSignUpFailed: 'GitHub 注册失败',
   unlockHint: '# 这篇文章是密码保护的。输入单文密码后 24 小时内免密阅读。',
-  unlockPasswordLabel: 'password for this post',
-  sudoUnlock: 'sudo unlock',
+  unlockPasswordLabel: '文章密码',
+  sudoUnlock: '解锁',
   backToPost: '← 返回文章',
   unlockErrorMissing: '请输入访问密码',
   unlockErrorInvalid: '密码错误，请重试',
   logoutTitle: '退出登录',
   loggingOut: '正在退出登录...',
   logoutSettled: '已退出或退出失败，请重试。',
-  logoutFailed: 'Logout failed',
-  logoutButtonPending: 'Logging out...',
-  logoutRetry: 'Retry Logout',
+  logoutFailed: '退出失败',
+  logoutButtonPending: '正在退出...',
+  logoutRetry: '重试退出',
 };
 
 export const authEn: AuthMessages = {

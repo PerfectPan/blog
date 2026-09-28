@@ -2,11 +2,11 @@
  * Misc UI: not-found / error pages, dark-mode toggle, code copy, confirm
  * dialog and the cmd-k search palette.
  *
- * Terminal command copy (bash errors, grep, Copy/Copied, key hints) is part
- * of the design language and keeps its value in both locales; the grep
- * placeholder keeps its command shape while its quoted Chinese placeholder
- * word (关键词) becomes an English one (pattern) for en. zh values must match
- * the pre-i18n UI byte for byte (regression red line).
+ * Terminal command output (bash errors, the grep prompt, `#` comment lines)
+ * is part of the design language and keeps its value in both locales; the
+ * grep placeholder keeps its command shape while its quoted Chinese
+ * placeholder word (关键词) becomes an English one (pattern) for en.
+ * Functional copy (copy button, dialog defaults, theme label) is localized.
  */
 export interface MiscMessages {
   /** 404 page: `#` comment line and the back-link hint. */
@@ -39,11 +39,11 @@ export const miscZh: MiscMessages = {
   switchModeAria: (next, current) => `切换到${next}模式（当前：${current}）`,
   themeLabel: (pref) =>
     pref === 'light' ? '浅色' : pref === 'dark' ? '深色' : '系统',
-  copyAria: 'Copy code',
-  copyLabel: 'Copy',
-  copiedLabel: 'Copied',
-  confirm: 'confirm',
-  cancel: 'cancel',
+  copyAria: '复制代码',
+  copyLabel: '复制',
+  copiedLabel: '已复制',
+  confirm: '确认',
+  cancel: '取消',
   searchPlaceholder: "grep -ri '关键词' ~/posts",
   searchIdleHint: '# type to grep ~/posts',
   searchNoMatches: '# no matches found',

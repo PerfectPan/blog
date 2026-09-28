@@ -33,15 +33,17 @@ function getRoleLabel(role?: string | null): string {
 }
 
 /**
- * Language switcher in terminal style — a LANG=<code> assignment showing the
- * locale a click switches to (reads as `export LANG=en`). Same control in the
- * desktop bar and the ≤480px sheet.
+ * Language switcher. Follows the theme-toggle anatomy (icon + label) and
+ * shows the target locale in its own name — English / 中文 — the standard
+ * convention for language switchers. Same control in the desktop bar and
+ * the ≤480px sheet.
  */
 function LocaleSwitcher({ variant }: { variant: 'bar' | 'sheet' }) {
   const { locale, setLocale } = useLocale();
   const t = useChrome();
   const next: Locale = locale === 'zh' ? 'en' : 'zh';
-  const ariaLabel = t.switchLocale(next === 'zh' ? t.langZhName : t.langEnName);
+  const label = next === 'zh' ? t.langZhName : t.langEnName;
+  const ariaLabel = t.switchLocale(label);
 
   if (variant === 'sheet') {
     return (
@@ -51,7 +53,7 @@ function LocaleSwitcher({ variant }: { variant: 'bar' | 'sheet' }) {
         onClick={() => setLocale(next)}
         className={SHEET_ROW}
       >
-        <Languages size={14} aria-hidden='true' /> LANG={next}
+        <Languages size={14} aria-hidden='true' /> {label}
       </button>
     );
   }
@@ -63,7 +65,8 @@ function LocaleSwitcher({ variant }: { variant: 'bar' | 'sheet' }) {
       onClick={() => setLocale(next)}
       className={`${TOOL_BTN} ${TOOL_VIS}`}
     >
-      {`LANG=${next}`}
+      <Languages size={15} aria-hidden='true' />
+      <span className='hidden md:inline'>{label}</span>
     </button>
   );
 }
