@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { authClient } from '../lib/auth-client.js';
 import { useT } from '../lib/i18n/context.js';
-import { siteWindowsAria } from '../lib/i18n/messages.js';
+import { SITE_WINDOWS_ARIA } from '../lib/i18n/messages.js';
 
 /**
  * tmux-style status bar: session name + clickable windows on the left, site
@@ -26,7 +26,7 @@ export function Footer() {
         blog
       </span>
       <nav
-        aria-label={t(siteWindowsAria)}
+        aria-label={t(SITE_WINDOWS_ARIA)}
         className='flex flex-wrap items-center gap-1'
       >
         <Link to='/' className={WIN}>

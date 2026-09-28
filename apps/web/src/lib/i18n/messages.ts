@@ -6,7 +6,7 @@ import { IntlMessageFormat } from 'intl-messageformat';
  * bundle includes exactly the entries its call sites reference (tree-shaking
  * works per entry). Resolve with `t(entry)` from `useT()`; parameterized
  * entries use standard ICU MessageFormat patterns (`icu` factory) and take a
- * named-args object through `t`: `t(postsCount, { count: 5 })`.
+ * named-args object through `t`: `t(POSTS_COUNT, { count: 5 })`.
  *
  * Kept verbatim in BOTH locales on purpose:
  * - terminal output: `#` comment lines, ls / cd / whoami / FIGLET, reply / rm /
@@ -54,202 +54,205 @@ export function formatMsg(
 
 // ── header / footer / home ─────────────────────────────────────────────────
 
-export const navLogin: Msg = { zh: '登录', en: 'login' };
-export const navSignup: Msg = { zh: '注册', en: 'signup' };
-export const navLogout: Msg = { zh: '登出', en: 'logout' };
-export const searchTool: Msg = { zh: '搜索', en: 'grep' };
-export const githubLabel: Msg = { zh: 'github', en: 'github' };
-export const rssLabel: Msg = { zh: 'rss', en: 'rss' };
-export const logoutAria: Msg = { zh: 'Logout', en: 'Log out' };
-export const searchAria: Msg = {
+export const NAV_LOGIN: Msg = { zh: '登录', en: 'login' };
+export const NAV_SIGNUP: Msg = { zh: '注册', en: 'signup' };
+export const NAV_LOGOUT: Msg = { zh: '登出', en: 'logout' };
+export const SEARCH_TOOL: Msg = { zh: '搜索', en: 'grep' };
+export const GITHUB_LABEL: Msg = { zh: 'github', en: 'github' };
+export const RSS_LABEL: Msg = { zh: 'rss', en: 'rss' };
+export const LOGOUT_ARIA: Msg = { zh: 'Logout', en: 'Log out' };
+export const SEARCH_ARIA: Msg = {
   zh: 'Search posts (Cmd+K)',
   en: 'Search posts (Cmd+K)',
 };
-export const githubAria: Msg = { zh: 'GitHub', en: 'GitHub' };
-export const rssAria: Msg = { zh: 'RSS', en: 'RSS' };
-export const openToolsMenu: Msg = {
+export const GITHUB_ARIA: Msg = { zh: 'GitHub', en: 'GitHub' };
+export const RSS_ARIA: Msg = { zh: 'RSS', en: 'RSS' };
+export const OPEN_TOOLS_MENU: Msg = {
   zh: 'Open tools menu',
   en: 'Open tools menu',
 };
-export const closeToolsMenu: Msg = {
+export const CLOSE_TOOLS_MENU: Msg = {
   zh: 'Close tools menu',
   en: 'Close tools menu',
 };
-export const langZhName: Msg = { zh: '中文', en: '中文' };
-export const langEnName: Msg = { zh: 'English', en: 'English' };
-export const switchLocale = icu<{ name: string }>(
+export const LANG_ZH_NAME: Msg = { zh: '中文', en: '中文' };
+export const LANG_EN_NAME: Msg = { zh: 'English', en: 'English' };
+export const SWITCH_LOCALE = icu<{ name: string }>(
   '切换到{name}',
   'Switch to {name}',
 );
-export const siteWindowsAria: Msg = { zh: '站点窗口', en: 'Site windows' };
-export const postsCount = icu<{ count: number }>(
+export const SITE_WINDOWS_ARIA: Msg = { zh: '站点窗口', en: 'Site windows' };
+export const POSTS_COUNT = icu<{ count: number }>(
   '{count} 篇文章',
   '{count, plural, one {# post} other {# posts}}',
 );
-export const noPosts: Msg = { zh: '暂无文章', en: 'no posts yet' };
-export const logoutConfirmDescription: Msg = {
+export const NO_POSTS: Msg = { zh: '暂无文章', en: 'no posts yet' };
+export const LOGOUT_CONFIRM_DESCRIPTION: Msg = {
   zh: '确定要退出登录吗？',
   en: 'Log out?',
 };
 
 // ── login / signup / unlock / logout ───────────────────────────────────────
 
-export const checkingSession: Msg = {
+export const CHECKING_SESSION: Msg = {
   zh: '# 正在检查登录状态…',
   en: '# checking session…',
 };
-export const loginHint: Msg = {
+export const LOGIN_HINT: Msg = {
   zh: '# 邮箱密码登录，或通过 GitHub 登录。',
   en: '# Sign in with email and password, or use GitHub.',
 };
-export const emailLabel: Msg = { zh: '邮箱', en: 'email' };
-export const passwordLabel: Msg = { zh: '密码', en: 'password' };
-export const signIn: Msg = { zh: '登录', en: 'sign in' };
-export const signingIn: Msg = { zh: '登录中…', en: 'signing in…' };
-export const continueWithGithub: Msg = {
+export const EMAIL_LABEL: Msg = { zh: '邮箱', en: 'email' };
+export const PASSWORD_LABEL: Msg = { zh: '密码', en: 'password' };
+export const SIGN_IN: Msg = { zh: '登录', en: 'sign in' };
+export const SIGNING_IN: Msg = { zh: '登录中…', en: 'signing in…' };
+export const CONTINUE_WITH_GITHUB: Msg = {
   zh: '通过 GitHub 登录',
   en: 'continue with github',
 };
-export const signInFailed: Msg = { zh: '登录失败', en: 'Sign-in failed' };
-export const githubSignInFailed: Msg = {
+export const SIGN_IN_FAILED: Msg = { zh: '登录失败', en: 'Sign-in failed' };
+export const GITHUB_SIGN_IN_FAILED: Msg = {
   zh: 'GitHub 登录失败',
   en: 'GitHub sign-in failed',
 };
-export const noAccountYet: Msg = {
+export const NO_ACCOUNT_YET: Msg = {
   zh: '# 还没有账号？',
   en: '# No account yet?',
 };
-export const signupLink: Msg = { zh: '注册', en: 'signup' };
-export const signupHint: Msg = {
+export const SIGNUP_LINK: Msg = { zh: '注册', en: 'signup' };
+export const SIGNUP_HINT: Msg = {
   zh: '# 注册后成为会员，可阅读会员可见的文章。',
   en: '# Sign up to become a member and read member-visibility posts.',
 };
-export const nameLabel: Msg = { zh: '用户名', en: 'name' };
-export const createAccount: Msg = { zh: '创建账号', en: 'create account' };
-export const creating: Msg = { zh: '创建中…', en: 'creating…' };
-export const signUpFailed: Msg = { zh: '注册失败', en: 'Sign-up failed' };
-export const githubSignUpFailed: Msg = {
+export const NAME_LABEL: Msg = { zh: '用户名', en: 'name' };
+export const CREATE_ACCOUNT: Msg = { zh: '创建账号', en: 'create account' };
+export const CREATING: Msg = { zh: '创建中…', en: 'CREATING…' };
+export const SIGN_UP_FAILED: Msg = { zh: '注册失败', en: 'Sign-up failed' };
+export const GITHUB_SIGN_UP_FAILED: Msg = {
   zh: 'GitHub 注册失败',
   en: 'GitHub sign-up failed',
 };
-export const unlockHint: Msg = {
+export const UNLOCK_HINT: Msg = {
   zh: '# 这篇文章是密码保护的。输入单文密码后 24 小时内免密阅读。',
   en: '# This post is password-protected. Enter the post password once and read freely for 24 hours.',
 };
-export const unlockPasswordLabel: Msg = {
+export const UNLOCK_PASSWORD_LABEL: Msg = {
   zh: '文章密码',
   en: 'password for this post',
 };
-export const sudoUnlock: Msg = { zh: '解锁', en: 'sudo unlock' };
-export const backToPost: Msg = { zh: '← 返回文章', en: '← back to post' };
-export const unlockErrorMissing: Msg = {
+export const SUDO_UNLOCK: Msg = { zh: '解锁', en: 'sudo unlock' };
+export const BACK_TO_POST: Msg = { zh: '← 返回文章', en: '← back to post' };
+export const UNLOCK_ERROR_MISSING: Msg = {
   zh: '请输入访问密码',
   en: 'Enter the access password',
 };
-export const unlockErrorInvalid: Msg = {
+export const UNLOCK_ERROR_INVALID: Msg = {
   zh: '密码错误，请重试',
   en: 'Wrong password, try again',
 };
-export const logoutTitle: Msg = { zh: '退出登录', en: 'Log out' };
-export const loggingOut: Msg = {
+export const LOGOUT_TITLE: Msg = { zh: '退出登录', en: 'Log out' };
+export const LOGGING_OUT: Msg = {
   zh: '正在退出登录...',
   en: 'Logging out...',
 };
-export const logoutSettled: Msg = {
+export const LOGOUT_SETTLED: Msg = {
   zh: '已退出或退出失败，请重试。',
   en: 'Signed out, or the sign-out failed. Please try again.',
 };
-export const logoutFailed: Msg = { zh: '退出失败', en: 'Logout failed' };
-export const logoutButtonPending: Msg = {
+export const LOGOUT_FAILED: Msg = { zh: '退出失败', en: 'Logout failed' };
+export const LOGOUT_BUTTON_PENDING: Msg = {
   zh: '正在退出...',
   en: 'Logging out...',
 };
-export const logoutRetry: Msg = { zh: '重试退出', en: 'Retry Logout' };
+export const LOGOUT_RETRY: Msg = { zh: '重试退出', en: 'Retry Logout' };
 
 // ── blog list ──────────────────────────────────────────────────────────────
 
-export const prevPage: Msg = { zh: '← prev', en: '← prev' };
-export const nextPage: Msg = { zh: 'next →', en: 'next →' };
-export const pageInfo = icu<{ page: number; total: number }>(
+export const PREV_PAGE: Msg = { zh: '← prev', en: '← prev' };
+export const NEXT_PAGE: Msg = { zh: 'next →', en: 'next →' };
+export const PAGE_INFO = icu<{ page: number; total: number }>(
   'page {page} / {total}',
   'page {page} / {total}',
 );
-export const paginationAria: Msg = { zh: 'Pagination', en: 'Pagination' };
+export const PAGINATION_ARIA: Msg = { zh: 'Pagination', en: 'Pagination' };
 // Dev-only scope hints (visible with `pnpm dev`); roles and visibility levels
 // are data literals and stay untranslated.
-export const devHintGuest: Msg = {
+export const DEV_HINT_GUEST: Msg = {
   zh: '当前身份：游客；可见范围：public',
   en: 'Current identity: guest; visible scope: public',
 };
-export const devHintAdmin: Msg = {
+export const DEV_HINT_ADMIN: Msg = {
   zh: '当前身份：admin；可见范围：全部已发布（含 password）',
   en: 'Current identity: admin; visible scope: all published (including password)',
 };
-export const devHintVip: Msg = {
+export const DEV_HINT_VIP: Msg = {
   zh: '当前身份：vip；可见范围：public/member/vip',
   en: 'Current identity: vip; visible scope: public/member/vip',
 };
-export const devHintMember: Msg = {
+export const DEV_HINT_MEMBER: Msg = {
   zh: '当前身份：member；可见范围：public/member',
   en: 'Current identity: member; visible scope: public/member',
 };
 
 // ── comments ───────────────────────────────────────────────────────────────
 
-export const justNow: Msg = { zh: '刚刚', en: 'just now' };
-export const minutesAgo = icu<{ n: number }>(
+export const JUST_NOW: Msg = { zh: '刚刚', en: 'just now' };
+export const MINUTES_AGO = icu<{ n: number }>(
   '{n} 分钟前',
   '{n, plural, one {# minute ago} other {# minutes ago}}',
 );
-export const hoursAgo = icu<{ n: number }>(
+export const HOURS_AGO = icu<{ n: number }>(
   '{n} 小时前',
   '{n, plural, one {# hour ago} other {# hours ago}}',
 );
-export const daysAgo = icu<{ n: number }>(
+export const DAYS_AGO = icu<{ n: number }>(
   '{n} 天前',
   '{n, plural, one {# day ago} other {# days ago}}',
 );
-export const charsLeft = icu<{ n: number }>(
+export const CHARS_LEFT = icu<{ n: number }>(
   '{n} 字剩余',
   '{n, plural, one {# character left} other {# characters left}}',
 );
-export const markdownHint: Msg = {
+export const MARKDOWN_HINT: Msg = {
   zh: '支持 Markdown',
   en: 'Markdown supported',
 };
-export const newCommentPlaceholder: Msg = {
+export const NEW_COMMENT_PLACEHOLDER: Msg = {
   zh: '写下你的评论…（支持 Markdown）',
   en: 'Write a comment… (Markdown supported)',
 };
-export const replyPlaceholder = icu<{ name: string }>(
+export const REPLY_PLACEHOLDER = icu<{ name: string }>(
   '回复 @{name}…',
   'Reply to @{name}…',
 );
-export const sending: Msg = { zh: '发送中…', en: 'Sending…' };
-export const commentFailed: Msg = {
+export const SENDING: Msg = { zh: '发送中…', en: 'Sending…' };
+export const COMMENT_FAILED: Msg = {
   zh: '评论失败，请重试',
   en: 'Failed to post the comment. Please try again.',
 };
-export const deleteFailed: Msg = {
+export const DELETE_FAILED: Msg = {
   zh: '删除失败，请重试',
   en: 'Failed to delete the comment. Please try again.',
 };
-export const loadMoreFailed: Msg = {
+export const LOAD_MORE_FAILED: Msg = {
   zh: '加载更多失败',
   en: 'Failed to load more comments.',
 };
-export const loading: Msg = { zh: '加载中…', en: 'Loading…' };
-export const deleteCommentConfirm: Msg = {
+export const LOADING: Msg = { zh: '加载中…', en: 'Loading…' };
+export const DELETE_COMMENT_CONFIRM: Msg = {
   zh: '删除这条评论？',
   en: 'Delete this comment?',
 };
-export const deleteReplyConfirm: Msg = {
+export const DELETE_REPLY_CONFIRM: Msg = {
   zh: '删除这条回复？',
   en: 'Delete this reply?',
 };
-export const loginLink: Msg = { zh: '登录', en: 'login' };
-export const loginHintSuffix: Msg = { zh: '后即可评论。', en: ' to comment.' };
-export const noComments: Msg = {
+export const LOGIN_LINK: Msg = { zh: '登录', en: 'login' };
+export const LOGIN_HINT_SUFFIX: Msg = {
+  zh: '后即可评论。',
+  en: ' to comment.',
+};
+export const NO_COMMENTS: Msg = {
   zh: '还没有评论，来抢沙发。',
   en: 'no comments yet — be the first.',
 };
@@ -257,99 +260,99 @@ export const noComments: Msg = {
 // ── account ────────────────────────────────────────────────────────────────
 
 // e2e-frozen: the pre-i18n UI rendered these in English for every visitor.
-export const emailVerified: Msg = { zh: 'verified', en: 'verified' };
-export const emailNotVerified: Msg = {
+export const EMAIL_VERIFIED: Msg = { zh: 'verified', en: 'verified' };
+export const EMAIL_NOT_VERIFIED: Msg = {
   zh: 'not verified',
   en: 'not verified',
 };
-export const passwordSet: Msg = { zh: 'set', en: 'set' };
-export const passwordNotSet: Msg = { zh: 'not set', en: 'not set' };
-export const githubLinked = icu<{ accountId: string }>(
+export const PASSWORD_SET: Msg = { zh: 'set', en: 'set' };
+export const PASSWORD_NOT_SET: Msg = { zh: 'not set', en: 'not set' };
+export const GITHUB_LINKED = icu<{ accountId: string }>(
   'linked (id {accountId})',
   'linked (id {accountId})',
 );
-export const githubNotLinked: Msg = { zh: 'not linked', en: 'not linked' };
-export const verifyEmailHint: Msg = {
+export const GITHUB_NOT_LINKED: Msg = { zh: 'not linked', en: 'not linked' };
+export const VERIFY_EMAIL_HINT: Msg = {
   zh: '验证邮箱后，用同一邮箱的 GitHub 登录会自动合并进这个账号。',
   en: 'Verify your email and a GitHub sign-in with the same address will merge into this account automatically.',
 };
-export const verificationSent = icu<{ email: string }>(
+export const VERIFICATION_SENT = icu<{ email: string }>(
   '验证邮件已发到 {email}，1 小时内有效。',
   'Verification email sent to {email}, valid for 1 hour.',
 );
-export const sendVerificationFailed: Msg = {
+export const SEND_VERIFICATION_FAILED: Msg = {
   zh: '发送验证邮件失败',
   en: 'Failed to send the verification email.',
 };
-export const githubLinkedHint: Msg = {
+export const GITHUB_LINKED_HINT: Msg = {
   zh: '已绑定 GitHub，可以直接通过 GitHub 登录这个账号。',
   en: 'GitHub is linked — continue with github now signs you in to this account.',
 };
-export const githubNotLinkedHint: Msg = {
+export const GITHUB_NOT_LINKED_HINT: Msg = {
   zh: '绑定后可以用 GitHub 登录这个账号，GitHub 邮箱不必和上面的一致。',
   en: 'Link GitHub to sign in to this account with it; the GitHub email does not have to match the one above.',
 };
-export const linkGithubFailed: Msg = {
+export const LINK_GITHUB_FAILED: Msg = {
   zh: '绑定 GitHub 失败',
   en: 'Failed to link GitHub.',
 };
-export const unlinkGithubFailed: Msg = {
+export const UNLINK_GITHUB_FAILED: Msg = {
   zh: '解绑 GitHub 失败',
   en: 'Failed to unlink GitHub.',
 };
-export const unlinkConfirmDescription: Msg = {
+export const UNLINK_CONFIRM_DESCRIPTION: Msg = {
   zh: '解绑后不能再用 GitHub 登录这个账号，邮箱密码登录不受影响。',
   en: 'Once unlinked, you can no longer sign in to this account with GitHub. Email + password sign-in is unaffected.',
 };
-export const loadAccountsFailed: Msg = {
+export const LOAD_ACCOUNTS_FAILED: Msg = {
   zh: '读取登录方式失败',
   en: 'Failed to load sign-in methods.',
 };
-export const loadAccountsFailedRetry: Msg = {
+export const LOAD_ACCOUNTS_FAILED_RETRY: Msg = {
   zh: '读取登录方式失败，请重试',
   en: 'Failed to load sign-in methods. Please retry.',
 };
 
 // ── misc: 404 / errors / code copy / dialogs / theme / search ──────────────
 
-export const notFoundComment: Msg = {
+export const NOT_FOUND_COMMENT: Msg = {
   zh: '# 你闯入了无人之境。',
   en: '# you have wandered into uncharted territory.',
 };
-export const backToBlogList: Msg = {
+export const BACK_TO_BLOG_LIST: Msg = {
   zh: '← 回到博客列表',
   en: '← back to the blog list',
 };
-export const requestFailed = icu<{ error: string }>(
+export const REQUEST_FAILED = icu<{ error: string }>(
   'Request failed: {error}',
   'Request failed: {error}',
 );
-export const switchModeAria = icu<{ next: string; current: string }>(
+export const SWITCH_MODE_ARIA = icu<{ next: string; current: string }>(
   '切换到{next}模式（当前：{current}）',
   'Switch to {next} mode (current: {current})',
 );
-export const themeLabel = icu<{ pref: string }>(
+export const THEME_LABEL = icu<{ pref: string }>(
   '{pref, select, light {浅色} dark {深色} system {系统} other {{pref}}}',
   '{pref}',
 );
-export const copyAria: Msg = { zh: '复制代码', en: 'Copy code' };
-export const copyLabel: Msg = { zh: '复制', en: 'Copy' };
-export const copiedLabel: Msg = { zh: '已复制', en: 'Copied' };
-export const confirmDefault: Msg = { zh: '确认', en: 'confirm' };
-export const cancelDefault: Msg = { zh: '取消', en: 'cancel' };
-export const searchPlaceholder: Msg = {
+export const COPY_ARIA: Msg = { zh: '复制代码', en: 'Copy code' };
+export const COPY_LABEL: Msg = { zh: '复制', en: 'Copy' };
+export const COPIED_LABEL: Msg = { zh: '已复制', en: 'Copied' };
+export const CONFIRM_DEFAULT: Msg = { zh: '确认', en: 'confirm' };
+export const CANCEL_DEFAULT: Msg = { zh: '取消', en: 'cancel' };
+export const SEARCH_PLACEHOLDER: Msg = {
   zh: "grep -ri '关键词' ~/posts",
   en: "grep -ri 'pattern' ~/posts",
 };
-export const searchIdleHint: Msg = {
+export const SEARCH_IDLE_HINT: Msg = {
   zh: '# type to grep ~/posts',
   en: '# type to grep ~/posts',
 };
-export const searchNoMatches: Msg = {
+export const SEARCH_NO_MATCHES: Msg = {
   zh: '# no matches found',
   en: '# no matches found',
 };
-export const searchHints: Msg = {
+export const SEARCH_HINTS: Msg = {
   zh: '↑↓ 选择 · ↵ 打开 · esc 关闭 · 结果按当前身份过滤',
   en: '↑↓ select · ↵ open · esc close · results filtered by your current role',
 };

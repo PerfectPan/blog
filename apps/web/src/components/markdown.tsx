@@ -12,7 +12,7 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import type { HighlighterCore } from 'shiki/core';
 import { useT } from '../lib/i18n/context.js';
-import { copiedLabel, copyAria, copyLabel } from '../lib/i18n/messages.js';
+import { COPIED_LABEL, COPY_ARIA, COPY_LABEL } from '../lib/i18n/messages.js';
 
 type MarkdownProps = {
   content: string;
@@ -147,11 +147,11 @@ function CodeBlock({ children }: { children?: ReactNode }) {
       <button
         type='button'
         onClick={onCopy}
-        aria-label={t(copyAria)}
+        aria-label={t(COPY_ARIA)}
         className={CODE_CLASSES.copy}
       >
         {copied ? <Check size={12} /> : <Copy size={12} />}
-        {copied ? t(copiedLabel) : t(copyLabel)}
+        {copied ? t(COPIED_LABEL) : t(COPY_LABEL)}
       </button>
       <pre ref={preRef} className={CODE_CLASSES.pre}>
         {children}

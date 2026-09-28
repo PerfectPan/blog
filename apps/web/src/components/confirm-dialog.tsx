@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useT } from '../lib/i18n/context.js';
-import { cancelDefault, confirmDefault } from '../lib/i18n/messages.js';
+import { CANCEL_DEFAULT, CONFIRM_DEFAULT } from '../lib/i18n/messages.js';
 
 type ConfirmDialogProps = {
   open: boolean;
@@ -37,8 +37,8 @@ export function ConfirmDialog({
   onConfirm,
 }: ConfirmDialogProps) {
   const t = useT();
-  const confirmText = confirmLabel ?? t(confirmDefault);
-  const cancelText = cancelLabel ?? t(cancelDefault);
+  const confirmText = confirmLabel ?? t(CONFIRM_DEFAULT);
+  const cancelText = cancelLabel ?? t(CANCEL_DEFAULT);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='max-w-[min(440px,calc(100vw-32px))] gap-3.5 rounded-xl border border-border bg-card p-6 text-left font-mono shadow-[0_18px_60px_rgba(0,0,0,0.35)] [&_[data-slot=dialog-close]]:hidden'>

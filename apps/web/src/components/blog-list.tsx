@@ -2,10 +2,10 @@ import type { PostSummary } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
 import { useLocale, useT } from '../lib/i18n/context.js';
 import {
-  nextPage,
-  pageInfo,
-  paginationAria,
-  prevPage,
+  NEXT_PAGE,
+  PAGE_INFO,
+  PAGINATION_ARIA,
+  PREV_PAGE,
 } from '../lib/i18n/messages.js';
 import { cn } from '../lib/utils.js';
 import { Page, Prompt } from './page.js';
@@ -148,27 +148,27 @@ export function BlogList({
       {data.totalPages > 1 ? (
         <nav
           className='mt-6.5 flex justify-center gap-4.5 text-sm text-muted-foreground [&_a]:text-primary'
-          aria-label={t(paginationAria)}
+          aria-label={t(PAGINATION_ARIA)}
         >
           {data.page > 1 ? (
             <Link to='/blog' search={{ page: data.page - 1 }}>
-              {t(prevPage)}
+              {t(PREV_PAGE)}
             </Link>
           ) : (
             <span className='text-muted-foreground/60 opacity-60'>
-              {t(prevPage)}
+              {t(PREV_PAGE)}
             </span>
           )}
           <span>
-            {t(pageInfo, { page: data.page, total: data.totalPages })}
+            {t(PAGE_INFO, { page: data.page, total: data.totalPages })}
           </span>
           {data.page < data.totalPages ? (
             <Link to='/blog' search={{ page: data.page + 1 }}>
-              {t(nextPage)}
+              {t(NEXT_PAGE)}
             </Link>
           ) : (
             <span className='text-muted-foreground/60 opacity-60'>
-              {t(nextPage)}
+              {t(NEXT_PAGE)}
             </span>
           )}
         </nav>

@@ -13,10 +13,10 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { searchPostsServerFn } from '../lib/blog-service.js';
 import { useT } from '../lib/i18n/context.js';
 import {
-  searchHints,
-  searchIdleHint,
-  searchNoMatches,
-  searchPlaceholder,
+  SEARCH_HINTS,
+  SEARCH_IDLE_HINT,
+  SEARCH_NO_MATCHES,
+  SEARCH_PLACEHOLDER,
 } from '../lib/i18n/messages.js';
 import { searchPalette, useSearchPaletteOpen } from './search-palette-store.js';
 
@@ -98,11 +98,11 @@ export function SearchPalette() {
             icon={null}
             value={query}
             onValueChange={setQuery}
-            placeholder={t(searchPlaceholder)}
+            placeholder={t(SEARCH_PLACEHOLDER)}
           />
           <CommandList>
             <CommandEmpty>
-              {query.trim() ? t(searchNoMatches) : t(searchIdleHint)}
+              {query.trim() ? t(SEARCH_NO_MATCHES) : t(SEARCH_IDLE_HINT)}
             </CommandEmpty>
             <CommandGroup>
               {results.map((post) => (
@@ -127,7 +127,7 @@ export function SearchPalette() {
             </CommandGroup>
           </CommandList>
           <div className='border-t border-border px-4 py-1.75 text-xs text-muted-foreground/60 max-[640px]:hidden'>
-            {t(searchHints)}
+            {t(SEARCH_HINTS)}
           </div>
         </Command>
       </DialogContent>

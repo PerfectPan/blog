@@ -4,22 +4,22 @@ import { authClient } from '../lib/auth-client.js';
 import { useLocale, useT } from '../lib/i18n/context.js';
 import {
   authErrorMessage,
-  emailNotVerified,
-  emailVerified,
-  githubLinked,
-  githubLinkedHint,
-  githubNotLinked,
-  githubNotLinkedHint,
-  linkGithubFailed,
-  loadAccountsFailed,
-  loadAccountsFailedRetry,
-  passwordNotSet,
-  passwordSet,
-  sendVerificationFailed,
-  unlinkConfirmDescription,
-  unlinkGithubFailed,
-  verificationSent,
-  verifyEmailHint,
+  EMAIL_NOT_VERIFIED,
+  EMAIL_VERIFIED,
+  GITHUB_LINKED,
+  GITHUB_LINKED_HINT,
+  GITHUB_NOT_LINKED,
+  GITHUB_NOT_LINKED_HINT,
+  LINK_GITHUB_FAILED,
+  LOAD_ACCOUNTS_FAILED,
+  LOAD_ACCOUNTS_FAILED_RETRY,
+  PASSWORD_NOT_SET,
+  PASSWORD_SET,
+  SEND_VERIFICATION_FAILED,
+  UNLINK_CONFIRM_DESCRIPTION,
+  UNLINK_GITHUB_FAILED,
+  VERIFICATION_SENT,
+  VERIFY_EMAIL_HINT,
 } from '../lib/i18n/messages.js';
 import { ConfirmDialog } from './confirm-dialog.js';
 import { Page, Prompt } from './page.js';
@@ -51,12 +51,12 @@ export function AccountPage({ searchError }: { searchError?: string }) {
     try {
       const result = await authClient.listAccounts();
       if (result.error) {
-        setError(result.error.message ?? t(loadAccountsFailed));
+        setError(result.error.message ?? t(LOAD_ACCOUNTS_FAILED));
         return;
       }
       setAccounts(result.data);
     } catch {
-      setError(t(loadAccountsFailedRetry));
+      setError(t(LOAD_ACCOUNTS_FAILED_RETRY));
     }
   }, [t]);
 
@@ -123,24 +123,24 @@ export function AccountPage({ searchError }: { searchError?: string }) {
               user.emailVerified ? 'text-muted-foreground' : 'text-destructive'
             }
           >
-            ({user.emailVerified ? t(emailVerified) : t(emailNotVerified)})
+            ({user.emailVerified ? t(EMAIL_VERIFIED) : t(EMAIL_NOT_VERIFIED)})
           </span>
         </dd>
         <dt>role</dt>
         <dd>{user.role ?? 'member'}</dd>
         <dt>password</dt>
-        <dd>{hasPassword ? t(passwordSet) : t(passwordNotSet)}</dd>
+        <dd>{hasPassword ? t(PASSWORD_SET) : t(PASSWORD_NOT_SET)}</dd>
         <dt>github</dt>
         <dd>
           {github
-            ? t(githubLinked, { accountId: github.accountId })
-            : t(githubNotLinked)}
+            ? t(GITHUB_LINKED, { accountId: github.accountId })
+            : t(GITHUB_NOT_LINKED)}
         </dd>
       </dl>
       {user.emailVerified ? null : (
         <div className='mt-4'>
           <p className='mb-1 text-xs text-muted-foreground/60'>
-            # {t(verifyEmailHint)}
+            # {t(VERIFY_EMAIL_HINT)}
           </p>
           <button
             type='button'
@@ -155,10 +155,10 @@ export function AccountPage({ searchError }: { searchError?: string }) {
                   callbackURL: '/account',
                 });
                 if (result.error) {
-                  setError(result.error.message ?? t(sendVerificationFailed));
+                  setError(result.error.message ?? t(SEND_VERIFICATION_FAILED));
                   return;
                 }
-                setNotice(t(verificationSent, { email: user.email }));
+                setNotice(t(VERIFICATION_SENT, { email: user.email }));
               });
             }}
           >
@@ -167,7 +167,9 @@ export function AccountPage({ searchError }: { searchError?: string }) {
         </div>
       )}
       <p className='mb-1 mt-4 text-xs text-muted-foreground/60'>
-        {github ? `# ${t(githubLinkedHint)}` : `# ${t(githubNotLinkedHint)}`}
+        {github
+          ? `# ${t(GITHUB_LINKED_HINT)}`
+          : `# ${t(GITHUB_NOT_LINKED_HINT)}`}
       </p>
       <div className='mt-4 flex flex-wrap gap-3'>
         {github ? (
@@ -197,7 +199,7 @@ export function AccountPage({ searchError }: { searchError?: string }) {
                   errorCallbackURL: '/account',
                 });
                 if (result.error) {
-                  setError(result.error.message ?? t(linkGithubFailed));
+                  setError(result.error.message ?? t(LINK_GITHUB_FAILED));
                 }
               });
             }}
@@ -220,7 +222,7 @@ export function AccountPage({ searchError }: { searchError?: string }) {
         open={unlinkOpen}
         onOpenChange={setUnlinkOpen}
         command='unlink github'
-        description={t(unlinkConfirmDescription)}
+        description={t(UNLINK_CONFIRM_DESCRIPTION)}
         confirmLabel='unlink'
         pending={isPending}
         onConfirm={() => {
@@ -231,7 +233,7 @@ export function AccountPage({ searchError }: { searchError?: string }) {
             });
             setUnlinkOpen(false);
             if (result.error) {
-              setError(result.error.message ?? t(unlinkGithubFailed));
+              setError(result.error.message ?? t(UNLINK_GITHUB_FAILED));
               return;
             }
             await loadAccounts();

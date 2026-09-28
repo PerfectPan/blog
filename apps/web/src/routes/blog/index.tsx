@@ -6,10 +6,10 @@ import { BlogList } from '../../components/blog-list.js';
 import { getBlogListServerFn } from '../../lib/blog-service.js';
 import { type TFn, useT } from '../../lib/i18n/context.js';
 import {
-  devHintAdmin,
-  devHintGuest,
-  devHintMember,
-  devHintVip,
+  DEV_HINT_ADMIN,
+  DEV_HINT_GUEST,
+  DEV_HINT_MEMBER,
+  DEV_HINT_VIP,
 } from '../../lib/i18n/messages.js';
 
 function getDevScopeHint(
@@ -17,18 +17,18 @@ function getDevScopeHint(
   t: TFn,
 ): string {
   if (!sessionUser) {
-    return t(devHintGuest);
+    return t(DEV_HINT_GUEST);
   }
 
   if (sessionUser.role === 'admin') {
-    return t(devHintAdmin);
+    return t(DEV_HINT_ADMIN);
   }
 
   if (sessionUser.role === 'vip') {
-    return t(devHintVip);
+    return t(DEV_HINT_VIP);
   }
 
-  return t(devHintMember);
+  return t(DEV_HINT_MEMBER);
 }
 
 export const Route = createFileRoute('/blog/')({

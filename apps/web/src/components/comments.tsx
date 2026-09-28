@@ -10,24 +10,24 @@ import {
 } from '../lib/comments-service.js';
 import { type TFn, useT } from '../lib/i18n/context.js';
 import {
-  charsLeft,
-  commentFailed,
-  daysAgo,
-  deleteCommentConfirm,
-  deleteFailed,
-  deleteReplyConfirm,
-  hoursAgo,
-  justNow,
-  loading,
-  loadMoreFailed,
-  loginHintSuffix,
-  loginLink,
-  markdownHint,
-  minutesAgo,
-  newCommentPlaceholder,
-  noComments,
-  replyPlaceholder,
-  sending,
+  CHARS_LEFT,
+  COMMENT_FAILED,
+  DAYS_AGO,
+  DELETE_COMMENT_CONFIRM,
+  DELETE_FAILED,
+  DELETE_REPLY_CONFIRM,
+  HOURS_AGO,
+  JUST_NOW,
+  LOAD_MORE_FAILED,
+  LOADING,
+  LOGIN_HINT_SUFFIX,
+  LOGIN_LINK,
+  MARKDOWN_HINT,
+  MINUTES_AGO,
+  NEW_COMMENT_PLACEHOLDER,
+  NO_COMMENTS,
+  REPLY_PLACEHOLDER,
+  SENDING,
 } from '../lib/i18n/messages.js';
 import { CommentMarkdown } from './comment-markdown.js';
 import { Prompt } from './page.js';
@@ -49,19 +49,19 @@ function formatRelative(iso: string, t: TFn): string {
   }
   const seconds = Math.floor((Date.now() - then) / 1000);
   if (seconds < 60) {
-    return t(justNow);
+    return t(JUST_NOW);
   }
   const minutes = Math.floor(seconds / 60);
   if (minutes < 60) {
-    return t(minutesAgo, { n: minutes });
+    return t(MINUTES_AGO, { n: minutes });
   }
   const hours = Math.floor(minutes / 60);
   if (hours < 24) {
-    return t(hoursAgo, { n: hours });
+    return t(HOURS_AGO, { n: hours });
   }
   const days = Math.floor(hours / 24);
   if (days < 30) {
-    return t(daysAgo, { n: days });
+    return t(DAYS_AGO, { n: days });
   }
   return new Date(iso).toLocaleDateString('en-US', {
     month: 'short',
@@ -99,7 +99,7 @@ function Composer({
       await onSubmit(trimmed);
       setBody('');
     } catch (err) {
-      setError(err instanceof Error ? err.message : t(commentFailed));
+      setError(err instanceof Error ? err.message : t(COMMENT_FAILED));
     }
   }
 
@@ -118,7 +118,7 @@ function Composer({
       />
       <div className='flex items-center justify-between gap-2'>
         <span className='text-xs text-muted-foreground/60'>
-          {remaining < 200 ? t(charsLeft, { n: remaining }) : t(markdownHint)}
+          {remaining < 200 ? t(CHARS_LEFT, { n: remaining }) : t(MARKDOWN_HINT)}
           {error ? (
             <span className='my-2.5 text-sm text-destructive inline'>
               {'✗ '}
@@ -131,7 +131,7 @@ function Composer({
           disabled={submitting || !body.trim()}
           className='cursor-pointer rounded-lg border border-primary bg-primary px-3.5 py-1.75 text-sm text-primary-foreground transition duration-100 hover:brightness-95'
         >
-          {submitting ? t(sending) : 'reply'}
+          {submitting ? t(SENDING) : 'reply'}
         </button>
       </div>
     </form>
@@ -165,7 +165,7 @@ function CommentItem({
     if (!canAct) {
       return;
     }
-    if (!window.confirm(t(deleteCommentConfirm))) {
+    if (!window.confirm(t(DELETE_COMMENT_CONFIRM))) {
       return;
     }
     // onDelete (the parent handleDelete) catches its own errors and surfaces
@@ -188,7 +188,7 @@ function CommentItem({
       {replyingTo === thread.id && sessionUser ? (
         <div className='ml-10'>
           <Composer
-            placeholder={t(replyPlaceholder, { name: thread.author.name })}
+            placeholder={t(REPLY_PLACEHOLDER, { name: thread.author.name })}
             submitting={replySubmitting.has(thread.id)}
             onSubmit={(body) => onReply(thread.id, body)}
             compact
@@ -210,7 +210,7 @@ function CommentItem({
                 canReply={false}
                 onReply={undefined}
                 onDelete={async () => {
-                  if (!window.confirm(t(deleteReplyConfirm))) {
+                  if (!window.confirm(t(DELETE_REPLY_CONFIRM))) {
                     return;
                   }
                   await onDelete(reply.id);
@@ -351,7 +351,7 @@ export function Comments({
     try {
       await deleteCommentServerFn({ data: { id } });
     } catch (err) {
-      setTopError(err instanceof Error ? err.message : t(deleteFailed));
+      setTopError(err instanceof Error ? err.message : t(DELETE_FAILED));
       return;
     }
     const wasTopLevel = threads.some((thread) => thread.id === id);
@@ -379,7 +379,7 @@ export function Comments({
       setTotal(result.total);
       setTopError(null);
     } catch (err) {
-      setTopError(err instanceof Error ? err.message : t(loadMoreFailed));
+      setTopError(err instanceof Error ? err.message : t(LOAD_MORE_FAILED));
     } finally {
       setLoadingMore(false);
     }
@@ -394,15 +394,15 @@ export function Comments({
       {sessionUser ? (
         <div className='mb-6'>
           <Composer
-            placeholder={t(newCommentPlaceholder)}
+            placeholder={t(NEW_COMMENT_PLACEHOLDER)}
             submitting={submitting}
             onSubmit={handleCreateTopLevel}
           />
         </div>
       ) : (
         <p className='text-muted-foreground/60 mb-6'>
-          # <Link to='/login'>{t(loginLink)}</Link>
-          {t(loginHintSuffix)}
+          # <Link to='/login'>{t(LOGIN_LINK)}</Link>
+          {t(LOGIN_HINT_SUFFIX)}
         </p>
       )}
       {topError ? (
@@ -410,7 +410,7 @@ export function Comments({
       ) : null}
       {threads.length === 0 ? (
         <p className='text-muted-foreground/60 py-8 text-center'>
-          # {t(noComments)}
+          # {t(NO_COMMENTS)}
         </p>
       ) : (
         <ul className='flex flex-col gap-3'>
@@ -436,7 +436,7 @@ export function Comments({
             disabled={loadingMore}
             className='cursor-pointer rounded-lg border border-border bg-secondary px-3.5 py-1.75 text-sm text-foreground transition-[border-color,color] duration-100 hover:border-primary hover:text-primary'
           >
-            {loadingMore ? t(loading) : 'tail -f'}
+            {loadingMore ? t(LOADING) : 'tail -f'}
           </button>
         </div>
       ) : null}

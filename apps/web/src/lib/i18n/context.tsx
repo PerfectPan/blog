@@ -142,7 +142,7 @@ export function useLocale(): LocaleContextValue {
 }
 
 /** `t(entry)` resolves a message entry in the active locale; ICU entries take
- *  a named-args object: `t(postsCount, { count: 5 })`. */
+ *  a named-args object: `t(POSTS_COUNT, { count: 5 })`. */
 export type TFn = {
   (entry: Msg & { __args?: never }): string;
   <A extends Record<string, string | number>>(

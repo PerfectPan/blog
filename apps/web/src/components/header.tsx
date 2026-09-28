@@ -15,22 +15,22 @@ import { useEffect, useRef, useState } from 'react';
 import { authClient } from '../lib/auth-client.js';
 import { useLocale, useT } from '../lib/i18n/context.js';
 import {
-  closeToolsMenu,
-  githubAria,
-  githubLabel,
-  langEnName,
-  langZhName,
-  logoutAria,
-  logoutConfirmDescription,
-  navLogin,
-  navLogout,
-  navSignup,
-  openToolsMenu,
-  rssAria,
-  rssLabel,
-  searchAria,
-  searchTool,
-  switchLocale,
+  CLOSE_TOOLS_MENU,
+  GITHUB_ARIA,
+  GITHUB_LABEL,
+  LANG_EN_NAME,
+  LANG_ZH_NAME,
+  LOGOUT_ARIA,
+  LOGOUT_CONFIRM_DESCRIPTION,
+  NAV_LOGIN,
+  NAV_LOGOUT,
+  NAV_SIGNUP,
+  OPEN_TOOLS_MENU,
+  RSS_ARIA,
+  RSS_LABEL,
+  SEARCH_ARIA,
+  SEARCH_TOOL,
+  SWITCH_LOCALE,
 } from '../lib/i18n/messages.js';
 import { ConfirmDialog } from './confirm-dialog.js';
 import { DarkMode } from './dark-mode.js';
@@ -59,8 +59,8 @@ function LocaleSwitcher({ variant }: { variant: 'bar' | 'sheet' }) {
   const { locale, setLocale } = useLocale();
   const t = useT();
   const next: Locale = locale === 'zh' ? 'en' : 'zh';
-  const label = next === 'zh' ? t(langZhName) : t(langEnName);
-  const ariaLabel = t(switchLocale, { name: label });
+  const label = next === 'zh' ? t(LANG_ZH_NAME) : t(LANG_EN_NAME);
+  const ariaLabel = t(SWITCH_LOCALE, { name: label });
 
   if (variant === 'sheet') {
     return (
@@ -173,7 +173,7 @@ export function Header() {
           <Link
             to='/logout'
             data-testid='nav-logout'
-            aria-label={t(logoutAria)}
+            aria-label={t(LOGOUT_ARIA)}
             className={`${TOOL_BTN} ${TOOL_VIS}`}
             onClick={(event) => {
               event.preventDefault();
@@ -181,7 +181,7 @@ export function Header() {
             }}
           >
             <LogOut size={15} aria-hidden='true' />
-            <span className='hidden md:inline'>{t(navLogout)}</span>
+            <span className='hidden md:inline'>{t(NAV_LOGOUT)}</span>
           </Link>
         ) : (
           <>
@@ -191,7 +191,7 @@ export function Header() {
               className={`${TOOL_BTN} ${TOOL_VIS}`}
             >
               <UserRound size={15} aria-hidden='true' />
-              <span className='hidden md:inline'>{t(navLogin)}</span>
+              <span className='hidden md:inline'>{t(NAV_LOGIN)}</span>
             </Link>
             <Link
               to='/signup'
@@ -199,7 +199,7 @@ export function Header() {
               className={`${TOOL_BTN} ${TOOL_VIS}`}
             >
               <UserRoundPlus size={15} aria-hidden='true' />
-              <span className='hidden md:inline'>{t(navSignup)}</span>
+              <span className='hidden md:inline'>{t(NAV_SIGNUP)}</span>
             </Link>
           </>
         )}
@@ -207,37 +207,37 @@ export function Header() {
         <DarkMode />
         <button
           type='button'
-          aria-label={t(searchAria)}
+          aria-label={t(SEARCH_ARIA)}
           onClick={() => searchPalette.open()}
           className={`${TOOL_BTN} ${TOOL_VIS}`}
         >
           <Search size={15} aria-hidden='true' />
-          <span className='hidden md:inline'>{t(searchTool)}</span>
+          <span className='hidden md:inline'>{t(SEARCH_TOOL)}</span>
         </button>
         <a
           href='https://github.com/PerfectPan'
           target='_blank'
           rel='noreferrer'
-          aria-label={t(githubAria)}
+          aria-label={t(GITHUB_ARIA)}
           className={`${TOOL_BTN} ${TOOL_VIS}`}
         >
           <Github size={15} aria-hidden='true' />
-          <span className='hidden md:inline'>{t(githubLabel)}</span>
+          <span className='hidden md:inline'>{t(GITHUB_LABEL)}</span>
         </a>
         <a
           href='/rss.xml'
           target='_blank'
           rel='noreferrer'
-          aria-label={t(rssAria)}
+          aria-label={t(RSS_ARIA)}
           className={`${TOOL_BTN} ${TOOL_VIS}`}
         >
           <Rss size={15} aria-hidden='true' />
-          <span className='hidden md:inline'>{t(rssLabel)}</span>
+          <span className='hidden md:inline'>{t(RSS_LABEL)}</span>
         </a>
         <button
           type='button'
           className={`${TOOL_BTN_TOGGLE} hidden`}
-          aria-label={toolsOpen ? t(closeToolsMenu) : t(openToolsMenu)}
+          aria-label={toolsOpen ? t(CLOSE_TOOLS_MENU) : t(OPEN_TOOLS_MENU)}
           aria-expanded={toolsOpen}
           onClick={() => {
             setToolsOpen(!toolsOpen);
@@ -263,7 +263,7 @@ export function Header() {
               }}
               className={SHEET_ROW}
             >
-              <LogOut size={14} aria-hidden='true' /> {t(navLogout)}
+              <LogOut size={14} aria-hidden='true' /> {t(NAV_LOGOUT)}
             </button>
           ) : (
             <>
@@ -274,7 +274,7 @@ export function Header() {
                 }}
                 className={SHEET_ROW}
               >
-                <UserRound size={14} aria-hidden='true' /> {t(navLogin)}
+                <UserRound size={14} aria-hidden='true' /> {t(NAV_LOGIN)}
               </Link>
               <Link
                 to='/signup'
@@ -283,7 +283,7 @@ export function Header() {
                 }}
                 className={SHEET_ROW}
               >
-                <UserRoundPlus size={14} aria-hidden='true' /> {t(navSignup)}
+                <UserRoundPlus size={14} aria-hidden='true' /> {t(NAV_SIGNUP)}
               </Link>
             </>
           )}
@@ -295,7 +295,7 @@ export function Header() {
             }}
             className={SHEET_ROW}
           >
-            <Search size={14} aria-hidden='true' /> {t(searchTool)}
+            <Search size={14} aria-hidden='true' /> {t(SEARCH_TOOL)}
           </button>
           <a
             href='https://github.com/PerfectPan'
@@ -306,7 +306,7 @@ export function Header() {
             }}
             className={SHEET_ROW}
           >
-            <Github size={14} aria-hidden='true' /> {t(githubLabel)}
+            <Github size={14} aria-hidden='true' /> {t(GITHUB_LABEL)}
           </a>
           <a
             href='/rss.xml'
@@ -317,7 +317,7 @@ export function Header() {
             }}
             className={SHEET_ROW}
           >
-            <Rss size={14} aria-hidden='true' /> {t(rssLabel)}
+            <Rss size={14} aria-hidden='true' /> {t(RSS_LABEL)}
           </a>
           <LocaleSwitcher variant='sheet' />
         </div>
@@ -326,7 +326,7 @@ export function Header() {
         open={logoutOpen}
         onOpenChange={setLogoutOpen}
         command='logout'
-        description={t(logoutConfirmDescription)}
+        description={t(LOGOUT_CONFIRM_DESCRIPTION)}
         confirmLabel='logout'
         onConfirm={() => {
           setLogoutOpen(false);
