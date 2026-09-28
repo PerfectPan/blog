@@ -14,8 +14,10 @@ export interface MiscMessages {
   backToBlogList: string;
   /** Error page: curl-style failure line, keeps the error text appended. */
   requestFailed: (error: string) => string;
-  /** Dark-mode toggle aria-label (`next` / `current` are pref names). */
+  /** Dark-mode toggle aria-label (`next` / `current` are localized pref names). */
   switchModeAria: (next: string, current: string) => string;
+  /** Visible label for the current theme pref on the toggle. */
+  themeLabel: (pref: 'light' | 'dark' | 'system') => string;
   /** Code-block copy button: aria-label and idle / copied labels. */
   copyAria: string;
   copyLabel: string;
@@ -34,8 +36,9 @@ export const miscZh: MiscMessages = {
   notFoundComment: '# 你闯入了无人之境。',
   backToBlogList: '← 回到博客列表',
   requestFailed: (error) => `Request failed: ${error}`,
-  switchModeAria: (next, current) =>
-    `Switch to ${next} mode (current: ${current})`,
+  switchModeAria: (next, current) => `切换到${next}模式（当前：${current}）`,
+  themeLabel: (pref) =>
+    pref === 'light' ? '浅色' : pref === 'dark' ? '深色' : '系统',
   copyAria: 'Copy code',
   copyLabel: 'Copy',
   copiedLabel: 'Copied',
@@ -53,6 +56,7 @@ export const miscEn: MiscMessages = {
   requestFailed: (error) => `Request failed: ${error}`,
   switchModeAria: (next, current) =>
     `Switch to ${next} mode (current: ${current})`,
+  themeLabel: (pref) => pref,
   copyAria: 'Copy code',
   copyLabel: 'Copy',
   copiedLabel: 'Copied',

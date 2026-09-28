@@ -1,13 +1,14 @@
 /**
  * Global chrome: header title bar, footer status bar, home hero panel.
  *
- * Command-style labels (grep / rss / github / ...) are part of the terminal
- * design language and stay verbatim in both languages; auth nav actions
- * (login / signup / logout) are localized. zh screen-reader labels keep the
- * master English values (frozen e2e selectors); en localizes them.
+ * Command-style labels (github / rss) are part of the terminal design
+ * language and stay verbatim in both languages; auth nav actions (login /
+ * signup / logout) and the search verb are localized. zh screen-reader
+ * labels keep the master English values (frozen e2e selectors); en
+ * localizes them.
  */
 export interface ChromeMessages {
-  /** Header auth tool labels (grep / github / rss stay command-style). */
+  /** Header auth and search tool labels (github / rss stay command-style). */
   login: string;
   signup: string;
   logout: string;
@@ -39,7 +40,7 @@ export const chromeZh: ChromeMessages = {
   login: '登录',
   signup: '注册',
   logout: '登出',
-  grep: 'grep',
+  grep: '搜索',
   github: 'github',
   rss: 'rss',
   logoutAria: 'Logout',

@@ -61,10 +61,9 @@ function LocaleSwitcher({ variant }: { variant: 'bar' | 'sheet' }) {
       type='button'
       aria-label={ariaLabel}
       onClick={() => setLocale(next)}
-      className='inline-flex h-6 shrink-0 cursor-pointer items-center gap-px px-1.5 text-xs leading-none text-muted-foreground/60 hover:text-primary max-[480px]:hidden'
+      className={`${TOOL_BTN} ${TOOL_VIS}`}
     >
-      <span aria-hidden='true'>LANG=</span>
-      {next}
+      {`LANG=${next}`}
     </button>
   );
 }

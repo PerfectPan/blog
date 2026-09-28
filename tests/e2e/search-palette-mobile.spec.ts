@@ -40,9 +40,9 @@ test('mobile search sheet opens from the ⋯ menu and fills the viewport', async
     page.getByRole('button', { name: 'Close tools menu' }),
   ).toBeVisible();
 
-  // The bar's own grep button is hidden ≤480px (and carries a different
+  // The bar's own search button is hidden ≤480px (and carries a different
   // accessible name), so this resolves to the sheet row alone.
-  await page.getByRole('button', { name: 'grep' }).click();
+  await page.getByRole('button', { name: '搜索' }).click();
 
   const panel = page.locator('[data-slot="dialog-content"]');
   await expect(panel).toBeVisible();
