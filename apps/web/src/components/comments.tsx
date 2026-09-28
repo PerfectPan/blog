@@ -8,7 +8,7 @@ import {
   deleteCommentServerFn,
   getCommentsServerFn,
 } from '../lib/comments-service.js';
-import { type Copy, useCopy } from '../lib/i18n/copy.js';
+import { type Copy, useMessages } from '../lib/i18n/messages.js';
 import { CommentMarkdown } from './comment-markdown.js';
 import { Prompt } from './page.js';
 
@@ -63,7 +63,7 @@ function Composer({
   onSubmit,
   compact,
 }: ComposerProps) {
-  const { social: t } = useCopy();
+  const { social: t } = useMessages();
   const [body, setBody] = useState('');
   const [error, setError] = useState<string | null>(null);
   const remaining = 2000 - body.length;
@@ -137,7 +137,7 @@ function CommentItem({
   setReplyingTo,
   replySubmitting,
 }: CommentItemProps) {
-  const { social: t } = useCopy();
+  const { social: t } = useMessages();
   const canAct =
     sessionUser != null && (thread.isOwn || sessionUser.role === 'admin');
 
@@ -219,7 +219,7 @@ function CommentView({
   onReply,
   onDelete,
 }: CommentViewProps) {
-  const { social: t } = useCopy();
+  const { social: t } = useMessages();
   return (
     <div className='my-3 overflow-hidden rounded-lg border border-border'>
       <div className='flex items-center gap-2.5 border-b border-border bg-secondary px-3.5 py-2 text-xs text-muted-foreground'>
@@ -277,7 +277,7 @@ export function Comments({
   initialTotal,
   sessionUser,
 }: CommentsProps) {
-  const { social: t } = useCopy();
+  const { social: t } = useMessages();
   const [threads, setThreads] = useState<CommentThread[]>(initialComments);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [total, setTotal] = useState(initialTotal);

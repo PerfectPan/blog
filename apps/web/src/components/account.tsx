@@ -1,7 +1,7 @@
 import { useNavigate } from '@tanstack/react-router';
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { authClient } from '../lib/auth-client.js';
-import { authErrorMessage, useCopy } from '../lib/i18n/copy.js';
+import { authErrorMessage, useMessages } from '../lib/i18n/messages.js';
 import { ConfirmDialog } from './confirm-dialog.js';
 import { Page, Prompt } from './page.js';
 
@@ -15,7 +15,7 @@ const BTN_SECONDARY =
 /** Signed-in account page: who you are, and link / unlink GitHub sign-in. */
 export function AccountPage({ searchError }: { searchError?: string }) {
   const navigate = useNavigate();
-  const { auth, pages: t } = useCopy();
+  const { auth, pages: t } = useMessages();
   const { data: sessionData, isPending: isSessionPending } =
     authClient.useSession();
   const user = sessionData?.user;

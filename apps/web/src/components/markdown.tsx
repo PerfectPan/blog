@@ -11,7 +11,7 @@ import rehypeKatex from 'rehype-katex';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import type { HighlighterCore } from 'shiki/core';
-import { useCopy } from '../lib/i18n/copy.js';
+import { useMessages } from '../lib/i18n/messages.js';
 
 type MarkdownProps = {
   content: string;
@@ -88,7 +88,7 @@ function getHighlighter() {
  * works regardless of how the code was tokenized.
  */
 function CodeBlock({ children }: { children?: ReactNode }) {
-  const { misc: t } = useCopy();
+  const { misc: t } = useMessages();
   const preRef = useRef<HTMLPreElement>(null);
   const [copied, setCopied] = useState(false);
 

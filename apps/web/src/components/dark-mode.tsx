@@ -3,7 +3,7 @@
 import { Monitor, Moon, Sun } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
-import { useCopy } from '../lib/i18n/copy.js';
+import { useMessages } from '../lib/i18n/messages.js';
 import { TOOL_BTN } from './term.js';
 
 type ViewTransitionLike = {
@@ -39,7 +39,7 @@ export function DarkMode() {
   const [pref, setPref] = useState<ThemePref>('system');
   const [systemDark, setSystemDark] = useState(false);
   const [synced, setSynced] = useState(false);
-  const { misc: t } = useCopy();
+  const { misc: t } = useMessages();
   const ref = useRef<HTMLButtonElement>(null);
 
   const isDarkMode = pref === 'dark' || (pref === 'system' && systemDark);

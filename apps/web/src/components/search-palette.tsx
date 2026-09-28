@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/command';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { searchPostsServerFn } from '../lib/blog-service.js';
-import { useCopy } from '../lib/i18n/copy.js';
+import { useMessages } from '../lib/i18n/messages.js';
 import { searchPalette, useSearchPaletteOpen } from './search-palette-store.js';
 
 /* Terminal grep palette: a shadcn Dialog + cmdk reskinned with utilities —
@@ -33,7 +33,7 @@ const TERMINAL_CMD =
  * own server results; cmdk's built-in client filter is disabled.
  */
 export function SearchPalette() {
-  const { misc: t } = useCopy();
+  const { misc: t } = useMessages();
   const open = useSearchPaletteOpen();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<PostSummary[]>([]);

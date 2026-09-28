@@ -1,9 +1,9 @@
 import { Link } from '@tanstack/react-router';
-import { useCopy } from '../lib/i18n/copy.js';
+import { useMessages } from '../lib/i18n/messages.js';
 import { Page } from './page.js';
 
 export function NotFoundPage() {
-  const { misc: t } = useCopy();
+  const { misc: t } = useMessages();
   return (
     <Page>
       <div>
@@ -35,7 +35,7 @@ export function NotFoundPage() {
 }
 
 export function ErrorPage({ error }: { error: unknown }) {
-  const { misc: t } = useCopy();
+  const { misc: t } = useMessages();
   return (
     <Page>
       <div className='flex flex-wrap items-baseline gap-2.5'>

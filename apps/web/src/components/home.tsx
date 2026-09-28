@@ -1,6 +1,6 @@
 import type { PostSummary } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
-import { useCopy } from '../lib/i18n/copy.js';
+import { useMessages } from '../lib/i18n/messages.js';
 import { cn } from '../lib/utils.js';
 import { Page, Prompt } from './page.js';
 import { ENTER, ENTER_ROW, enterDelay } from './term.js';
@@ -39,7 +39,7 @@ export function HomePage({
   total: number;
 }) {
   const latest = posts.slice(0, 5);
-  const { chrome: t } = useCopy();
+  const { chrome: t } = useMessages();
 
   return (
     <Page>

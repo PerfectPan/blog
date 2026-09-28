@@ -2,7 +2,7 @@ import { useLocale } from './context.js';
 
 /**
  * All UI copy in one place. `zh` is the source of truth — its inferred shape
- * is the type (`Copy`) that `en` must mirror — and `useCopy()` returns the
+ * is the type (`Copy`) that `en` must mirror — and `useMessages()` returns the
  * active locale's tree. Sections are grouping only; add keys where they read
  * best, not to a fixed domain contract.
  *
@@ -296,7 +296,7 @@ export const en: Copy = {
 };
 
 /** The active locale's copy tree; without a provider (admin) it is zh. */
-export function useCopy(): Copy {
+export function useMessages(): Copy {
   const { locale } = useLocale();
   return locale === 'en' ? en : zh;
 }

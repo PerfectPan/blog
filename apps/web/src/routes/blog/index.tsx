@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { z } from 'zod';
 import { BlogList } from '../../components/blog-list.js';
 import { getBlogListServerFn } from '../../lib/blog-service.js';
-import { type Copy, useCopy } from '../../lib/i18n/copy.js';
+import { type Copy, useMessages } from '../../lib/i18n/messages.js';
 
 function getDevScopeHint(
   sessionUser: SessionUser | null | undefined,
@@ -48,7 +48,7 @@ export const Route = createFileRoute('/blog/')({
 
 function BlogListPage() {
   const data = Route.useLoaderData();
-  const { blog: t } = useCopy();
+  const { blog: t } = useMessages();
   const showDevHint = data.isDev;
   const devScopeHint = getDevScopeHint(data.sessionUser, t);
   const showVisibility = data.posts.some(

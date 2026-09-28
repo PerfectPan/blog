@@ -1,7 +1,7 @@
 import type { PostSummary } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
 import { useLocale } from '../lib/i18n/context.js';
-import { useCopy } from '../lib/i18n/copy.js';
+import { useMessages } from '../lib/i18n/messages.js';
 import { cn } from '../lib/utils.js';
 import { Page, Prompt } from './page.js';
 import { ENTER_ROW, enterDelay } from './term.js';
@@ -64,7 +64,7 @@ export function BlogList({
   showVisibility: boolean;
 }) {
   const { locale } = useLocale();
-  const { blog: t } = useCopy();
+  const { blog: t } = useMessages();
   const blogGroups = groupByYear(data.posts);
   // Stagger slot of the next rendered line (year headers and rows alike).
   let line = 0;
