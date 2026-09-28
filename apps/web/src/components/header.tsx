@@ -14,7 +14,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { authClient } from '../lib/auth-client.js';
 import { useLocale } from '../lib/i18n/context.js';
-import { useChrome } from '../lib/i18n/messages/index.js';
+import { useCopy } from '../lib/i18n/copy.js';
 import { ConfirmDialog } from './confirm-dialog.js';
 import { DarkMode } from './dark-mode.js';
 import { searchPalette } from './search-palette-store.js';
@@ -40,7 +40,7 @@ function getRoleLabel(role?: string | null): string {
  */
 function LocaleSwitcher({ variant }: { variant: 'bar' | 'sheet' }) {
   const { locale, setLocale } = useLocale();
-  const t = useChrome();
+  const { chrome: t } = useCopy();
   const next: Locale = locale === 'zh' ? 'en' : 'zh';
   const label = next === 'zh' ? t.langZhName : t.langEnName;
   const ariaLabel = t.switchLocale(label);
@@ -82,7 +82,7 @@ export function Header() {
   const { data: sessionData } = authClient.useSession();
   const sessionUser = sessionData?.user ?? null;
   const navigate = useNavigate();
-  const t = useChrome();
+  const { chrome: t } = useCopy();
   const [logoutOpen, setLogoutOpen] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
   const barRef = useRef<HTMLElement>(null);

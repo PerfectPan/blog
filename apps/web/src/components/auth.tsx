@@ -1,27 +1,12 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState, useTransition } from 'react';
 import { authClient } from '../lib/auth-client.js';
-import {
-  type AuthMessages,
-  authZh,
-  useAuth,
-} from '../lib/i18n/messages/index.js';
+import { authErrorMessage, useCopy } from '../lib/i18n/copy.js';
 import { Page, Prompt } from './page.js';
-
-// Better Auth reports OAuth and email-verification failures as
-// `?error=<code>` on the callback URL; the copy for the codes a user can
-// cause lives in the auth dictionary. The zh default keeps the function
-// usable without an active locale bundle.
-export function authErrorMessage(
-  code: string,
-  messages: AuthMessages = authZh,
-): string {
-  return messages.authErrors[code] ?? messages.authErrorFallback(code);
-}
 
 export function LoginPage({ searchError }: { searchError?: string }) {
   const navigate = useNavigate();
-  const auth = useAuth();
+  const { auth } = useCopy();
   const { data: sessionData, isPending: isSessionPending } =
     authClient.useSession();
   const [email, setEmail] = useState('');
@@ -152,7 +137,7 @@ export function LoginPage({ searchError }: { searchError?: string }) {
 
 export function SignupPage({ searchError }: { searchError?: string }) {
   const navigate = useNavigate();
-  const auth = useAuth();
+  const { auth } = useCopy();
   const { data: sessionData, isPending: isSessionPending } =
     authClient.useSession();
   const [email, setEmail] = useState('');
@@ -300,7 +285,7 @@ export function UnlockPage({
   slug: string;
   search?: Record<string, string | undefined>;
 }) {
-  const auth = useAuth();
+  const { auth } = useCopy();
   const { error: searchError } = (search ?? {}) as { error?: string };
   const errorLabel =
     searchError === 'missing'

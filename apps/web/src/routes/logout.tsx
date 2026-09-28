@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { authClient } from '../lib/auth-client.js';
-import { useAuth } from '../lib/i18n/messages/index.js';
+import { useCopy } from '../lib/i18n/copy.js';
 
 export const Route = createFileRoute('/logout')({
   component: LogoutPage,
@@ -9,7 +9,7 @@ export const Route = createFileRoute('/logout')({
 
 function LogoutPage() {
   const navigate = useNavigate();
-  const auth = useAuth();
+  const { auth } = useCopy();
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 

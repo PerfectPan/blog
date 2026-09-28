@@ -8,7 +8,7 @@ import {
   deleteCommentServerFn,
   getCommentsServerFn,
 } from '../lib/comments-service.js';
-import { type SocialMessages, useSocial } from '../lib/i18n/messages/index.js';
+import { type Copy, useCopy } from '../lib/i18n/copy.js';
 import { CommentMarkdown } from './comment-markdown.js';
 import { Prompt } from './page.js';
 
@@ -22,7 +22,7 @@ type CommentsProps = {
 
 const PAGE_SIZE = 20;
 
-function formatRelative(iso: string, t: SocialMessages): string {
+function formatRelative(iso: string, t: Copy['social']): string {
   const then = new Date(iso).getTime();
   if (Number.isNaN(then)) {
     return iso;
@@ -63,7 +63,7 @@ function Composer({
   onSubmit,
   compact,
 }: ComposerProps) {
-  const t = useSocial();
+  const { social: t } = useCopy();
   const [body, setBody] = useState('');
   const [error, setError] = useState<string | null>(null);
   const remaining = 2000 - body.length;
@@ -137,7 +137,7 @@ function CommentItem({
   setReplyingTo,
   replySubmitting,
 }: CommentItemProps) {
-  const t = useSocial();
+  const { social: t } = useCopy();
   const canAct =
     sessionUser != null && (thread.isOwn || sessionUser.role === 'admin');
 
@@ -219,7 +219,7 @@ function CommentView({
   onReply,
   onDelete,
 }: CommentViewProps) {
-  const t = useSocial();
+  const { social: t } = useCopy();
   return (
     <div className='my-3 overflow-hidden rounded-lg border border-border'>
       <div className='flex items-center gap-2.5 border-b border-border bg-secondary px-3.5 py-2 text-xs text-muted-foreground'>
@@ -277,7 +277,7 @@ export function Comments({
   initialTotal,
   sessionUser,
 }: CommentsProps) {
-  const t = useSocial();
+  const { social: t } = useCopy();
   const [threads, setThreads] = useState<CommentThread[]>(initialComments);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [total, setTotal] = useState(initialTotal);

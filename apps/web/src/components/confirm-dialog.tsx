@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { useMisc } from '../lib/i18n/messages/index.js';
+import { useCopy } from '../lib/i18n/copy.js';
 
 type ConfirmDialogProps = {
   open: boolean;
@@ -35,7 +35,7 @@ export function ConfirmDialog({
   pending,
   onConfirm,
 }: ConfirmDialogProps) {
-  const t = useMisc();
+  const { misc: t } = useCopy();
   const confirmText = confirmLabel ?? t.confirm;
   const cancelText = cancelLabel ?? t.cancel;
   return (
