@@ -60,7 +60,7 @@ export const authZh: AuthMessages = {
   },
   authErrorFallback: (code) => `GitHub 登录失败（${code}）`,
   checkingSession: '# 正在检查登录状态…',
-  loginHint: '# 邮箱密码登录；或者走 GitHub OAuth。',
+  loginHint: '# 邮箱密码登录，或通过 GitHub 登录。',
   emailLabel: '邮箱',
   passwordLabel: '密码',
   signIn: '登录',
