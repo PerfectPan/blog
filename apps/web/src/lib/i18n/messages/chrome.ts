@@ -1,13 +1,13 @@
 /**
  * Global chrome: header title bar, footer status bar, home hero panel.
  *
- * Command-style labels (login / grep / rss / ...) are part of the terminal
- * design language and stay verbatim in both languages; screen-reader labels
- * and prose are localized. zh values must match the pre-i18n UI byte for
- * byte (regression red line).
+ * Command-style labels (grep / rss / github / ...) are part of the terminal
+ * design language and stay verbatim in both languages; auth nav actions
+ * (login / signup / logout) are localized. zh screen-reader labels keep the
+ * master English values (frozen e2e selectors); en localizes them.
  */
 export interface ChromeMessages {
-  /** Header tool labels — command style, same value in zh and en. */
+  /** Header auth tool labels (grep / github / rss stay command-style). */
   login: string;
   signup: string;
   logout: string;
@@ -21,10 +21,11 @@ export interface ChromeMessages {
   rssAria: string;
   openToolsMenu: string;
   closeToolsMenu: string;
-  /** Language switcher buttons carry each language's own name (never
-   *  translated — the standard for language switchers). */
+  /** Language names (never translated — the standard for language switchers). */
   langZhName: string;
   langEnName: string;
+  /** Switcher action label, parameterized by the target language's own name. */
+  switchLocale: (name: string) => string;
   /** Footer tmux-window nav group label. */
   siteWindowsAria: string;
   /** Home: recent-posts panel counter and empty state. */
@@ -35,9 +36,9 @@ export interface ChromeMessages {
 }
 
 export const chromeZh: ChromeMessages = {
-  login: 'login',
-  signup: 'signup',
-  logout: 'logout',
+  login: '登录',
+  signup: '注册',
+  logout: '登出',
   grep: 'grep',
   github: 'github',
   rss: 'rss',
@@ -49,6 +50,7 @@ export const chromeZh: ChromeMessages = {
   closeToolsMenu: 'Close tools menu',
   langZhName: '中文',
   langEnName: 'English',
+  switchLocale: (name) => `切换到${name}`,
   siteWindowsAria: '站点窗口',
   postsCount: (n) => `${n} 篇文章`,
   noPosts: '暂无文章',
@@ -70,6 +72,7 @@ export const chromeEn: ChromeMessages = {
   closeToolsMenu: 'Close tools menu',
   langZhName: '中文',
   langEnName: 'English',
+  switchLocale: (name) => `Switch to ${name}`,
   siteWindowsAria: 'Site windows',
   postsCount: (n) => `${n} posts`,
   noPosts: 'no posts yet',

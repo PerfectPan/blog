@@ -33,52 +33,39 @@ function getRoleLabel(role?: string | null): string {
 }
 
 /**
- * Language switcher in terminal style — reads as `[zh|en]`. Both desktop bar
- * and ≤480px sheet variants. Buttons carry each language's own name (中文 /
- * English) and `aria-pressed` marks the active one.
+ * Language switcher in terminal style — a LANG=<code> assignment showing the
+ * locale a click switches to (reads as `export LANG=en`). Same control in the
+ * desktop bar and the ≤480px sheet.
  */
 function LocaleSwitcher({ variant }: { variant: 'bar' | 'sheet' }) {
   const { locale, setLocale } = useLocale();
   const t = useChrome();
-  const langButton = (next: Locale) => (
-    <button
-      type='button'
-      aria-pressed={locale === next}
-      aria-label={next === 'zh' ? t.langZhName : t.langEnName}
-      onClick={() => setLocale(next)}
-      className={
-        locale === next
-          ? 'cursor-pointer text-primary'
-          : 'cursor-pointer text-muted-foreground/60 hover:text-primary'
-      }
-    >
-      {next}
-    </button>
-  );
-  const toggle = (
-    <>
-      <span aria-hidden='true'>[</span>
-      {langButton('zh')}
-      <span aria-hidden='true'>|</span>
-      {langButton('en')}
-      <span aria-hidden='true'>]</span>
-    </>
-  );
+  const next: Locale = locale === 'zh' ? 'en' : 'zh';
+  const ariaLabel = t.switchLocale(next === 'zh' ? t.langZhName : t.langEnName);
 
   if (variant === 'sheet') {
     return (
-      <div className={SHEET_ROW}>
-        <Languages size={14} aria-hidden='true' />
-        <span aria-hidden='true'>LANG=</span>
-        {toggle}
-      </div>
+      <button
+        type='button'
+        aria-label={ariaLabel}
+        onClick={() => setLocale(next)}
+        className={SHEET_ROW}
+      >
+        <Languages size={14} aria-hidden='true' /> LANG={next}
+      </button>
     );
   }
 
   return (
-    <div className='inline-flex h-6 shrink-0 items-center gap-px px-1.5 text-xs leading-none text-muted-foreground/60 max-[480px]:hidden'>
-      {toggle}
-    </div>
+    <button
+      type='button'
+      aria-label={ariaLabel}
+      onClick={() => setLocale(next)}
+      className='inline-flex h-6 shrink-0 cursor-pointer items-center gap-px px-1.5 text-xs leading-none text-muted-foreground/60 hover:text-primary max-[480px]:hidden'
+    >
+      <span aria-hidden='true'>LANG=</span>
+      {next}
+    </button>
   );
 }
 
