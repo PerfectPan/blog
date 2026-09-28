@@ -9,7 +9,7 @@ import { IntlMessageFormat } from 'intl-messageformat';
  * named-args object through `t`: `t(POSTS_COUNT, { count: 5 })`.
  *
  * Kept verbatim in BOTH locales on purpose:
- * - terminal output: `#` comment lines, ls / cd / whoami / FIGLET, reply / rm /
+ * - terminal output: `#` comment lines, ls / cd / whoami / FIGLET,
  *   tail -f, the grep prompt, pagination `← prev / next →`;
  * - account `id` status values (verified / not verified / …) — e2e-frozen;
  * - brands and protocol names: github / rss.
@@ -211,18 +211,32 @@ export const CHARS_LEFT = icu<{ n: number }>(
   '{n} 字剩余',
   '{n, plural, one {# character left} other {# characters left}}',
 );
-export const MARKDOWN_HINT: Msg = {
-  zh: '支持 Markdown',
-  en: 'Markdown supported',
-};
 export const NEW_COMMENT_PLACEHOLDER: Msg = {
-  zh: '写下你的评论…（支持 Markdown）',
-  en: 'Write a comment… (Markdown supported)',
+  zh: '写下你的评论…',
+  en: 'Write a comment…',
 };
+export const TOOLBAR_BOLD: Msg = { zh: '加粗', en: 'bold' };
+export const TOOLBAR_ITALIC: Msg = { zh: '斜体', en: 'italic' };
+export const TOOLBAR_QUOTE: Msg = { zh: '引用', en: 'quote' };
+export const TOOLBAR_LIST: Msg = { zh: '列表', en: 'list' };
+export const TOOLBAR_CODE: Msg = { zh: '行内代码', en: 'inline code' };
+export const TOOLBAR_LINK: Msg = { zh: '链接', en: 'link' };
+export const EDITOR_WRITE: Msg = { zh: '编辑', en: 'write' };
+export const EDITOR_PREVIEW: Msg = { zh: '预览', en: 'preview' };
+export const PREVIEW_EMPTY: Msg = {
+  zh: '没有内容可预览。',
+  en: 'nothing to preview yet.',
+};
+export const TEXT_PLACEHOLDER: Msg = { zh: '文字', en: 'text' };
+export const CODE_PLACEHOLDER: Msg = { zh: '代码', en: 'code' };
+export const LINK_TEXT_PLACEHOLDER: Msg = { zh: '链接文字', en: 'link text' };
 export const REPLY_PLACEHOLDER = icu<{ name: string }>(
   '回复 @{name}…',
   'Reply to @{name}…',
 );
+export const REPLY_ACTION: Msg = { zh: '回复', en: 'reply' };
+export const DELETE_ACTION: Msg = { zh: '删除', en: 'rm' };
+export const SUBMIT_COMMENT: Msg = { zh: '发送', en: 'send' };
 export const SENDING: Msg = { zh: '发送中…', en: 'Sending…' };
 export const COMMENT_FAILED: Msg = {
   zh: '评论失败，请重试',
