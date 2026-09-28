@@ -3,7 +3,8 @@
 import { Monitor, Moon, Sun } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
-import { useMessages } from '../lib/i18n/messages.js';
+import { useT } from '../lib/i18n/context.js';
+import { switchModeAria, themeLabel } from '../lib/i18n/messages.js';
 import { TOOL_BTN } from './term.js';
 
 type ViewTransitionLike = {
@@ -39,7 +40,7 @@ export function DarkMode() {
   const [pref, setPref] = useState<ThemePref>('system');
   const [systemDark, setSystemDark] = useState(false);
   const [synced, setSynced] = useState(false);
-  const { misc: t } = useMessages();
+  const t = useT();
   const ref = useRef<HTMLButtonElement>(null);
 
   const isDarkMode = pref === 'dark' || (pref === 'system' && systemDark);
@@ -146,7 +147,7 @@ export function DarkMode() {
     <button
       type='button'
       ref={ref}
-      aria-label={t.switchModeAria(t.themeLabel(next), t.themeLabel(pref))}
+      aria-label={t(switchModeAria, t(themeLabel, next), t(themeLabel, pref))}
       className={TOOL_BTN}
       onClick={onTrigger}
     >
@@ -157,7 +158,7 @@ export function DarkMode() {
       ) : (
         <Monitor size={15} />
       )}
-      <span className='hidden md:inline'>{t.themeLabel(pref)}</span>
+      <span className='hidden md:inline'>{t(themeLabel, pref)}</span>
     </button>
   );
 }

@@ -1,7 +1,26 @@
 import { useNavigate } from '@tanstack/react-router';
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { authClient } from '../lib/auth-client.js';
-import { authErrorMessage, useMessages } from '../lib/i18n/messages.js';
+import { useLocale, useT } from '../lib/i18n/context.js';
+import {
+  authErrorMessage,
+  emailNotVerified,
+  emailVerified,
+  githubLinked,
+  githubLinkedHint,
+  githubNotLinked,
+  githubNotLinkedHint,
+  linkGithubFailed,
+  loadAccountsFailed,
+  loadAccountsFailedRetry,
+  passwordNotSet,
+  passwordSet,
+  sendVerificationFailed,
+  unlinkConfirmDescription,
+  unlinkGithubFailed,
+  verificationSent,
+  verifyEmailHint,
+} from '../lib/i18n/messages.js';
 import { ConfirmDialog } from './confirm-dialog.js';
 import { Page, Prompt } from './page.js';
 
@@ -15,13 +34,14 @@ const BTN_SECONDARY =
 /** Signed-in account page: who you are, and link / unlink GitHub sign-in. */
 export function AccountPage({ searchError }: { searchError?: string }) {
   const navigate = useNavigate();
-  const { auth, pages: t } = useMessages();
+  const { locale } = useLocale();
+  const t = useT();
   const { data: sessionData, isPending: isSessionPending } =
     authClient.useSession();
   const user = sessionData?.user;
   const [accounts, setAccounts] = useState<LinkedAccount[] | null>(null);
   const [error, setError] = useState<string | null>(
-    searchError ? authErrorMessage(searchError, auth) : null,
+    searchError ? authErrorMessage(locale, searchError) : null,
   );
   const [notice, setNotice] = useState<string | null>(null);
   const [unlinkOpen, setUnlinkOpen] = useState(false);
@@ -31,12 +51,12 @@ export function AccountPage({ searchError }: { searchError?: string }) {
     try {
       const result = await authClient.listAccounts();
       if (result.error) {
-        setError(result.error.message ?? t.loadAccountsFailed);
+        setError(result.error.message ?? t(loadAccountsFailed));
         return;
       }
       setAccounts(result.data);
     } catch {
-      setError(t.loadAccountsFailedRetry);
+      setError(t(loadAccountsFailedRetry));
     }
   }, [t]);
 
@@ -103,20 +123,22 @@ export function AccountPage({ searchError }: { searchError?: string }) {
               user.emailVerified ? 'text-muted-foreground' : 'text-destructive'
             }
           >
-            ({user.emailVerified ? t.emailVerified : t.emailNotVerified})
+            ({user.emailVerified ? t(emailVerified) : t(emailNotVerified)})
           </span>
         </dd>
         <dt>role</dt>
         <dd>{user.role ?? 'member'}</dd>
         <dt>password</dt>
-        <dd>{hasPassword ? t.passwordSet : t.passwordNotSet}</dd>
+        <dd>{hasPassword ? t(passwordSet) : t(passwordNotSet)}</dd>
         <dt>github</dt>
-        <dd>{github ? t.githubLinked(github.accountId) : t.githubNotLinked}</dd>
+        <dd>
+          {github ? t(githubLinked, github.accountId) : t(githubNotLinked)}
+        </dd>
       </dl>
       {user.emailVerified ? null : (
         <div className='mt-4'>
           <p className='mb-1 text-xs text-muted-foreground/60'>
-            # {t.verifyEmailHint}
+            # {t(verifyEmailHint)}
           </p>
           <button
             type='button'
@@ -131,10 +153,10 @@ export function AccountPage({ searchError }: { searchError?: string }) {
                   callbackURL: '/account',
                 });
                 if (result.error) {
-                  setError(result.error.message ?? t.sendVerificationFailed);
+                  setError(result.error.message ?? t(sendVerificationFailed));
                   return;
                 }
-                setNotice(t.verificationSent(user.email));
+                setNotice(t(verificationSent, user.email));
               });
             }}
           >
@@ -143,7 +165,7 @@ export function AccountPage({ searchError }: { searchError?: string }) {
         </div>
       )}
       <p className='mb-1 mt-4 text-xs text-muted-foreground/60'>
-        {github ? `# ${t.githubLinkedHint}` : `# ${t.githubNotLinkedHint}`}
+        {github ? `# ${t(githubLinkedHint)}` : `# ${t(githubNotLinkedHint)}`}
       </p>
       <div className='mt-4 flex flex-wrap gap-3'>
         {github ? (
@@ -173,7 +195,7 @@ export function AccountPage({ searchError }: { searchError?: string }) {
                   errorCallbackURL: '/account',
                 });
                 if (result.error) {
-                  setError(result.error.message ?? t.linkGithubFailed);
+                  setError(result.error.message ?? t(linkGithubFailed));
                 }
               });
             }}
@@ -196,7 +218,7 @@ export function AccountPage({ searchError }: { searchError?: string }) {
         open={unlinkOpen}
         onOpenChange={setUnlinkOpen}
         command='unlink github'
-        description={t.unlinkConfirmDescription}
+        description={t(unlinkConfirmDescription)}
         confirmLabel='unlink'
         pending={isPending}
         onConfirm={() => {
@@ -207,7 +229,7 @@ export function AccountPage({ searchError }: { searchError?: string }) {
             });
             setUnlinkOpen(false);
             if (result.error) {
-              setError(result.error.message ?? t.unlinkGithubFailed);
+              setError(result.error.message ?? t(unlinkGithubFailed));
               return;
             }
             await loadAccounts();

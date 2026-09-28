@@ -1,6 +1,7 @@
 import type { PostSummary } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
-import { useMessages } from '../lib/i18n/messages.js';
+import { useT } from '../lib/i18n/context.js';
+import { noPosts, postsCount } from '../lib/i18n/messages.js';
 import { cn } from '../lib/utils.js';
 import { Page, Prompt } from './page.js';
 import { ENTER, ENTER_ROW, enterDelay } from './term.js';
@@ -39,7 +40,7 @@ export function HomePage({
   total: number;
 }) {
   const latest = posts.slice(0, 5);
-  const { chrome: t } = useMessages();
+  const t = useT();
 
   return (
     <Page>
@@ -84,13 +85,13 @@ export function HomePage({
       >
         <div className='flex items-baseline justify-between gap-3 border-b border-border bg-muted/50 px-4 py-3 text-sm tracking-widest text-muted-foreground'>
           <span>ls -t ~/posts | head -5</span>
-          <span>{t.postsCount(total)}</span>
+          <span>{t(postsCount, total)}</span>
         </div>
         {latest.length === 0 ? (
           <div>
             <div className={ROW}>
               <span className='text-sm text-muted-foreground'>--</span>
-              <span>{t.noPosts}</span>
+              <span>{t(noPosts)}</span>
             </div>
           </div>
         ) : (

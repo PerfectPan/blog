@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { authClient } from '../lib/auth-client.js';
-import { useMessages } from '../lib/i18n/messages.js';
+import { useT } from '../lib/i18n/context.js';
+import { siteWindowsAria } from '../lib/i18n/messages.js';
 
 /**
  * tmux-style status bar: session name + clickable windows on the left, site
@@ -17,7 +18,7 @@ const WIN =
 export function Footer() {
   const { data: sessionData } = authClient.useSession();
   const isAdmin = sessionData?.user?.role === 'admin';
-  const { chrome: t } = useMessages();
+  const t = useT();
 
   return (
     <footer className='flex flex-wrap items-center gap-1 border-t border-border bg-muted px-3.5 py-1.5 text-xs max-[430px]:gap-0.5 max-[430px]:px-2.5'>
@@ -25,7 +26,7 @@ export function Footer() {
         blog
       </span>
       <nav
-        aria-label={t.siteWindowsAria}
+        aria-label={t(siteWindowsAria)}
         className='flex flex-wrap items-center gap-1'
       >
         <Link to='/' className={WIN}>

@@ -11,7 +11,13 @@ import {
 } from '@/components/ui/command';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { searchPostsServerFn } from '../lib/blog-service.js';
-import { useMessages } from '../lib/i18n/messages.js';
+import { useT } from '../lib/i18n/context.js';
+import {
+  searchHints,
+  searchIdleHint,
+  searchNoMatches,
+  searchPlaceholder,
+} from '../lib/i18n/messages.js';
 import { searchPalette, useSearchPaletteOpen } from './search-palette-store.js';
 
 /* Terminal grep palette: a shadcn Dialog + cmdk reskinned with utilities —
@@ -33,7 +39,7 @@ const TERMINAL_CMD =
  * own server results; cmdk's built-in client filter is disabled.
  */
 export function SearchPalette() {
-  const { misc: t } = useMessages();
+  const t = useT();
   const open = useSearchPaletteOpen();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<PostSummary[]>([]);
@@ -92,11 +98,11 @@ export function SearchPalette() {
             icon={null}
             value={query}
             onValueChange={setQuery}
-            placeholder={t.searchPlaceholder}
+            placeholder={t(searchPlaceholder)}
           />
           <CommandList>
             <CommandEmpty>
-              {query.trim() ? t.searchNoMatches : t.searchIdleHint}
+              {query.trim() ? t(searchNoMatches) : t(searchIdleHint)}
             </CommandEmpty>
             <CommandGroup>
               {results.map((post) => (
@@ -121,7 +127,7 @@ export function SearchPalette() {
             </CommandGroup>
           </CommandList>
           <div className='border-t border-border px-4 py-1.75 text-xs text-muted-foreground/60 max-[640px]:hidden'>
-            {t.searchHints}
+            {t(searchHints)}
           </div>
         </Command>
       </DialogContent>

@@ -8,7 +8,27 @@ import {
   deleteCommentServerFn,
   getCommentsServerFn,
 } from '../lib/comments-service.js';
-import { type Copy, useMessages } from '../lib/i18n/messages.js';
+import { type TFn, useT } from '../lib/i18n/context.js';
+import {
+  charsLeft,
+  commentFailed,
+  daysAgo,
+  deleteCommentConfirm,
+  deleteFailed,
+  deleteReplyConfirm,
+  hoursAgo,
+  justNow,
+  loading,
+  loadMoreFailed,
+  loginHintSuffix,
+  loginLink,
+  markdownHint,
+  minutesAgo,
+  newCommentPlaceholder,
+  noComments,
+  replyPlaceholder,
+  sending,
+} from '../lib/i18n/messages.js';
 import { CommentMarkdown } from './comment-markdown.js';
 import { Prompt } from './page.js';
 
@@ -22,26 +42,26 @@ type CommentsProps = {
 
 const PAGE_SIZE = 20;
 
-function formatRelative(iso: string, t: Copy['social']): string {
+function formatRelative(iso: string, t: TFn): string {
   const then = new Date(iso).getTime();
   if (Number.isNaN(then)) {
     return iso;
   }
   const seconds = Math.floor((Date.now() - then) / 1000);
   if (seconds < 60) {
-    return t.justNow;
+    return t(justNow);
   }
   const minutes = Math.floor(seconds / 60);
   if (minutes < 60) {
-    return t.minutesAgo(minutes);
+    return t(minutesAgo, minutes);
   }
   const hours = Math.floor(minutes / 60);
   if (hours < 24) {
-    return t.hoursAgo(hours);
+    return t(hoursAgo, hours);
   }
   const days = Math.floor(hours / 24);
   if (days < 30) {
-    return t.daysAgo(days);
+    return t(daysAgo, days);
   }
   return new Date(iso).toLocaleDateString('en-US', {
     month: 'short',
@@ -63,7 +83,7 @@ function Composer({
   onSubmit,
   compact,
 }: ComposerProps) {
-  const { social: t } = useMessages();
+  const t = useT();
   const [body, setBody] = useState('');
   const [error, setError] = useState<string | null>(null);
   const remaining = 2000 - body.length;
@@ -79,7 +99,7 @@ function Composer({
       await onSubmit(trimmed);
       setBody('');
     } catch (err) {
-      setError(err instanceof Error ? err.message : t.commentFailed);
+      setError(err instanceof Error ? err.message : t(commentFailed));
     }
   }
 
@@ -98,7 +118,7 @@ function Composer({
       />
       <div className='flex items-center justify-between gap-2'>
         <span className='text-xs text-muted-foreground/60'>
-          {remaining < 200 ? t.charsLeft(remaining) : t.markdownHint}
+          {remaining < 200 ? t(charsLeft, remaining) : t(markdownHint)}
           {error ? (
             <span className='my-2.5 text-sm text-destructive inline'>
               {'✗ '}
@@ -111,7 +131,7 @@ function Composer({
           disabled={submitting || !body.trim()}
           className='cursor-pointer rounded-lg border border-primary bg-primary px-3.5 py-1.75 text-sm text-primary-foreground transition duration-100 hover:brightness-95'
         >
-          {submitting ? t.sending : 'reply'}
+          {submitting ? t(sending) : 'reply'}
         </button>
       </div>
     </form>
@@ -137,7 +157,7 @@ function CommentItem({
   setReplyingTo,
   replySubmitting,
 }: CommentItemProps) {
-  const { social: t } = useMessages();
+  const t = useT();
   const canAct =
     sessionUser != null && (thread.isOwn || sessionUser.role === 'admin');
 
@@ -145,7 +165,7 @@ function CommentItem({
     if (!canAct) {
       return;
     }
-    if (!window.confirm(t.deleteCommentConfirm)) {
+    if (!window.confirm(t(deleteCommentConfirm))) {
       return;
     }
     // onDelete (the parent handleDelete) catches its own errors and surfaces
@@ -168,7 +188,7 @@ function CommentItem({
       {replyingTo === thread.id && sessionUser ? (
         <div className='ml-10'>
           <Composer
-            placeholder={t.replyPlaceholder(thread.author.name)}
+            placeholder={t(replyPlaceholder, thread.author.name)}
             submitting={replySubmitting.has(thread.id)}
             onSubmit={(body) => onReply(thread.id, body)}
             compact
@@ -190,7 +210,7 @@ function CommentItem({
                 canReply={false}
                 onReply={undefined}
                 onDelete={async () => {
-                  if (!window.confirm(t.deleteReplyConfirm)) {
+                  if (!window.confirm(t(deleteReplyConfirm))) {
                     return;
                   }
                   await onDelete(reply.id);
@@ -219,7 +239,7 @@ function CommentView({
   onReply,
   onDelete,
 }: CommentViewProps) {
-  const { social: t } = useMessages();
+  const t = useT();
   return (
     <div className='my-3 overflow-hidden rounded-lg border border-border'>
       <div className='flex items-center gap-2.5 border-b border-border bg-secondary px-3.5 py-2 text-xs text-muted-foreground'>
@@ -277,7 +297,7 @@ export function Comments({
   initialTotal,
   sessionUser,
 }: CommentsProps) {
-  const { social: t } = useMessages();
+  const t = useT();
   const [threads, setThreads] = useState<CommentThread[]>(initialComments);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [total, setTotal] = useState(initialTotal);
@@ -331,7 +351,7 @@ export function Comments({
     try {
       await deleteCommentServerFn({ data: { id } });
     } catch (err) {
-      setTopError(err instanceof Error ? err.message : t.deleteFailed);
+      setTopError(err instanceof Error ? err.message : t(deleteFailed));
       return;
     }
     const wasTopLevel = threads.some((thread) => thread.id === id);
@@ -359,7 +379,7 @@ export function Comments({
       setTotal(result.total);
       setTopError(null);
     } catch (err) {
-      setTopError(err instanceof Error ? err.message : t.loadMoreFailed);
+      setTopError(err instanceof Error ? err.message : t(loadMoreFailed));
     } finally {
       setLoadingMore(false);
     }
@@ -374,15 +394,15 @@ export function Comments({
       {sessionUser ? (
         <div className='mb-6'>
           <Composer
-            placeholder={t.newCommentPlaceholder}
+            placeholder={t(newCommentPlaceholder)}
             submitting={submitting}
             onSubmit={handleCreateTopLevel}
           />
         </div>
       ) : (
         <p className='text-muted-foreground/60 mb-6'>
-          # <Link to='/login'>{t.loginLink}</Link>
-          {t.loginHintSuffix}
+          # <Link to='/login'>{t(loginLink)}</Link>
+          {t(loginHintSuffix)}
         </p>
       )}
       {topError ? (
@@ -390,7 +410,7 @@ export function Comments({
       ) : null}
       {threads.length === 0 ? (
         <p className='text-muted-foreground/60 py-8 text-center'>
-          # {t.noComments}
+          # {t(noComments)}
         </p>
       ) : (
         <ul className='flex flex-col gap-3'>
@@ -416,7 +436,7 @@ export function Comments({
             disabled={loadingMore}
             className='cursor-pointer rounded-lg border border-border bg-secondary px-3.5 py-1.75 text-sm text-foreground transition-[border-color,color] duration-100 hover:border-primary hover:text-primary'
           >
-            {loadingMore ? t.loading : 'tail -f'}
+            {loadingMore ? t(loading) : 'tail -f'}
           </button>
         </div>
       ) : null}

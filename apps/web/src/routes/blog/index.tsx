@@ -4,25 +4,31 @@ import { useEffect } from 'react';
 import { z } from 'zod';
 import { BlogList } from '../../components/blog-list.js';
 import { getBlogListServerFn } from '../../lib/blog-service.js';
-import { type Copy, useMessages } from '../../lib/i18n/messages.js';
+import { type TFn, useT } from '../../lib/i18n/context.js';
+import {
+  devHintAdmin,
+  devHintGuest,
+  devHintMember,
+  devHintVip,
+} from '../../lib/i18n/messages.js';
 
 function getDevScopeHint(
   sessionUser: SessionUser | null | undefined,
-  t: Copy['blog'],
+  t: TFn,
 ): string {
   if (!sessionUser) {
-    return t.devHintGuest;
+    return t(devHintGuest);
   }
 
   if (sessionUser.role === 'admin') {
-    return t.devHintAdmin;
+    return t(devHintAdmin);
   }
 
   if (sessionUser.role === 'vip') {
-    return t.devHintVip;
+    return t(devHintVip);
   }
 
-  return t.devHintMember;
+  return t(devHintMember);
 }
 
 export const Route = createFileRoute('/blog/')({
@@ -48,7 +54,7 @@ export const Route = createFileRoute('/blog/')({
 
 function BlogListPage() {
   const data = Route.useLoaderData();
-  const { blog: t } = useMessages();
+  const t = useT();
   const showDevHint = data.isDev;
   const devScopeHint = getDevScopeHint(data.sessionUser, t);
   const showVisibility = data.posts.some(

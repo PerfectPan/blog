@@ -6,7 +6,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { useMessages } from '../lib/i18n/messages.js';
+import { useT } from '../lib/i18n/context.js';
+import { cancelDefault, confirmDefault } from '../lib/i18n/messages.js';
 
 type ConfirmDialogProps = {
   open: boolean;
@@ -35,9 +36,9 @@ export function ConfirmDialog({
   pending,
   onConfirm,
 }: ConfirmDialogProps) {
-  const { misc: t } = useMessages();
-  const confirmText = confirmLabel ?? t.confirm;
-  const cancelText = cancelLabel ?? t.cancel;
+  const t = useT();
+  const confirmText = confirmLabel ?? t(confirmDefault);
+  const cancelText = cancelLabel ?? t(cancelDefault);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='max-w-[min(440px,calc(100vw-32px))] gap-3.5 rounded-xl border border-border bg-card p-6 text-left font-mono shadow-[0_18px_60px_rgba(0,0,0,0.35)] [&_[data-slot=dialog-close]]:hidden'>

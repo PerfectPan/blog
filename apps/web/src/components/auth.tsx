@@ -1,18 +1,45 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState, useTransition } from 'react';
 import { authClient } from '../lib/auth-client.js';
-import { authErrorMessage, useMessages } from '../lib/i18n/messages.js';
+import { useLocale, useT } from '../lib/i18n/context.js';
+import {
+  authErrorMessage,
+  backToPost,
+  checkingSession,
+  continueWithGithub,
+  createAccount,
+  creating,
+  emailLabel,
+  githubSignInFailed,
+  githubSignUpFailed,
+  loginHint,
+  nameLabel,
+  noAccountYet,
+  passwordLabel,
+  signIn,
+  signInFailed,
+  signingIn,
+  signUpFailed,
+  signupHint,
+  signupLink,
+  sudoUnlock,
+  unlockErrorInvalid,
+  unlockErrorMissing,
+  unlockHint,
+  unlockPasswordLabel,
+} from '../lib/i18n/messages.js';
 import { Page, Prompt } from './page.js';
 
 export function LoginPage({ searchError }: { searchError?: string }) {
   const navigate = useNavigate();
-  const { auth } = useMessages();
+  const { locale } = useLocale();
+  const t = useT();
   const { data: sessionData, isPending: isSessionPending } =
     authClient.useSession();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(
-    searchError ? authErrorMessage(searchError, auth) : null,
+    searchError ? authErrorMessage(locale, searchError) : null,
   );
   const [isPending, startTransition] = useTransition();
 
@@ -25,7 +52,7 @@ export function LoginPage({ searchError }: { searchError?: string }) {
   if (sessionData?.user?.id || isSessionPending) {
     return (
       <Page>
-        <p className='text-muted-foreground/60'>{auth.checkingSession}</p>
+        <p className='text-muted-foreground/60'>{t(checkingSession)}</p>
       </Page>
     );
   }
@@ -36,7 +63,7 @@ export function LoginPage({ searchError }: { searchError?: string }) {
         ssh member@perfectpan.org
       </Prompt>
       <p className='mb-1 text-xs text-muted-foreground/60 mt-2'>
-        {auth.loginHint}
+        {t(loginHint)}
       </p>
       <form
         className='mt-4'
@@ -52,7 +79,7 @@ export function LoginPage({ searchError }: { searchError?: string }) {
             });
 
             if (result.error) {
-              setError(result.error.message ?? auth.signInFailed);
+              setError(result.error.message ?? t(signInFailed));
               return;
             }
           });
@@ -61,7 +88,7 @@ export function LoginPage({ searchError }: { searchError?: string }) {
         <div className='my-3.5 max-w-105 [&_label]:mb-1.25 [&_label]:block [&_label]:text-xs [&_label]:text-muted-foreground'>
           <label htmlFor='email'>
             <span className='text-primary'>▸ </span>
-            {auth.emailLabel}
+            {t(emailLabel)}
           </label>
           <input
             id='email'
@@ -77,7 +104,7 @@ export function LoginPage({ searchError }: { searchError?: string }) {
         <div className='my-3.5 max-w-105 [&_label]:mb-1.25 [&_label]:block [&_label]:text-xs [&_label]:text-muted-foreground'>
           <label htmlFor='password'>
             <span className='text-primary'>▸ </span>
-            {auth.passwordLabel}
+            {t(passwordLabel)}
           </label>
           <input
             id='password'
@@ -96,7 +123,7 @@ export function LoginPage({ searchError }: { searchError?: string }) {
             className='cursor-pointer rounded-lg border border-primary bg-primary px-3.5 py-1.75 text-sm text-primary-foreground transition duration-100 hover:brightness-95'
             disabled={isPending}
           >
-            {isPending ? auth.signingIn : auth.signIn}
+            {isPending ? t(signingIn) : t(signIn)}
           </button>
           <button
             type='button'
@@ -109,11 +136,11 @@ export function LoginPage({ searchError }: { searchError?: string }) {
                 errorCallbackURL: '/login',
               });
               if (result.error) {
-                setError(result.error.message ?? auth.githubSignInFailed);
+                setError(result.error.message ?? t(githubSignInFailed));
               }
             }}
           >
-            {auth.continueWithGithub}
+            {t(continueWithGithub)}
           </button>
         </div>
         {error ? (
@@ -123,12 +150,12 @@ export function LoginPage({ searchError }: { searchError?: string }) {
         ) : null}
       </form>
       <p className='mb-1 mt-4 text-xs'>
-        <span className='text-muted-foreground/60'>{auth.noAccountYet}</span>{' '}
+        <span className='text-muted-foreground/60'>{t(noAccountYet)}</span>{' '}
         <Link
           to='/signup'
           className='text-muted-foreground hover:text-foreground'
         >
-          {auth.signupLink}
+          {t(signupLink)}
         </Link>
       </p>
     </Page>
@@ -137,14 +164,15 @@ export function LoginPage({ searchError }: { searchError?: string }) {
 
 export function SignupPage({ searchError }: { searchError?: string }) {
   const navigate = useNavigate();
-  const { auth } = useMessages();
+  const { locale } = useLocale();
+  const t = useT();
   const { data: sessionData, isPending: isSessionPending } =
     authClient.useSession();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(
-    searchError ? authErrorMessage(searchError, auth) : null,
+    searchError ? authErrorMessage(locale, searchError) : null,
   );
   const [isPending, startTransition] = useTransition();
 
@@ -159,7 +187,7 @@ export function SignupPage({ searchError }: { searchError?: string }) {
   if (sessionData?.user?.id || isSessionPending) {
     return (
       <Page>
-        <p className='text-muted-foreground/60'>{auth.checkingSession}</p>
+        <p className='text-muted-foreground/60'>{t(checkingSession)}</p>
       </Page>
     );
   }
@@ -170,7 +198,7 @@ export function SignupPage({ searchError }: { searchError?: string }) {
         useradd --join
       </Prompt>
       <p className='mb-1 text-xs text-muted-foreground/60 mt-2'>
-        {auth.signupHint}
+        {t(signupHint)}
       </p>
       <form
         className='mt-4'
@@ -188,7 +216,7 @@ export function SignupPage({ searchError }: { searchError?: string }) {
             });
 
             if (result.error) {
-              setError(result.error.message ?? auth.signUpFailed);
+              setError(result.error.message ?? t(signUpFailed));
               return;
             }
           });
@@ -197,7 +225,7 @@ export function SignupPage({ searchError }: { searchError?: string }) {
         <div className='my-3.5 max-w-105 [&_label]:mb-1.25 [&_label]:block [&_label]:text-xs [&_label]:text-muted-foreground'>
           <label htmlFor='name'>
             <span className='text-primary'>▸ </span>
-            {auth.nameLabel}
+            {t(nameLabel)}
           </label>
           <input
             id='name'
@@ -213,7 +241,7 @@ export function SignupPage({ searchError }: { searchError?: string }) {
         <div className='my-3.5 max-w-105 [&_label]:mb-1.25 [&_label]:block [&_label]:text-xs [&_label]:text-muted-foreground'>
           <label htmlFor='email'>
             <span className='text-primary'>▸ </span>
-            {auth.emailLabel}
+            {t(emailLabel)}
           </label>
           <input
             id='email'
@@ -229,7 +257,7 @@ export function SignupPage({ searchError }: { searchError?: string }) {
         <div className='my-3.5 max-w-105 [&_label]:mb-1.25 [&_label]:block [&_label]:text-xs [&_label]:text-muted-foreground'>
           <label htmlFor='password'>
             <span className='text-primary'>▸ </span>
-            {auth.passwordLabel}
+            {t(passwordLabel)}
           </label>
           <input
             id='password'
@@ -248,7 +276,7 @@ export function SignupPage({ searchError }: { searchError?: string }) {
             className='cursor-pointer rounded-lg border border-primary bg-primary px-3.5 py-1.75 text-sm text-primary-foreground transition duration-100 hover:brightness-95'
             disabled={isPending}
           >
-            {isPending ? auth.creating : auth.createAccount}
+            {isPending ? t(creating) : t(createAccount)}
           </button>
           <button
             type='button'
@@ -261,11 +289,11 @@ export function SignupPage({ searchError }: { searchError?: string }) {
                 errorCallbackURL: '/signup',
               });
               if (result.error) {
-                setError(result.error.message ?? auth.githubSignUpFailed);
+                setError(result.error.message ?? t(githubSignUpFailed));
               }
             }}
           >
-            {auth.continueWithGithub}
+            {t(continueWithGithub)}
           </button>
         </div>
         {error ? (
@@ -285,13 +313,13 @@ export function UnlockPage({
   slug: string;
   search?: Record<string, string | undefined>;
 }) {
-  const { auth } = useMessages();
+  const t = useT();
   const { error: searchError } = (search ?? {}) as { error?: string };
   const errorLabel =
     searchError === 'missing'
-      ? auth.unlockErrorMissing
+      ? t(unlockErrorMissing)
       : searchError === 'invalid'
-        ? auth.unlockErrorInvalid
+        ? t(unlockErrorInvalid)
         : undefined;
 
   return (
@@ -304,12 +332,12 @@ export function UnlockPage({
           cat: posts/{slug}.md: Permission denied
         </span>
       </p>
-      <p className='mb-1 text-xs text-muted-foreground/60'>{auth.unlockHint}</p>
+      <p className='mb-1 text-xs text-muted-foreground/60'>{t(unlockHint)}</p>
       <form method='post' className='mt-4'>
         <div className='my-3.5 max-w-105 [&_label]:mb-1.25 [&_label]:block [&_label]:text-xs [&_label]:text-muted-foreground'>
           <label htmlFor='password'>
             <span className='text-primary'>▸ </span>
-            {auth.unlockPasswordLabel}
+            {t(unlockPasswordLabel)}
           </label>
           <input
             id='password'
@@ -324,14 +352,14 @@ export function UnlockPage({
             type='submit'
             className='cursor-pointer rounded-lg border border-primary bg-primary px-3.5 py-1.75 text-sm text-primary-foreground transition duration-100 hover:brightness-95'
           >
-            {auth.sudoUnlock}
+            {t(sudoUnlock)}
           </button>
           <Link
             to='/blog/$slug'
             params={{ slug }}
             className='text-muted-foreground hover:text-foreground'
           >
-            {auth.backToPost}
+            {t(backToPost)}
           </Link>
         </div>
         {errorLabel ? (

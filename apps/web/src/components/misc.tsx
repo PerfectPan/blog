@@ -1,9 +1,14 @@
 import { Link } from '@tanstack/react-router';
-import { useMessages } from '../lib/i18n/messages.js';
+import { useT } from '../lib/i18n/context.js';
+import {
+  backToBlogList,
+  notFoundComment,
+  requestFailed,
+} from '../lib/i18n/messages.js';
 import { Page } from './page.js';
 
 export function NotFoundPage() {
-  const { misc: t } = useMessages();
+  const t = useT();
   return (
     <Page>
       <div>
@@ -19,7 +24,7 @@ export function NotFoundPage() {
         <p className='mb-1 text-destructive'>
           bash: cd: /nowhere: No such file or directory
         </p>
-        <p className='mb-1 text-muted-foreground/60'>{t.notFoundComment}</p>
+        <p className='mb-1 text-muted-foreground/60'>{t(notFoundComment)}</p>
         <p className='mb-1 mt-4'>
           <Link
             to='/blog'
@@ -27,7 +32,7 @@ export function NotFoundPage() {
           >
             cd ~/blog
           </Link>
-          <span className='text-muted-foreground/60'> {t.backToBlogList}</span>
+          <span className='text-muted-foreground/60'> {t(backToBlogList)}</span>
         </p>
       </div>
     </Page>
@@ -35,7 +40,7 @@ export function NotFoundPage() {
 }
 
 export function ErrorPage({ error }: { error: unknown }) {
-  const { misc: t } = useMessages();
+  const t = useT();
   return (
     <Page>
       <div className='flex flex-wrap items-baseline gap-2.5'>
@@ -47,7 +52,7 @@ export function ErrorPage({ error }: { error: unknown }) {
           curl -I $(hostname)
         </span>
       </div>
-      <p className='mb-1 text-destructive'>{t.requestFailed(String(error))}</p>
+      <p className='mb-1 text-destructive'>{t(requestFailed, String(error))}</p>
       <Link to='/blog' className='text-muted-foreground hover:text-foreground'>
         cd ~/blog
       </Link>
