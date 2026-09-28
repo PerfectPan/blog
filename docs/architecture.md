@@ -207,7 +207,7 @@ pnpm --filter @blog/web dev                            # vite dev
   `t(NAV_LOGIN)`、`t(POSTS_COUNT, { count: n })`。语言是**界面偏好，不是 URL 维度**：
   登录用户读 `user.locale`（root loader，SSR 首屏即正确），游客读 localStorage
   （挂载后切换；首屏 zh→en 闪切是接受的取舍——locale 若进 cookie 会破坏
-  `/blog/<slug>` 的边缘缓存）。admin 后台不翻译；账号页状态值与 zh 工具 aria-label
+  `/blog/<slug>` 的边缘缓存）。admin 后台不翻译；账号页状态值（verified / not verified 等）
   有 e2e 冻结断言，改前先查 `tests/e2e/`。
 - **加路由**：`apps/web/src/routes/` 下加文件（文件式路由），`routeTree.gen.ts` 在 dev/build 时自动生成。
 - **加 server fn**：`createServerFn(...)` 放 `lib/*`；**鉴权必须在 handler 内部做**——别只靠

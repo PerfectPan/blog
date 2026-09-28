@@ -12,8 +12,6 @@ import { IntlMessageFormat } from 'intl-messageformat';
  * - terminal output: `#` comment lines, ls / cd / whoami / FIGLET, reply / rm /
  *   tail -f, the grep prompt, pagination `← prev / next →`;
  * - account `id` status values (verified / not verified / …) — e2e-frozen;
- * - zh aria-labels on header tools (Search posts (Cmd+K), …) — e2e-frozen
- *   selectors; en localizes them;
  * - brands and protocol names: github / rss.
  */
 
@@ -60,19 +58,19 @@ export const NAV_LOGOUT: Msg = { zh: '登出', en: 'logout' };
 export const SEARCH_TOOL: Msg = { zh: '搜索', en: 'grep' };
 export const GITHUB_LABEL: Msg = { zh: 'github', en: 'github' };
 export const RSS_LABEL: Msg = { zh: 'rss', en: 'rss' };
-export const LOGOUT_ARIA: Msg = { zh: 'Logout', en: 'Log out' };
+export const LOGOUT_ARIA: Msg = { zh: '退出登录', en: 'Log out' };
 export const SEARCH_ARIA: Msg = {
-  zh: 'Search posts (Cmd+K)',
+  zh: '搜索文章（Cmd+K）',
   en: 'Search posts (Cmd+K)',
 };
 export const GITHUB_ARIA: Msg = { zh: 'GitHub', en: 'GitHub' };
 export const RSS_ARIA: Msg = { zh: 'RSS', en: 'RSS' };
 export const OPEN_TOOLS_MENU: Msg = {
-  zh: 'Open tools menu',
+  zh: '打开工具菜单',
   en: 'Open tools menu',
 };
 export const CLOSE_TOOLS_MENU: Msg = {
-  zh: 'Close tools menu',
+  zh: '关闭工具菜单',
   en: 'Close tools menu',
 };
 export const LANG_ZH_NAME: Msg = { zh: '中文', en: '中文' };
@@ -178,19 +176,19 @@ export const PAGINATION_ARIA: Msg = { zh: 'Pagination', en: 'Pagination' };
 // Dev-only scope hints (visible with `pnpm dev`); roles and visibility levels
 // are data literals and stay untranslated.
 export const DEV_HINT_GUEST: Msg = {
-  zh: '当前身份：游客；可见范围：public',
+  zh: '当前身份：游客；可见范围：公开',
   en: 'Current identity: guest; visible scope: public',
 };
 export const DEV_HINT_ADMIN: Msg = {
-  zh: '当前身份：admin；可见范围：全部已发布（含 password）',
+  zh: '当前身份：管理员；可见范围：全部已发布（含密码）',
   en: 'Current identity: admin; visible scope: all published (including password)',
 };
 export const DEV_HINT_VIP: Msg = {
-  zh: '当前身份：vip；可见范围：public/member/vip',
+  zh: '当前身份：VIP；可见范围：公开/会员/VIP',
   en: 'Current identity: vip; visible scope: public/member/vip',
 };
 export const DEV_HINT_MEMBER: Msg = {
-  zh: '当前身份：member；可见范围：public/member',
+  zh: '当前身份：会员；可见范围：公开/会员',
   en: 'Current identity: member; visible scope: public/member',
 };
 

@@ -10,7 +10,7 @@ import { expect, test } from '@playwright/test';
 // before the first click — an SSR-visible button proves nothing, a click
 // landing before React attaches handlers is silently lost. Every step then
 // asserts its outcome through expect()'s built-in auto-waiting (menu flips
-// to "Close tools menu", the palette mounts, results stream in, ✕ hides
+// to "关闭工具菜单", the palette mounts, results stream in, ✕ hides
 // the sheet).
 //
 // Geometry is sampled after the open animation (zoom-in-95, duration-200)
@@ -33,11 +33,11 @@ test('mobile search sheet opens from the ⋯ menu and fills the viewport', async
   await page.waitForSelector('html[data-hydrated]');
 
   // ≤480px the tools live behind ⋯. The flip of the toggle's accessible
-  // name to "Close tools menu" is the hydration proof.
-  const menu = page.getByRole('button', { name: 'Open tools menu' });
+  // name to "关闭工具菜单" is the hydration proof.
+  const menu = page.getByRole('button', { name: '打开工具菜单' });
   await menu.click();
   await expect(
-    page.getByRole('button', { name: 'Close tools menu' }),
+    page.getByRole('button', { name: '关闭工具菜单' }),
   ).toBeVisible();
 
   // The bar's own search button is hidden ≤480px (and carries a different
@@ -85,7 +85,7 @@ test('search sheet stays contained at the 640px boundary', async ({ page }) => {
   // mounting) is the hydration check. At exactly 640px v4's max-[640px] is
   // already out — strict < — so the desktop form renders; containment must
   // hold either way.
-  await page.getByRole('button', { name: 'Search posts (Cmd+K)' }).click();
+  await page.getByRole('button', { name: '搜索文章（Cmd+K）' }).click();
 
   const panel = page.locator('[data-slot="dialog-content"]');
   await expect(panel).toBeVisible();

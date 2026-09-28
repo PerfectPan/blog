@@ -45,7 +45,7 @@ test('signup and logout refresh session and route data with the service worker',
 
   await page.getByRole('link', { name: '1:posts', exact: true }).click();
   await expect(
-    page.getByText('当前身份：member；可见范围：public/member'),
+    page.getByText('当前身份：会员；可见范围：公开/会员'),
   ).toBeVisible();
 
   await page.getByTestId('nav-logout').click();
@@ -60,7 +60,7 @@ test('signup and logout refresh session and route data with the service worker',
   await expect(page.getByTestId('nav-login')).toBeVisible();
   await expect(page.getByTestId('nav-logout')).toHaveCount(0);
   await expect(
-    page.getByText('当前身份：游客；可见范围：public'),
+    page.getByText('当前身份：游客；可见范围：公开'),
   ).toBeVisible();
   const loginTab = await page.context().newPage();
   await loginTab.goto('/login');
@@ -83,7 +83,7 @@ test('signup and logout refresh session and route data with the service worker',
     )
     .toBe(1);
   await expect(
-    page.getByText('当前身份：member；可见范围：public/member'),
+    page.getByText('当前身份：会员；可见范围：公开/会员'),
   ).toBeVisible();
   await loginTab.close();
   const cachedPaths = await page.evaluate(async () => {
