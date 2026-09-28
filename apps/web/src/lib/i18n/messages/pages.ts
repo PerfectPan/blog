@@ -45,8 +45,7 @@ export const pagesZh: PagesMessages = {
   verifyEmailHint: '验证邮箱后，用同一邮箱的 GitHub 登录会自动合并进这个账号。',
   verificationSent: (email) => `验证邮件已发到 ${email}，1 小时内有效。`,
   sendVerificationFailed: '发送验证邮件失败',
-  githubLinkedHint:
-    '已绑定 GitHub，可以直接用 continue with github 登录这个账号。',
+  githubLinkedHint: '已绑定 GitHub，可以直接通过 GitHub 登录这个账号。',
   githubNotLinkedHint:
     '绑定后可以用 GitHub 登录这个账号，GitHub 邮箱不必和上面的一致。',
   linkGithubFailed: '绑定 GitHub 失败',

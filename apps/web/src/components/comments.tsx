@@ -381,7 +381,8 @@ export function Comments({
         </div>
       ) : (
         <p className='text-muted-foreground/60 mb-6'>
-          # <Link to='/login'>login</Link> {t.loginHintSuffix}
+          # <Link to='/login'>{t.loginLink}</Link>
+          {t.loginHintSuffix}
         </p>
       )}
       {topError ? (

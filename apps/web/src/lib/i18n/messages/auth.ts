@@ -70,7 +70,7 @@ export const authZh: AuthMessages = {
   githubSignInFailed: 'GitHub 登录失败',
   noAccountYet: '# 还没有账号？',
   signupLink: '注册',
-  signupHint: '# 注册成为 member，可读 member 可见性的文章。',
+  signupHint: '# 注册后成为会员，可阅读会员可见的文章。',
   nameLabel: '用户名',
   createAccount: '创建账号',
   creating: '创建中…',

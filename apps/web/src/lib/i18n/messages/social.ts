@@ -25,7 +25,8 @@ export interface SocialMessages {
   /** window.confirm texts and the empty state. */
   deleteCommentConfirm: string;
   deleteReplyConfirm: string;
-  /** Trailing part of "# login <suffix>" — the link text is the `login` command. */
+  /** Login link text and the trailing part of the "# …" comment hint. */
+  loginLink: string;
   loginHintSuffix: string;
   noComments: string;
 }
@@ -46,6 +47,7 @@ export const socialZh: SocialMessages = {
   loading: '加载中…',
   deleteCommentConfirm: '删除这条评论？',
   deleteReplyConfirm: '删除这条回复？',
+  loginLink: '登录',
   loginHintSuffix: '后即可评论。',
   noComments: '还没有评论，来抢沙发。',
 };
@@ -66,6 +68,7 @@ export const socialEn: SocialMessages = {
   loading: 'Loading…',
   deleteCommentConfirm: 'Delete this comment?',
   deleteReplyConfirm: 'Delete this reply?',
-  loginHintSuffix: 'to comment.',
+  loginLink: 'login',
+  loginHintSuffix: ' to comment.',
   noComments: 'no comments yet — be the first.',
 };

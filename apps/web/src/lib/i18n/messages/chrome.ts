@@ -55,7 +55,7 @@ export const chromeZh: ChromeMessages = {
   siteWindowsAria: '站点窗口',
   postsCount: (n) => `${n} 篇文章`,
   noPosts: '暂无文章',
-  logoutConfirmDescription: '确定要退出登录吗？退出后需要重新登录。',
+  logoutConfirmDescription: '确定要退出登录吗？',
 };
 
 export const chromeEn: ChromeMessages = {
@@ -77,5 +77,5 @@ export const chromeEn: ChromeMessages = {
   siteWindowsAria: 'Site windows',
   postsCount: (n) => `${n} posts`,
   noPosts: 'no posts yet',
-  logoutConfirmDescription: 'Log out? You will need to sign in again.',
+  logoutConfirmDescription: 'Log out?',
 };
