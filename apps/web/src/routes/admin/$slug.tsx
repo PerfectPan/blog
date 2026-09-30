@@ -4,9 +4,15 @@ import {
   getAdminPostServerFn,
   listPostTagsServerFn,
 } from '../../lib/admin-service.js';
+import { KATEX_CSS_HREF } from '../../lib/katex-css.js';
 
 export const Route = createFileRoute('/admin/$slug')({
-  head: () => ({ meta: [{ title: 'Admin · 编辑文章' }] }),
+  // Preview math: the katex stylesheet is linked here (admin-only page,
+  // weight irrelevant) because styles.css no longer bundles it.
+  head: () => ({
+    meta: [{ title: 'Admin · 编辑文章' }],
+    links: [{ rel: 'stylesheet', href: KATEX_CSS_HREF }],
+  }),
   loader: async ({ params }) => {
     const { post } = await getAdminPostServerFn({
       data: { slug: params.slug },

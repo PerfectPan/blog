@@ -14,8 +14,13 @@ import { parseCookies } from './unlock-cookie.js';
 // unlock — means the response could be personalized, so bypass the cache.
 const BENIGN_COOKIES = new Set(['blog-dark', 'blog-skin']);
 
+// The namespace is build-scoped via __ARTICLE_CACHE_BUILD_ID__ (vite define):
+// every deploy gets a fresh edge cache, so a cached response can never
+// reference asset hashes from a previous deployment's bundle.
 const cachePromise: Promise<Cache> | null =
-  'caches' in globalThis ? caches.open('article-page-v1') : null;
+  'caches' in globalThis
+    ? caches.open(`article-page-${__ARTICLE_CACHE_BUILD_ID__}`)
+    : null;
 
 async function getCache(): Promise<Cache | undefined> {
   return (await cachePromise) ?? undefined;

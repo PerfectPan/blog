@@ -6,3 +6,9 @@ declare module 'cloudflare:workers' {
     DB: D1Database;
   };
 }
+
+// Build-scoped constant injected by vite `define` (see vite.config.ts): every
+// build produces a new value, which page-cache.ts folds into the Cache API
+// namespace so a redeploy can never serve edge HTML that references asset
+// hashes from a previous deployment.
+declare const __ARTICLE_CACHE_BUILD_ID__: string;

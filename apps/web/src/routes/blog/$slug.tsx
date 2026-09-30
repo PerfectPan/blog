@@ -3,11 +3,9 @@ import { createFileRoute, notFound, redirect } from '@tanstack/react-router';
 import { ArticlePage } from '../../components/article.js';
 import { getBlogPostServerFn } from '../../lib/blog-service.js';
 import { getCommentsServerFn } from '../../lib/comments-service.js';
+import { KATEX_CSS_HREF } from '../../lib/katex-css.js';
 
 export const Route = createFileRoute('/blog/$slug')({
-  head: () => ({
-    meta: [{ title: "Blog | PerfectPan's Blog" }],
-  }),
   loader: async ({ params }) => {
     const data = await getBlogPostServerFn({ data: { slug: params.slug } });
     const post = data.post;
@@ -54,6 +52,14 @@ export const Route = createFileRoute('/blog/$slug')({
 
     return { ...data, comments };
   },
+  // KaTeX CSS is linked only when the rendered body actually contains math,
+  // so code-only posts don't pay for it.
+  head: ({ loaderData }) => ({
+    meta: [{ title: "Blog | PerfectPan's Blog" }],
+    links: loaderData?.hasKatex
+      ? [{ rel: 'stylesheet', href: KATEX_CSS_HREF }]
+      : [],
+  }),
   component: BlogDetailPage,
 });
 
@@ -66,7 +72,14 @@ function BlogDetailPage() {
 
   return (
     <ArticlePage
-      post={post}
+      post={{
+        slug: post.slug,
+        title: post.title,
+        contentHtml: data.contentHtml,
+        publishedAt: post.publishedAt,
+        visibility: post.visibility,
+        tags: post.tags,
+      }}
       comments={data.comments.comments}
       hasMoreComments={data.comments.hasMore}
       totalComments={data.comments.total}

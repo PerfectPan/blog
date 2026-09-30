@@ -2,7 +2,7 @@ import type { CommentThread, SessionUser } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
 import { cn } from '../lib/utils.js';
 import { Comments } from './comments.js';
-import { Markdown } from './markdown.js';
+import { MarkdownView } from './markdown-view.js';
 import { Page, Prompt } from './page.js';
 import { BODY_ENTER_DELAY_MS, ENTER, enterDelay } from './term.js';
 
@@ -13,7 +13,8 @@ type ArticlePageProps = {
   post: {
     slug: string;
     title: string;
-    contentMdx: string;
+    /** Post body pre-rendered to HTML on the worker (lib/markdown-html.tsx). */
+    contentHtml: string;
     publishedAt: string;
     visibility: string;
     tags: string[];
@@ -61,7 +62,7 @@ export function ArticlePage({
         </div>
       </div>
       <div className={ENTER} style={enterDelay(BODY_ENTER_DELAY_MS)}>
-        <Markdown content={post.contentMdx} />
+        <MarkdownView html={post.contentHtml} />
       </div>
       <Prompt cwd='~/posts %' className='mt-6'>
         <Link

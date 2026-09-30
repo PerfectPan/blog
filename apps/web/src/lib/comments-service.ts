@@ -17,6 +17,7 @@ import { getRequest } from '@tanstack/react-start/server';
 import { z } from 'zod';
 import { getPostVisibilityBySlug } from './content-service.js';
 import { getD1 } from './db.js';
+import { renderCommentHtml } from './markdown-html.js';
 import { getSessionUserFromRequest } from './session-core.js';
 import { isUnlockCookieValid, parseCookies } from './unlock-cookie.js';
 
@@ -112,6 +113,9 @@ function toComment(row: CommentRow, sessionUser: SessionUser | null): Comment {
     id: row.id,
     slug: row.slug,
     body: row.body,
+    // Pre-rendered on the worker — the browser injects it directly instead of
+    // running react-markdown per comment.
+    bodyHtml: renderCommentHtml(row.body),
     createdAt: row.createdAt,
     parentId: row.parentId,
     status: normalizeStatus(row.status),
@@ -303,6 +307,7 @@ export const createCommentServerFn = createServerFn({ method: 'POST' })
       id,
       slug: data.slug,
       body: data.body,
+      bodyHtml: renderCommentHtml(data.body),
       createdAt: now,
       parentId: data.parentId ?? null,
       status: 'visible',

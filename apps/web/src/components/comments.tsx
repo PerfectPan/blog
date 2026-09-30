@@ -58,7 +58,8 @@ import {
   TOOLBAR_LIST,
   TOOLBAR_QUOTE,
 } from '../lib/i18n/messages.js';
-import { CommentMarkdown } from './comment-markdown.js';
+import { previewCommentServerFn } from '../lib/markdown-preview.js';
+import { CommentBody } from './comment-body.js';
 import { Prompt } from './page.js';
 
 type CommentsProps = {
@@ -132,11 +133,36 @@ function Composer({
   const [body, setBody] = useState('');
   const [preview, setPreview] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Server-rendered preview HTML (rendered on the worker through the same
+  // pipeline as stored comments — react-markdown never ships to the browser).
+  const [previewHtml, setPreviewHtml] = useState('');
   const remaining = COMMENT_BODY_MAX - body.length;
-  // No shiki here, but re-rendering markdown per keystroke is still wasteful —
-  // keep the preview a tick behind the typed text (same as the admin editor).
+  // Re-rendering markdown per keystroke is wasteful — keep the preview a tick
+  // behind the typed text (same as the admin editor).
   const previewContent = useDeferredValue(body);
   const pendingSelection = useRef<{ start: number; end: number } | null>(null);
+
+  // Debounced server render while the preview tab is open.
+  useEffect(() => {
+    if (!preview || !previewContent.trim()) {
+      setPreviewHtml('');
+      return;
+    }
+    let cancelled = false;
+    const handle = setTimeout(() => {
+      previewCommentServerFn({ data: { body: previewContent } })
+        .then(({ html }) => {
+          if (!cancelled) setPreviewHtml(html);
+        })
+        .catch(() => {
+          if (!cancelled) setPreviewHtml('');
+        });
+    }, 200);
+    return () => {
+      cancelled = true;
+      clearTimeout(handle);
+    };
+  }, [preview, previewContent]);
 
   // Restore the caret/selection after a toolbar action mutates the value.
   useEffect(() => {
@@ -283,7 +309,7 @@ function Composer({
           className={`overflow-auto px-3.5 py-2.5 ${compact ? 'min-h-16' : 'min-h-21'}`}
         >
           {body.trim() ? (
-            <CommentMarkdown content={previewContent} />
+            <CommentBody html={previewHtml} />
           ) : (
             <p className='text-muted-foreground/60'># {t(PREVIEW_EMPTY)}</p>
           )}
@@ -491,7 +517,7 @@ function CommentView({
         <span>{formatRelative(comment.createdAt, t)}</span>
       </div>
       <div className='px-3.5 py-2.5'>
-        <CommentMarkdown content={comment.body} />
+        <CommentBody html={comment.bodyHtml ?? ''} />
       </div>
       {canReply && onReply ? (
         <div className={ACTION_ROW}>

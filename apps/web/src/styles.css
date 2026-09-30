@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "katex/dist/katex.min.css";
+
+/* KaTeX is deliberately NOT imported here: only pages whose rendered HTML
+   contains math link the emitted stylesheet (lib/katex-css.ts) from their
+   head(), so the rest of the site skips ~20KB of blocking CSS. */
 
 /* Tailwind v4, CSS-first config.
    - dark: class-based toggle (html.dark)
@@ -368,6 +371,20 @@ html.dark ::-webkit-scrollbar-thumb:hover {
   border-radius: 4px;
   font-size: 13px;
   color: var(--primary);
+}
+/* Server-rendered copy button toggles between its idle/copied variants via
+   [data-copied] (set by markdown-view's enhancer) — pure CSS, no re-render. */
+.md [data-md-copy] .md-check-icon,
+.md [data-md-copy] .md-copied-label {
+  display: none;
+}
+.md [data-md-copy][data-copied] .md-copy-icon,
+.md [data-md-copy][data-copied] .md-copy-label {
+  display: none;
+}
+.md [data-md-copy][data-copied] .md-check-icon,
+.md [data-md-copy][data-copied] .md-copied-label {
+  display: inline-flex;
 }
 :root .md pre.th-pre {
   background: var(--card);
