@@ -30,7 +30,7 @@
 | Admin 后台 | `routes/admin/{index,new,$slug}.tsx`、`lib/admin-service.ts`、`components/{post-editor,markdown-editor,tag-input,markdown}.tsx` |
 | 评论（自建，登录 + 后置审核） | `lib/comments-service.ts`、`components/{comments,comment-markdown}.tsx`、`routes/admin/comments.tsx`；共享类型/权限纯函数 `packages/shared`（`Comment`、`canAccessComments`、`canManageComment`）。设计见 `docs/superpowers/specs/2026-07-14-self-hosted-comments-design.md` |
 | 密码文章解锁 | `routes/unlock/$slug.tsx`、`lib/unlock-cookie.ts`、`lib/unlock-rate-limit.ts` |
-| Markdown 渲染 | `components/markdown.tsx`（react-markdown + shiki + katex） |
+| Markdown 渲染 | 服务端：`lib/markdown-html.tsx`（react-markdown + rehype-katex，经 `renderToStaticMarkup` 输出 HTML 字符串）+ `components/markdown.tsx`（渲染组件本体）；客户端：`components/markdown-view.tsx`（单节点注入 + shiki 渐进增强） |
 | 界面 i18n（zh/en） | `lib/i18n/{messages,context}.ts`、`lib/locale-service.ts`（`user.locale`） |
 | D1 访问 / 迁移 | `lib/db.ts`、`apps/web/migrations/` |
 | 共享类型 / 权限纯函数 | `packages/shared/src/{types,access,index}.ts` |
@@ -124,8 +124,8 @@ fetch 里（`apps/web/src/server.tsx`）。
 - 所有 admin server fn（list/get/upsert/delete）入口先 `requireAdmin()`：未登录 → 跳
   `/login`；非 admin → 跳 `/`（不泄露任何后台内容）。
 - 编辑器（`components/post-editor.tsx` + `markdown-editor.tsx` + `tag-input.tsx`）：
-  分屏 Markdown 编辑（工具栏 + 实时预览，复用前台 `<Markdown>`）、标签 chip 输入、
-  可见性/状态/密码。保存 = 以 slug 为键 upsert D1 `post` 行。
+  分屏 Markdown 编辑（工具栏 + 实时预览，预览经 `lib/markdown-preview.ts` 的 server fn
+  在 worker 上渲染）、标签 chip 输入、可见性/状态/密码。保存 = 以 slug 为键 upsert D1 `post` 行。
 
 ## 8. 安全（审计结论）
 
@@ -134,7 +134,9 @@ fetch 里（`apps/web/src/server.tsx`）。
 - **AuthZ**：admin fn 全部 `requireAdmin`；公开读按角色过滤；单篇在**数据层**裁剪正文
   （已修复原先仅 loader 拦截、可被 RPC 绕过的越权读）。
 - **SQL 注入**：所有 D1 查询参数化（`.prepare().bind()`），无字符串拼接。
-- **XSS**：Markdown 经 react-markdown 渲染，**未启用 `rehype-raw`**（不透传原始 HTML）。
+- **XSS**：Markdown 经 react-markdown 渲染（**在 worker 上**，产物以 HTML 字符串下发并由
+  `markdown-view.tsx` 单节点注入），**未启用 `rehype-raw`**（不透传原始 HTML）；URL 协议
+  由 react-markdown 默认 `urlTransform` 过滤。客户端不再运行 markdown 解析器。
 - **CSRF**：会话 cookie `SameSite=Lax` 拦截跨站 POST；Better Auth 校验 origin。
 - **密钥**：`BETTER_AUTH_SECRET`、GitHub OAuth secret、`RESEND_API_KEY` 放 Cloudflare **secret**（不入库、不进 git）；
   `ADMIN_EMAIL_ALLOWLIST` 是 var（非密钥）。

@@ -1,7 +1,7 @@
 import type { Comment, CommentStatus } from '@blog/shared';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useMemo, useState } from 'react';
-import { CommentMarkdown } from '../../components/comment-markdown.js';
+import { CommentBody } from '../../components/comment-body.js';
 import { ConfirmDialog } from '../../components/confirm-dialog.js';
 import { Prompt } from '../../components/page.js';
 import {
@@ -171,7 +171,7 @@ function AdminCommentsPage() {
                   {new Date(comment.createdAt).toLocaleString('en-US')}
                 </span>
               </div>
-              <CommentMarkdown content={comment.body} />
+              <CommentBody html={comment.bodyHtml ?? ''} />
               <div className='mt-3 flex flex-wrap gap-3 text-xs'>
                 {comment.status !== 'hidden' ? (
                   <button
