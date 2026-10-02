@@ -49,8 +49,6 @@ const LANG_IMPORTS: Record<string, () => Promise<unknown>> = {
   css: () => import('shiki/langs/css.mjs'),
   json: () => import('shiki/langs/json.mjs'),
   bash: () => import('shiki/langs/bash.mjs'),
-  shell: () => import('shiki/langs/bash.mjs'),
-  sh: () => import('shiki/langs/bash.mjs'),
   yaml: () => import('shiki/langs/yaml.mjs'),
   markdown: () => import('shiki/langs/markdown.mjs'),
   cpp: () => import('shiki/langs/cpp.mjs'),
@@ -61,6 +59,37 @@ const LANG_IMPORTS: Record<string, () => Promise<unknown>> = {
   rust: () => import('shiki/langs/rust.mjs'),
   sql: () => import('shiki/langs/sql.mjs'),
 };
+
+/** Common fence aliases → canonical grammar key. Without this, `js`/`ts`/…
+ *  fall through to plain text even though their grammar highlights them. */
+const LANG_ALIASES: Record<string, string> = {
+  js: 'javascript',
+  mjs: 'javascript',
+  cjs: 'javascript',
+  ts: 'typescript',
+  mts: 'typescript',
+  yml: 'yaml',
+  md: 'markdown',
+  'c++': 'cpp',
+  cc: 'cpp',
+  cxx: 'cpp',
+  hpp: 'cpp',
+  hh: 'cpp',
+  hxx: 'cpp',
+  h: 'c',
+  golang: 'go',
+  py: 'python',
+  rs: 'rust',
+  sh: 'bash',
+  shell: 'bash',
+  zsh: 'bash',
+  shellsession: 'bash',
+};
+
+/** Canonical grammar key for a fence info string, or null for plain text. */
+function resolveLangKey(lang: string): string | null {
+  return LANG_IMPORTS[lang] ? lang : (LANG_ALIASES[lang] ?? null);
+}
 
 function scrollToHeading(id: string) {
   // scrollIntoView targets the nearest scroll container (the app-shell main),
@@ -86,9 +115,13 @@ function nextTask(): Promise<void> {
 /**
  * Highlights code blocks in paint order: viewport blocks first (they carry
  * the LCP), then the rest, yielding between blocks so the main thread stays
- * interactive on long, code-heavy posts.
+ * interactive on long, code-heavy posts. `isCancelled` aborts the queue when
+ * the html prop has moved on (client-side navigation, async editor preview).
  */
-async function highlightProgressively(pres: HTMLPreElement[]) {
+async function highlightProgressively(
+  pres: HTMLPreElement[],
+  isCancelled: () => boolean,
+) {
   const above: HTMLPreElement[] = [];
   const below: HTMLPreElement[] = [];
   for (const pre of pres) {
@@ -101,8 +134,10 @@ async function highlightProgressively(pres: HTMLPreElement[]) {
   const firstUpgrade = upgradeCodeBlock(first);
   const queue = [...above, ...below];
   await firstUpgrade;
+  if (isCancelled()) return;
   for (const pre of queue) {
     await upgradeCodeBlock(pre);
+    if (isCancelled()) return;
     await nextTask();
   }
 }
@@ -111,24 +146,26 @@ async function highlightProgressively(pres: HTMLPreElement[]) {
 async function upgradeCodeBlock(pre: HTMLPreElement) {
   const code = pre.querySelector('code');
   if (!code || code.dataset.highlighted) return;
-  const lang = /language-([\w-]+)/.exec(code.className)?.[1] ?? 'text';
+  // [\w+#-] so fence info like `c++`/`c#` survives the capture.
+  const lang = /language-([\w+#-]+)/.exec(code.className)?.[1] ?? 'text';
   const raw = code.textContent ?? '';
   try {
     const highlighter = await getHighlighter();
-    // Just-in-time grammar: unknown/unsupported languages stay plain text
-    // (same visible outcome as the old eager setup, which also failed soft).
-    const loadLang = LANG_IMPORTS[lang] as
-      | (() => Promise<{ default: LanguageInput }>)
-      | undefined;
-    if (loadLang) {
-      const loaded = new Set(highlighter.getLoadedLanguages());
-      if (!loaded.has(lang)) {
-        const mod = (await loadLang()) as { default: LanguageInput };
+    // Just-in-time grammar, resolved through the alias table first: unknown/
+    // unsupported languages stay plain text (same visible outcome as the old
+    // eager setup, which also failed soft).
+    const langKey = resolveLangKey(lang);
+    if (langKey) {
+      const loadLang = LANG_IMPORTS[langKey] as () => Promise<{
+        default: LanguageInput;
+      }>;
+      if (!highlighter.getLoadedLanguages().includes(langKey)) {
+        const mod = await loadLang();
         await highlighter.loadLanguage(mod.default);
       }
     }
     const html = highlighter.codeToHtml(raw, {
-      lang: loadLang ? lang : 'text',
+      lang: langKey ?? 'text',
       themes: { light: 'vitesse-light', dark: 'vitesse-dark' },
     });
     if (code.dataset.highlighted) return;
@@ -171,18 +208,11 @@ function relabelCopyButtons(locale: Locale, root: HTMLElement) {
 export function MarkdownView({ html }: MarkdownViewProps) {
   const articleRef = useRef<HTMLElement>(null);
 
+  // Event delegation + locale relabeling bind to the persistent <article>
+  // node, so mount-once is correct here; innerHTML swaps don't detach them.
   useEffect(() => {
     const article = articleRef.current;
     if (!article) return;
-
-    // Initial #hash scroll, one frame after paint.
-    const hash = window.location.hash;
-    if (hash.startsWith('#')) {
-      requestAnimationFrame(() => {
-        const id = decodeURIComponent(hash.slice(1));
-        scrollToHeading(id);
-      });
-    }
 
     // Heading anchors + copy buttons via event delegation.
     const onClick = (event: MouseEvent) => {
@@ -214,14 +244,6 @@ export function MarkdownView({ html }: MarkdownViewProps) {
     };
     article.addEventListener('click', onClick);
 
-    // Shiki upgrade, scheduled so the page stays responsive: blocks in (or
-    // near) the viewport highlight first — they carry the LCP — and each block
-    // yields to the event loop before the next, so one long post cannot pin
-    // the main thread behind a single multi-second task.
-    void highlightProgressively(
-      Array.from(article.querySelectorAll<HTMLPreElement>('pre')),
-    );
-
     // Relabel copy buttons when the guest locale switches client-side. The
     // <html lang> attribute carries the BCP-7 tag (zh-CN / en) — collapse it
     // back to the UI locale.
@@ -240,6 +262,39 @@ export function MarkdownView({ html }: MarkdownViewProps) {
       langObserver.disconnect();
     };
   }, []);
+
+  // Enhancement must track the html prop, not just the mount: client-side
+  // navigation reuses this component with fresh HTML, and the admin editor
+  // first mounts with empty preview HTML that arrives asynchronously. The
+  // cleanup cancels the queue so a superseded html string stops paying for
+  // highlighting its (soon-to-be-replaced) blocks.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: html is the trigger — fresh markup must be re-enhanced even though the effect reads it from the DOM.
+  useEffect(() => {
+    const article = articleRef.current;
+    if (!article) return;
+
+    // Initial #hash scroll, one frame after paint.
+    const hash = window.location.hash;
+    if (hash.startsWith('#')) {
+      requestAnimationFrame(() => {
+        const id = decodeURIComponent(hash.slice(1));
+        scrollToHeading(id);
+      });
+    }
+
+    // Shiki upgrade, scheduled so the page stays responsive: blocks in (or
+    // near) the viewport highlight first — they carry the LCP — and each block
+    // yields to the event loop before the next, so one long post cannot pin
+    // the main thread behind a single multi-second task.
+    let cancelled = false;
+    void highlightProgressively(
+      Array.from(article.querySelectorAll<HTMLPreElement>('pre')),
+      () => cancelled,
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [html]);
 
   return (
     <article

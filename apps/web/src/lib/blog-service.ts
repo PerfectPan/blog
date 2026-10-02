@@ -93,9 +93,10 @@ export const getBlogPostServerFn = createServerFn({ method: 'GET' })
     // Enforce visibility at the data layer. The route loader also redirects/
     // 403s, but this server fn is reachable over RPC, so the body must not be
     // returned to a caller who isn't allowed to read it.
+    let unlocked = false;
     if (post.visibility === 'password') {
       const cookies = parseCookies(request?.headers.get('cookie') ?? null);
-      const unlocked =
+      unlocked =
         sessionUser?.role === 'admin' ||
         isUnlockCookieValid(data.slug, cookies[getUnlockCookieName(data.slug)]);
       if (!unlocked) {
@@ -125,7 +126,7 @@ export const getBlogPostServerFn = createServerFn({ method: 'GET' })
     return {
       sessionUser,
       post: withoutBody(post),
-      unlocked: false,
+      unlocked,
       contentHtml,
       hasKatex: htmlHasKatex(contentHtml),
     };
