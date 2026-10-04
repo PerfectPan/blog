@@ -26,6 +26,8 @@ export interface SessionUser {
   id: string;
   role: Role;
   email: string;
+  name?: string;
+  emailVerified?: boolean;
   /** UI-language preference from `user.locale`; null/absent means zh. */
   locale?: Locale | null;
 }
@@ -44,12 +46,16 @@ export interface CommentAuthor {
 /**
  * A single comment as shipped to the client. `isOwn` is computed server-side
  * (author id === session user id) so the client can show a delete control
- * without ever receiving the author's user id.
+ * without ever receiving the author's user id. `bodyHtml` is the body
+ * pre-rendered on the worker (same markdown pipeline), so the browser never
+ * re-parses comment markdown; `body` stays for raw-text contexts like
+ * moderation.
  */
 export interface Comment {
   id: string;
   slug: string;
   body: string;
+  bodyHtml?: string;
   createdAt: string;
   parentId: string | null;
   status: CommentStatus;

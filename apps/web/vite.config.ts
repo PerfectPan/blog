@@ -7,11 +7,20 @@ import tsConfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
   publicDir: '../../public',
+  worker: { format: 'es' },
+  // Fresh value per build run. page-cache.ts folds it into the article-page
+  // Cache API namespace, so each deployment starts with an empty edge cache —
+  // a cached page can never outlive the asset hashes it references.
+  define: {
+    __ARTICLE_CACHE_BUILD_ID__: JSON.stringify(`b${Date.now().toString(36)}`),
+  },
   plugins: [
     tsConfigPaths(),
     cloudflare({ viteEnvironment: { name: 'ssr' } }),
     tanstackStart(),
-    viteReact(),
+    viteReact({
+      babel: { plugins: ['babel-plugin-react-compiler'] },
+    }),
     tailwindcss(),
   ],
   server: {
@@ -31,6 +40,7 @@ export default defineConfig({
         'src/lib/blog-service.ts?tss-serverfn-split',
         'src/lib/comments-service.ts?tss-serverfn-split',
         'src/lib/locale-service.ts?tss-serverfn-split',
+        'src/lib/session-service.ts?tss-serverfn-split',
       ],
     },
   },

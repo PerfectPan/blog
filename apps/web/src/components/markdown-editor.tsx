@@ -10,14 +10,9 @@ import {
   Loader2,
   Quote,
 } from 'lucide-react';
-import {
-  type ReactNode,
-  useDeferredValue,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
-import { Markdown } from './markdown.js';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { previewPostServerFn } from '../lib/markdown-preview.js';
+import { MarkdownView } from './markdown-view.js';
 
 type MarkdownEditorProps = {
   value: string;
@@ -32,10 +27,33 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
   const ref = useRef<HTMLTextAreaElement>(null);
   const [mode, setMode] = useState<Mode>('split');
   const [uploading, setUploading] = useState(false);
-  // shiki highlighting is expensive; keep the textarea snappy by deferring the
-  // rendered preview a tick behind the typed text.
-  const previewContent = useDeferredValue(value);
+  const previewVisible = mode !== 'write';
+  // Preview HTML is rendered on the worker (same pipeline as the published
+  // page); debounced so typing stays snappy and the RPC stays quiet.
+  const [previewHtml, setPreviewHtml] = useState('');
   const pendingSelection = useRef<{ start: number; end: number } | null>(null);
+
+  useEffect(() => {
+    if (!previewVisible) return;
+    if (!value.trim()) {
+      setPreviewHtml('');
+      return;
+    }
+    let cancelled = false;
+    const handle = setTimeout(() => {
+      previewPostServerFn({ data: { body: value } })
+        .then(({ html }) => {
+          if (!cancelled) setPreviewHtml(html);
+        })
+        .catch(() => {
+          if (!cancelled) setPreviewHtml('');
+        });
+    }, 250);
+    return () => {
+      cancelled = true;
+      clearTimeout(handle);
+    };
+  }, [value, previewVisible]);
 
   // Restore the caret/selection after a toolbar action mutates the value.
   useEffect(() => {
@@ -280,7 +298,7 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
             }`}
           >
             {value.trim() ? (
-              <Markdown content={previewContent} />
+              <MarkdownView html={previewHtml} />
             ) : (
               <p className='opacity-40'>暂无内容可预览。</p>
             )}

@@ -11,8 +11,14 @@ import {
   UserRoundPlus,
   X,
 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
-import { authClient } from '../lib/auth-client.js';
+import {
+  lazy,
+  type ReactNode,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useLocale, useT } from '../lib/i18n/context.js';
 import {
   CLOSE_TOOLS_MENU,
@@ -32,10 +38,16 @@ import {
   SEARCH_TOOL,
   SWITCH_LOCALE,
 } from '../lib/i18n/messages.js';
-import { ConfirmDialog } from './confirm-dialog.js';
+import { useSessionUser } from '../lib/session-user.js';
 import { DarkMode } from './dark-mode.js';
 import { searchPalette } from './search-palette-store.js';
 import { SHEET_ROW, TOOL_BTN, TOOL_BTN_TOGGLE } from './term.js';
+
+// The logout confirm dialog (radix Dialog) loads in its own chunk, mounted
+// on first use, so radix stays out of the logged-out pages' critical path.
+const ConfirmDialog = lazy(() =>
+  import('./confirm-dialog.js').then((m) => ({ default: m.ConfirmDialog })),
+);
 
 function getRoleLabel(role?: string | null): string {
   if (role === 'admin') {
@@ -96,8 +108,7 @@ const TOOL_VIS = 'max-[480px]:hidden';
  *  ≤480px the tool buttons collapse behind a ⋯ toggle that expands a flat
  *  text sheet under the bar (no drawer, no animation — terminals don't slide). */
 export function Header() {
-  const { data: sessionData } = authClient.useSession();
-  const sessionUser = sessionData?.user ?? null;
+  const sessionUser = useSessionUser();
   const navigate = useNavigate();
   const t = useT();
   const [logoutOpen, setLogoutOpen] = useState(false);
@@ -322,17 +333,37 @@ export function Header() {
           <LocaleSwitcher variant='sheet' />
         </div>
       ) : null}
-      <ConfirmDialog
-        open={logoutOpen}
-        onOpenChange={setLogoutOpen}
-        command='logout'
-        description={t(LOGOUT_CONFIRM_DESCRIPTION)}
-        confirmLabel='logout'
-        onConfirm={() => {
-          setLogoutOpen(false);
-          navigate({ to: '/logout' });
-        }}
-      />
+      <ConfirmDialogGate open={logoutOpen}>
+        <ConfirmDialog
+          open={logoutOpen}
+          onOpenChange={setLogoutOpen}
+          command='logout'
+          description={t(LOGOUT_CONFIRM_DESCRIPTION)}
+          confirmLabel='logout'
+          onConfirm={() => {
+            setLogoutOpen(false);
+            navigate({ to: '/logout' });
+          }}
+        />
+      </ConfirmDialogGate>
     </header>
   );
+}
+
+/** Keeps the lazy ConfirmDialog mounted after its first opening so radix can
+ *  animate the close; renders nothing before that. */
+function ConfirmDialogGate({
+  open,
+  children,
+}: {
+  open: boolean;
+  children: ReactNode;
+}) {
+  const [armed, setArmed] = useState(false);
+  useEffect(() => {
+    if (open) {
+      setArmed(true);
+    }
+  }, [open]);
+  return armed ? <Suspense fallback={null}>{children}</Suspense> : null;
 }

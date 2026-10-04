@@ -30,7 +30,7 @@
 | Admin 后台 | `routes/admin/{index,new,$slug}.tsx`、`lib/admin-service.ts`、`components/{post-editor,markdown-editor,tag-input,markdown}.tsx` |
 | 评论（自建，登录 + 后置审核） | `lib/comments-service.ts`、`components/{comments,comment-markdown}.tsx`、`routes/admin/comments.tsx`；共享类型/权限纯函数 `packages/shared`（`Comment`、`canAccessComments`、`canManageComment`）。设计见 `docs/superpowers/specs/2026-07-14-self-hosted-comments-design.md` |
 | 密码文章解锁 | `routes/unlock/$slug.tsx`、`lib/unlock-cookie.ts`、`lib/unlock-rate-limit.ts` |
-| Markdown 渲染 | `components/markdown.tsx`（react-markdown + shiki + katex） |
+| Markdown 渲染 | 服务端：`lib/markdown-html.tsx`（react-markdown + rehype-katex，经 `renderToStaticMarkup` 输出 HTML 字符串）+ `components/markdown.tsx`（渲染组件本体）；客户端：`components/markdown-view.tsx`（单节点注入、按可见区域增强）+ `components/markdown-highlight{,.worker}.ts`（复用一个浏览器 Web Worker 执行 Shiki） |
 | 界面 i18n（zh/en） | `lib/i18n/{messages,context}.ts`、`lib/locale-service.ts`（`user.locale`） |
 | D1 访问 / 迁移 | `lib/db.ts`、`apps/web/migrations/` |
 | 共享类型 / 权限纯函数 | `packages/shared/src/{types,access,index}.ts` |
@@ -101,6 +101,16 @@ fetch 里（`apps/web/src/server.tsx`）。
    预劫持）；未验证则回到 `/login?error=account_not_linked`，用户先用密码登录，再在 `/account`
    验证邮箱或手动绑定 GitHub（`linkSocial`，允许 GitHub 邮箱与账号邮箱不同）。
 
+文章列表和搜索只从 D1 读取已发布文章的摘要字段；详情按 slug 主键读取一行，密码校验只读取该文章的密码字段且拒绝草稿。会话读取与文章查询并行，权限裁决仍在两者完成后执行。RSS 继续读取已发布文章的正文，并筛选公开内容。
+
+根 loader 将经过服务端校验的用户展示字段传给客户端；导航、页脚、账号页和评论输入框复用这份数据，首次 hydration 不再请求 Better Auth 的 `get-session`。不会序列化 session token、IP 等会话记录。相同 `Request` 对象的并行 loader 共享身份查询 Promise，不同请求之间不共享身份。
+
+登录、注册和退出成功后清空路由缓存并重新加载身份；其他标签页通过不含用户信息的 storage 通知触发复核，页面重新可见或联网时也会复核。身份未变化时不重跑文章 loader。客户端快照只负责展示，server fn 仍逐请求鉴权；带身份或解锁 cookie 的文章请求继续绕过公共 HTML 缓存。
+
+客户端高亮由 `IntersectionObserver` 按可见区域排队，浏览器 Web Worker 按需加载语法并复用 Shiki 实例。文章跳转或预览 HTML 更新时取消旧队列并丢弃过期响应；Worker 不可用时保留可读的纯文本代码。固定 About 文案的中英文 HTML 在每个服务端 isolate 内复用，不缓存用户或文章数据。
+
+React Compiler 经 Vite 的 React Babel 插件启用，使用 React 19 内置 runtime，为可分析的组件和 hook 自动添加记忆化。无法分析的函数保留原实现；不为提高编译覆盖率移除错误处理。它优化组件计算与子树复用，不代替请求去重、服务端鉴权或浏览器性能测量。
+
 ## 6. 权限模型（**两层都要守**）
 
 - 角色：`member` < `vip` < `admin`。
@@ -124,8 +134,8 @@ fetch 里（`apps/web/src/server.tsx`）。
 - 所有 admin server fn（list/get/upsert/delete）入口先 `requireAdmin()`：未登录 → 跳
   `/login`；非 admin → 跳 `/`（不泄露任何后台内容）。
 - 编辑器（`components/post-editor.tsx` + `markdown-editor.tsx` + `tag-input.tsx`）：
-  分屏 Markdown 编辑（工具栏 + 实时预览，复用前台 `<Markdown>`）、标签 chip 输入、
-  可见性/状态/密码。保存 = 以 slug 为键 upsert D1 `post` 行。
+  分屏 Markdown 编辑（工具栏 + 实时预览，预览经 `lib/markdown-preview.ts` 的 server fn
+  在 worker 上渲染；仅编辑模式不发送预览请求）、标签 chip 输入、可见性/状态/密码。保存 = 以 slug 为键 upsert D1 `post` 行。
 
 ## 8. 安全（审计结论）
 
@@ -134,7 +144,9 @@ fetch 里（`apps/web/src/server.tsx`）。
 - **AuthZ**：admin fn 全部 `requireAdmin`；公开读按角色过滤；单篇在**数据层**裁剪正文
   （已修复原先仅 loader 拦截、可被 RPC 绕过的越权读）。
 - **SQL 注入**：所有 D1 查询参数化（`.prepare().bind()`），无字符串拼接。
-- **XSS**：Markdown 经 react-markdown 渲染，**未启用 `rehype-raw`**（不透传原始 HTML）。
+- **XSS**：Markdown 经 react-markdown 渲染（**在 worker 上**，产物以 HTML 字符串下发并由
+  `markdown-view.tsx` 单节点注入），**未启用 `rehype-raw`**（不透传原始 HTML）；URL 协议
+  由 react-markdown 默认 `urlTransform` 过滤。客户端不再运行 markdown 解析器。
 - **CSRF**：会话 cookie `SameSite=Lax` 拦截跨站 POST；Better Auth 校验 origin。
 - **密钥**：`BETTER_AUTH_SECRET`、GitHub OAuth secret、`RESEND_API_KEY` 放 Cloudflare **secret**（不入库、不进 git）；
   `ADMIN_EMAIL_ALLOWLIST` 是 var（非密钥）。

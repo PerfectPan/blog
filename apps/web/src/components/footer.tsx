@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
-import { authClient } from '../lib/auth-client.js';
 import { useT } from '../lib/i18n/context.js';
 import { SITE_WINDOWS_ARIA } from '../lib/i18n/messages.js';
+import { useSessionUser } from '../lib/session-user.js';
 
 /**
  * tmux-style status bar: session name + clickable windows on the left, site
@@ -16,8 +16,8 @@ const WIN =
   'rounded-sm px-2 py-px text-muted-foreground hover:text-foreground hover:no-underline max-[430px]:px-1.5';
 
 export function Footer() {
-  const { data: sessionData } = authClient.useSession();
-  const isAdmin = sessionData?.user?.role === 'admin';
+  const sessionUser = useSessionUser();
+  const isAdmin = sessionUser?.role === 'admin';
   const t = useT();
 
   return (

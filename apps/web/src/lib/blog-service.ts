@@ -1,5 +1,6 @@
 import {
   canAccessVisibility,
+  DEFAULT_LOCALE,
   filterByQuery,
   getUnlockCookieName,
   type PostDetail,
@@ -16,6 +17,7 @@ import {
   getPostBySlug,
   verifyPostPassword,
 } from './content-service.js';
+import { htmlHasKatex, renderPostHtml } from './markdown-html.js';
 import { getSessionUserFromRequest } from './session-core.js';
 import { isUnlockCookieValid, parseCookies } from './unlock-cookie.js';
 
@@ -44,8 +46,10 @@ export const getBlogListServerFn = createServerFn({ method: 'GET' })
   .inputValidator(z.object({ page: z.number().int().min(1).optional() }))
   .handler(async ({ data }) => {
     const request = getRequest();
-    const sessionUser = await getSessionUserFromRequest(request);
-    const allPosts = await getAllPublishedPosts();
+    const [sessionUser, allPosts] = await Promise.all([
+      getSessionUserFromRequest(request),
+      getAllPublishedPosts(),
+    ]);
     const visible = sortByPublishedDateDesc(
       allPosts.filter((post) => isListedFor(post, sessionUser?.role)),
     );
@@ -68,11 +72,12 @@ export const searchPostsServerFn = createServerFn({ method: 'GET' })
   .inputValidator(z.object({ q: z.string() }))
   .handler(async ({ data }) => {
     const request = getRequest();
-    const sessionUser = await getSessionUserFromRequest(request);
+    const [sessionUser, allPosts] = await Promise.all([
+      getSessionUserFromRequest(request),
+      getAllPublishedPosts(),
+    ]);
     const visible = sortByPublishedDateDesc(
-      (await getAllPublishedPosts()).filter((post) =>
-        isListedFor(post, sessionUser?.role),
-      ),
+      allPosts.filter((post) => isListedFor(post, sessionUser?.role)),
     );
     return filterByQuery(visible, data.q).slice(0, SEARCH_LIMIT);
   });
@@ -81,33 +86,55 @@ export const getBlogPostServerFn = createServerFn({ method: 'GET' })
   .inputValidator(z.object({ slug: z.string().min(1) }))
   .handler(async ({ data }) => {
     const request = getRequest();
-    const sessionUser = await getSessionUserFromRequest(request);
-    const post = await getPostBySlug(data.slug);
+    const [sessionUser, post] = await Promise.all([
+      getSessionUserFromRequest(request),
+      getPostBySlug(data.slug),
+    ]);
 
     if (!post) {
-      return { sessionUser, post: null, unlocked: false };
+      return { sessionUser, post: null, unlocked: false, contentHtml: '' };
     }
 
     // Enforce visibility at the data layer. The route loader also redirects/
     // 403s, but this server fn is reachable over RPC, so the body must not be
     // returned to a caller who isn't allowed to read it.
+    let unlocked = false;
     if (post.visibility === 'password') {
       const cookies = parseCookies(request?.headers.get('cookie') ?? null);
-      const unlocked =
+      unlocked =
         sessionUser?.role === 'admin' ||
         isUnlockCookieValid(data.slug, cookies[getUnlockCookieName(data.slug)]);
+      if (!unlocked) {
+        return {
+          sessionUser,
+          post: withoutBody(post),
+          unlocked,
+          contentHtml: '',
+        };
+      }
+    } else if (
+      !canAccessVisibility(post.visibility, sessionUser?.role ?? null)
+    ) {
       return {
         sessionUser,
-        post: unlocked ? post : withoutBody(post),
-        unlocked,
+        post: withoutBody(post),
+        unlocked: false,
+        contentHtml: '',
       };
     }
 
-    if (!canAccessVisibility(post.visibility, sessionUser?.role ?? null)) {
-      return { sessionUser, post: withoutBody(post), unlocked: false };
-    }
-
-    return { sessionUser, post, unlocked: false };
+    // The body ships as pre-rendered HTML, not markdown source: the client
+    // hydrates it as a single node (no react-markdown in the browser). The
+    // markdown source never reaches an authorized reader's payload twice.
+    const locale = sessionUser?.locale ?? DEFAULT_LOCALE;
+    const contentHtml = renderPostHtml(post.contentMdx, locale);
+    return {
+      sessionUser,
+      post: withoutBody(post),
+      unlocked,
+      contentHtml,
+      hasKatex: htmlHasKatex(contentHtml),
+    };
   });
 
 export const verifyPostPasswordServerFn = createServerFn({ method: 'POST' })

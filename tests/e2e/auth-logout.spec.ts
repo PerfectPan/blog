@@ -1,5 +1,38 @@
 import { expect, test } from '@playwright/test';
 
+for (const path of ['/login', '/signup']) {
+  test(`${path} controls wait for hydration`, async ({ page }) => {
+    let releaseScripts = () => {};
+    const released = new Promise<void>((resolve) => {
+      releaseScripts = resolve;
+    });
+    try {
+      await page.route('**/*', async (route) => {
+        if (route.request().resourceType() === 'script') await released;
+        return route.continue();
+      });
+      await page.goto(path, { waitUntil: 'commit' });
+      const email = page.locator('#email');
+      const password = page.locator('#password');
+      const submit = page.locator('form button[type="submit"]');
+      await expect(email).toBeVisible();
+      await expect(email).toBeDisabled();
+      await expect(password).toBeDisabled();
+      await expect(submit).toBeDisabled();
+      await expect(page.locator('form button[type="button"]')).toBeDisabled();
+      if (path === '/signup')
+        await expect(page.locator('#name')).toBeDisabled();
+
+      releaseScripts();
+      await expect(email).toBeEnabled({ timeout: 30000 });
+      await expect(password).toBeEnabled();
+      await expect(submit).toBeEnabled();
+    } finally {
+      releaseScripts();
+    }
+  });
+}
+
 function createUniqueEmail(): string {
   const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   return `e2e-logout-${suffix}@example.com`;
@@ -9,7 +42,18 @@ test('signup and logout refresh session and route data with the service worker',
   page,
 }) => {
   const email = createUniqueEmail();
+  const sessionRequests: string[] = [];
+  page.on('request', (request) => {
+    const path = new URL(request.url()).pathname;
+    if (path === '/api/auth/get-session' || path.startsWith('/_serverFn/'))
+      sessionRequests.push(request.url());
+  });
   await page.goto('/signup', { waitUntil: 'domcontentloaded' });
+  await page.waitForSelector('html[data-hydrated]');
+  // Observe mount effects: SSR already resolved the guest, so hydration
+  // must not launch a second identity lookup.
+  await page.waitForTimeout(500);
+  expect(sessionRequests).toEqual([]);
   await page.evaluate(async () => {
     const legacyCache = await caches.open('perfectpan-blog-v1');
     await legacyCache.put('/blog', new Response('old personalized HTML'));
@@ -43,6 +87,16 @@ test('signup and logout refresh session and route data with the service worker',
   await expect(page.getByText('(not verified)')).toBeVisible();
   await expect(page.getByRole('button', { name: 'link github' })).toBeVisible();
 
+  const signedInHtml = await (await page.request.get('/blog')).text();
+  expect(signedInHtml).toContain('data-testid="nav-logout"');
+  expect(signedInHtml).not.toContain('data-testid="nav-login"');
+  sessionRequests.length = 0;
+  await page.reload();
+  await expect(page.getByTestId('nav-logout')).toBeVisible();
+  await page.waitForSelector('html[data-hydrated]');
+  await page.waitForTimeout(500);
+  expect(sessionRequests).toEqual([]);
+
   await page.getByRole('link', { name: '1:posts', exact: true }).click();
   await expect(
     page.getByText('当前身份：会员；可见范围：公开/会员'),
@@ -59,9 +113,7 @@ test('signup and logout refresh session and route data with the service worker',
   await page.waitForURL('**/blog');
   await expect(page.getByTestId('nav-login')).toBeVisible();
   await expect(page.getByTestId('nav-logout')).toHaveCount(0);
-  await expect(
-    page.getByText('当前身份：游客；可见范围：公开'),
-  ).toBeVisible();
+  await expect(page.getByText('当前身份：游客；可见范围：公开')).toBeVisible();
   const loginTab = await page.context().newPage();
   await loginTab.goto('/login');
   await loginTab.locator('#email').fill(email);
@@ -69,8 +121,8 @@ test('signup and logout refresh session and route data with the service worker',
   await loginTab.locator('form button[type="submit"]').click();
   await expect(loginTab).toHaveURL(/\/blog$/);
   await page.bringToFront();
-  // Headless tabs can all remain visible; exercise Better Auth's visibility
-  // listener and allow its five-second focus-refetch throttle to expire.
+  // Headless tabs can all remain visible; exercise the app's visibility
+  // listener and allow its five-second revalidation throttle to expire.
   await expect
     .poll(
       async () => {

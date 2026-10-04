@@ -1,7 +1,7 @@
 'use client';
 
 import { Monitor, Moon, Sun } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { useT } from '../lib/i18n/context.js';
 import { SWITCH_MODE_ARIA, THEME_LABEL } from '../lib/i18n/messages.js';
@@ -70,14 +70,14 @@ export function DarkMode() {
       ?.setAttribute('content', isDarkMode ? '#0a0f14' : '#ffffff');
   }, [isDarkMode, synced]);
 
-  const applyPref = useCallback((next: ThemePref) => {
+  const applyPref = (next: ThemePref) => {
     setPref(next);
     try {
       localStorage.setItem(THEME_KEY, next);
     } catch {
       // Storage unavailable (private mode etc.) — choice lasts the session.
     }
-  }, []);
+  };
 
   const onTrigger = () => {
     const next = PREFS[(PREFS.indexOf(pref) + 1) % PREFS.length];

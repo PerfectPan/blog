@@ -14,19 +14,6 @@ import { getSessionUserFromRequest } from './session-core.js';
  * direct RPC, so all auth checks happen inside the handlers.
  */
 
-/** Locale for the current session, or null for guests / unset preference.
- *  `isLoggedIn` lets the root loader drive LocaleProvider in one round trip. */
-export const getLocaleServerFn = createServerFn({ method: 'GET' }).handler(
-  async () => {
-    const request = getRequest();
-    const sessionUser = await getSessionUserFromRequest(request);
-    return {
-      locale: sessionUser?.locale ?? null,
-      isLoggedIn: sessionUser != null,
-    };
-  },
-);
-
 /** Persist the caller's own UI language. Handler-internal session check:
  *  a guest (or a forged RPC call without cookies) gets rejected here, and a
  *  signed-in user can only ever update their own row (id comes from the
