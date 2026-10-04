@@ -1,11 +1,9 @@
-import { DEFAULT_LOCALE, type Locale } from '@blog/shared';
-import { getRequest } from '@tanstack/react-start/server';
+import type { Locale } from '@blog/shared';
 import type { ReactElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { CommentMarkdownBody } from '../components/comment-markdown.js';
 import { Markdown } from '../components/markdown.js';
 import { LocaleProvider } from './i18n/context.js';
-import { getSessionUserFromRequest } from './session-core.js';
 
 /**
  * SERVER-ONLY markdown → HTML rendering.
@@ -47,10 +45,4 @@ export function renderCommentHtml(content: string): string {
 /** True when rendered post HTML contains KaTeX markup (needs the katex CSS). */
 export function htmlHasKatex(html: string): boolean {
   return html.includes('class="katex"');
-}
-
-/** Locale for the current request — signed-in account pref, else the default. */
-export async function resolveRequestLocale(): Promise<Locale> {
-  const sessionUser = await getSessionUserFromRequest(getRequest());
-  return sessionUser?.locale ?? DEFAULT_LOCALE;
 }

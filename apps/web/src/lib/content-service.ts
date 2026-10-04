@@ -1,7 +1,6 @@
 import {
   POST_VISIBILITIES,
   type PostDetail,
-  type PostStatus,
   type PostSummary,
   type PostVisibility,
 } from '@blog/shared';
@@ -14,8 +13,6 @@ import { getD1 } from './db.js';
  * upstream of these helpers.
  */
 
-export type PostRecord = PostDetail & { readonly password?: string };
-
 function normalizeVisibility(value: unknown): PostVisibility {
   if (
     typeof value === 'string' &&
@@ -26,24 +23,21 @@ function normalizeVisibility(value: unknown): PostVisibility {
   return 'public';
 }
 
-function normalizeStatus(value: unknown): PostStatus {
-  return value === 'draft' ? 'draft' : 'published';
-}
-
-type PostRow = {
+type PostSummaryRow = {
   slug: string;
   title: string;
   description: string;
-  body: string;
   visibility: string;
-  password: string | null;
-  status: string;
   tags: string;
   publishedAt: string;
 };
 
-function rowToRecord(row: PostRow): PostRecord {
-  const visibility = normalizeVisibility(row.visibility);
+type PostDetailRow = PostSummaryRow & { body: string };
+
+const SUMMARY_COLUMNS =
+  'slug, title, description, visibility, tags, publishedAt';
+
+function toSummary(row: PostSummaryRow): PostSummary {
   let tags: string[] = [];
   try {
     const parsed = JSON.parse(row.tags) as unknown;
@@ -57,82 +51,70 @@ function rowToRecord(row: PostRow): PostRecord {
     title: row.title,
     description: row.description,
     publishedAt: row.publishedAt,
-    visibility,
+    visibility: normalizeVisibility(row.visibility),
     tags,
+  };
+}
+
+function toDetail(row: PostDetailRow): PostDetail {
+  const summary = toSummary(row);
+  return {
+    ...summary,
     contentMdx: row.body,
-    status: normalizeStatus(row.status),
-    passwordEnabled: visibility === 'password',
-    password:
-      visibility === 'password' ? (row.password ?? undefined) : undefined,
-  };
-}
-
-async function getPosts(): Promise<PostRecord[]> {
-  try {
-    const result = await getD1()
-      .prepare(
-        'SELECT slug, title, description, body, visibility, password, status, tags, publishedAt FROM "post"',
-      )
-      .all<PostRow>();
-    return (result.results ?? []).map(rowToRecord);
-  } catch (error) {
-    console.error('[web] D1 post query failed', error);
-    return [];
-  }
-}
-
-function toSummary(post: PostRecord): PostSummary {
-  return {
-    slug: post.slug,
-    title: post.title,
-    description: post.description,
-    publishedAt: post.publishedAt,
-    visibility: post.visibility,
-    tags: post.tags,
-  };
-}
-
-function toDetail(post: PostRecord): PostDetail {
-  return {
-    slug: post.slug,
-    title: post.title,
-    description: post.description,
-    publishedAt: post.publishedAt,
-    visibility: post.visibility,
-    tags: post.tags,
-    contentMdx: post.contentMdx,
-    status: post.status,
-    passwordEnabled: post.passwordEnabled,
+    status: 'published',
+    passwordEnabled: summary.visibility === 'password',
   };
 }
 
 /** All published posts as summaries (visibility filtering happens upstream). */
 export async function getAllPublishedPosts(): Promise<PostSummary[]> {
-  return (await getPosts())
-    .filter((post) => post.status === 'published')
-    .map(toSummary);
+  try {
+    const result = await getD1()
+      .prepare(
+        `SELECT ${SUMMARY_COLUMNS} FROM "post" WHERE status = 'published'`,
+      )
+      .all<PostSummaryRow>();
+    return result.results.map(toSummary);
+  } catch (error) {
+    console.error('[web] D1 post summaries query failed', error);
+    return [];
+  }
 }
 
 /** All published posts with their full body (for RSS full-content feeds). */
 export async function getAllPublishedPostDetails(): Promise<PostDetail[]> {
-  return (await getPosts())
-    .filter((post) => post.status === 'published')
-    .map(toDetail);
+  try {
+    const result = await getD1()
+      .prepare(
+        `SELECT ${SUMMARY_COLUMNS}, body FROM "post" WHERE status = 'published'`,
+      )
+      .all<PostDetailRow>();
+    return result.results.map(toDetail);
+  } catch (error) {
+    console.error('[web] D1 post details query failed', error);
+    return [];
+  }
 }
 
 /** A single published post by slug, or null. */
 export async function getPostBySlug(slug: string): Promise<PostDetail | null> {
-  const post = (await getPosts()).find((item) => item.slug === slug);
-  if (post?.status !== 'published') {
+  try {
+    const row = await getD1()
+      .prepare(
+        `SELECT ${SUMMARY_COLUMNS}, body FROM "post" WHERE slug = ? AND status = 'published'`,
+      )
+      .bind(slug)
+      .first<PostDetailRow>();
+    return row ? toDetail(row) : null;
+  } catch (error) {
+    console.error('[web] D1 post query failed', error);
     return null;
   }
-  return toDetail(post);
 }
 
 /**
  * A published post's visibility by slug, or null. Hits the slug primary key
- * (one row) instead of `getPostBySlug`'s full-table scan — for callers that
- * only need the visibility to make an access decision (e.g. the comment gate).
+ * (one row), without reading the body, for callers that only need visibility to make an access decision (e.g. the comment gate).
  */
 export async function getPostVisibilityBySlug(
   slug: string,
@@ -157,9 +139,16 @@ export async function verifyPostPassword(
   slug: string,
   password: string,
 ): Promise<boolean> {
-  const post = (await getPosts()).find((item) => item.slug === slug);
-  if (post?.visibility !== 'password' || !post?.password) {
+  try {
+    const row = await getD1()
+      .prepare(
+        `SELECT password FROM "post" WHERE slug = ? AND status = 'published' AND visibility = 'password'`,
+      )
+      .bind(slug)
+      .first<{ password: string | null }>();
+    return Boolean(row?.password) && row?.password === password;
+  } catch (error) {
+    console.error('[web] D1 post password query failed', error);
     return false;
   }
-  return post.password === password;
 }

@@ -29,15 +29,16 @@ I'm **PerfectPan**, a developer who loves to tinker. I write code, and I write t
 - **Subscribe**: follow along via [RSS](/rss.xml), or find me on [GitHub](https://github.com/PerfectPan).
 `;
 
-/** Renders once per request through the shared post pipeline. SSR-only in
- *  practice: the HTML lands in the loader data, the browser hydrates it as a
- *  single node (this page used to ship react-markdown + katex to the client
- *  for two short paragraphs). */
+// Fixed, public copy has no request-dependent data. Keep only these two
+// renders per isolate; a deployment naturally replaces the cached markup.
+let aboutHtml: { htmlZh: string; htmlEn: string } | undefined;
+
 export const getAboutHtmlServerFn = createServerFn({ method: 'GET' }).handler(
   async () => {
-    return {
+    aboutHtml ??= {
       htmlZh: renderPostHtml(ABOUT_MD, 'zh'),
       htmlEn: renderPostHtml(ABOUT_MD_EN, 'en'),
     };
+    return aboutHtml;
   },
 );

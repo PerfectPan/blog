@@ -7,6 +7,7 @@ import tsConfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
   publicDir: '../../public',
+  worker: { format: 'es' },
   // Fresh value per build run. page-cache.ts folds it into the article-page
   // Cache API namespace, so each deployment starts with an empty edge cache —
   // a cached page can never outlive the asset hashes it references.

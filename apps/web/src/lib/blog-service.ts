@@ -46,8 +46,10 @@ export const getBlogListServerFn = createServerFn({ method: 'GET' })
   .inputValidator(z.object({ page: z.number().int().min(1).optional() }))
   .handler(async ({ data }) => {
     const request = getRequest();
-    const sessionUser = await getSessionUserFromRequest(request);
-    const allPosts = await getAllPublishedPosts();
+    const [sessionUser, allPosts] = await Promise.all([
+      getSessionUserFromRequest(request),
+      getAllPublishedPosts(),
+    ]);
     const visible = sortByPublishedDateDesc(
       allPosts.filter((post) => isListedFor(post, sessionUser?.role)),
     );
@@ -70,11 +72,12 @@ export const searchPostsServerFn = createServerFn({ method: 'GET' })
   .inputValidator(z.object({ q: z.string() }))
   .handler(async ({ data }) => {
     const request = getRequest();
-    const sessionUser = await getSessionUserFromRequest(request);
+    const [sessionUser, allPosts] = await Promise.all([
+      getSessionUserFromRequest(request),
+      getAllPublishedPosts(),
+    ]);
     const visible = sortByPublishedDateDesc(
-      (await getAllPublishedPosts()).filter((post) =>
-        isListedFor(post, sessionUser?.role),
-      ),
+      allPosts.filter((post) => isListedFor(post, sessionUser?.role)),
     );
     return filterByQuery(visible, data.q).slice(0, SEARCH_LIMIT);
   });
@@ -83,8 +86,10 @@ export const getBlogPostServerFn = createServerFn({ method: 'GET' })
   .inputValidator(z.object({ slug: z.string().min(1) }))
   .handler(async ({ data }) => {
     const request = getRequest();
-    const sessionUser = await getSessionUserFromRequest(request);
-    const post = await getPostBySlug(data.slug);
+    const [sessionUser, post] = await Promise.all([
+      getSessionUserFromRequest(request),
+      getPostBySlug(data.slug),
+    ]);
 
     if (!post) {
       return { sessionUser, post: null, unlocked: false, contentHtml: '' };

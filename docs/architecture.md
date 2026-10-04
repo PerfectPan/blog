@@ -30,7 +30,7 @@
 | Admin 后台 | `routes/admin/{index,new,$slug}.tsx`、`lib/admin-service.ts`、`components/{post-editor,markdown-editor,tag-input,markdown}.tsx` |
 | 评论（自建，登录 + 后置审核） | `lib/comments-service.ts`、`components/{comments,comment-markdown}.tsx`、`routes/admin/comments.tsx`；共享类型/权限纯函数 `packages/shared`（`Comment`、`canAccessComments`、`canManageComment`）。设计见 `docs/superpowers/specs/2026-07-14-self-hosted-comments-design.md` |
 | 密码文章解锁 | `routes/unlock/$slug.tsx`、`lib/unlock-cookie.ts`、`lib/unlock-rate-limit.ts` |
-| Markdown 渲染 | 服务端：`lib/markdown-html.tsx`（react-markdown + rehype-katex，经 `renderToStaticMarkup` 输出 HTML 字符串）+ `components/markdown.tsx`（渲染组件本体）；客户端：`components/markdown-view.tsx`（单节点注入 + shiki 渐进增强） |
+| Markdown 渲染 | 服务端：`lib/markdown-html.tsx`（react-markdown + rehype-katex，经 `renderToStaticMarkup` 输出 HTML 字符串）+ `components/markdown.tsx`（渲染组件本体）；客户端：`components/markdown-view.tsx`（单节点注入、按可见区域增强）+ `components/markdown-highlight{,.worker}.ts`（复用一个浏览器 Web Worker 执行 Shiki） |
 | 界面 i18n（zh/en） | `lib/i18n/{messages,context}.ts`、`lib/locale-service.ts`（`user.locale`） |
 | D1 访问 / 迁移 | `lib/db.ts`、`apps/web/migrations/` |
 | 共享类型 / 权限纯函数 | `packages/shared/src/{types,access,index}.ts` |
@@ -101,6 +101,10 @@ fetch 里（`apps/web/src/server.tsx`）。
    预劫持）；未验证则回到 `/login?error=account_not_linked`，用户先用密码登录，再在 `/account`
    验证邮箱或手动绑定 GitHub（`linkSocial`，允许 GitHub 邮箱与账号邮箱不同）。
 
+文章列表和搜索只从 D1 读取已发布文章的摘要字段；详情按 slug 主键读取一行，密码校验只读取该文章的密码字段且拒绝草稿。会话读取与文章查询并行，权限裁决仍在两者完成后执行。RSS 继续读取已发布文章的正文，并筛选公开内容。
+
+客户端高亮由 `IntersectionObserver` 按可见区域排队，浏览器 Web Worker 按需加载语法并复用 Shiki 实例。文章跳转或预览 HTML 更新时取消旧队列并丢弃过期响应；Worker 不可用时保留可读的纯文本代码。固定 About 文案的中英文 HTML 在每个服务端 isolate 内复用，不缓存用户或文章数据。
+
 ## 6. 权限模型（**两层都要守**）
 
 - 角色：`member` < `vip` < `admin`。
@@ -125,7 +129,7 @@ fetch 里（`apps/web/src/server.tsx`）。
   `/login`；非 admin → 跳 `/`（不泄露任何后台内容）。
 - 编辑器（`components/post-editor.tsx` + `markdown-editor.tsx` + `tag-input.tsx`）：
   分屏 Markdown 编辑（工具栏 + 实时预览，预览经 `lib/markdown-preview.ts` 的 server fn
-  在 worker 上渲染）、标签 chip 输入、可见性/状态/密码。保存 = 以 slug 为键 upsert D1 `post` 行。
+  在 worker 上渲染；仅编辑模式不发送预览请求）、标签 chip 输入、可见性/状态/密码。保存 = 以 slug 为键 upsert D1 `post` 行。
 
 ## 8. 安全（审计结论）
 

@@ -1,12 +1,9 @@
+import { DEFAULT_LOCALE } from '@blog/shared';
 import { redirect } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import { getRequest } from '@tanstack/react-start/server';
 import { z } from 'zod';
-import {
-  renderCommentHtml,
-  renderPostHtml,
-  resolveRequestLocale,
-} from './markdown-html.js';
+import { renderCommentHtml, renderPostHtml } from './markdown-html.js';
 import { getSessionUserFromRequest } from './session-core.js';
 
 /**
@@ -38,7 +35,7 @@ export const previewPostServerFn = createServerFn({ method: 'POST' })
     if (sessionUser.role !== 'admin') {
       throw redirect({ to: '/' });
     }
-    const locale = await resolveRequestLocale();
+    const locale = sessionUser.locale ?? DEFAULT_LOCALE;
     return { html: renderPostHtml(data.body, locale) };
   });
 
