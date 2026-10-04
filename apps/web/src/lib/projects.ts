@@ -59,12 +59,14 @@ export const PROJECTS: Project[] = [
     demoLabel: { zh: '官网', en: 'site' },
   },
   {
-    name: 'base64',
+    name: 'svgo.mbt',
     description: {
-      zh: 'Moonbit 语言实现的 Base64 编解码库，遵循 RFC 4648。',
-      en: 'A Base64 codec written in MoonBit, conforming to RFC 4648.',
+      zh: '用 MoonBit 实现的 SVG 优化器，提供库、WebAssembly 模块和命令行工具。',
+      en: 'An SVG optimizer written in MoonBit, available as a library, WebAssembly module, and CLI.',
     },
-    tags: ['Moonbit'],
-    repo: 'https://github.com/PerfectPan/base64',
+    tags: ['MoonBit', 'SVG', 'WebAssembly'],
+    repo: 'https://github.com/PerfectPan/svgo.mbt',
+    demo: 'https://perfectpan.github.io/svgo.mbt/',
+    demoLabel: { zh: '在线体验', en: 'playground' },
   },
 ];
