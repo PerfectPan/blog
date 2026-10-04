@@ -2,10 +2,8 @@ import { DEFAULT_LOCALE, isLocale, type Locale } from '@blog/shared';
 import {
   createContext,
   type ReactNode,
-  useCallback,
   useContext,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -73,7 +71,7 @@ export function LocaleProvider({
   const wasLoggedInRef = useRef(isLoggedIn);
   const mountedRef = useRef(false);
 
-  const setLocale = useCallback((next: Locale) => {
+  const setLocale = (next: Locale) => {
     setLocaleState(next);
     // Always remember on the device; persistence failures are silent by
     // design (private mode blocks writes, the UI keeps working).
@@ -90,7 +88,7 @@ export function LocaleProvider({
         console.error('[web] persist user locale failed', error);
       });
     }
-  }, []);
+  };
 
   useEffect(() => {
     // All of this runs after mount only — SSR never touches localStorage and
@@ -130,7 +128,7 @@ export function LocaleProvider({
     document.documentElement.lang = LANG_TAGS[locale];
   }, [locale]);
 
-  const value = useMemo(() => ({ locale, setLocale }), [locale, setLocale]);
+  const value = { locale, setLocale };
 
   return (
     <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>
@@ -153,9 +151,6 @@ export type TFn = {
 
 export function useT(): TFn {
   const { locale } = useLocale();
-  return useCallback(
-    (entry: Msg, args?: Record<string, string | number>): string =>
-      formatMsg(locale, entry, args),
-    [locale],
-  ) as TFn;
+  return ((entry: Msg, args?: Record<string, string | number>): string =>
+    formatMsg(locale, entry, args)) as TFn;
 }
