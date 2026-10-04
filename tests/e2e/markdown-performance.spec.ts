@@ -17,7 +17,10 @@ test('code is highlighted in one worker on demand and after search navigation', 
   const blocks = page.locator('.md pre code');
   await expect(blocks).toHaveCount(3);
   await blocks.first().scrollIntoViewIfNeeded();
-  await expect(blocks.first()).toHaveAttribute('data-highlighted', 'true');
+  // Cold Vite compilation includes the compiler and worker module graphs.
+  await expect(blocks.first()).toHaveAttribute('data-highlighted', 'true', {
+    timeout: 15000,
+  });
   await expect(
     blocks.first().locator('span[style*="color"]').first(),
   ).toBeAttached();

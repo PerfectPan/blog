@@ -1,5 +1,38 @@
 import { expect, test } from '@playwright/test';
 
+for (const path of ['/login', '/signup']) {
+  test(`${path} controls wait for hydration`, async ({ page }) => {
+    let releaseScripts = () => {};
+    const released = new Promise<void>((resolve) => {
+      releaseScripts = resolve;
+    });
+    try {
+      await page.route('**/*', async (route) => {
+        if (route.request().resourceType() === 'script') await released;
+        return route.continue();
+      });
+      await page.goto(path, { waitUntil: 'commit' });
+      const email = page.locator('#email');
+      const password = page.locator('#password');
+      const submit = page.locator('form button[type="submit"]');
+      await expect(email).toBeVisible();
+      await expect(email).toBeDisabled();
+      await expect(password).toBeDisabled();
+      await expect(submit).toBeDisabled();
+      await expect(page.locator('form button[type="button"]')).toBeDisabled();
+      if (path === '/signup')
+        await expect(page.locator('#name')).toBeDisabled();
+
+      releaseScripts();
+      await expect(email).toBeEnabled({ timeout: 30000 });
+      await expect(password).toBeEnabled();
+      await expect(submit).toBeEnabled();
+    } finally {
+      releaseScripts();
+    }
+  });
+}
+
 function createUniqueEmail(): string {
   const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   return `e2e-logout-${suffix}@example.com`;
