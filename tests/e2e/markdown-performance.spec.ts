@@ -11,8 +11,6 @@ test('code is highlighted in one worker on demand and after search navigation', 
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  const workers: string[] = [];
-  page.on('worker', (worker) => workers.push(worker.url()));
   await page.goto('/blog/codeforces-round605');
   await page.waitForSelector('html[data-hydrated]');
 
@@ -34,6 +32,13 @@ test('code is highlighted in one worker on demand and after search navigation', 
   await expect(
     blocks.last().locator('span[style*="color"]').first(),
   ).toBeAttached();
+  // Cold Vite dependency optimization can reload the initial document. Compare
+  // the live worker across client navigation instead of counting past documents.
+  const workers = page
+    .workers()
+    .filter((worker) => worker.url().includes('markdown-highlight.worker'));
+  expect(workers).toHaveLength(1);
+  const highlightWorker = workers[0];
 
   await page.getByRole('button', { name: '搜索文章（Cmd+K）' }).click();
   await page.locator('[data-slot="command-input"]').fill('blocks');
@@ -45,9 +50,11 @@ test('code is highlighted in one worker on demand and after search navigation', 
     await block.scrollIntoViewIfNeeded();
     await expect(block.locator('span[style*="color"]').first()).toBeAttached();
   }
-  expect(
-    workers.filter((url) => url.includes('markdown-highlight.worker')),
-  ).toHaveLength(1);
+  const nextWorkers = page
+    .workers()
+    .filter((worker) => worker.url().includes('markdown-highlight.worker'));
+  expect(nextWorkers).toHaveLength(1);
+  expect(nextWorkers[0]).toBe(highlightWorker);
 });
 
 async function loginAsAdmin(page: Page) {
