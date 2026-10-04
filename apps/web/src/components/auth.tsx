@@ -28,14 +28,15 @@ import {
   UNLOCK_HINT,
   UNLOCK_PASSWORD_LABEL,
 } from '../lib/i18n/messages.js';
+import { useRefreshSession, useSessionUser } from '../lib/session-user.js';
 import { Page, Prompt } from './page.js';
 
 export function LoginPage({ searchError }: { searchError?: string }) {
   const navigate = useNavigate();
   const { locale } = useLocale();
   const t = useT();
-  const { data: sessionData, isPending: isSessionPending } =
-    authClient.useSession();
+  const sessionUser = useSessionUser();
+  const refreshSession = useRefreshSession();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(
@@ -44,12 +45,12 @@ export function LoginPage({ searchError }: { searchError?: string }) {
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    if (sessionData?.user?.id) {
+    if (sessionUser?.id) {
       navigate({ to: '/blog', replace: true });
     }
-  }, [navigate, sessionData?.user?.id]);
+  }, [navigate, sessionUser?.id]);
 
-  if (sessionData?.user?.id || isSessionPending) {
+  if (sessionUser?.id) {
     return (
       <Page>
         <p className='text-muted-foreground/60'>{t(CHECKING_SESSION)}</p>
@@ -82,6 +83,7 @@ export function LoginPage({ searchError }: { searchError?: string }) {
               setError(result.error.message ?? t(SIGN_IN_FAILED));
               return;
             }
+            await refreshSession();
           });
         }}
       >
@@ -166,8 +168,8 @@ export function SignupPage({ searchError }: { searchError?: string }) {
   const navigate = useNavigate();
   const { locale } = useLocale();
   const t = useT();
-  const { data: sessionData, isPending: isSessionPending } =
-    authClient.useSession();
+  const sessionUser = useSessionUser();
+  const refreshSession = useRefreshSession();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -177,14 +179,12 @@ export function SignupPage({ searchError }: { searchError?: string }) {
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    // Wait for Better Auth's session refresh before entering /account;
-    // navigating on the signup response can still expose the guest store.
-    if (sessionData?.user?.id) {
+    if (sessionUser?.id) {
       navigate({ to: '/account', replace: true });
     }
-  }, [navigate, sessionData?.user?.id]);
+  }, [navigate, sessionUser?.id]);
 
-  if (sessionData?.user?.id || isSessionPending) {
+  if (sessionUser?.id) {
     return (
       <Page>
         <p className='text-muted-foreground/60'>{t(CHECKING_SESSION)}</p>
@@ -219,6 +219,7 @@ export function SignupPage({ searchError }: { searchError?: string }) {
               setError(result.error.message ?? t(SIGN_UP_FAILED));
               return;
             }
+            await refreshSession();
           });
         }}
       >

@@ -132,6 +132,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^5.1.4
         version: 5.2.0(vite@7.3.6(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.33.0)(yaml@2.9.0))
+      babel-plugin-react-compiler:
+        specifier: 1.0.0
+        version: 1.0.0
       react-grab:
         specifier: ^0.1.50
         version: 0.1.50(react@19.2.7)
@@ -2193,6 +2196,9 @@ packages:
   babel-dead-code-elimination@1.0.12:
     resolution: {integrity: sha512-GERT7L2TiYcYDtYk1IpD+ASAYXjKbLTDPhBtYj7X1NuRMDTMtAx9kyBenub1Ev41lo91OHCKdmP+egTDmfQ7Ig==}
 
+  babel-plugin-react-compiler@1.0.0:
+    resolution: {integrity: sha512-Ixm8tFfoKKIPYdCCKYTsqv+Fd4IJ0DQqMyEimo+pxUOMUR9cVPlwTrFt9Avu+3cb6Zp3mAzl+t1MrG2fxxKsxw==}
+
   bail@2.0.2:
     resolution: {integrity: sha512-0xO6mYd7JB2YesxDKplafRpsiOzPt9V02ddPCLbY1xYGPOX24NTyN50qnUxgCPcSoYMhKpAuBTjQoRZCAkUDRw==}
 
@@ -3954,7 +3960,7 @@ snapshots:
   '@babel/generator@7.29.7':
     dependencies:
       '@babel/parser': 7.29.7
-      '@babel/types': 7.29.7
+      '@babel/types': 7.29.8
       '@jridgewell/gen-mapping': 0.3.13
       '@jridgewell/trace-mapping': 0.3.31
       jsesc: 3.1.0
@@ -3980,7 +3986,7 @@ snapshots:
   '@babel/helper-module-imports@7.29.7':
     dependencies:
       '@babel/traverse': 7.29.7
-      '@babel/types': 7.29.7
+      '@babel/types': 7.29.8
     transitivePeerDependencies:
       - supports-color
 
@@ -4004,11 +4010,11 @@ snapshots:
   '@babel/helpers@7.29.7':
     dependencies:
       '@babel/template': 7.29.7
-      '@babel/types': 7.29.7
+      '@babel/types': 7.29.8
 
   '@babel/parser@7.29.7':
     dependencies:
-      '@babel/types': 7.29.7
+      '@babel/types': 7.29.8
 
   '@babel/parser@7.29.9':
     dependencies:
@@ -4028,7 +4034,7 @@ snapshots:
     dependencies:
       '@babel/code-frame': 7.29.7
       '@babel/parser': 7.29.7
-      '@babel/types': 7.29.7
+      '@babel/types': 7.29.8
 
   '@babel/traverse@7.29.7':
     dependencies:
@@ -4037,7 +4043,7 @@ snapshots:
       '@babel/helper-globals': 7.29.7
       '@babel/parser': 7.29.7
       '@babel/template': 7.29.7
-      '@babel/types': 7.29.7
+      '@babel/types': 7.29.8
       debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
@@ -5462,16 +5468,16 @@ snapshots:
 
   '@types/babel__generator@7.27.0':
     dependencies:
-      '@babel/types': 7.29.7
+      '@babel/types': 7.29.8
 
   '@types/babel__template@7.4.4':
     dependencies:
       '@babel/parser': 7.29.7
-      '@babel/types': 7.29.7
+      '@babel/types': 7.29.8
 
   '@types/babel__traverse@7.28.0':
     dependencies:
-      '@babel/types': 7.29.7
+      '@babel/types': 7.29.8
 
   '@types/chai@5.2.3':
     dependencies:
@@ -5677,6 +5683,10 @@ snapshots:
       '@babel/types': 7.29.8
     transitivePeerDependencies:
       - supports-color
+
+  babel-plugin-react-compiler@1.0.0:
+    dependencies:
+      '@babel/types': 7.29.8
 
   bail@2.0.2: {}
 

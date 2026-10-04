@@ -26,6 +26,8 @@ export interface SessionUser {
   id: string;
   role: Role;
   email: string;
+  name?: string;
+  emailVerified?: boolean;
   /** UI-language preference from `user.locale`; null/absent means zh. */
   locale?: Locale | null;
 }

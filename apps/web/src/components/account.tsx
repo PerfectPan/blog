@@ -21,6 +21,7 @@ import {
   VERIFICATION_SENT,
   VERIFY_EMAIL_HINT,
 } from '../lib/i18n/messages.js';
+import { useSessionUser } from '../lib/session-user.js';
 import { ConfirmDialog } from './confirm-dialog.js';
 import { Page, Prompt } from './page.js';
 
@@ -36,9 +37,7 @@ export function AccountPage({ searchError }: { searchError?: string }) {
   const navigate = useNavigate();
   const { locale } = useLocale();
   const t = useT();
-  const { data: sessionData, isPending: isSessionPending } =
-    authClient.useSession();
-  const user = sessionData?.user;
+  const user = useSessionUser();
   const [accounts, setAccounts] = useState<LinkedAccount[] | null>(null);
   const [error, setError] = useState<string | null>(
     searchError ? authErrorMessage(locale, searchError) : null,
@@ -61,10 +60,10 @@ export function AccountPage({ searchError }: { searchError?: string }) {
   }, [t]);
 
   useEffect(() => {
-    if (!isSessionPending && !user) {
+    if (!user) {
       navigate({ to: '/login', replace: true });
     }
-  }, [isSessionPending, navigate, user]);
+  }, [navigate, user]);
 
   useEffect(() => {
     if (user?.id) {

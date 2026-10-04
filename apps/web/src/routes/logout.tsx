@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { useCallback, useEffect, useState, useTransition } from 'react';
+import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import { authClient } from '../lib/auth-client.js';
 import { useT } from '../lib/i18n/context.js';
 import {
@@ -10,6 +10,7 @@ import {
   LOGOUT_SETTLED,
   LOGOUT_TITLE,
 } from '../lib/i18n/messages.js';
+import { useRefreshSession } from '../lib/session-user.js';
 
 export const Route = createFileRoute('/logout')({
   component: LogoutPage,
@@ -18,6 +19,8 @@ export const Route = createFileRoute('/logout')({
 function LogoutPage() {
   const navigate = useNavigate();
   const t = useT();
+  const refreshSession = useRefreshSession();
+  const started = useRef(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -30,11 +33,14 @@ function LogoutPage() {
         return;
       }
 
+      await refreshSession();
       navigate({ to: '/blog', replace: true });
     });
-  }, [navigate, t]);
+  }, [navigate, refreshSession, t]);
 
   useEffect(() => {
+    if (started.current) return;
+    started.current = true;
     signOut();
   }, [signOut]);
 

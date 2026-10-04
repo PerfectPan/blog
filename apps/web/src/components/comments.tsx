@@ -17,7 +17,6 @@ import {
   useRef,
   useState,
 } from 'react';
-import { authClient } from '../lib/auth-client.js';
 import {
   createCommentServerFn,
   deleteCommentServerFn,
@@ -59,6 +58,7 @@ import {
   TOOLBAR_QUOTE,
 } from '../lib/i18n/messages.js';
 import { previewCommentServerFn } from '../lib/markdown-preview.js';
+import { useSessionUser } from '../lib/session-user.js';
 import { CommentBody } from './comment-body.js';
 import { Prompt } from './page.js';
 
@@ -124,11 +124,7 @@ function Composer({
   compact,
 }: ComposerProps) {
   const t = useT();
-  // Same shared better-auth session store the header chip reads; name shows
-  // once it resolves (the `sessionUser` prop that gates this component has no
-  // display name on it).
-  const { data: sessionData } = authClient.useSession();
-  const displayName = sessionData?.user.name;
+  const displayName = useSessionUser()?.name;
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [body, setBody] = useState('');
   const [preview, setPreview] = useState(false);

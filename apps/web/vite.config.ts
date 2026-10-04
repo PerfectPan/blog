@@ -18,7 +18,9 @@ export default defineConfig({
     tsConfigPaths(),
     cloudflare({ viteEnvironment: { name: 'ssr' } }),
     tanstackStart(),
-    viteReact(),
+    viteReact({
+      babel: { plugins: ['babel-plugin-react-compiler'] },
+    }),
     tailwindcss(),
   ],
   server: {
@@ -38,6 +40,7 @@ export default defineConfig({
         'src/lib/blog-service.ts?tss-serverfn-split',
         'src/lib/comments-service.ts?tss-serverfn-split',
         'src/lib/locale-service.ts?tss-serverfn-split',
+        'src/lib/session-service.ts?tss-serverfn-split',
       ],
     },
   },

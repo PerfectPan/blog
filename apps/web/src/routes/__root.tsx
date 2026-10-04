@@ -1,4 +1,4 @@
-import { DEFAULT_LOCALE } from '@blog/shared';
+import { DEFAULT_LOCALE, type SessionUser } from '@blog/shared';
 import {
   createRootRoute,
   HeadContent,
@@ -6,13 +6,13 @@ import {
   Scripts,
   useRouter,
 } from '@tanstack/react-router';
-import { type ReactNode, useEffect, useRef } from 'react';
+import { type ReactNode, useEffect } from 'react';
 import { AppLayout } from '../components/layout.js';
 import { ErrorPage, NotFoundPage } from '../components/misc.js';
 import { SearchPalette } from '../components/search-palette.js';
-import { authClient } from '../lib/auth-client.js';
 import { LocaleProvider } from '../lib/i18n/context.js';
-import { getLocaleServerFn } from '../lib/locale-service.js';
+import { getSessionUserServerFn } from '../lib/session-service.js';
+import { SESSION_CHANGED_KEY } from '../lib/session-user.js';
 import '../styles.css';
 
 /**
@@ -25,13 +25,10 @@ import '../styles.css';
 const THEME_BOOT_SCRIPT = `(function(){try{var t=null;try{t=localStorage.getItem('blog-theme')}catch(e){}var d=t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(d){document.documentElement.classList.add('dark');var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content','#0a0f14');}}catch(e){}})();`;
 
 export const Route = createRootRoute({
-  // Locale is a preference, not a URL dimension: the server always knows the
-  // signed-in user's account preference (user.locale) and nothing else. The
-  // guest localStorage read happens client-side after mount (LocaleProvider),
-  // so SSR renders zh and the edge cache for /blog/<slug> stays untouched.
+  // Hydrate only the UI user fields, never the session token. Guest locale
+  // stays client-local so public article HTML remains safe to edge-cache.
   loader: async () => {
-    const { locale, isLoggedIn } = await getLocaleServerFn();
-    return { locale: locale ?? DEFAULT_LOCALE, isLoggedIn };
+    return { sessionUser: await getSessionUserServerFn() };
   },
   head: () => ({
     meta: [
@@ -67,28 +64,7 @@ export const Route = createRootRoute({
 });
 
 function RootComponent() {
-  const router = useRouter();
-  const { locale, isLoggedIn } = Route.useLoaderData();
-  const { data: session, isPending, error } = authClient.useSession();
-  const user = session?.user;
-  const identity = JSON.stringify([
-    user?.id ?? null,
-    user?.role ?? null,
-    user?.emailVerified ?? null,
-  ]);
-  const previousIdentity = useRef<string | undefined>(undefined);
-
-  useEffect(() => {
-    if (isPending || error) return;
-    const previous = previousIdentity.current;
-    previousIdentity.current = identity;
-    if (previous !== undefined && previous !== identity) {
-      // Better Auth updates its own store, but route loaders have a separate
-      // cache. Also covers session changes received from another tab.
-      router.clearCache();
-      void router.invalidate();
-    }
-  }, [error, identity, isPending, router]);
+  const { sessionUser } = Route.useLoaderData();
 
   useEffect(() => {
     if (import.meta.env.DEV) {
@@ -107,7 +83,11 @@ function RootComponent() {
 
   return (
     <RootDocument>
-      <LocaleProvider initialLocale={locale} isLoggedIn={isLoggedIn}>
+      <SessionRevalidation sessionUser={sessionUser} />
+      <LocaleProvider
+        initialLocale={sessionUser?.locale ?? DEFAULT_LOCALE}
+        isLoggedIn={sessionUser != null}
+      >
         <AppLayout>
           <Outlet />
         </AppLayout>
@@ -115,6 +95,65 @@ function RootComponent() {
       </LocaleProvider>
     </RootDocument>
   );
+}
+
+function SessionRevalidation({
+  sessionUser,
+}: {
+  sessionUser: SessionUser | null;
+}) {
+  const router = useRouter();
+  const identity = JSON.stringify(sessionUser);
+
+  useEffect(() => {
+    let cancelled = false;
+    let checking = false;
+    let refreshQueued = false;
+    let lastChecked = Date.now();
+    const check = async (force = false) => {
+      if (document.visibilityState !== 'visible' || !navigator.onLine) return;
+      if (checking) {
+        refreshQueued ||= force;
+        return;
+      }
+      if (!force && Date.now() - lastChecked < 5000) return;
+      lastChecked = Date.now();
+      checking = true;
+      try {
+        const next = await getSessionUserServerFn();
+        if (!cancelled && JSON.stringify(next) !== identity) {
+          router.clearCache();
+          await router.invalidate();
+        }
+      } catch (error) {
+        console.error('[web] session revalidation failed', error);
+      } finally {
+        checking = false;
+        if (refreshQueued && !cancelled) {
+          refreshQueued = false;
+          void check(true);
+        }
+      }
+    };
+    const onFocus = () => void check();
+    const onOnline = () => void check(true);
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === SESSION_CHANGED_KEY) void check(true);
+    };
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onFocus);
+    window.addEventListener('online', onOnline);
+    window.addEventListener('storage', onStorage);
+    return () => {
+      cancelled = true;
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onFocus);
+      window.removeEventListener('online', onOnline);
+      window.removeEventListener('storage', onStorage);
+    };
+  }, [identity, router]);
+
+  return null;
 }
 
 function RootDocument({ children }: { children: ReactNode }) {

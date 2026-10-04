@@ -19,7 +19,6 @@ import {
   useRef,
   useState,
 } from 'react';
-import { authClient } from '../lib/auth-client.js';
 import { useLocale, useT } from '../lib/i18n/context.js';
 import {
   CLOSE_TOOLS_MENU,
@@ -39,6 +38,7 @@ import {
   SEARCH_TOOL,
   SWITCH_LOCALE,
 } from '../lib/i18n/messages.js';
+import { useSessionUser } from '../lib/session-user.js';
 import { DarkMode } from './dark-mode.js';
 import { searchPalette } from './search-palette-store.js';
 import { SHEET_ROW, TOOL_BTN, TOOL_BTN_TOGGLE } from './term.js';
@@ -108,8 +108,7 @@ const TOOL_VIS = 'max-[480px]:hidden';
  *  ≤480px the tool buttons collapse behind a ⋯ toggle that expands a flat
  *  text sheet under the bar (no drawer, no animation — terminals don't slide). */
 export function Header() {
-  const { data: sessionData } = authClient.useSession();
-  const sessionUser = sessionData?.user ?? null;
+  const sessionUser = useSessionUser();
   const navigate = useNavigate();
   const t = useT();
   const [logoutOpen, setLogoutOpen] = useState(false);

@@ -14,6 +14,8 @@ type BetterAuthSession = {
     id?: string;
     email?: string | null;
     role?: Role;
+    name?: string | null;
+    emailVerified?: boolean;
   } | null;
 } | null;
 
@@ -70,7 +72,7 @@ async function readUserLocale(userId: string): Promise<Locale | null> {
   }
 }
 
-export async function getSessionUserFromRequest(
+async function readSessionUser(
   request?: Request | null,
 ): Promise<SessionUser | null> {
   if (!request) {
@@ -96,11 +98,29 @@ export async function getSessionUserFromRequest(
   const sessionUser: SessionUser = {
     id: user.id,
     email: user.email,
+    name: user.name ?? '',
+    emailVerified: user.emailVerified ?? false,
     role: user.role ?? 'member',
     locale: await readUserLocale(user.id),
   };
 
   return maybePromoteFirstAdmin(sessionUser);
+}
+
+// Root and child loaders share this promise only when they share the exact
+// Request object. Weak keys cannot reuse a user's identity on another request.
+const sessions = new WeakMap<Request, Promise<SessionUser | null>>();
+
+export function getSessionUserFromRequest(
+  request?: Request | null,
+): Promise<SessionUser | null> {
+  if (!request) return Promise.resolve(null);
+  let session = sessions.get(request);
+  if (!session) {
+    session = readSessionUser(request);
+    sessions.set(request, session);
+  }
+  return session;
 }
 
 export async function getSessionUser(): Promise<SessionUser | null> {
