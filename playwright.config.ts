@@ -1,5 +1,11 @@
 import { defineConfig } from '@playwright/test';
 
+// Playwright's webServer health check for localhost gets hijacked by http_proxy
+// in environments that set a proxy without excluding loopback; ??= keeps this
+// inert on CI and proxy-less machines.
+process.env.no_proxy ??= 'localhost,127.0.0.1,::1';
+process.env.NO_PROXY ??= process.env.no_proxy;
+
 // Vite dev serves on :5173; allow overriding via E2E_BASE_URL (e.g. a preview
 // deploy). The webServer auto-starts `pnpm dev` so CI doesn't need a manually
 // managed server; locally it reuses one already running.
