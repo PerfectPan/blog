@@ -30,7 +30,7 @@
 | Admin 后台 | `routes/admin/{index,new,$slug}.tsx`、`lib/admin-service.ts`、`components/{post-editor,markdown-editor,tag-input,markdown}.tsx` |
 | 评论（自建，登录 + 后置审核） | `lib/comments-service.ts`、`components/{comments,comment-markdown}.tsx`、`routes/admin/comments.tsx`；共享类型/权限纯函数 `packages/shared`（`Comment`、`canAccessComments`、`canManageComment`）。设计见 `docs/superpowers/specs/2026-07-14-self-hosted-comments-design.md` |
 | 密码文章解锁 | `routes/unlock/$slug.tsx`、`lib/unlock-cookie.ts`、`lib/unlock-rate-limit.ts` |
-| Markdown 渲染 | 服务端：`lib/markdown-html.tsx`（react-markdown + rehype-katex，经 `renderToStaticMarkup` 输出 HTML 字符串）+ `components/markdown.tsx`（渲染组件本体）；客户端：`components/markdown-view.tsx`（单节点注入、按可见区域增强）+ `components/markdown-highlight{,.worker}.ts`（复用一个浏览器 Web Worker 执行 Shiki） |
+| Markdown 渲染 | 服务端：`lib/markdown-html.tsx`（react-markdown + rehype-katex，经 `renderToStaticMarkup` 输出 HTML 字符串）+ `components/markdown.tsx`（渲染组件本体）；客户端：`components/markdown-view.tsx`（单节点注入、按可见区域增强）+ `components/markdown-highlight{,.worker}.ts`（复用一个浏览器 Web Worker 执行 @pierre/highlights） |
 | 界面 i18n（zh/en） | `lib/i18n/{messages,context}.ts`、`lib/locale-service.ts`（`user.locale`） |
 | D1 访问 / 迁移 | `lib/db.ts`、`apps/web/migrations/` |
 | 共享类型 / 权限纯函数 | `packages/shared/src/{types,access,index}.ts` |
@@ -107,7 +107,7 @@ fetch 里（`apps/web/src/server.tsx`）。
 
 登录、注册和退出成功后清空路由缓存并重新加载身份；其他标签页通过不含用户信息的 storage 通知触发复核，页面重新可见或联网时也会复核。身份未变化时不重跑文章 loader。客户端快照只负责展示，server fn 仍逐请求鉴权；带身份或解锁 cookie 的文章请求继续绕过公共 HTML 缓存。
 
-客户端高亮由 `IntersectionObserver` 按可见区域排队，浏览器 Web Worker 按需加载语法并复用 Shiki 实例。文章跳转或预览 HTML 更新时取消旧队列并丢弃过期响应；Worker 不可用时保留可读的纯文本代码。固定 About 文案的中英文 HTML 在每个服务端 isolate 内复用，不缓存用户或文章数据。
+客户端高亮由 `IntersectionObserver` 按可见区域排队，浏览器 Web Worker 复用单个 @pierre/highlights 引擎实例（全部语言编译进同一 WASM 模块，随引擎一次性加载，不再按语言分包）。文章跳转或预览 HTML 更新时取消旧队列并丢弃过期响应；Worker 不可用或语言不受支持时保留可读的纯文本代码。固定 About 文案的中英文 HTML 在每个服务端 isolate 内复用，不缓存用户或文章数据。
 
 React Compiler 经 Vite 的 React Babel 插件启用，使用 React 19 内置 runtime，为可分析的组件和 hook 自动添加记忆化。无法分析的函数保留原实现；不为提高编译覆盖率移除错误处理。它优化组件计算与子树复用，不代替请求去重、服务端鉴权或浏览器性能测量。
 
