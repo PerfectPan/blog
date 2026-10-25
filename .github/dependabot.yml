@@ -21,10 +21,6 @@ updates:
       prod-minor:
         dependency-type: production
         update-types: ["minor"]
-    ignore:
-      # Major bumps are handled by @biomejs/biome and pnpm/engine migrations
-      # deliberately — leave them for explicit review rather than auto-PRs.
-      - dependency-name: "@biomejs/biome"
 
   - package-ecosystem: github-actions
     directory: "/"
