@@ -10,6 +10,14 @@ catalog:
   vite-plus: 1.4.0
 overrides:
   vite@*: 'catalog:'
+  # Security overrides (dependabot): miniflare pins undici exactly and
+  # rehype-katex only accepts katex ^0.16 — force the patched versions.
+  undici: ^7.30.1
+  katex: ^0.18.2
+  # better-auth's vitest peer (^2||^3||^4) was auto-installed as the
+  # vulnerable 4.1.11; nothing uses better-auth's vitest integration, so
+  # point the peer at the vite-plus-bundled vitest 5 to keep one instance.
+  'better-auth>vitest': 5.0.5
 peerDependencyRules:
   allowAny:
     - vite
