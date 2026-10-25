@@ -22,12 +22,14 @@ pnpm --filter @blog/web preview   # wrangler dev (real workerd runtime)
 1. Open an issue for ambiguous work before implementing.
 2. Create a focused branch with a short descriptive name.
 3. Keep changes scoped; prefer existing patterns over new abstractions.
-4. Add or update tests for behavior changes (`packages/**/*.test.ts`,
+4. For substantial work, pick the artifact the Change Design Gate below
+   requires before implementing.
+5. Add or update tests for behavior changes (`packages/**/*.test.ts`,
    `apps/web/tests`, Playwright specs under `tests/e2e`).
-5. Update `docs/architecture.md` when architecture, data flow, or
+6. Update `docs/architecture.md` when architecture, data flow, or
    project policy changes.
-6. Run the required checks below.
-7. Open a pull request. `master` is protected by a ruleset — every change
+7. Run the required checks below.
+8. Open a pull request. `master` is protected by a ruleset — every change
    lands through a PR. Non-owner accounts (including agent accounts) have
    no write access: fork and open a PR from the fork.
 
@@ -35,6 +37,25 @@ Commit messages and PR titles follow conventional commits in English
 (`type(scope): imperative subject`) — `fix(web): ...`, `chore(deps): ...`.
 PR bodies are English too; the repo validates titles with
 `amannn/action-semantic-pull-request`.
+
+## Change Design Gate
+
+Every change needs a requirement record; use the smallest set of artifacts
+that makes behavior and implementation reviewable.
+
+| Change type | Required artifact |
+| --- | --- |
+| Product behavior | One Spec plus one detailed Plan for the same deliverable |
+| Technical refactor without changed user behavior | Detailed Plan with compatibility and acceptance conditions |
+| Narrow maintenance, tests, or documentation | Requirement in the PR description; a separate Plan only when useful |
+
+A Spec (`docs/specs/`) defines observable interactions, scope, failure
+behavior, and acceptance examples — stable scenario IDs, Given/When/Then
+where useful, linked to tests; it does not prescribe implementation. A
+Plan (`docs/plans/`) records technical decisions and the execution plan.
+A small change may keep both sections in the PR description. Move lasting
+constraints into `docs/architecture.md` or tests before deleting completed
+Specs and Plans in the delivery PR.
 
 ## Required Checks
 
