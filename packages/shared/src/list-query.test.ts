@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 import { filterByQuery, PAGE_SIZE, paginate } from './list-query.js';
 import type { PostSummary } from './types.js';
 

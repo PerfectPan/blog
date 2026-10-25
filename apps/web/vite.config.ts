@@ -2,7 +2,7 @@ import { cloudflare } from '@cloudflare/vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import viteReact from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vite-plus';
 import tsConfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
@@ -18,9 +18,10 @@ export default defineConfig({
     tsConfigPaths(),
     cloudflare({ viteEnvironment: { name: 'ssr' } }),
     tanstackStart(),
-    viteReact({
-      babel: { plugins: ['babel-plugin-react-compiler'] },
-    }),
+    // React Compiler via the oxc transform (plugin-react v6 dropped the
+    // babel option; `compiler: true` runs the oxc port instead of
+    // babel-plugin-react-compiler).
+    viteReact({ compiler: true }),
     tailwindcss(),
   ],
   server: {

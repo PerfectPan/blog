@@ -1,7 +1,7 @@
 name: E2E
 
 # End-to-end (Playwright) tests. The rest of CI (pull-request.yml) only runs
-# unit tests (vitest), so the auth + admin flows are covered here. The dev
+# unit tests (vp test), so the auth + admin flows are covered here. The dev
 # server runs against an ephemeral local D1 — nothing touches production.
 on:
   pull_request:

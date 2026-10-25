@@ -130,7 +130,7 @@ export const listPostTagsServerFn = createServerFn({ method: 'GET' }).handler(
 );
 
 export const getAdminPostServerFn = createServerFn({ method: 'GET' })
-  .inputValidator(z.object({ slug: z.string().min(1) }))
+  .validator(z.object({ slug: z.string().min(1) }))
   .handler(async ({ data }) => {
     await requireAdmin();
     const row = await getD1()
@@ -159,7 +159,7 @@ const upsertSchema = z.object({
 });
 
 export const upsertPostServerFn = createServerFn({ method: 'POST' })
-  .inputValidator(upsertSchema)
+  .validator(upsertSchema)
   .handler(async ({ data }) => {
     await requireAdmin();
     const now = new Date().toISOString();
@@ -204,7 +204,7 @@ export const upsertPostServerFn = createServerFn({ method: 'POST' })
   });
 
 export const deletePostServerFn = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ slug: z.string().min(1) }))
+  .validator(z.object({ slug: z.string().min(1) }))
   .handler(async ({ data }) => {
     await requireAdmin();
     await getD1()

@@ -109,7 +109,7 @@ fetch 里（`apps/web/src/server.tsx`）。
 
 客户端高亮由 `IntersectionObserver` 按可见区域排队，浏览器 Web Worker 复用单个 @pierre/highlights 引擎实例（全部语言编译进同一 WASM 模块，随引擎一次性加载，不再按语言分包）。文章跳转或预览 HTML 更新时取消旧队列并丢弃过期响应；Worker 不可用或语言不受支持时保留可读的纯文本代码。固定 About 文案的中英文 HTML 在每个服务端 isolate 内复用，不缓存用户或文章数据。
 
-React Compiler 经 Vite 的 React Babel 插件启用，使用 React 19 内置 runtime，为可分析的组件和 hook 自动添加记忆化。无法分析的函数保留原实现；不为提高编译覆盖率移除错误处理。它优化组件计算与子树复用，不代替请求去重、服务端鉴权或浏览器性能测量。
+React Compiler 经 `@vitejs/plugin-react` 的 oxc transform 启用（`compiler: true`，不再走 Babel），使用 React 19 内置 runtime，为可分析的组件和 hook 自动添加记忆化。无法分析的函数保留原实现；不为提高编译覆盖率移除错误处理。它优化组件计算与子树复用，不代替请求去重、服务端鉴权或浏览器性能测量。
 
 ## 6. 权限模型（**两层都要守**）
 
@@ -185,7 +185,7 @@ React Compiler 经 Vite 的 React Babel 插件启用，使用 React 19 内置 ru
 pnpm install
 cp apps/web/.dev.vars.example apps/web/.dev.vars      # 填 BETTER_AUTH_SECRET 等
 pnpm --filter @blog/web exec wrangler d1 migrations apply blog --local   # 建表 + 种子
-pnpm --filter @blog/web dev                            # vite dev
+pnpm --filter @blog/web dev                            # vp dev（Vite+）
 # 想跑 worker 运行时：pnpm --filter @blog/web exec wrangler dev
 ```
 
@@ -226,7 +226,7 @@ pnpm --filter @blog/web dev                            # vite dev
   route loader（server fn 可被 RPC 直调，见 §6）。
 - **改表结构**：加 `apps/web/migrations/000N_*.sql`；deploy 时自动应用到远端、本地用 `--local`。
 - **改可见性逻辑**：`packages/shared/src/access.ts`（`canAccessVisibility`）+ 在数据层 fn 里强制。
-- **提交前最低验证**：`pnpm typecheck`；`pnpm biome check ./apps ./packages`；
+- **提交前最低验证**：`pnpm typecheck`；`pnpm lint`（`vp check`：Oxfmt 格式检查 + Oxlint）；
   `pnpm --filter @blog/web build`；`pnpm --filter @blog/web exec wrangler deploy -c
   apps/web/dist/server/wrangler.json --dry-run`（体积守门）。
 - **密钥**：`wrangler secret put <NAME>`（绝不进 git）；非密钥配置走 `wrangler.jsonc` 的 `vars`。

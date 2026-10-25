@@ -158,7 +158,7 @@ const getCommentsInput = z.object({
 
 /** First page (or a deeper page) of threaded comments for a post. */
 export const getCommentsServerFn = createServerFn({ method: 'GET' })
-  .inputValidator(getCommentsInput)
+  .validator(getCommentsInput)
   .handler(async ({ data }) => {
     const request = getRequest();
     const sessionUser = await getSessionUserFromRequest(request);
@@ -234,7 +234,7 @@ const createCommentInput = z.object({
 
 /** Post a comment (top-level if no parentId, else a one-level reply). */
 export const createCommentServerFn = createServerFn({ method: 'POST' })
-  .inputValidator(createCommentInput)
+  .validator(createCommentInput)
   .handler(async ({ data }) => {
     const sessionUser = await requireSession();
 
@@ -325,7 +325,7 @@ const deleteCommentInput = z.object({ id: z.string().min(1) });
 
 /** Hard-delete a comment. The author or an admin may do this. */
 export const deleteCommentServerFn = createServerFn({ method: 'POST' })
-  .inputValidator(deleteCommentInput)
+  .validator(deleteCommentInput)
   .handler(async ({ data }) => {
     const sessionUser = await requireSession();
     const db = getD1();
@@ -364,7 +364,7 @@ const setCommentStatusInput = z.object({
 
 /** Soft-moderate a comment (hide / mark spam / restore). Admin only. */
 export const setCommentStatusServerFn = createServerFn({ method: 'POST' })
-  .inputValidator(setCommentStatusInput)
+  .validator(setCommentStatusInput)
   .handler(async ({ data }) => {
     await requireAdmin();
     const now = new Date().toISOString();
@@ -384,7 +384,7 @@ const listCommentsInput = z.object({
 
 /** Every comment (newest-first) for the admin moderation view. Admin only. */
 export const listCommentsServerFn = createServerFn({ method: 'GET' })
-  .inputValidator(listCommentsInput)
+  .validator(listCommentsInput)
   .handler(async ({ data }) => {
     const sessionUser = await requireAdmin();
     const db = getD1();

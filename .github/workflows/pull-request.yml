@@ -31,7 +31,7 @@ jobs:
       - name: TypeScript Check
         run: pnpm typecheck
 
-      - name: Lint (Biome)
+      - name: Lint (vp check)
         run: pnpm lint
 
       - name: Unit Tests

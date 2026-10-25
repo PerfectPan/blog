@@ -19,7 +19,7 @@ import { getSessionUserFromRequest } from './session-core.js';
  *  signed-in user can only ever update their own row (id comes from the
  *  session, never from client input). */
 export const setLocaleServerFn = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ locale: z.enum(LOCALES) }))
+  .validator(z.object({ locale: z.enum(LOCALES) }))
   .handler(async ({ data }) => {
     const request = getRequest();
     const sessionUser = await getSessionUserFromRequest(request);
