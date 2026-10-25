@@ -10,7 +10,9 @@ import { defineConfig } from 'vite-plus';
 // The web app's build config stays in apps/web/vite.config.ts.
 export default defineConfig({
   staged: {
-    '*': 'vp check --fix',
+    // Typed glob (not the docs' '*'): extension-less paths such as the
+    // .claude/skills/* symlinks make lint-staged fail with a git error.
+    '*.{mjs,js,jsx,mts,ts,tsx,css,json}': 'vp check --fix',
   },
   test: {
     // Vitest v4 compatibility: preserve mock call history.
