@@ -25,7 +25,7 @@ broken or over-budget deploy.
 
 ```bash
 pnpm typecheck
-pnpm biome check ./apps ./packages
+pnpm lint
 ```
 
 ## 2. Build

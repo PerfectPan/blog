@@ -32,12 +32,6 @@
     }
   },
   "linter": {
-    "enabled": true,
-    "rules": {
-      "preset": "recommended",
-      "suspicious": {
-        "noUnknownAtRules": "off"
-      }
-    }
+    "enabled": false
   }
 }

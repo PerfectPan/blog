@@ -226,7 +226,7 @@ pnpm --filter @blog/web dev                            # vite dev
   route loader（server fn 可被 RPC 直调，见 §6）。
 - **改表结构**：加 `apps/web/migrations/000N_*.sql`；deploy 时自动应用到远端、本地用 `--local`。
 - **改可见性逻辑**：`packages/shared/src/access.ts`（`canAccessVisibility`）+ 在数据层 fn 里强制。
-- **提交前最低验证**：`pnpm typecheck`；`pnpm biome check ./apps ./packages`；
+- **提交前最低验证**：`pnpm typecheck`；`pnpm lint`（biome 格式检查 + `vp lint`）；
   `pnpm --filter @blog/web build`；`pnpm --filter @blog/web exec wrangler deploy -c
   apps/web/dist/server/wrangler.json --dry-run`（体积守门）。
 - **密钥**：`wrangler secret put <NAME>`（绝不进 git）；非密钥配置走 `wrangler.jsonc` 的 `vars`。

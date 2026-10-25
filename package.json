@@ -13,7 +13,7 @@
     "db:migrate": "pnpm --filter @blog/web db:migrate",
     "db:migrate:local": "pnpm --filter @blog/web db:migrate:local",
     "cf-typegen": "pnpm --filter @blog/web cf-typegen",
-    "lint": "biome check ./apps ./packages && oxlint apps/web/src",
+    "lint": "biome check ./apps ./packages && vp lint -c ./vite.config.ts apps packages",
     "test": "vitest run",
     "test:watch": "vitest",
     "size": "pnpm --filter @blog/web size",
@@ -28,8 +28,8 @@
     "@shadcn/lint": "^0.1.1",
     "husky": "^9.1.7",
     "lint-staged": "^15.2.5",
-    "oxlint": "^1.83.0",
     "typescript": "^5.7.3",
+    "vite-plus": "^1.4.0",
     "vitest": "^4.1.11"
   },
   "lint-staged": {
