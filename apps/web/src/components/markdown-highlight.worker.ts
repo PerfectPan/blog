@@ -1,79 +1,52 @@
-import type { HighlighterCore, LanguageInput } from 'shiki/core';
+import type { Theme } from '@pierre/highlights';
 
-let highlighterPromise: Promise<HighlighterCore> | null = null;
+let enginePromise: Promise<{
+  codeToHtml: typeof import('@pierre/highlights').codeToHtml;
+  isSupportedLanguage: typeof import('@pierre/highlights').isSupportedLanguage;
+  themes: { light: Theme; dark: Theme };
+}> | null = null;
 
-function getHighlighter() {
-  // Reuse the engine and loaded grammars across articles and editor updates.
-  highlighterPromise ??= (async () => {
-    const { createHighlighterCore } = await import('shiki/core');
-    const { createJavaScriptRegexEngine } = await import(
-      'shiki/engine/javascript'
-    );
-    return createHighlighterCore({
-      themes: [
-        import('shiki/themes/vitesse-light.mjs'),
-        import('shiki/themes/vitesse-dark.mjs'),
-      ],
-      engine: createJavaScriptRegexEngine(),
-    });
-  })();
-  return highlighterPromise;
+/** Diff +/- lines inherit the plain foreground in the bundled Vitesse themes;
+ *  give them the red/green Shiki's Vitesse rendered. */
+function withDiffColors(theme: Theme, plus: string, minus: string): Theme {
+  return {
+    ...theme,
+    style: {
+      ...theme.style,
+      syntax: {
+        ...theme.style.syntax,
+        'diff.plus': { color: plus },
+        'diff.minus': { color: minus },
+      },
+    },
+  };
 }
 
-/** Lang chunk per grammar — static import map so Vite can code-split them. */
-const LANG_IMPORTS: Record<string, () => Promise<unknown>> = {
-  javascript: () => import('shiki/langs/javascript.mjs'),
-  typescript: () => import('shiki/langs/typescript.mjs'),
-  jsx: () => import('shiki/langs/jsx.mjs'),
-  tsx: () => import('shiki/langs/tsx.mjs'),
-  html: () => import('shiki/langs/html.mjs'),
-  css: () => import('shiki/langs/css.mjs'),
-  json: () => import('shiki/langs/json.mjs'),
-  bash: () => import('shiki/langs/bash.mjs'),
-  yaml: () => import('shiki/langs/yaml.mjs'),
-  markdown: () => import('shiki/langs/markdown.mjs'),
-  cpp: () => import('shiki/langs/cpp.mjs'),
-  c: () => import('shiki/langs/c.mjs'),
-  go: () => import('shiki/langs/go.mjs'),
-  java: () => import('shiki/langs/java.mjs'),
-  python: () => import('shiki/langs/python.mjs'),
-  rust: () => import('shiki/langs/rust.mjs'),
-  sql: () => import('shiki/langs/sql.mjs'),
-};
-
-/** Common fence aliases → canonical grammar key. Without this, `js`/`ts`/…
- *  fall through to plain text even though their grammar highlights them. */
-const LANG_ALIASES: Record<string, string> = {
-  js: 'javascript',
-  mjs: 'javascript',
-  cjs: 'javascript',
-  ts: 'typescript',
-  mts: 'typescript',
-  yml: 'yaml',
-  md: 'markdown',
-  'c++': 'cpp',
-  cc: 'cpp',
-  cxx: 'cpp',
-  hpp: 'cpp',
-  hh: 'cpp',
-  hxx: 'cpp',
-  h: 'c',
-  golang: 'go',
-  py: 'python',
-  rs: 'rust',
-  sh: 'bash',
-  shell: 'bash',
-  zsh: 'bash',
-  shellsession: 'bash',
-};
-
-/** Canonical grammar key for a fence info string, or null for plain text. */
-function resolveLangKey(lang: string): string | null {
-  return LANG_IMPORTS[lang] ? lang : (LANG_ALIASES[lang] ?? null);
+function getEngine() {
+  // The engine compiles its WASM at import; reuse that instance across
+  // articles and editor updates instead of paying the cost per message.
+  enginePromise ??= (async () => {
+    const [highlights, light, dark] = await Promise.all([
+      import('@pierre/highlights'),
+      import('@pierre/highlights/themes/vitesse-light'),
+      import('@pierre/highlights/themes/vitesse-dark'),
+    ]);
+    return {
+      codeToHtml: highlights.codeToHtml,
+      isSupportedLanguage: highlights.isSupportedLanguage,
+      themes: {
+        light: withDiffColors(light.default, '#22863a', '#b31d28'),
+        dark: withDiffColors(dark.default, '#85e89d', '#fdaeb7'),
+      },
+    };
+  })();
+  return enginePromise;
 }
 
 export type HighlightRequest = { id: number; code: string; lang: string };
 export type HighlightResponse = { id: number; html: string | null };
+
+const decoder = new TextDecoder();
 
 self.addEventListener(
   'message',
@@ -81,22 +54,20 @@ self.addEventListener(
     const { id, code, lang } = event.data;
     let html: string | null = null;
     try {
-      const langKey = resolveLangKey(lang);
-      if (langKey) {
-        const highlighter = await getHighlighter();
-        if (!highlighter.getLoadedLanguages().includes(langKey)) {
-          const mod = (await LANG_IMPORTS[langKey]()) as {
-            default: LanguageInput;
-          };
-          await highlighter.loadLanguage(mod.default);
-        }
-        html = highlighter.codeToHtml(code, {
-          lang: langKey,
-          themes: { light: 'vitesse-light', dark: 'vitesse-dark' },
-        });
+      const engine = await getEngine();
+      if (engine.isSupportedLanguage(lang)) {
+        // The returned bytes view into WASM memory that the next call
+        // overwrites — decode before posting the message.
+        html = decoder.decode(
+          engine.codeToHtml(code, {
+            lang,
+            themes: engine.themes,
+            cssVariablePrefix: '--shiki-',
+          }),
+        );
       }
     } catch {
-      // Plain code remains readable if a grammar chunk or highlighting fails.
+      // Plain code remains readable if the engine or highlighting fails.
     }
     self.postMessage({ id, html } satisfies HighlightResponse);
   },
