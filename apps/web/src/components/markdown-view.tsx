@@ -70,7 +70,10 @@ async function upgradeCodeBlock(pre: HTMLPreElement, signal: AbortSignal) {
   }
   const lang = /language-([\w+#-]+)/.exec(code.className)?.[1] ?? 'text';
   const html = await highlightCode(code.textContent, lang, signal);
-  // Abort during the await resolves highlightCode to null; !html covers it.
+  // Abort during the await resolves highlightCode to null (!html); a reply
+  // that wins the race before abort is covered by !pre.isConnected (abort
+  // only fires on unmount/content change, which detaches this subtree) or
+  // by dataset.highlighted.
   if (!html || !pre.isConnected || code.dataset.highlighted) {
     return;
   }

@@ -61,6 +61,12 @@ export const Route = createFileRoute('/blog/$slug')({
 function BlogDetailPage() {
   const data = Route.useLoaderData();
   const post = data.post;
+  // Defense-in-depth: loader data is any-typed here, so the type system
+  // cannot prove post non-null even though the loader throws notFound().
+  // oxlint-disable-next-line no-unnecessary-condition
+  if (!post) {
+    return null;
+  }
 
   return (
     <ArticlePage
