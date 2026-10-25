@@ -1,10 +1,6 @@
 packages:
   - apps/*
   - packages/*
-onlyBuiltDependencies:
-  - esbuild
-  - workerd
-  - sharp
 catalog:
   vite: npm:@voidzero-dev/vite-plus-core@1.4.0
   vite-plus: 1.4.0
@@ -23,3 +19,14 @@ peerDependencyRules:
     - vite
   allowedVersions:
     vite: '*'
+allowBuilds:
+  esbuild: true
+  sharp: true
+  workerd: true
+permissions:
+  '@tanstack/react-router':
+    skills: false
+  '@tanstack/react-start':
+    skills: false
+  dotenv:
+    skills: false
