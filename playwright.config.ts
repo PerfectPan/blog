@@ -21,7 +21,7 @@ export default defineConfig({
   use: {
     baseURL,
     channel: 'chrome',
-    trace: 'on-first-retry',
+    trace: 'on-first-retry'
   },
   webServer: {
     command: 'pnpm dev',
@@ -29,6 +29,6 @@ export default defineConfig({
     // CI starts its own dev server in a visible background step (so the logs are
     // debuggable); reuse it instead of spawning a second one.
     reuseExistingServer: true,
-    timeout: 120_000,
-  },
+    timeout: 120_000
+  }
 });

@@ -32,8 +32,8 @@
 
 @theme inline {
   --font-mono:
-    ui-monospace, 'SF Mono', 'JetBrains Mono', 'Cascadia Code', Menlo, Consolas,
-    'PingFang SC', 'Microsoft YaHei', monospace;
+    ui-monospace, 'SF Mono', 'JetBrains Mono', 'Cascadia Code', Menlo, Consolas, 'PingFang SC', 'Microsoft YaHei',
+    monospace;
 
   --color-border: var(--border);
   --color-input: var(--input);
@@ -250,8 +250,7 @@ html.dark {
 }
 
 .vt-dark-reveal:not(.dark)::view-transition-old(root) {
-  animation: dark-mode-reveal 650ms cubic-bezier(0.65, 0, 0.35, 1) reverse
-    forwards;
+  animation: dark-mode-reveal 650ms cubic-bezier(0.65, 0, 0.35, 1) reverse forwards;
 }
 
 /* https://shiki.style/guide/dual-themes */
@@ -319,9 +318,7 @@ html.dark ::-webkit-scrollbar-thumb:hover {
 :root .md p,
 :root .md li,
 :root .md blockquote {
-  font-family:
-    Georgia, 'Songti SC', 'Noto Serif SC', 'Source Han Serif SC', 'SimSun',
-    serif;
+  font-family: Georgia, 'Songti SC', 'Noto Serif SC', 'Source Han Serif SC', 'SimSun', serif;
   font-size: 16.5px;
   line-height: 1.9;
 }

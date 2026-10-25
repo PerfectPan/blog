@@ -2,26 +2,9 @@
 
 import type { Comment, CommentThread, SessionUser } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
-import {
-  Bold,
-  Code,
-  Italic,
-  Link as LinkIcon,
-  List,
-  Quote,
-} from 'lucide-react';
-import {
-  type ReactNode,
-  useDeferredValue,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
-import {
-  createCommentServerFn,
-  deleteCommentServerFn,
-  getCommentsServerFn,
-} from '../lib/comments-service.js';
+import { Bold, Code, Italic, Link as LinkIcon, List, Quote } from 'lucide-react';
+import { type ReactNode, useDeferredValue, useEffect, useRef, useState } from 'react';
+import { createCommentServerFn, deleteCommentServerFn, getCommentsServerFn } from '../lib/comments-service.js';
 import { type TFn, useT } from '../lib/i18n/context.js';
 import {
   CHARS_LEFT,
@@ -55,7 +38,7 @@ import {
   TOOLBAR_ITALIC,
   TOOLBAR_LINK,
   TOOLBAR_LIST,
-  TOOLBAR_QUOTE,
+  TOOLBAR_QUOTE
 } from '../lib/i18n/messages.js';
 import { previewCommentServerFn } from '../lib/markdown-preview.js';
 import { useSessionUser } from '../lib/session-user.js';
@@ -103,7 +86,7 @@ function formatRelative(iso: string, t: TFn): string {
   return new Date(iso).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
-    year: 'numeric',
+    year: 'numeric'
   });
 }
 
@@ -116,13 +99,7 @@ type ComposerProps = {
   compact?: boolean;
 };
 
-function Composer({
-  placeholder,
-  submitLabel,
-  submitting,
-  onSubmit,
-  compact,
-}: ComposerProps) {
+function Composer({ placeholder, submitLabel, submitting, onSubmit, compact }: ComposerProps) {
   const t = useT();
   const displayName = useSessionUser()?.name;
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -148,10 +125,14 @@ function Composer({
     const handle = setTimeout(() => {
       previewCommentServerFn({ data: { body: previewContent } })
         .then(({ html }) => {
-          if (!cancelled) setPreviewHtml(html);
+          if (!cancelled) {
+            setPreviewHtml(html);
+          }
         })
         .catch(() => {
-          if (!cancelled) setPreviewHtml('');
+          if (!cancelled) {
+            setPreviewHtml('');
+          }
         });
     }, 200);
     return () => {
@@ -182,13 +163,12 @@ function Composer({
     const start = el.selectionStart;
     const end = el.selectionEnd;
     const selected = body.slice(start, end) || emptyText;
-    const next =
-      body.slice(0, start) + before + selected + after + body.slice(end);
+    const next = body.slice(0, start) + before + selected + after + body.slice(end);
     setBody(next);
     const selStart = start + before.length;
     pendingSelection.current = {
       start: selStart,
-      end: selStart + selected.length,
+      end: selStart + selected.length
     };
   }
 
@@ -202,23 +182,15 @@ function Composer({
     const end = el.selectionEnd;
     const lineStart = body.lastIndexOf('\n', start - 1) + 1;
     const block = body.slice(lineStart, end);
-    const allPrefixed = block
-      .split('\n')
-      .every((line) => line.startsWith(prefix) || line === '');
+    const allPrefixed = block.split('\n').every((line) => line.startsWith(prefix) || line === '');
     const newBlock = block
       .split('\n')
-      .map((line) =>
-        allPrefixed
-          ? line.slice(prefix.length)
-          : line.startsWith(prefix)
-            ? line
-            : prefix + line,
-      )
+      .map((line) => (allPrefixed ? line.slice(prefix.length) : line.startsWith(prefix) ? line : prefix + line))
       .join('\n');
     setBody(body.slice(0, lineStart) + newBlock + body.slice(end));
     pendingSelection.current = {
       start: lineStart,
-      end: lineStart + newBlock.length,
+      end: lineStart + newBlock.length
     };
   }
 
@@ -252,41 +224,23 @@ function Composer({
             (unmounted), so it only renders while writing. */}
         {!preview ? (
           <>
-            <ToolButton
-              label={t(TOOLBAR_BOLD)}
-              onClick={() => wrap('**', '**', t(TEXT_PLACEHOLDER))}
-            >
+            <ToolButton label={t(TOOLBAR_BOLD)} onClick={() => wrap('**', '**', t(TEXT_PLACEHOLDER))}>
               <Bold size={14} />
             </ToolButton>
-            <ToolButton
-              label={t(TOOLBAR_ITALIC)}
-              onClick={() => wrap('*', '*', t(TEXT_PLACEHOLDER))}
-            >
+            <ToolButton label={t(TOOLBAR_ITALIC)} onClick={() => wrap('*', '*', t(TEXT_PLACEHOLDER))}>
               <Italic size={14} />
             </ToolButton>
             <Divider />
-            <ToolButton
-              label={t(TOOLBAR_QUOTE)}
-              onClick={() => prefixLines('> ')}
-            >
+            <ToolButton label={t(TOOLBAR_QUOTE)} onClick={() => prefixLines('> ')}>
               <Quote size={14} />
             </ToolButton>
-            <ToolButton
-              label={t(TOOLBAR_LIST)}
-              onClick={() => prefixLines('- ')}
-            >
+            <ToolButton label={t(TOOLBAR_LIST)} onClick={() => prefixLines('- ')}>
               <List size={14} />
             </ToolButton>
-            <ToolButton
-              label={t(TOOLBAR_CODE)}
-              onClick={() => wrap('`', '`', t(CODE_PLACEHOLDER))}
-            >
+            <ToolButton label={t(TOOLBAR_CODE)} onClick={() => wrap('`', '`', t(CODE_PLACEHOLDER))}>
               <Code size={14} />
             </ToolButton>
-            <ToolButton
-              label={t(TOOLBAR_LINK)}
-              onClick={() => wrap('[', '](https://)', t(LINK_TEXT_PLACEHOLDER))}
-            >
+            <ToolButton label={t(TOOLBAR_LINK)} onClick={() => wrap('[', '](https://)', t(LINK_TEXT_PLACEHOLDER))}>
               <LinkIcon size={14} />
             </ToolButton>
           </>
@@ -301,9 +255,7 @@ function Composer({
         </div>
       </div>
       {preview ? (
-        <div
-          className={`overflow-auto px-3.5 py-2.5 ${compact ? 'min-h-16' : 'min-h-21'}`}
-        >
+        <div className={`overflow-auto px-3.5 py-2.5 ${compact ? 'min-h-16' : 'min-h-21'}`}>
           {body.trim() ? (
             <CommentBody html={previewHtml} />
           ) : (
@@ -343,15 +295,7 @@ function Composer({
   );
 }
 
-function ToolButton({
-  label,
-  onClick,
-  children,
-}: {
-  label: string;
-  onClick: () => void;
-  children: ReactNode;
-}) {
+function ToolButton({ label, onClick, children }: { label: string; onClick: () => void; children: ReactNode }) {
   return (
     <button
       type='button'
@@ -369,23 +313,13 @@ function Divider() {
   return <span className='mx-1 h-4 w-px bg-border' />;
 }
 
-function ModeButton({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: ReactNode;
-}) {
+function ModeButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: ReactNode }) {
   return (
     <button
       type='button'
       onClick={onClick}
       className={`cursor-pointer rounded px-2 py-1 text-xs font-medium transition-colors ${
-        active
-          ? 'bg-primary text-primary-foreground'
-          : 'text-muted-foreground hover:text-primary'
+        active ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-primary'
       }`}
     >
       {children}
@@ -410,11 +344,10 @@ function CommentItem({
   onDelete,
   replyingTo,
   setReplyingTo,
-  replySubmitting,
+  replySubmitting
 }: CommentItemProps) {
   const t = useT();
-  const canAct =
-    sessionUser != null && (thread.isOwn || sessionUser.role === 'admin');
+  const canAct = sessionUser != null && (thread.isOwn || sessionUser.role === 'admin');
   const showReplyBox = sessionUser != null && replyingTo === thread.id;
 
   async function handleDelete() {
@@ -435,9 +368,7 @@ function CommentItem({
         comment={thread}
         canAct={canAct}
         canReply={sessionUser != null}
-        onReply={() =>
-          setReplyingTo(replyingTo === thread.id ? null : thread.id)
-        }
+        onReply={() => setReplyingTo(replyingTo === thread.id ? null : thread.id)}
         onDelete={handleDelete}
       />
 
@@ -455,9 +386,7 @@ function CommentItem({
             />
           ) : null}
           {thread.replies.map((reply) => {
-            const replyCanAct =
-              sessionUser != null &&
-              (reply.isOwn || sessionUser.role === 'admin');
+            const replyCanAct = sessionUser != null && (reply.isOwn || sessionUser.role === 'admin');
             return (
               <CommentView
                 key={reply.id}
@@ -488,13 +417,7 @@ type CommentViewProps = {
   onDelete: () => void | Promise<void>;
 };
 
-function CommentView({
-  comment,
-  canAct,
-  canReply,
-  onReply,
-  onDelete,
-}: CommentViewProps) {
+function CommentView({ comment, canAct, canReply, onReply, onDelete }: CommentViewProps) {
   const t = useT();
   return (
     <div className='my-3 overflow-hidden rounded-lg border border-border'>
@@ -521,22 +444,14 @@ function CommentView({
             {t(REPLY_ACTION)}
           </button>
           {canAct ? (
-            <button
-              type='button'
-              className='hover:text-destructive!'
-              onClick={() => onDelete()}
-            >
+            <button type='button' className='hover:text-destructive!' onClick={() => onDelete()}>
               {t(DELETE_ACTION)}
             </button>
           ) : null}
         </div>
       ) : canAct ? (
         <div className={ACTION_ROW}>
-          <button
-            type='button'
-            className='hover:text-destructive!'
-            onClick={() => onDelete()}
-          >
+          <button type='button' className='hover:text-destructive!' onClick={() => onDelete()}>
             {t(DELETE_ACTION)}
           </button>
         </div>
@@ -545,13 +460,7 @@ function CommentView({
   );
 }
 
-export function Comments({
-  slug,
-  initialComments,
-  initialHasMore,
-  initialTotal,
-  sessionUser,
-}: CommentsProps) {
+export function Comments({ slug, initialComments, initialHasMore, initialTotal, sessionUser }: CommentsProps) {
   const t = useT();
   const [threads, setThreads] = useState<CommentThread[]>(initialComments);
   const [hasMore, setHasMore] = useState(initialHasMore);
@@ -560,15 +469,13 @@ export function Comments({
   const [topError, setTopError] = useState<string | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
-  const [replySubmitting, setReplySubmitting] = useState<Set<string>>(
-    () => new Set(),
-  );
+  const [replySubmitting, setReplySubmitting] = useState<Set<string>>(() => new Set());
 
   async function handleCreateTopLevel(body: string) {
     setSubmitting(true);
     try {
       const { comment } = await createCommentServerFn({
-        data: { slug, body },
+        data: { slug, body }
       });
       // Newest-first: a fresh top-level comment goes to the front.
       setThreads((prev) => [{ ...comment, replies: [] }, ...prev]);
@@ -582,14 +489,10 @@ export function Comments({
     setReplySubmitting((prev) => new Set(prev).add(parentId));
     try {
       const { comment } = await createCommentServerFn({
-        data: { slug, body, parentId },
+        data: { slug, body, parentId }
       });
       setThreads((prev) =>
-        prev.map((thread) =>
-          thread.id === parentId
-            ? { ...thread, replies: [...thread.replies, comment] }
-            : thread,
-        ),
+        prev.map((thread) => (thread.id === parentId ? { ...thread, replies: [...thread.replies, comment] } : thread))
       );
       setReplyingTo(null);
     } finally {
@@ -614,9 +517,9 @@ export function Comments({
       prev
         .map((thread) => ({
           ...thread,
-          replies: thread.replies.filter((reply) => reply.id !== id),
+          replies: thread.replies.filter((reply) => reply.id !== id)
         }))
-        .filter((thread) => thread.id !== id),
+        .filter((thread) => thread.id !== id)
     );
     if (wasTopLevel) {
       setTotal((count) => Math.max(0, count - 1));
@@ -627,7 +530,7 @@ export function Comments({
     setLoadingMore(true);
     try {
       const result = await getCommentsServerFn({
-        data: { slug, offset: threads.length, limit: PAGE_SIZE },
+        data: { slug, offset: threads.length, limit: PAGE_SIZE }
       });
       setThreads((prev) => [...prev, ...result.comments]);
       setHasMore(result.hasMore);
@@ -661,13 +564,9 @@ export function Comments({
           {t(LOGIN_HINT_SUFFIX)}
         </p>
       )}
-      {topError ? (
-        <p className='my-2.5 text-sm text-destructive mb-4'>{topError}</p>
-      ) : null}
+      {topError ? <p className='my-2.5 text-sm text-destructive mb-4'>{topError}</p> : null}
       {threads.length === 0 ? (
-        <p className='text-muted-foreground/60 py-8 text-center'>
-          # {t(NO_COMMENTS)}
-        </p>
+        <p className='text-muted-foreground/60 py-8 text-center'># {t(NO_COMMENTS)}</p>
       ) : (
         <ul className='flex flex-col gap-3'>
           {threads.map((thread) => (

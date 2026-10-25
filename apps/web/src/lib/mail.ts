@@ -13,23 +13,17 @@ export async function sendMail(mail: Mail): Promise<void> {
     method: 'POST',
     headers: {
       authorization: `Bearer ${env.resendApiKey}`,
-      'content-type': 'application/json',
+      'content-type': 'application/json'
     },
-    body: JSON.stringify({ from: env.mailFrom, ...mail }),
+    body: JSON.stringify({ from: env.mailFrom, ...mail })
   });
   if (!response.ok) {
-    throw new Error(
-      `[web] Resend rejected the mail: ${response.status} ${await response.text()}`,
-    );
+    throw new Error(`[web] Resend rejected the mail: ${response.status} ${await response.text()}`);
   }
 }
 
 const escapeHtml = (value: string) =>
-  value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;');
+  value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
 
 /** How long a verification link stays valid; the mail text states it. */
 export const VERIFY_LINK_TTL_S = 60 * 60;
@@ -38,6 +32,6 @@ export function verificationMail(name: string, url: string) {
   return {
     subject: "Verify your email for PerfectPan's Blog",
     text: `Hi ${name},\n\nOpen this link to verify your email:\n${url}\n\nThe link expires in 1 hour. If you didn't sign up, ignore this mail.`,
-    html: `<p>Hi ${escapeHtml(name)},</p><p><a href="${escapeHtml(url)}">Verify your email</a> for PerfectPan's Blog.</p><p>The link expires in 1 hour. If you didn't sign up, ignore this mail.</p>`,
+    html: `<p>Hi ${escapeHtml(name)},</p><p><a href="${escapeHtml(url)}">Verify your email</a> for PerfectPan's Blog.</p><p>The link expires in 1 hour. If you didn't sign up, ignore this mail.</p>`
   };
 }

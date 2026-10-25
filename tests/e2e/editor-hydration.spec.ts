@@ -21,9 +21,7 @@ async function loginAsAdmin(page: Page) {
   }
 }
 
-test('editor controls are inert while scripts are held back', async ({
-  page,
-}) => {
+test('editor controls are inert while scripts are held back', async ({ page }) => {
   await loginAsAdmin(page);
 
   await page.route('**/*', (route) => {
@@ -45,9 +43,7 @@ test('editor controls are inert while scripts are held back', async ({
   await expect(page.getByRole('button', { name: '保存' })).toBeDisabled();
 });
 
-test('editor saves a post once the script gate releases hydration', async ({
-  page,
-}) => {
+test('editor saves a post once the script gate releases hydration', async ({ page }) => {
   await loginAsAdmin(page);
 
   // Hold scripts so the disabled-state assertions cannot race hydration.

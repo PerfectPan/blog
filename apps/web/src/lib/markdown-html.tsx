@@ -25,20 +25,22 @@ import { LocaleProvider } from './i18n/context.js';
  */
 
 function wrapWithLocale(locale: Locale, element: ReactElement) {
-  return renderToStaticMarkup(
-    <LocaleProvider initialLocale={locale}>{element}</LocaleProvider>,
-  );
+  return renderToStaticMarkup(<LocaleProvider initialLocale={locale}>{element}</LocaleProvider>);
 }
 
 /** Render a post body (GFM + math + code-block chrome) to HTML. */
 export function renderPostHtml(content: string, locale: Locale): string {
-  if (!content) return '';
+  if (!content) {
+    return '';
+  }
   return wrapWithLocale(locale, <Markdown content={content} />);
 }
 
 /** Render a comment body (inline GFM only, no katex/shiki) to inner HTML. */
 export function renderCommentHtml(content: string): string {
-  if (!content) return '';
+  if (!content) {
+    return '';
+  }
   return renderToStaticMarkup(<CommentMarkdownBody content={content} />);
 }
 

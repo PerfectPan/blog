@@ -1,13 +1,5 @@
-import {
-  createStartHandler,
-  defaultStreamHandler,
-} from '@tanstack/react-start/server';
-import {
-  articleCacheKey,
-  matchArticleCache,
-  putArticleCache,
-  toCacheablePair,
-} from './lib/page-cache.js';
+import { createStartHandler, defaultStreamHandler } from '@tanstack/react-start/server';
+import { articleCacheKey, matchArticleCache, putArticleCache, toCacheablePair } from './lib/page-cache.js';
 
 const handler = createStartHandler(defaultStreamHandler);
 
@@ -17,7 +9,9 @@ const handler = createStartHandler(defaultStreamHandler);
 const apexHost = hostFromUrl(process.env.APPS_WEB_URL);
 
 function hostFromUrl(raw: string | undefined): string | undefined {
-  if (!raw) return undefined;
+  if (!raw) {
+    return undefined;
+  }
   const withScheme = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
   try {
     return new URL(withScheme).host;
@@ -33,13 +27,7 @@ function hostFromUrl(raw: string | undefined): string | undefined {
 export default {
   async fetch(...args: Parameters<typeof handler>) {
     const request = args[0] as Request;
-    const ctx = (
-      args as unknown as [
-        Request,
-        unknown,
-        { waitUntil(p: Promise<unknown>): void } | undefined,
-      ]
-    )[2];
+    const ctx = (args as unknown as [Request, unknown, { waitUntil(p: Promise<unknown>): void } | undefined])[2];
     // Canonicalize www -> apex with a 301 (e.g. www.perfectpan.org -> perfectpan.org),
     // preserving path and query. Runs before the app/auth handler.
     if (apexHost) {
@@ -76,5 +64,5 @@ export default {
       }
     }
     return res;
-  },
+  }
 };

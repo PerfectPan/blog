@@ -26,7 +26,7 @@ import {
   UNLOCK_ERROR_INVALID,
   UNLOCK_ERROR_MISSING,
   UNLOCK_HINT,
-  UNLOCK_PASSWORD_LABEL,
+  UNLOCK_PASSWORD_LABEL
 } from '../lib/i18n/messages.js';
 import { useRefreshSession, useSessionUser } from '../lib/session-user.js';
 import { Page, Prompt } from './page.js';
@@ -40,14 +40,12 @@ export function LoginPage({ searchError }: { searchError?: string }) {
   const hydrated = useHydrated();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(
-    searchError ? authErrorMessage(locale, searchError) : null,
-  );
+  const [error, setError] = useState<string | null>(searchError ? authErrorMessage(locale, searchError) : null);
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     if (sessionUser?.id) {
-      navigate({ to: '/blog', replace: true });
+      void navigate({ to: '/blog', replace: true });
     }
   }, [navigate, sessionUser?.id]);
 
@@ -64,9 +62,7 @@ export function LoginPage({ searchError }: { searchError?: string }) {
       <Prompt user='guest' host='perfectpan.org' cwd='~ %' typed>
         ssh member@perfectpan.org
       </Prompt>
-      <p className='mb-1 text-xs text-muted-foreground/60 mt-2'>
-        {t(LOGIN_HINT)}
-      </p>
+      <p className='mb-1 text-xs text-muted-foreground/60 mt-2'>{t(LOGIN_HINT)}</p>
       <form
         className='mt-4'
         method='post'
@@ -77,7 +73,7 @@ export function LoginPage({ searchError }: { searchError?: string }) {
             const result = await authClient.signIn.email({
               email,
               password,
-              callbackURL: '/blog',
+              callbackURL: '/blog'
             });
 
             if (result.error) {
@@ -138,7 +134,7 @@ export function LoginPage({ searchError }: { searchError?: string }) {
                 const result = await authClient.signIn.social({
                   provider: 'github',
                   callbackURL: '/blog',
-                  errorCallbackURL: '/login',
+                  errorCallbackURL: '/login'
                 });
                 if (result.error) {
                   setError(result.error.message ?? t(GITHUB_SIGN_IN_FAILED));
@@ -157,10 +153,7 @@ export function LoginPage({ searchError }: { searchError?: string }) {
       </form>
       <p className='mb-1 mt-4 text-xs'>
         <span className='text-muted-foreground/60'>{t(NO_ACCOUNT_YET)}</span>{' '}
-        <Link
-          to='/signup'
-          className='text-muted-foreground hover:text-foreground'
-        >
+        <Link to='/signup' className='text-muted-foreground hover:text-foreground'>
           {t(SIGNUP_LINK)}
         </Link>
       </p>
@@ -178,14 +171,12 @@ export function SignupPage({ searchError }: { searchError?: string }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [error, setError] = useState<string | null>(
-    searchError ? authErrorMessage(locale, searchError) : null,
-  );
+  const [error, setError] = useState<string | null>(searchError ? authErrorMessage(locale, searchError) : null);
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     if (sessionUser?.id) {
-      navigate({ to: '/account', replace: true });
+      void navigate({ to: '/account', replace: true });
     }
   }, [navigate, sessionUser?.id]);
 
@@ -202,9 +193,7 @@ export function SignupPage({ searchError }: { searchError?: string }) {
       <Prompt user='guest' host='perfectpan.org' cwd='~ %' typed>
         useradd --join
       </Prompt>
-      <p className='mb-1 text-xs text-muted-foreground/60 mt-2'>
-        {t(SIGNUP_HINT)}
-      </p>
+      <p className='mb-1 text-xs text-muted-foreground/60 mt-2'>{t(SIGNUP_HINT)}</p>
       <form
         className='mt-4'
         method='post'
@@ -217,7 +206,7 @@ export function SignupPage({ searchError }: { searchError?: string }) {
               email,
               password,
               name,
-              callbackURL: '/account',
+              callbackURL: '/account'
             });
 
             if (result.error) {
@@ -293,7 +282,7 @@ export function SignupPage({ searchError }: { searchError?: string }) {
                 const result = await authClient.signIn.social({
                   provider: 'github',
                   callbackURL: '/blog',
-                  errorCallbackURL: '/signup',
+                  errorCallbackURL: '/signup'
                 });
                 if (result.error) {
                   setError(result.error.message ?? t(GITHUB_SIGN_UP_FAILED));
@@ -314,13 +303,7 @@ export function SignupPage({ searchError }: { searchError?: string }) {
   );
 }
 
-export function UnlockPage({
-  slug,
-  search,
-}: {
-  slug: string;
-  search?: Record<string, string | undefined>;
-}) {
+export function UnlockPage({ slug, search }: { slug: string; search?: Record<string, string | undefined> }) {
   const t = useT();
   const { error: searchError } = (search ?? {}) as { error?: string };
   const errorLabel =
@@ -336,9 +319,7 @@ export function UnlockPage({
         cat posts/{slug}.md
       </Prompt>
       <p className='mb-1'>
-        <span className='text-destructive'>
-          cat: posts/{slug}.md: Permission denied
-        </span>
+        <span className='text-destructive'>cat: posts/{slug}.md: Permission denied</span>
       </p>
       <p className='mb-1 text-xs text-muted-foreground/60'>{t(UNLOCK_HINT)}</p>
       <form method='post' className='mt-4'>
@@ -362,11 +343,7 @@ export function UnlockPage({
           >
             {t(SUDO_UNLOCK)}
           </button>
-          <Link
-            to='/blog/$slug'
-            params={{ slug }}
-            className='text-muted-foreground hover:text-foreground'
-          >
+          <Link to='/blog/$slug' params={{ slug }} className='text-muted-foreground hover:text-foreground'>
             {t(BACK_TO_POST)}
           </Link>
         </div>

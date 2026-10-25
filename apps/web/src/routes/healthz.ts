@@ -8,9 +8,9 @@ export const Route = createFileRoute('/healthz')({
     handlers: {
       GET: () =>
         new Response(JSON.stringify({ ok: true }), {
-          headers: { 'content-type': 'application/json; charset=utf-8' },
-        }),
-    },
+          headers: { 'content-type': 'application/json; charset=utf-8' }
+        })
+    }
   },
-  component: () => null,
+  component: () => null
 });

@@ -6,7 +6,7 @@ class TestWorker {
   onerror?: () => void;
   onmessageerror?: () => void;
   requests: { id: number; code: string; lang: string }[] = [];
-  terminate = vi.fn();
+  terminate = vi.fn<() => void>();
   constructor() {
     TestWorker.instances.push(this);
   }
@@ -26,8 +26,7 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 it('reuses a worker and matches responses to their own code blocks', async () => {
-  const { highlightCode } =
-    await import('../src/components/markdown-highlight.js');
+  const { highlightCode } = await import('../src/components/markdown-highlight.js');
   const signal = new AbortController().signal;
   const first = highlightCode('first', 'js', signal);
   const second = highlightCode('second', 'sh', signal);
@@ -40,17 +39,12 @@ it('reuses a worker and matches responses to their own code blocks', async () =>
 });
 
 it('releases cancelled work immediately and ignores late results after navigation', async () => {
-  const { highlightCode } =
-    await import('../src/components/markdown-highlight.js');
+  const { highlightCode } = await import('../src/components/markdown-highlight.js');
   const oldPage = new AbortController();
   const oldResult = highlightCode('old', 'cpp', oldPage.signal);
   oldPage.abort();
   expect(await oldResult).toBeNull();
-  const currentResult = highlightCode(
-    'new',
-    'js',
-    new AbortController().signal,
-  );
+  const currentResult = highlightCode('new', 'js', new AbortController().signal);
   const worker = TestWorker.instances[0];
   worker.reply(0, '<pre>old</pre>');
   worker.reply(1, '<pre>new</pre>');
@@ -58,8 +52,7 @@ it('releases cancelled work immediately and ignores late results after navigatio
 });
 
 it('leaves plain code on worker failure and can recover on the next request', async () => {
-  const { highlightCode } =
-    await import('../src/components/markdown-highlight.js');
+  const { highlightCode } = await import('../src/components/markdown-highlight.js');
   const signal = new AbortController().signal;
   const result = highlightCode('first', 'js', signal);
   TestWorker.instances[0].onerror?.();
@@ -71,8 +64,7 @@ it('leaves plain code on worker failure and can recover on the next request', as
 });
 
 it('does not start a worker for an already cancelled request', async () => {
-  const { highlightCode } =
-    await import('../src/components/markdown-highlight.js');
+  const { highlightCode } = await import('../src/components/markdown-highlight.js');
   const controller = new AbortController();
   controller.abort();
   expect(await highlightCode('old', 'js', controller.signal)).toBeNull();

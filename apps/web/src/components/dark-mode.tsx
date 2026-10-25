@@ -11,7 +11,8 @@ type ViewTransitionLike = {
   finished: Promise<void>;
 };
 
-type ViewTransitionDocument = Document & {
+type ViewTransitionDocument = Omit<Document, 'startViewTransition'> & {
+  // Optional: older browsers lack the API, so the runtime guard stays live.
   startViewTransition?: (cb: () => void) => ViewTransitionLike;
 };
 
@@ -65,9 +66,7 @@ export function DarkMode() {
     // properties. Keep the browser-chrome theme-color meta in sync with the
     // surface color.
     document.documentElement.classList.toggle('dark', isDarkMode);
-    document
-      .querySelector('meta[name="theme-color"]')
-      ?.setAttribute('content', isDarkMode ? '#0a0f14' : '#ffffff');
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', isDarkMode ? '#0a0f14' : '#ffffff');
   }, [isDarkMode, synced]);
 
   const applyPref = (next: ThemePref) => {
@@ -83,11 +82,7 @@ export function DarkMode() {
     const next = PREFS[(PREFS.indexOf(pref) + 1) % PREFS.length];
     const doc = document as ViewTransitionDocument;
 
-    if (
-      !ref.current ||
-      !doc.startViewTransition ||
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    ) {
+    if (!ref.current || !doc.startViewTransition || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       applyPref(next);
       return;
     }
@@ -114,13 +109,10 @@ export function DarkMode() {
     const yp = (y / window.innerHeight) * 100;
     // circle() percentage radius resolves against sqrt(w²+h²)/sqrt(2) of
     // the reference box — convert the pixel max radius into that space.
-    const radiusRef =
-      Math.hypot(window.innerWidth, window.innerHeight) / Math.SQRT2;
+    const radiusRef = Math.hypot(window.innerWidth, window.innerHeight) / Math.SQRT2;
     const rp = (maxRadius / radiusRef) * 100;
 
-    let styleEl = document.getElementById(
-      'vt-dark-reveal-keyframes',
-    ) as HTMLStyleElement | null;
+    let styleEl = document.getElementById('vt-dark-reveal-keyframes') as HTMLStyleElement | null;
     if (!styleEl) {
       styleEl = document.createElement('style');
       styleEl.id = 'vt-dark-reveal-keyframes';
@@ -134,11 +126,7 @@ export function DarkMode() {
         applyPref(next);
       });
     });
-    transition.finished
-      .catch(() => {})
-      .finally(() =>
-        document.documentElement.classList.remove('vt-dark-reveal'),
-      );
+    transition.finished.catch(() => {}).finally(() => document.documentElement.classList.remove('vt-dark-reveal'));
   };
 
   const next = PREFS[(PREFS.indexOf(pref) + 1) % PREFS.length];
@@ -149,18 +137,12 @@ export function DarkMode() {
       ref={ref}
       aria-label={t(SWITCH_MODE_ARIA, {
         next: t(THEME_LABEL, { pref: next }),
-        current: t(THEME_LABEL, { pref }),
+        current: t(THEME_LABEL, { pref })
       })}
       className={TOOL_BTN}
       onClick={onTrigger}
     >
-      {pref === 'light' ? (
-        <Sun size={15} />
-      ) : pref === 'dark' ? (
-        <Moon size={15} />
-      ) : (
-        <Monitor size={15} />
-      )}
+      {pref === 'light' ? <Sun size={15} /> : pref === 'dark' ? <Moon size={15} /> : <Monitor size={15} />}
       <span className='hidden md:inline'>{t(THEME_LABEL, { pref: pref })}</span>
     </button>
   );

@@ -6,7 +6,7 @@ import {
   getUnlockCookieName,
   isCommentVisibleTo,
   isRoleAtLeast,
-  PASSWORD_UNLOCK_COOKIE_PREFIX,
+  PASSWORD_UNLOCK_COOKIE_PREFIX
 } from './access.js';
 import type { PostVisibility, Role, SessionUser } from './types.js';
 
@@ -93,9 +93,7 @@ describe('isRoleAtLeast', () => {
 
 describe('getUnlockCookieName', () => {
   it('namespaces the slug under the unlock prefix', () => {
-    expect(getUnlockCookieName('hello-world')).toBe(
-      `${PASSWORD_UNLOCK_COOKIE_PREFIX}hello-world`,
-    );
+    expect(getUnlockCookieName('hello-world')).toBe(`${PASSWORD_UNLOCK_COOKIE_PREFIX}hello-world`);
   });
 
   it('uses the documented prefix constant', () => {

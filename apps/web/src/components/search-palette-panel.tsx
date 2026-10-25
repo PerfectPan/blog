@@ -1,23 +1,11 @@
 import type { PostSummary } from '@blog/shared';
 import { useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { searchPostsServerFn } from '../lib/blog-service.js';
 import { useT } from '../lib/i18n/context.js';
-import {
-  SEARCH_HINTS,
-  SEARCH_IDLE_HINT,
-  SEARCH_NO_MATCHES,
-  SEARCH_PLACEHOLDER,
-} from '../lib/i18n/messages.js';
+import { SEARCH_HINTS, SEARCH_IDLE_HINT, SEARCH_NO_MATCHES, SEARCH_PLACEHOLDER } from '../lib/i18n/messages.js';
 import { searchPalette, useSearchPaletteOpen } from './search-palette-store.js';
 
 /* Terminal grep palette: a shadcn Dialog + cmdk reskinned with utilities —
@@ -69,38 +57,25 @@ export function SearchPalettePanel() {
 
   function go(slug: string) {
     searchPalette.close();
-    navigate({ to: '/blog/$slug', params: { slug } });
+    void navigate({ to: '/blog/$slug', params: { slug } });
   }
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(next) =>
-        next ? searchPalette.open() : searchPalette.close()
-      }
-    >
+    <Dialog open={open} onOpenChange={(next) => (next ? searchPalette.open() : searchPalette.close())}>
       <DialogContent className={PANEL}>
         <Command shouldFilter={false} className={TERMINAL_CMD}>
           <CommandInput
-            leading={
-              <span className='flex-none text-base text-primary'>~ %</span>
-            }
+            leading={<span className='flex-none text-base text-primary'>~ %</span>}
             icon={null}
             value={query}
             onValueChange={setQuery}
             placeholder={t(SEARCH_PLACEHOLDER)}
           />
           <CommandList>
-            <CommandEmpty>
-              {query.trim() ? t(SEARCH_NO_MATCHES) : t(SEARCH_IDLE_HINT)}
-            </CommandEmpty>
+            <CommandEmpty>{query.trim() ? t(SEARCH_NO_MATCHES) : t(SEARCH_IDLE_HINT)}</CommandEmpty>
             <CommandGroup>
               {results.map((post) => (
-                <CommandItem
-                  key={post.slug}
-                  value={post.slug}
-                  onSelect={() => go(post.slug)}
-                >
+                <CommandItem key={post.slug} value={post.slug} onSelect={() => go(post.slug)}>
                   <span className='min-w-[6ch] text-xs text-muted-foreground/60'>
                     {new Date(post.publishedAt).toISOString().slice(0, 7)}
                   </span>
@@ -108,9 +83,7 @@ export function SearchPalettePanel() {
                     {post.title}
                   </span>
                   {post.visibility !== 'public' ? (
-                    <span className='text-xs text-muted-foreground'>
-                      {post.visibility}
-                    </span>
+                    <span className='text-xs text-muted-foreground'>{post.visibility}</span>
                   ) : null}
                 </CommandItem>
               ))}

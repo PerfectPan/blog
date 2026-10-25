@@ -28,10 +28,7 @@ export const setLocaleServerFn = createServerFn({ method: 'POST' })
     }
 
     const locale: Locale = data.locale;
-    await getD1()
-      .prepare('UPDATE "user" SET "locale" = ? WHERE "id" = ?')
-      .bind(locale, sessionUser.id)
-      .run();
+    await getD1().prepare('UPDATE "user" SET "locale" = ? WHERE "id" = ?').bind(locale, sessionUser.id).run();
 
     return { locale };
   });

@@ -8,9 +8,7 @@ import { getWebEnv } from './env.js';
 export function getMediaBucket(): R2Bucket {
   const bucket = (env as { MEDIA_BUCKET?: R2Bucket }).MEDIA_BUCKET;
   if (!bucket) {
-    throw new Error(
-      '[web] R2 binding "MEDIA_BUCKET" is not configured. Check wrangler.jsonc r2_buckets.',
-    );
+    throw new Error('[web] R2 binding "MEDIA_BUCKET" is not configured. Check wrangler.jsonc r2_buckets.');
   }
   return bucket;
 }

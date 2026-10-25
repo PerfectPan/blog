@@ -8,7 +8,7 @@
     "APPS_WEB_URL": "https://perfectpan.org",
     "ADMIN_EMAIL_ALLOWLIST": "perfectpan325@gmail.com",
     // Sender for verification mail; the domain is verified in Resend.
-    "MAIL_FROM": "PerfectPan's Blog <noreply@mail.perfectpan.org>",
+    "MAIL_FROM": "PerfectPan's Blog <noreply@mail.perfectpan.org>"
   },
   "routes": [
     { "pattern": "perfectpan.org", "custom_domain": true },
@@ -23,29 +23,29 @@
       "pattern": "preview.perfectpan.org",
       "custom_domain": true,
       "previews_enabled": true,
-      "enabled": false,
-    },
+      "enabled": false
+    }
   ],
   "assets": {
     "directory": "./dist/client",
-    "binding": "ASSETS",
+    "binding": "ASSETS"
   },
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "blog",
       "database_id": "1ead9934-5171-4c27-91f9-93ae3950d764",
-      "migrations_dir": "./migrations",
-    },
+      "migrations_dir": "./migrations"
+    }
   ],
   "r2_buckets": [
     {
       "binding": "MEDIA_BUCKET",
-      "bucket_name": "blog-assets",
-    },
+      "bucket_name": "blog-assets"
+    }
   ],
   "observability": {
-    "enabled": true,
+    "enabled": true
   },
   // Worker Previews (`wrangler preview`). Runtime vars and storage bindings
   // must be specified separately from production; DB
@@ -59,21 +59,21 @@
     "vars": {
       "ADMIN_EMAIL_ALLOWLIST": "perfectpan325@gmail.com",
       "APPS_WEB_URL": "https://perfectpan.org",
-      "AUTH_ALLOWED_HOSTS": "*.preview.perfectpan.org",
+      "AUTH_ALLOWED_HOSTS": "*.preview.perfectpan.org"
     },
     "d1_databases": [
       {
         "binding": "DB",
         "database_name": "blog-preview",
         "database_id": "94ecdec7-d2dc-401e-bc9f-3db14d891158",
-        "migrations_dir": "./migrations",
-      },
+        "migrations_dir": "./migrations"
+      }
     ],
     "r2_buckets": [
       {
         "binding": "MEDIA_BUCKET",
-        "bucket_name": "blog-assets-preview",
-      },
-    ],
-  },
+        "bucket_name": "blog-assets-preview"
+      }
+    ]
+  }
 }

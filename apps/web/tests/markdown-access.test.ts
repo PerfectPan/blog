@@ -2,11 +2,9 @@ import type { PostDetail, SessionUser } from '@blog/shared';
 import { beforeEach, expect, it, vi } from 'vite-plus/test';
 import { getBlogPostServerFn } from '../src/lib/blog-service.js';
 import { getPostBySlug } from '../src/lib/content-service.js';
+import type { getAllPublishedPosts, verifyPostPassword } from '../src/lib/content-service.js';
 import { renderCommentHtml, renderPostHtml } from '../src/lib/markdown-html.js';
-import {
-  previewCommentServerFn,
-  previewPostServerFn,
-} from '../src/lib/markdown-preview.js';
+import { previewCommentServerFn, previewPostServerFn } from '../src/lib/markdown-preview.js';
 import { getSessionUserFromRequest } from '../src/lib/session-core.js';
 import { isUnlockCookieValid } from '../src/lib/unlock-cookie.js';
 
@@ -19,28 +17,28 @@ vi.mock('@tanstack/react-start', () => ({
     },
     handler(fn: unknown) {
       return fn;
-    },
-  }),
+    }
+  })
 }));
 vi.mock('@tanstack/react-start/server', () => ({
-  getRequest: () => new Request('https://blog.test/'),
+  getRequest: () => new Request('https://blog.test/')
 }));
 vi.mock('../src/lib/content-service.js', () => ({
-  getPostBySlug: vi.fn(),
-  getAllPublishedPosts: vi.fn(),
-  verifyPostPassword: vi.fn(),
+  getPostBySlug: vi.fn<typeof getPostBySlug>(),
+  getAllPublishedPosts: vi.fn<typeof getAllPublishedPosts>(),
+  verifyPostPassword: vi.fn<typeof verifyPostPassword>()
 }));
 vi.mock('../src/lib/session-core.js', () => ({
-  getSessionUserFromRequest: vi.fn(),
+  getSessionUserFromRequest: vi.fn<typeof getSessionUserFromRequest>()
 }));
 vi.mock('../src/lib/unlock-cookie.js', () => ({
-  isUnlockCookieValid: vi.fn(),
-  parseCookies: () => ({}),
+  isUnlockCookieValid: vi.fn<typeof isUnlockCookieValid>(),
+  parseCookies: () => ({})
 }));
 vi.mock('../src/lib/markdown-html.js', () => ({
-  renderPostHtml: vi.fn(() => '<p>protected body</p>'),
-  renderCommentHtml: vi.fn(() => '<p>comment</p>'),
-  htmlHasKatex: () => false,
+  renderPostHtml: vi.fn<typeof renderPostHtml>(() => '<p>protected body</p>'),
+  renderCommentHtml: vi.fn<typeof renderCommentHtml>(() => '<p>comment</p>'),
+  htmlHasKatex: () => false
 }));
 
 const post: PostDetail = {
@@ -52,13 +50,13 @@ const post: PostDetail = {
   status: 'published',
   visibility: 'password',
   passwordEnabled: true,
-  contentMdx: 'protected body',
+  contentMdx: 'protected body'
 };
 const admin: SessionUser = {
   id: 'admin',
   email: 'admin@example.test',
   role: 'admin',
-  locale: 'en',
+  locale: 'en'
 };
 
 beforeEach(() => {
@@ -70,49 +68,37 @@ beforeEach(() => {
 
 it('preserves password unlock and admin exemption in the response', async () => {
   vi.mocked(isUnlockCookieValid).mockReturnValue(true);
-  expect(
-    await getBlogPostServerFn({ data: { slug: post.slug } }),
-  ).toMatchObject({
+  expect(await getBlogPostServerFn({ data: { slug: post.slug } })).toMatchObject({
     unlocked: true,
     contentHtml: '<p>protected body</p>',
-    post: { contentMdx: '' },
+    post: { contentMdx: '' }
   });
   vi.mocked(isUnlockCookieValid).mockReturnValue(false);
   vi.mocked(getSessionUserFromRequest).mockResolvedValue(admin);
-  expect(
-    await getBlogPostServerFn({ data: { slug: post.slug } }),
-  ).toMatchObject({ unlocked: true });
+  expect(await getBlogPostServerFn({ data: { slug: post.slug } })).toMatchObject({ unlocked: true });
   expect(renderPostHtml).toHaveBeenLastCalledWith('protected body', 'en');
 });
 
 it('never renders or returns protected content to an unauthorized caller', async () => {
   for (const visibility of ['password', 'member', 'vip', 'admin'] as const) {
     vi.mocked(getPostBySlug).mockResolvedValue({ ...post, visibility });
-    expect(
-      await getBlogPostServerFn({ data: { slug: post.slug } }),
-    ).toMatchObject({
+    expect(await getBlogPostServerFn({ data: { slug: post.slug } })).toMatchObject({
       unlocked: false,
       contentHtml: '',
-      post: { contentMdx: '' },
+      post: { contentMdx: '' }
     });
   }
   expect(renderPostHtml).not.toHaveBeenCalled();
 });
 
 it('rejects anonymous previews and non-admin post previews before rendering', async () => {
-  await expect(
-    previewPostServerFn({ data: { body: 'body' } }),
-  ).rejects.toMatchObject({ options: { to: '/login' } });
-  await expect(
-    previewCommentServerFn({ data: { body: 'body' } }),
-  ).rejects.toMatchObject({ options: { to: '/login' } });
+  await expect(previewPostServerFn({ data: { body: 'body' } })).rejects.toMatchObject({ options: { to: '/login' } });
+  await expect(previewCommentServerFn({ data: { body: 'body' } })).rejects.toMatchObject({ options: { to: '/login' } });
   vi.mocked(getSessionUserFromRequest).mockResolvedValue({
     ...admin,
-    role: 'member',
+    role: 'member'
   });
-  await expect(
-    previewPostServerFn({ data: { body: 'body' } }),
-  ).rejects.toMatchObject({ options: { to: '/' } });
+  await expect(previewPostServerFn({ data: { body: 'body' } })).rejects.toMatchObject({ options: { to: '/' } });
   expect(renderPostHtml).not.toHaveBeenCalled();
   expect(renderCommentHtml).not.toHaveBeenCalled();
 });

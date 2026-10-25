@@ -2,13 +2,7 @@ import type { Locale } from './locale.js';
 
 export const ROLES = ['member', 'vip', 'admin'] as const;
 
-export const POST_VISIBILITIES = [
-  'public',
-  'member',
-  'vip',
-  'admin',
-  'password',
-] as const;
+export const POST_VISIBILITIES = ['public', 'member', 'vip', 'admin', 'password'] as const;
 
 export const COMMENT_STATUSES = ['visible', 'hidden', 'spam'] as const;
 

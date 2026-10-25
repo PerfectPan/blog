@@ -4,18 +4,14 @@ import { useMemo, useState } from 'react';
 import { CommentBody } from '../../components/comment-body.js';
 import { ConfirmDialog } from '../../components/confirm-dialog.js';
 import { Prompt } from '../../components/page.js';
-import {
-  deleteCommentServerFn,
-  listCommentsServerFn,
-  setCommentStatusServerFn,
-} from '../../lib/comments-service.js';
+import { deleteCommentServerFn, listCommentsServerFn, setCommentStatusServerFn } from '../../lib/comments-service.js';
 
 export const Route = createFileRoute('/admin/comments')({
   head: () => ({ meta: [{ title: 'Admin · 评论审核' }] }),
   // listCommentsServerFn calls requireAdmin() internally, so non-admins are
   // bounced away (to /login or /) before this page renders.
   loader: async () => listCommentsServerFn({ data: {} }),
-  component: AdminCommentsPage,
+  component: AdminCommentsPage
 });
 
 type StatusFilter = CommentStatus | 'all';
@@ -25,7 +21,7 @@ const STATUS_LABEL: Record<StatusFilter, string> = {
   all: '全部',
   visible: '可见',
   hidden: '隐藏',
-  spam: '垃圾',
+  spam: '垃圾'
 };
 
 const STATUS_BADGE: Record<CommentStatus, string> = {
@@ -33,7 +29,7 @@ const STATUS_BADGE: Record<CommentStatus, string> = {
     'inline-block rounded-sm border border-current px-1.5 text-xs leading-relaxed font-bold tracking-wide text-chart-2',
   hidden:
     'inline-block rounded-sm border border-current px-1.5 text-xs leading-relaxed font-bold tracking-wide text-muted-foreground/60',
-  spam: 'inline-block rounded-sm border border-current px-1.5 text-xs leading-relaxed font-bold tracking-wide text-destructive',
+  spam: 'inline-block rounded-sm border border-current px-1.5 text-xs leading-relaxed font-bold tracking-wide text-destructive'
 };
 
 function AdminCommentsPage() {
@@ -63,11 +59,7 @@ function AdminCommentsPage() {
     setBusy((prev) => new Set(prev).add(id));
     try {
       await setCommentStatusServerFn({ data: { id, status } });
-      setComments((prev) =>
-        prev.map((comment) =>
-          comment.id === id ? { ...comment, status } : comment,
-        ),
-      );
+      setComments((prev) => prev.map((comment) => (comment.id === id ? { ...comment, status } : comment)));
     } catch (err) {
       setError(err instanceof Error ? err.message : '操作失败，请重试');
     } finally {
@@ -101,10 +93,7 @@ function AdminCommentsPage() {
       <Prompt cwd='~ %' className='mb-2'>
         comments --moderate
       </Prompt>
-      <Link
-        to='/admin'
-        className='text-muted-foreground hover:text-foreground mb-4 inline-block text-sm'
-      >
+      <Link to='/admin' className='text-muted-foreground hover:text-foreground mb-4 inline-block text-sm'>
         ← 返回管理
       </Link>
       <h1 className='text-lg font-semibold text-foreground mb-4'>评论审核</h1>
@@ -133,21 +122,14 @@ function AdminCommentsPage() {
         />
       </div>
 
-      {error ? (
-        <p className='my-2.5 text-sm text-destructive mb-3'>{error}</p>
-      ) : null}
+      {error ? <p className='my-2.5 text-sm text-destructive mb-3'>{error}</p> : null}
 
       {filtered.length === 0 ? (
-        <div className='text-muted-foreground/60 px-6 py-16 text-center'>
-          # 没有符合条件的评论。
-        </div>
+        <div className='text-muted-foreground/60 px-6 py-16 text-center'># 没有符合条件的评论。</div>
       ) : (
         <ul className='flex flex-col gap-3'>
           {filtered.map((comment) => (
-            <li
-              key={comment.id}
-              className='rounded-md border border-dashed border-border bg-secondary p-4'
-            >
+            <li key={comment.id} className='rounded-md border border-dashed border-border bg-secondary p-4'>
               <div className='mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs'>
                 <span className='font-semibold'>{comment.author.name}</span>
                 {comment.author.role === 'admin' ? (
@@ -155,21 +137,13 @@ function AdminCommentsPage() {
                     AUTHOR
                   </span>
                 ) : null}
-                <span
-                  className={`rounded px-1.5 py-0.5 text-xs font-semibold ${STATUS_BADGE[comment.status]}`}
-                >
+                <span className={`rounded px-1.5 py-0.5 text-xs font-semibold ${STATUS_BADGE[comment.status]}`}>
                   {STATUS_LABEL[comment.status]}
                 </span>
-                <Link
-                  to='/blog/$slug'
-                  params={{ slug: comment.slug }}
-                  className='opacity-60 hover:opacity-100'
-                >
+                <Link to='/blog/$slug' params={{ slug: comment.slug }} className='opacity-60 hover:opacity-100'>
                   /blog/{comment.slug}
                 </Link>
-                <span className='opacity-50'>
-                  {new Date(comment.createdAt).toLocaleString('en-US')}
-                </span>
+                <span className='opacity-50'>{new Date(comment.createdAt).toLocaleString('en-US')}</span>
               </div>
               <CommentBody html={comment.bodyHtml ?? ''} />
               <div className='mt-3 flex flex-wrap gap-3 text-xs'>
@@ -233,7 +207,7 @@ function AdminCommentsPage() {
           const id = pendingDelete;
           setPendingDelete(null);
           if (id) {
-            remove(id);
+            void remove(id);
           }
         }}
       />

@@ -64,7 +64,7 @@ const DIRS: readonly [number, number][] = [
   [-1, 0],
   [-1, -1],
   [0, -1],
-  [1, -1],
+  [1, -1]
 ];
 
 type Tip = { x: number; y: number; dir: number; depth: number };
@@ -87,11 +87,10 @@ function createGrower(cols: number, rows: number, wall: Wall) {
   // Roots per usable gutter: its outer edge pointing inward, plus one on the
   // top and bottom edge inside the gutter, each with a little angular jitter.
   const jitter = () => (Math.random() < 0.5 ? 0 : Math.random() < 0.5 ? 1 : 7);
-  const at = (lo: number, hi: number) =>
-    Math.round(lo + (0.15 + Math.random() * 0.7) * (hi - lo));
+  const at = (lo: number, hi: number) => Math.round(lo + (0.15 + Math.random() * 0.7) * (hi - lo));
   const gutters = [
     { lo: 0, hi: wall.lo - 1, edge: 0, inward: 0 },
-    { lo: wall.hi + 1, hi: cols - 1, edge: cols - 1, inward: 4 },
+    { lo: wall.hi + 1, hi: cols - 1, edge: cols - 1, inward: 4 }
   ].filter((g) => g.hi - g.lo + 1 >= MIN_GUTTER);
   let tips: Tip[] = [];
   let cells = 0;
@@ -102,12 +101,12 @@ function createGrower(cols: number, rows: number, wall: Wall) {
         x: g.edge,
         y: at(0, rows - 1),
         dir: (g.inward + jitter()) % 8,
-        depth: 0,
+        depth: 0
       });
     }
     tips.push(
       { x: at(g.lo, g.hi), y: 0, dir: (2 + jitter()) % 8, depth: 0 },
-      { x: at(g.lo, g.hi), y: rows - 1, dir: (6 + jitter()) % 8, depth: 0 },
+      { x: at(g.lo, g.hi), y: rows - 1, dir: (6 + jitter()) % 8, depth: 0 }
     );
   }
   const budget = Math.round(cells * COVERAGE);
@@ -116,12 +115,7 @@ function createGrower(cols: number, rows: number, wall: Wall) {
   }
 
   const open = (x: number, y: number, mayEnter: boolean) =>
-    x >= 0 &&
-    y >= 0 &&
-    x < cols &&
-    y < rows &&
-    occupied[y * cols + x] === 0 &&
-    (mayEnter || !inWall(x));
+    x >= 0 && y >= 0 && x < cols && y < rows && occupied[y * cols + x] === 0 && (mayEnter || !inWall(x));
 
   // Heading, else a 45° then 90° swerve (random side first) — traces route
   // along the column and around each other instead of dying on contact.
@@ -166,12 +160,7 @@ function createGrower(cols: number, rows: number, wall: Wall) {
           : depth < MIN_DEPTH || Math.random() < SURVIVE - depth * SURVIVE_DECAY
       ) {
         const turn = Math.random();
-        const dir =
-          turn < TURN / 2
-            ? (heading + 1) % 8
-            : turn < TURN
-              ? (heading + 7) % 8
-              : heading;
+        const dir = turn < TURN / 2 ? (heading + 1) % 8 : turn < TURN ? (heading + 7) % 8 : heading;
         next.push({ x: nx, y: ny, dir, depth });
         spawned = true;
       }
@@ -196,7 +185,7 @@ function readColors() {
   const style = getComputedStyle(document.documentElement);
   return {
     line: style.getPropertyValue('--muted-foreground').trim(),
-    node: style.getPropertyValue('--primary').trim(),
+    node: style.getPropertyValue('--primary').trim()
   };
 }
 
@@ -205,7 +194,7 @@ function paint(
   drawing: Drawing,
   colors: ReturnType<typeof readColors>,
   fromSegment: number,
-  fromNode: number,
+  fromNode: number
 ) {
   const half = STEP / 2;
   const { segments, nodes } = drawing;
@@ -223,12 +212,7 @@ function paint(
   ctx.fillStyle = colors.node;
   ctx.globalAlpha = 0.7;
   for (let i = fromNode; i < nodes.length; i += 2) {
-    ctx.fillRect(
-      nodes[i] * STEP + half - 1.5,
-      nodes[i + 1] * STEP + half - 1.5,
-      3,
-      3,
-    );
+    ctx.fillRect(nodes[i] * STEP + half - 1.5, nodes[i + 1] * STEP + half - 1.5, 3, 3);
   }
 }
 
@@ -242,7 +226,7 @@ function measureColumn(): { left: number; right: number } | null {
   const style = getComputedStyle(page);
   return {
     left: rect.left + Number.parseFloat(style.paddingLeft),
-    right: rect.right - Number.parseFloat(style.paddingRight),
+    right: rect.right - Number.parseFloat(style.paddingRight)
   };
 }
 
@@ -252,7 +236,7 @@ export function TraceBackground() {
   // Settles only after the new route has rendered, so its <Page> is in the
   // DOM when the sync effect measures.
   const resolvedHref = useRouterState({
-    select: (s) => s.resolvedLocation?.href,
+    select: (s) => s.resolvedLocation?.href
   });
 
   useEffect(() => {
@@ -262,9 +246,7 @@ export function TraceBackground() {
       return;
     }
 
-    const reduceMotion = window.matchMedia(
-      '(prefers-reduced-motion: reduce)',
-    ).matches;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let frame = 0;
     let dpr = 1;
     // Redraws the current mode in the current palette (theme toggle).
@@ -278,11 +260,7 @@ export function TraceBackground() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
-    const start = (
-      w: number,
-      h: number,
-      column: { left: number; right: number } | null,
-    ) => {
+    const start = (w: number, h: number, column: { left: number; right: number } | null) => {
       cancelAnimationFrame(frame);
       dpr = window.devicePixelRatio || 1;
       canvas.width = Math.round(w * dpr);
@@ -308,7 +286,7 @@ export function TraceBackground() {
       const grower = createGrower(Math.ceil(w / STEP), Math.ceil(h / STEP), {
         // Cell x's trace point sits at x * STEP + STEP / 2.
         lo: Math.floor(left / STEP),
-        hi: Math.ceil(right / STEP),
+        hi: Math.ceil(right / STEP)
       });
       const { drawing } = grower;
       let colors = readColors();
@@ -348,10 +326,7 @@ export function TraceBackground() {
     };
 
     const startDots = (w: number, h: number) => {
-      const draw = createWave(
-        Math.ceil(w / DOT_PITCH),
-        Math.ceil(h / DOT_PITCH),
-      );
+      const draw = createWave(Math.ceil(w / DOT_PITCH), Math.ceil(h / DOT_PITCH));
       let color = readColors().line;
       const t0 = performance.now();
       let t = 0;
@@ -384,9 +359,7 @@ export function TraceBackground() {
       const w = canvas.clientWidth;
       const h = canvas.clientHeight;
       const column = measureColumn();
-      const next = column
-        ? `${w}x${h}:${Math.round(column.left)}:${Math.round(column.right)}`
-        : `${w}x${h}:none`;
+      const next = column ? `${w}x${h}:${Math.round(column.left)}:${Math.round(column.right)}` : `${w}x${h}:none`;
       if (next !== key) {
         key = next;
         start(w, h, column);
@@ -399,7 +372,7 @@ export function TraceBackground() {
     const observer = new MutationObserver(() => repaint());
     observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ['class'],
+      attributeFilter: ['class']
     });
 
     let resizeTimer: ReturnType<typeof setTimeout> | undefined;
@@ -423,10 +396,5 @@ export function TraceBackground() {
     syncRef.current();
   }, [resolvedHref]);
 
-  return (
-    <canvas
-      ref={canvasRef}
-      className='pointer-events-none fixed top-0 left-0 -z-10 h-lvh w-full'
-    />
-  );
+  return <canvas ref={canvasRef} className='pointer-events-none fixed top-0 left-0 -z-10 h-lvh w-full' />;
 }

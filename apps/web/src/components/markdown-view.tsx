@@ -1,11 +1,6 @@
 import type { Locale } from '@blog/shared';
 import { useEffect, useRef } from 'react';
-import {
-  COPIED_LABEL,
-  COPY_ARIA,
-  COPY_LABEL,
-  formatMsg,
-} from '../lib/i18n/messages.js';
+import { COPIED_LABEL, COPY_ARIA, COPY_LABEL, formatMsg } from '../lib/i18n/messages.js';
 import { highlightCode } from './markdown-highlight.js';
 
 type MarkdownViewProps = {
@@ -18,7 +13,7 @@ function scrollToHeading(id: string) {
   // so heading anchors work without depending on window scroll.
   document.getElementById(id)?.scrollIntoView({
     behavior: 'smooth',
-    block: 'start',
+    block: 'start'
   });
 }
 
@@ -28,12 +23,16 @@ function observeCodeBlocks(article: HTMLElement, signal: AbortSignal) {
   const queue: HTMLPreElement[] = [];
   let running = false;
   async function drain() {
-    if (running) return;
+    if (running) {
+      return;
+    }
     running = true;
     try {
       while (queue.length && !signal.aborted) {
         const pre = queue.shift();
-        if (pre) await upgradeCodeBlock(pre, signal);
+        if (pre) {
+          await upgradeCodeBlock(pre, signal);
+        }
       }
     } finally {
       running = false;
@@ -48,35 +47,47 @@ function observeCodeBlocks(article: HTMLElement, signal: AbortSignal) {
   const observer = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
+        if (!entry.isIntersecting) {
+          continue;
+        }
         observer.unobserve(entry.target);
         queue.push(entry.target as HTMLPreElement);
       }
       void drain();
     },
-    { rootMargin: '400px 0px' },
+    { rootMargin: '400px 0px' }
   );
-  for (const pre of pres) observer.observe(pre);
+  for (const pre of pres) {
+    observer.observe(pre);
+  }
   return () => observer.disconnect();
 }
 
 async function upgradeCodeBlock(pre: HTMLPreElement, signal: AbortSignal) {
   const code = pre.querySelector('code');
-  if (!code || code.dataset.highlighted || signal.aborted) return;
-  const lang = /language-([\w+#-]+)/.exec(code.className)?.[1] ?? 'text';
-  const html = await highlightCode(code.textContent ?? '', lang, signal);
-  if (!html || signal.aborted || !pre.isConnected || code.dataset.highlighted)
+  if (!code || code.dataset.highlighted || signal.aborted) {
     return;
+  }
+  const lang = /language-([\w+#-]+)/.exec(code.className)?.[1] ?? 'text';
+  const html = await highlightCode(code.textContent, lang, signal);
+  // Abort during the await resolves highlightCode to null; !html covers it.
+  if (!html || !pre.isConnected || code.dataset.highlighted) {
+    return;
+  }
 
   // Keep the server's code-block chrome and copy controls. Only the escaped
   // Shiki code markup and dual-theme styles come back from the browser worker.
   const doc = new DOMParser().parseFromString(html, 'text/html');
   const shikiPre = doc.querySelector('pre');
   const shikiCode = shikiPre?.querySelector('code');
-  if (!shikiPre || !shikiCode) return;
+  if (!shikiPre || !shikiCode) {
+    return;
+  }
   pre.classList.add(...shikiPre.classList);
   const style = shikiPre.getAttribute('style');
-  if (style) pre.setAttribute('style', style);
+  if (style) {
+    pre.setAttribute('style', style);
+  }
   code.innerHTML = shikiCode.innerHTML;
   code.dataset.highlighted = 'true';
 }
@@ -84,14 +95,16 @@ async function upgradeCodeBlock(pre: HTMLPreElement, signal: AbortSignal) {
 /** Copy buttons carry the server-rendered locale; when the UI language
  *  switches (guest preference), relabel them without a re-render. */
 function relabelCopyButtons(locale: Locale, root: HTMLElement) {
-  for (const button of root.querySelectorAll<HTMLButtonElement>(
-    '[data-md-copy]',
-  )) {
+  for (const button of root.querySelectorAll<HTMLButtonElement>('[data-md-copy]')) {
     button.setAttribute('aria-label', formatMsg(locale, COPY_ARIA));
     const label = button.querySelector('.md-copy-label');
     const copied = button.querySelector('.md-copied-label');
-    if (label) label.textContent = formatMsg(locale, COPY_LABEL);
-    if (copied) copied.textContent = formatMsg(locale, COPIED_LABEL);
+    if (label) {
+      label.textContent = formatMsg(locale, COPY_LABEL);
+    }
+    if (copied) {
+      copied.textContent = formatMsg(locale, COPIED_LABEL);
+    }
   }
 }
 
@@ -108,12 +121,16 @@ export function MarkdownView({ html }: MarkdownViewProps) {
   // node, so mount-once is correct here; innerHTML swaps don't detach them.
   useEffect(() => {
     const article = articleRef.current;
-    if (!article) return;
+    if (!article) {
+      return;
+    }
 
     // Heading anchors + copy buttons via event delegation.
     const onClick = (event: MouseEvent) => {
       const target = event.target as HTMLElement | null;
-      if (!target) return;
+      if (!target) {
+        return;
+      }
       const anchor = target.closest<HTMLAnchorElement>('h2 > a');
       if (anchor) {
         event.preventDefault();
@@ -150,7 +167,7 @@ export function MarkdownView({ html }: MarkdownViewProps) {
     });
     langObserver.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ['lang'],
+      attributeFilter: ['lang']
     });
 
     return () => {
@@ -167,11 +184,11 @@ export function MarkdownView({ html }: MarkdownViewProps) {
   // biome-ignore lint/correctness/useExhaustiveDependencies: html is the trigger — fresh markup must be re-enhanced even though the effect reads it from the DOM.
   useEffect(() => {
     const article = articleRef.current;
-    if (!article) return;
+    if (!article) {
+      return;
+    }
 
-    const locale: Locale = document.documentElement.lang.startsWith('zh')
-      ? 'zh'
-      : 'en';
+    const locale: Locale = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
     relabelCopyButtons(locale, article);
 
     let scrollFrame = 0;

@@ -19,7 +19,7 @@ import {
   UNLINK_CONFIRM_DESCRIPTION,
   UNLINK_GITHUB_FAILED,
   VERIFICATION_SENT,
-  VERIFY_EMAIL_HINT,
+  VERIFY_EMAIL_HINT
 } from '../lib/i18n/messages.js';
 import { useSessionUser } from '../lib/session-user.js';
 import { ConfirmDialog } from './confirm-dialog.js';
@@ -39,9 +39,7 @@ export function AccountPage({ searchError }: { searchError?: string }) {
   const t = useT();
   const user = useSessionUser();
   const [accounts, setAccounts] = useState<LinkedAccount[] | null>(null);
-  const [error, setError] = useState<string | null>(
-    searchError ? authErrorMessage(locale, searchError) : null,
-  );
+  const [error, setError] = useState<string | null>(searchError ? authErrorMessage(locale, searchError) : null);
   const [notice, setNotice] = useState<string | null>(null);
   const [unlinkOpen, setUnlinkOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -61,13 +59,13 @@ export function AccountPage({ searchError }: { searchError?: string }) {
 
   useEffect(() => {
     if (!user) {
-      navigate({ to: '/login', replace: true });
+      void navigate({ to: '/login', replace: true });
     }
   }, [navigate, user]);
 
   useEffect(() => {
     if (user?.id) {
-      loadAccounts();
+      void loadAccounts();
     }
   }, [loadAccounts, user?.id]);
 
@@ -99,48 +97,31 @@ export function AccountPage({ searchError }: { searchError?: string }) {
   }
 
   const github = accounts.find((account) => account.providerId === 'github');
-  const hasPassword = accounts.some(
-    (account) => account.providerId === 'credential',
-  );
+  const hasPassword = accounts.some((account) => account.providerId === 'credential');
 
   return (
     <Page>
-      <Prompt
-        user={user.role ?? 'member'}
-        host='perfectpan.org'
-        cwd='~ %'
-        typed
-      >
+      <Prompt user={user.role} host='perfectpan.org' cwd='~ %' typed>
         id
       </Prompt>
       <dl className='mt-2 grid max-w-105 grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-sm [&_dt]:text-muted-foreground'>
         <dt>email</dt>
         <dd className='min-w-0 break-all'>
           {user.email}{' '}
-          <span
-            className={
-              user.emailVerified ? 'text-muted-foreground' : 'text-destructive'
-            }
-          >
+          <span className={user.emailVerified ? 'text-muted-foreground' : 'text-destructive'}>
             ({user.emailVerified ? t(EMAIL_VERIFIED) : t(EMAIL_NOT_VERIFIED)})
           </span>
         </dd>
         <dt>role</dt>
-        <dd>{user.role ?? 'member'}</dd>
+        <dd>{user.role}</dd>
         <dt>password</dt>
         <dd>{hasPassword ? t(PASSWORD_SET) : t(PASSWORD_NOT_SET)}</dd>
         <dt>github</dt>
-        <dd>
-          {github
-            ? t(GITHUB_LINKED, { accountId: github.accountId })
-            : t(GITHUB_NOT_LINKED)}
-        </dd>
+        <dd>{github ? t(GITHUB_LINKED, { accountId: github.accountId }) : t(GITHUB_NOT_LINKED)}</dd>
       </dl>
       {user.emailVerified ? null : (
         <div className='mt-4'>
-          <p className='mb-1 text-xs text-muted-foreground/60'>
-            # {t(VERIFY_EMAIL_HINT)}
-          </p>
+          <p className='mb-1 text-xs text-muted-foreground/60'># {t(VERIFY_EMAIL_HINT)}</p>
           <button
             type='button'
             className={BTN_SECONDARY}
@@ -151,7 +132,7 @@ export function AccountPage({ searchError }: { searchError?: string }) {
               startTransition(async () => {
                 const result = await authClient.sendVerificationEmail({
                   email: user.email,
-                  callbackURL: '/account',
+                  callbackURL: '/account'
                 });
                 if (result.error) {
                   setError(result.error.message ?? t(SEND_VERIFICATION_FAILED));
@@ -166,21 +147,14 @@ export function AccountPage({ searchError }: { searchError?: string }) {
         </div>
       )}
       <p className='mb-1 mt-4 text-xs text-muted-foreground/60'>
-        {github
-          ? `# ${t(GITHUB_LINKED_HINT)}`
-          : `# ${t(GITHUB_NOT_LINKED_HINT)}`}
+        {github ? `# ${t(GITHUB_LINKED_HINT)}` : `# ${t(GITHUB_NOT_LINKED_HINT)}`}
       </p>
       <div className='mt-4 flex flex-wrap gap-3'>
         {github ? (
           // Better Auth refuses to unlink the last sign-in method, so the
           // button only shows when a password is there to fall back on.
           hasPassword ? (
-            <button
-              type='button'
-              className={BTN_SECONDARY}
-              disabled={isPending}
-              onClick={() => setUnlinkOpen(true)}
-            >
+            <button type='button' className={BTN_SECONDARY} disabled={isPending} onClick={() => setUnlinkOpen(true)}>
               unlink github
             </button>
           ) : null
@@ -195,7 +169,7 @@ export function AccountPage({ searchError }: { searchError?: string }) {
                 const result = await authClient.linkSocial({
                   provider: 'github',
                   callbackURL: '/account',
-                  errorCallbackURL: '/account',
+                  errorCallbackURL: '/account'
                 });
                 if (result.error) {
                   setError(result.error.message ?? t(LINK_GITHUB_FAILED));
@@ -225,11 +199,13 @@ export function AccountPage({ searchError }: { searchError?: string }) {
         confirmLabel='unlink'
         pending={isPending}
         onConfirm={() => {
-          if (!github) return;
+          if (!github) {
+            return;
+          }
           setError(null);
           startTransition(async () => {
             const result = await authClient.unlinkAccount({
-              accountId: github.accountId,
+              accountId: github.accountId
             });
             setUnlinkOpen(false);
             if (result.error) {

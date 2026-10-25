@@ -1,14 +1,11 @@
 import type { PostVisibility } from '@blog/shared';
 import { createFileRoute, Link } from '@tanstack/react-router';
-import {
-  type AdminPost,
-  listAdminPostsServerFn,
-} from '../../lib/admin-service.js';
+import { type AdminPost, listAdminPostsServerFn } from '../../lib/admin-service.js';
 
 export const Route = createFileRoute('/admin/')({
   head: () => ({ meta: [{ title: 'Admin · 文章管理' }] }),
   loader: async () => listAdminPostsServerFn(),
-  component: AdminListPage,
+  component: AdminListPage
 });
 
 const visibilityStyles: Record<PostVisibility, string> = {
@@ -20,36 +17,28 @@ const visibilityStyles: Record<PostVisibility, string> = {
   admin:
     'inline-block rounded-sm border border-current px-1.5 text-xs leading-relaxed font-bold tracking-wide text-destructive',
   password:
-    'inline-block rounded-sm border border-current px-1.5 text-xs leading-relaxed font-bold tracking-wide text-muted-foreground/60',
+    'inline-block rounded-sm border border-current px-1.5 text-xs leading-relaxed font-bold tracking-wide text-muted-foreground/60'
 };
 
 function AdminListPage() {
   const { posts } = Route.useLoaderData();
-  const draftCount = posts.filter(
-    (post: AdminPost) => post.status === 'draft',
-  ).length;
+  const draftCount = posts.filter((post: AdminPost) => post.status === 'draft').length;
 
   return (
     <div className='mx-auto w-full self-start max-w-5xl px-4 pt-8 pb-12 sm:px-6'>
       <div className='flex flex-wrap items-baseline gap-2.5 mb-2'>
         <span className='text-primary'>~ %</span>{' '}
-        <span className='text-foreground hover:text-primary'>
-          admin --manage
-        </span>
+        <span className='text-foreground hover:text-primary'>admin --manage</span>
       </div>
       <div className='mb-6 flex flex-wrap items-center justify-between gap-3'>
         <div>
           <h1 className='text-lg font-semibold text-foreground'>文章管理</h1>
           <p className='text-muted-foreground/60 mt-1'>
-            # 共 {posts.length} 篇
-            {draftCount > 0 ? ` · ${draftCount} 篇草稿` : ''}
+            # 共 {posts.length} 篇{draftCount > 0 ? ` · ${draftCount} 篇草稿` : ''}
           </p>
         </div>
         <div className='flex items-center gap-4'>
-          <Link
-            to='/admin/comments'
-            className='text-muted-foreground hover:text-foreground text-sm'
-          >
+          <Link to='/admin/comments' className='text-muted-foreground hover:text-foreground text-sm'>
             评论审核
           </Link>
           <Link
@@ -74,21 +63,13 @@ function AdminListPage() {
                 className='grid grid-cols-[1fr_auto] items-center gap-4 border-b border-dashed border-border px-1 py-2.5 last:border-b-0 hover:bg-accent max-[640px]:grid-cols-1 max-[640px]:gap-1.5'
               >
                 <div className='min-w-0'>
-                  <Link
-                    to='/admin/$slug'
-                    params={{ slug: post.slug }}
-                    className='hover:text-primary block truncate'
-                  >
+                  <Link to='/admin/$slug' params={{ slug: post.slug }} className='hover:text-primary block truncate'>
                     {post.title || post.slug}
                   </Link>
-                  <div className='text-muted-foreground/60 truncate text-xs'>
-                    /blog/{post.slug}
-                  </div>
+                  <div className='text-muted-foreground/60 truncate text-xs'>/blog/{post.slug}</div>
                 </div>
                 <div className='flex flex-wrap items-center gap-1.5 sm:justify-end'>
-                  <span
-                    className={`rounded px-1.5 py-0.5 text-xs font-semibold ${visibilityStyles[post.visibility]}`}
-                  >
+                  <span className={`rounded px-1.5 py-0.5 text-xs font-semibold ${visibilityStyles[post.visibility]}`}>
                     {post.visibility}
                   </span>
                   {post.status === 'draft' ? (
@@ -111,10 +92,7 @@ function AdminListPage() {
         </div>
       )}
 
-      <Link
-        to='/'
-        className='text-muted-foreground hover:text-foreground mt-8 inline-block text-sm'
-      >
+      <Link to='/' className='text-muted-foreground hover:text-foreground mt-8 inline-block text-sm'>
         ← 返回首页
       </Link>
     </div>

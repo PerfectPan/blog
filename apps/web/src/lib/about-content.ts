@@ -33,12 +33,10 @@ I'm **PerfectPan**, a developer who loves to tinker. I write code, and I write t
 // renders per isolate; a deployment naturally replaces the cached markup.
 let aboutHtml: { htmlZh: string; htmlEn: string } | undefined;
 
-export const getAboutHtmlServerFn = createServerFn({ method: 'GET' }).handler(
-  async () => {
-    aboutHtml ??= {
-      htmlZh: renderPostHtml(ABOUT_MD, 'zh'),
-      htmlEn: renderPostHtml(ABOUT_MD_EN, 'en'),
-    };
-    return aboutHtml;
-  },
-);
+export const getAboutHtmlServerFn = createServerFn({ method: 'GET' }).handler(async () => {
+  aboutHtml ??= {
+    htmlZh: renderPostHtml(ABOUT_MD, 'zh'),
+    htmlEn: renderPostHtml(ABOUT_MD_EN, 'en')
+  };
+  return aboutHtml;
+});

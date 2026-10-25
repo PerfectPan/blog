@@ -1,10 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
-import {
-  buildObjectKey,
-  extensionFor,
-  isAllowedImageType,
-  MAX_UPLOAD_BYTES,
-} from './upload.js';
+import { buildObjectKey, extensionFor, isAllowedImageType, MAX_UPLOAD_BYTES } from './upload.js';
 
 describe('upload helpers', () => {
   describe('isAllowedImageType', () => {

@@ -1,11 +1,9 @@
 import { expect, test } from '@playwright/test';
 
-test('concurrent SSR requests keep page content and redirects isolated', async ({
-  request,
-}) => {
+test('concurrent SSR requests keep page content and redirects isolated', async ({ request }) => {
   const pages = [
     { path: '/', title: 'Home' },
-    { path: '/projects', title: 'Projects' },
+    { path: '/projects', title: 'Projects' }
   ];
 
   for (let round = 0; round < 8; round++) {
@@ -13,7 +11,7 @@ test('concurrent SSR requests keep page content and redirects isolated', async (
       ...pages.map(async ({ path, title }) => {
         const response = await request.get(path, {
           maxRedirects: 0,
-          timeout: 15_000,
+          timeout: 15_000
         });
         expect(response.status(), path).toBe(200);
         const html = await response.text();
@@ -23,11 +21,11 @@ test('concurrent SSR requests keep page content and redirects isolated', async (
       ...['/admin/new', '/admin/comments'].map(async (path) => {
         const response = await request.get(path, {
           maxRedirects: 0,
-          timeout: 15_000,
+          timeout: 15_000
         });
         expect(response.status(), path).toBe(307);
         expect(response.headers().location, path).toBe('/login');
-      }),
+      })
     ]);
   }
 });

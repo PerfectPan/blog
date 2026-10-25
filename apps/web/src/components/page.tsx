@@ -7,13 +7,7 @@ import { Children, type CSSProperties, type ReactNode } from 'react';
  * in another container. The 640–1100px band widens the gutter so the column
  * reads as centered before the 880px max-width binds.
  */
-export function Page({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
+export function Page({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <div
       // Marks the content column for the site backdrop (trace-background.tsx),
@@ -61,7 +55,7 @@ export function Prompt({
   cwd,
   className,
   typed = false,
-  children,
+  children
 }: {
   user?: string;
   host?: string;
@@ -88,7 +82,7 @@ export function Prompt({
           style={
             {
               '--chars': text.length,
-              '--type-ms': `${Math.min(TYPE_MS_MAX, text.length * TYPE_MS_PER_CHAR)}ms`,
+              '--type-ms': `${Math.min(TYPE_MS_MAX, text.length * TYPE_MS_PER_CHAR)}ms`
             } as CSSProperties
           }
         >

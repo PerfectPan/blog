@@ -9,14 +9,14 @@ export const Route = createFileRoute('/signup')({
         new Response(null, {
           status: 307,
           headers: {
-            location: '/api/auth/sign-up/email',
-          },
-        }),
-    },
+            location: '/api/auth/sign-up/email'
+          }
+        })
+    }
   },
   // `error` is set by Better Auth when a GitHub sign-up fails.
   validateSearch: z.object({ error: z.string().optional() }),
-  component: SignUpPage,
+  component: SignUpPage
 });
 
 function SignUpPage() {

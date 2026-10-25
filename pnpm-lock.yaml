@@ -181,6 +181,9 @@ importers:
 
   .:
     devDependencies:
+      '@perfectpan/lint-config':
+        specifier: github:PerfectPan/lint-config#v0.6.1
+        version: https://codeload.github.com/PerfectPan/lint-config/tar.gz/a88384087f2f250d372e651d0be3d064300eb279(oxfmt@0.74.0(vite-plus@1.4.0(@types/node@24.19.2)(@vitest/ui@5.0.5)(esbuild@0.28.2)(jiti@2.7.0)(playwright@1.64.1)(typescript@7.0.2)(yaml@2.9.1)))(oxlint-tsgolint@7.0.2004)(oxlint@1.89.0(oxlint-tsgolint@7.0.2004)(vite-plus@1.4.0(@types/node@24.19.2)(@vitest/ui@5.0.5)(esbuild@0.28.2)(jiti@2.7.0)(playwright@1.64.1)(typescript@7.0.2)(yaml@2.9.1)))(typescript@7.0.2)(vite-plus@1.4.0(@types/node@24.19.2)(@vitest/ui@5.0.5)(esbuild@0.28.2)(jiti@2.7.0)(playwright@1.64.1)(typescript@7.0.2)(yaml@2.9.1))
       '@playwright/test':
         specifier: ^1.64.1
         version: 1.64.1
@@ -1451,6 +1454,27 @@ packages:
   '@oxlint/plugins@1.89.0':
     resolution: {integrity: sha512-TJBBNl4KIxbxrSk7gsqlz6iM1kxidfyTizEzfWqXvijF2Ou8/Da58GvjemBVmCmaUamwRij+JwsVc0kpBFuqfg==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+
+  '@perfectpan/lint-config@https://codeload.github.com/PerfectPan/lint-config/tar.gz/a88384087f2f250d372e651d0be3d064300eb279':
+    resolution: {gitHosted: true, integrity: sha512-u/mf1/DjwOecrOcC7qCVaDNGtX84L2wa169usT+hFj/9OcYSfx8hhEUMEUgyn/F1QtZ2cHS52yiQjYHxnzUm1w==, tarball: https://codeload.github.com/PerfectPan/lint-config/tar.gz/a88384087f2f250d372e651d0be3d064300eb279}
+    version: 0.6.1
+    peerDependencies:
+      oxfmt: '>=0.57.0'
+      oxlint: '>=1.79.0'
+      oxlint-tsgolint: '>=0.24.0'
+      typescript: '>=6.0.0'
+      vite-plus: '>=0.2.4'
+    peerDependenciesMeta:
+      oxfmt:
+        optional: true
+      oxlint:
+        optional: true
+      oxlint-tsgolint:
+        optional: true
+      typescript:
+        optional: true
+      vite-plus:
+        optional: true
 
   '@pierre/highlights@0.2.0':
     resolution: {integrity: sha512-hTpcOU1EzDAP4bYtEhxmMu2jwMvtkUydRUBUpWMSHTs3dw0IaC3Ld5ansMy18L0GE3b6Vfl2OGkLK+pWWpnBmw==}
@@ -4545,6 +4569,14 @@ snapshots:
     optional: true
 
   '@oxlint/plugins@1.89.0': {}
+
+  '@perfectpan/lint-config@https://codeload.github.com/PerfectPan/lint-config/tar.gz/a88384087f2f250d372e651d0be3d064300eb279(oxfmt@0.74.0(vite-plus@1.4.0(@types/node@24.19.2)(@vitest/ui@5.0.5)(esbuild@0.28.2)(jiti@2.7.0)(playwright@1.64.1)(typescript@7.0.2)(yaml@2.9.1)))(oxlint-tsgolint@7.0.2004)(oxlint@1.89.0(oxlint-tsgolint@7.0.2004)(vite-plus@1.4.0(@types/node@24.19.2)(@vitest/ui@5.0.5)(esbuild@0.28.2)(jiti@2.7.0)(playwright@1.64.1)(typescript@7.0.2)(yaml@2.9.1)))(typescript@7.0.2)(vite-plus@1.4.0(@types/node@24.19.2)(@vitest/ui@5.0.5)(esbuild@0.28.2)(jiti@2.7.0)(playwright@1.64.1)(typescript@7.0.2)(yaml@2.9.1))':
+    optionalDependencies:
+      oxfmt: 0.74.0(vite-plus@1.4.0(@types/node@24.19.2)(@vitest/ui@5.0.5)(esbuild@0.28.2)(jiti@2.7.0)(playwright@1.64.1)(typescript@7.0.2)(yaml@2.9.1))
+      oxlint: 1.89.0(oxlint-tsgolint@7.0.2004)(vite-plus@1.4.0(@types/node@24.19.2)(@vitest/ui@5.0.5)(esbuild@0.28.2)(jiti@2.7.0)(playwright@1.64.1)(typescript@7.0.2)(yaml@2.9.1))
+      oxlint-tsgolint: 7.0.2004
+      typescript: 7.0.2
+      vite-plus: 1.4.0(@types/node@24.19.2)(@vitest/ui@5.0.5)(esbuild@0.28.2)(jiti@2.7.0)(playwright@1.64.1)(typescript@7.0.2)(yaml@2.9.1)
 
   '@pierre/highlights@0.2.0': {}
 

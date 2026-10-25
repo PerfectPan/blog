@@ -9,9 +9,7 @@ import { env } from 'cloudflare:workers';
 export function getD1(): D1Database {
   const db = (env as { DB?: D1Database }).DB;
   if (!db) {
-    throw new Error(
-      '[web] D1 binding "DB" is not configured. Check wrangler.jsonc d1_databases.',
-    );
+    throw new Error('[web] D1 binding "DB" is not configured. Check wrangler.jsonc d1_databases.');
   }
   return db;
 }

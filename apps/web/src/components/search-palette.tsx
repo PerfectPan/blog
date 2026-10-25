@@ -6,8 +6,8 @@ import { searchPalette, useSearchPaletteOpen } from './search-palette-store.js';
 // so the palette's weight never sits in every page's critical path.
 const SearchPalettePanel = lazy(() =>
   import('./search-palette-panel.js').then((m) => ({
-    default: m.SearchPalettePanel,
-  })),
+    default: m.SearchPalettePanel
+  }))
 );
 
 /**
@@ -45,7 +45,7 @@ export function SearchPalette() {
       return () => window.clearTimeout(timeout);
     }
     const id = window.requestIdleCallback(() => setArmed(true), {
-      timeout: 3000,
+      timeout: 3000
     });
     return () => window.cancelIdleCallback(id);
   }, []);

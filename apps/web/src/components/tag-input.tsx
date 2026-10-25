@@ -16,12 +16,7 @@ type TagInputProps = {
  * current draft) so reuse beats retyping. The wire format stays a plain
  * string[] — no comma-splitting on submit.
  */
-export function TagInput({
-  value,
-  onChange,
-  placeholder,
-  suggestions = [],
-}: TagInputProps) {
+export function TagInput({ value, onChange, placeholder, suggestions = [] }: TagInputProps) {
   const [draft, setDraft] = useState('');
   const [focused, setFocused] = useState(false);
 
@@ -31,9 +26,7 @@ export function TagInput({
     if (!tag) {
       return;
     }
-    const duplicate = value.some(
-      (existing) => existing.toLowerCase() === tag.toLowerCase(),
-    );
+    const duplicate = value.some((existing) => existing.toLowerCase() === tag.toLowerCase());
     if (duplicate) {
       return;
     }
@@ -56,10 +49,7 @@ export function TagInput({
 
   const needle = draft.trim().toLowerCase();
   const available = suggestions
-    .filter(
-      (tag) =>
-        !value.some((existing) => existing.toLowerCase() === tag.toLowerCase()),
-    )
+    .filter((tag) => !value.some((existing) => existing.toLowerCase() === tag.toLowerCase()))
     .filter((tag) => !needle || tag.toLowerCase().includes(needle))
     .slice(0, 12);
   const showSuggestions = focused && available.length > 0;
@@ -105,9 +95,7 @@ export function TagInput({
             setFocused(false);
             commit(draft);
           }}
-          placeholder={
-            value.length === 0 ? (placeholder ?? '输入后回车添加') : ''
-          }
+          placeholder={value.length === 0 ? (placeholder ?? '输入后回车添加') : ''}
           className='min-w-[8ch] flex-1 bg-transparent py-0.5 text-sm outline-none placeholder:opacity-40'
         />
       </div>

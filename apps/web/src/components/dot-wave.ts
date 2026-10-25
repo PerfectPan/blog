@@ -53,7 +53,7 @@ function surface(x: number, y: number, t: number, cx: number, cy: number) {
   return {
     h,
     gx: c1 * 0.21 - c2 * 0.09 + c3 * dx,
-    gy: c1 * 0.13 + c2 * 0.19 + c3 * dy,
+    gy: c1 * 0.13 + c2 * 0.19 + c3 * dy
   };
 }
 
@@ -62,13 +62,8 @@ export function createWave(cols: number, rows: number) {
   const dim = new Float32Array(cols * rows);
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
-      const r =
-        Math.sqrt(((x / cols) * 2 - 1) ** 2 + ((y / rows) * 2 - 1) ** 2) /
-        Math.SQRT2;
-      const k = Math.min(
-        1,
-        Math.max(0, (r - DIM_INNER) / (DIM_OUTER - DIM_INNER)),
-      );
+      const r = Math.sqrt(((x / cols) * 2 - 1) ** 2 + ((y / rows) * 2 - 1) ** 2) / Math.SQRT2;
+      const k = Math.min(1, Math.max(0, (r - DIM_INNER) / (DIM_OUTER - DIM_INNER)));
       dim[y * cols + x] = DIM_CENTER + (1 - DIM_CENTER) * k;
     }
   }
@@ -85,23 +80,16 @@ export function createWave(cols: number, rows: number) {
         const s = surface(x, y, t, cx, cy);
         const height = (s.h + 1) / 2;
         // Slope facing the light, in [0, 1]; scaled because gradients are small.
-        const lit = Math.min(
-          1,
-          Math.max(0, -(s.gx * LIGHT_X + s.gy * LIGHT_Y) * 3 + 0.5),
-        );
+        const lit = Math.min(1, Math.max(0, -(s.gx * LIGHT_X + s.gy * LIGHT_Y) * 3 + 0.5));
         const tone = height * 0.65 + lit * 0.35;
-        const alpha =
-          (ALPHA_MIN + (ALPHA_MAX - ALPHA_MIN) * tone) * dim[y * cols + x];
-        const bucket = Math.min(
-          BUCKETS - 1,
-          Math.floor((alpha / ALPHA_MAX) * BUCKETS),
-        );
+        const alpha = (ALPHA_MIN + (ALPHA_MAX - ALPHA_MIN) * tone) * dim[y * cols + x];
+        const bucket = Math.min(BUCKETS - 1, Math.floor((alpha / ALPHA_MAX) * BUCKETS));
         const size = SIZE_MIN + (SIZE_MAX - SIZE_MIN) * height;
         paths[bucket].rect(
           x * DOT_PITCH + half - s.gx * SHIFT * DOT_PITCH - size / 2,
           y * DOT_PITCH + half - s.gy * SHIFT * DOT_PITCH - size / 2,
           size,
-          size,
+          size
         );
       }
     }

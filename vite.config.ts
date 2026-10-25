@@ -1,18 +1,21 @@
+import { fmt as sharedFmt, lint as sharedLint } from '@perfectpan/lint-config/vite-plus';
 import { defineConfig } from 'vite-plus';
 
 // Workspace-root Vite+ config: one home for the repo-wide vp settings.
 // - test: node-mode unit tests for packages/ and apps/web/tests with mocked
 //   D1 bindings, run via `vp test` without loading the web app's Cloudflare
 //   Vite configuration.
-// - fmt: Oxfmt, tuned to keep the previous Biome style.
-// - lint: Oxlint with the @shadcn/lint token rules.
+// - fmt / lint: the shared base from @perfectpan/lint-config (same rules as
+//   the other PerfectPan JS/TS repos), layered with this repo's specifics:
+//   the markdown/html/yaml formatting exclusions and the @shadcn/lint
+//   token rules.
 // - staged: runs `vp check --fix` on staged files (replaces lint-staged).
 // The web app's build config stays in apps/web/vite.config.ts.
 export default defineConfig({
   staged: {
     // Typed glob (not the docs' '*'): extension-less paths such as the
     // .claude/skills/* symlinks make lint-staged fail with a git error.
-    '*.{mjs,js,jsx,mts,ts,tsx,css,json}': 'vp check --fix',
+    '*.{mjs,js,jsx,mts,ts,tsx,css,json}': 'vp check --fix'
   },
   test: {
     // Vitest v4 compatibility: preserve mock call history.
@@ -21,34 +24,32 @@ export default defineConfig({
     // https://vitest.dev/guide/migration/#clearmocks-is-enabled-by-default
     clearMocks: false,
     include: ['packages/**/*.test.ts', 'apps/web/tests/**/*.test.ts'],
-    environment: 'node',
+    environment: 'node'
   },
   fmt: {
-    // Match the previous Biome style: single quotes in JS and JSX, 2-space
-    // indent, 80-col width (Oxfmt defaults already cover the rest).
+    ...sharedFmt,
+    // Keep quotes single in JS and JSX on top of the shared style.
     singleQuote: true,
     jsxSingleQuote: true,
-    printWidth: 80,
-    // Keep parity with the old Biome scope: code files only. Markdown docs
-    // (mostly Chinese prose), report HTML and CI YAML were never
-    // auto-formatted, and reflowing them would create unrelated churn.
-    ignorePatterns: [
-      '**/routeTree.gen.ts',
-      '**/*.md',
-      '**/*.html',
-      '**/*.yml',
-      '**/*.yaml',
-      'docs/reports/**',
-    ],
+    // Code files only: markdown docs (mostly Chinese prose), report HTML and
+    // CI YAML were never auto-formatted, and reflowing them would create
+    // unrelated churn.
+    ignorePatterns: ['**/routeTree.gen.ts', '**/*.md', '**/*.html', '**/*.yml', '**/*.yaml', 'docs/reports/**']
   },
   lint: {
+    ...sharedLint,
     jsPlugins: ['@shadcn/lint'],
     settings: {
       shadcn: {
-        mergeFunctions: ['cn'],
-      },
+        mergeFunctions: ['cn']
+      }
     },
     rules: {
+      ...sharedLint.rules,
+      // Deferred organizational refactor: the blog keeps component-first
+      // files with helpers below their callers for now; re-enable after a
+      // dedicated restructuring PR.
+      'no-use-before-define': 'off',
       'shadcn/no-arbitrary-values': [
         'error',
         {
@@ -65,21 +66,27 @@ export default defineConfig({
             'bg-[color-mix(in_srgb,var(--primary)_6%,transparent)]',
             'hover:bg-[color-mix(in_srgb,var(--destructive)_10%,transparent)]',
             'border-[color-mix(in_srgb,var(--primary)_50%,transparent)]',
-            'border-[color-mix(in_srgb,var(--destructive)_45%,transparent)]',
-          ],
-        },
+            'border-[color-mix(in_srgb,var(--destructive)_45%,transparent)]'
+          ]
+        }
       ],
       'shadcn/no-raw-colors': 'error',
       'shadcn/no-unknown-classes': 'error',
-      'shadcn/require-static-classes': 'error',
+      'shadcn/require-static-classes': 'error'
     },
+    // The shared base enables react/no-multi-comp inside an override, which
+    // beats top-level rules; edit that override in place to disable it here.
+    // Deferred organizational refactor alongside no-use-before-define above.
+    overrides: sharedLint.overrides.map((o) =>
+      'react/no-multi-comp' in o.rules ? { ...o, rules: { ...o.rules, 'react/no-multi-comp': 'off' } } : o
+    ),
     ignorePatterns: [
       '**/dist/**',
       '**/.wrangler/**',
       '**/routeTree.gen.ts',
       '**/worker-configuration.d.ts',
       'test-results/**',
-      'public/**',
-    ],
-  },
+      'public/**'
+    ]
+  }
 });

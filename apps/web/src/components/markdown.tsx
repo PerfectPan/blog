@@ -16,19 +16,23 @@ const CODE_CLASSES = {
   wrap: 'group relative my-4.5 group relative',
   copy: 'absolute top-2.5 right-2.5 z-10 inline-flex items-center gap-1 rounded border border-border bg-secondary px-2 py-0.5 text-xs text-muted-foreground opacity-0 transition-opacity duration-150 group-hover:opacity-100 focus-visible:opacity-100 [@media(not_(hover:hover))]:opacity-75',
   pre: 'shiki th-pre w-full overflow-x-auto',
-  inline: 'md-inline',
+  inline: 'md-inline'
 };
 
 /** Flatten react-markdown children (string | array | element) to plain text
  *  for heading ids — headings with inline code/bold still get a usable id. */
 function flattenText(node: ReactNode): string {
-  if (node == null || typeof node === 'boolean') return '';
-  if (typeof node === 'string' || typeof node === 'number') return String(node);
-  if (Array.isArray(node)) return node.map(flattenText).join('');
+  if (node == null || typeof node === 'boolean') {
+    return '';
+  }
+  if (typeof node === 'string' || typeof node === 'number') {
+    return String(node);
+  }
+  if (Array.isArray(node)) {
+    return node.map(flattenText).join('');
+  }
   if (typeof node === 'object' && 'props' in node) {
-    return flattenText(
-      (node as { props?: { children?: ReactNode } }).props?.children,
-    );
+    return flattenText((node as { props?: { children?: ReactNode } }).props?.children);
   }
   return '';
 }
@@ -75,12 +79,7 @@ export function Markdown({ content }: MarkdownProps) {
         ul: ({ children }) => <ul>{children}</ul>,
         pre: ({ children }) => (
           <div className={CODE_CLASSES.wrap}>
-            <button
-              type='button'
-              data-md-copy=''
-              aria-label={t(COPY_ARIA)}
-              className={CODE_CLASSES.copy}
-            >
+            <button type='button' data-md-copy='' aria-label={t(COPY_ARIA)} className={CODE_CLASSES.copy}>
               <Copy size={12} className='md-copy-icon' aria-hidden='true' />
               <Check size={12} className='md-check-icon' aria-hidden='true' />
               <span className='md-copy-label'>{t(COPY_LABEL)}</span>
@@ -95,14 +94,13 @@ export function Markdown({ content }: MarkdownProps) {
           // Without this, a whole code block falls into the inline-code
           // style whose border renders under EVERY line box.
           const isBlock =
-            /language-/.test(className ?? '') ||
-            String(children).includes('\n');
+            /language-/.test(className ?? '') || (typeof children === 'string' && children.includes('\n'));
           return isBlock ? (
             <code className={className}>{children}</code>
           ) : (
             <code className={CODE_CLASSES.inline}>{children}</code>
           );
-        },
+        }
       }}
     >
       {content}

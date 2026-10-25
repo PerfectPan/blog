@@ -32,13 +32,7 @@ const ROW =
 const DELAY_MS = { blog: 120, projects: 160, panel: 200, rows: 240 };
 const ROW_STAGGER_MS = 35;
 
-export function HomePage({
-  posts,
-  total,
-}: {
-  posts: PostSummary[];
-  total: number;
-}) {
+export function HomePage({ posts, total }: { posts: PostSummary[]; total: number }) {
   const latest = posts.slice(0, 5);
   const t = useT();
 
@@ -60,27 +54,16 @@ export function HomePage({
         </pre>
       </div>
       <div className='mt-5.5 grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-3'>
-        <Link
-          to='/blog'
-          className={cn(CARD, ENTER)}
-          style={enterDelay(DELAY_MS.blog)}
-        >
+        <Link to='/blog' className={cn(CARD, ENTER)} style={enterDelay(DELAY_MS.blog)}>
           <span className='text-primary'>open blog/</span>
         </Link>
-        <Link
-          to='/projects'
-          className={cn(CARD, ENTER)}
-          style={enterDelay(DELAY_MS.projects)}
-        >
+        <Link to='/projects' className={cn(CARD, ENTER)} style={enterDelay(DELAY_MS.projects)}>
           <span className='text-primary'>open projects/</span>
         </Link>
       </div>
 
       <div
-        className={cn(
-          'mt-7 overflow-hidden rounded-md border border-border bg-card',
-          ENTER,
-        )}
+        className={cn('mt-7 overflow-hidden rounded-md border border-border bg-card', ENTER)}
         style={enterDelay(DELAY_MS.panel)}
       >
         <div className='flex items-baseline justify-between gap-3 border-b border-border bg-muted/50 px-4 py-3 text-sm tracking-widest text-muted-foreground'>
@@ -105,10 +88,7 @@ export function HomePage({
                 style={enterDelay(DELAY_MS.rows + i * ROW_STAGGER_MS)}
               >
                 <span className='text-sm text-muted-foreground'>
-                  {new Date(post.publishedAt)
-                    .toISOString()
-                    .slice(0, 10)
-                    .replaceAll('-', '/')}
+                  {new Date(post.publishedAt).toISOString().slice(0, 10).replaceAll('-', '/')}
                 </span>
                 <span className='truncate transition-[translate,color] duration-200 group-hover:translate-x-1 group-hover:text-primary'>
                   {post.title}

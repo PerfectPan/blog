@@ -44,8 +44,7 @@ function toUrlWithProtocol(name: string, value: string): string {
     return normalized;
   }
 
-  const localHostPattern =
-    /^(localhost|127(?:\.\d{1,3}){3}|0\.0\.0\.0)(:\d+)?(\/.*)?$/i;
+  const localHostPattern = /^(localhost|127(?:\.\d{1,3}){3}|0\.0\.0\.0)(:\d+)?(\/.*)?$/i;
   if (localHostPattern.test(normalized)) {
     return `http://${normalized}`;
   }
@@ -60,9 +59,7 @@ function requireUrlEnv(name: string): string {
   try {
     new URL(url);
   } catch (error) {
-    throw new Error(
-      `[web] Invalid URL value for ${name}: ${String((error as Error).message)}`,
-    );
+    throw new Error(`[web] Invalid URL value for ${name}: ${String((error as Error).message)}`);
   }
 
   return url;
@@ -88,6 +85,6 @@ export function getWebEnv(): WebEnv {
       ? stripWrappedQuotes(process.env.ASSETS_BASE_URL).replace(/\/$/, '')
       : undefined,
     resendApiKey: process.env.RESEND_API_KEY,
-    mailFrom: process.env.MAIL_FROM,
+    mailFrom: process.env.MAIL_FROM
   };
 }

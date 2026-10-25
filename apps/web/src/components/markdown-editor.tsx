@@ -8,7 +8,7 @@ import {
   Link as LinkIcon,
   List,
   Loader2,
-  Quote,
+  Quote
 } from 'lucide-react';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { previewPostServerFn } from '../lib/markdown-preview.js';
@@ -34,7 +34,9 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
   const pendingSelection = useRef<{ start: number; end: number } | null>(null);
 
   useEffect(() => {
-    if (!previewVisible) return;
+    if (!previewVisible) {
+      return;
+    }
     if (!value.trim()) {
       setPreviewHtml('');
       return;
@@ -43,10 +45,14 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
     const handle = setTimeout(() => {
       previewPostServerFn({ data: { body: value } })
         .then(({ html }) => {
-          if (!cancelled) setPreviewHtml(html);
+          if (!cancelled) {
+            setPreviewHtml(html);
+          }
         })
         .catch(() => {
-          if (!cancelled) setPreviewHtml('');
+          if (!cancelled) {
+            setPreviewHtml('');
+          }
         });
     }, 250);
     return () => {
@@ -77,13 +83,12 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
     const start = el.selectionStart;
     const end = el.selectionEnd;
     const selected = value.slice(start, end) || placeholder;
-    const next =
-      value.slice(0, start) + before + selected + after + value.slice(end);
+    const next = value.slice(0, start) + before + selected + after + value.slice(end);
     onChange(next);
     const selStart = start + before.length;
     pendingSelection.current = {
       start: selStart,
-      end: selStart + selected.length,
+      end: selStart + selected.length
     };
   }
 
@@ -97,24 +102,16 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
     const end = el.selectionEnd;
     const lineStart = value.lastIndexOf('\n', start - 1) + 1;
     const block = value.slice(lineStart, end);
-    const allPrefixed = block
-      .split('\n')
-      .every((line) => line.startsWith(prefix) || line === '');
+    const allPrefixed = block.split('\n').every((line) => line.startsWith(prefix) || line === '');
     const newBlock = block
       .split('\n')
-      .map((line) =>
-        allPrefixed
-          ? line.slice(prefix.length)
-          : line.startsWith(prefix)
-            ? line
-            : prefix + line,
-      )
+      .map((line) => (allPrefixed ? line.slice(prefix.length) : line.startsWith(prefix) ? line : prefix + line))
       .join('\n');
     const next = value.slice(0, lineStart) + newBlock + value.slice(end);
     onChange(next);
     pendingSelection.current = {
       start: lineStart,
-      end: lineStart + newBlock.length,
+      end: lineStart + newBlock.length
     };
   }
 
@@ -131,7 +128,7 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
     onChange(next);
     pendingSelection.current = {
       start: start + 4,
-      end: start + 4 + inner.length,
+      end: start + 4 + inner.length
     };
   }
 
@@ -143,7 +140,7 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
       return;
     }
     const el = ref.current;
-    let pos = el.selectionStart ?? value.length;
+    let pos = el.selectionStart;
     let next = value;
     setUploading(true);
     try {
@@ -154,7 +151,7 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
         try {
           const res = await fetch('/api/upload', {
             method: 'POST',
-            body: form,
+            body: form
           });
           if (res.ok) {
             const data = (await res.json()) as { url?: string };
@@ -210,16 +207,10 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
           <span className='font-mono text-xs leading-none'>{'{ }'}</span>
         </ToolButton>
         <Divider />
-        <ToolButton
-          label='链接'
-          onClick={() => wrap('[', '](https://)', '链接文字')}
-        >
+        <ToolButton label='链接' onClick={() => wrap('[', '](https://)', '链接文字')}>
           <LinkIcon size={16} />
         </ToolButton>
-        <ToolButton
-          label='图片'
-          onClick={() => wrap('![', '](https://)', '替代文字')}
-        >
+        <ToolButton label='图片' onClick={() => wrap('![', '](https://)', '替代文字')}>
           <ImageIcon size={16} />
         </ToolButton>
         {uploading ? (
@@ -230,37 +221,26 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
         ) : null}
 
         <div className='ml-auto flex items-center gap-1'>
-          <ModeButton
-            active={mode === 'write'}
-            onClick={() => setMode('write')}
-          >
+          <ModeButton active={mode === 'write'} onClick={() => setMode('write')}>
             编辑
           </ModeButton>
-          <ModeButton
-            active={mode === 'split'}
-            onClick={() => setMode('split')}
-          >
+          <ModeButton active={mode === 'split'} onClick={() => setMode('split')}>
             分屏
           </ModeButton>
-          <ModeButton
-            active={mode === 'preview'}
-            onClick={() => setMode('preview')}
-          >
+          <ModeButton active={mode === 'preview'} onClick={() => setMode('preview')}>
             预览
           </ModeButton>
         </div>
       </div>
 
-      <div
-        className={`grid ${mode === 'split' ? 'lg:grid-cols-2' : 'grid-cols-1'} ${EDITOR_HEIGHT}`}
-      >
+      <div className={`grid ${mode === 'split' ? 'lg:grid-cols-2' : 'grid-cols-1'} ${EDITOR_HEIGHT}`}>
         {mode !== 'preview' ? (
           <textarea
             ref={ref}
             value={value}
             onChange={(event) => onChange(event.target.value)}
             onPaste={(event) => {
-              const files = Array.from(event.clipboardData?.items ?? [])
+              const files = Array.from(event.clipboardData.items)
                 .map((item) => (item.kind === 'file' ? item.getAsFile() : null))
                 .filter((file): file is File => file !== null);
               if (files.length > 0) {
@@ -269,24 +249,20 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
               }
             }}
             onDrop={(event) => {
-              const files = Array.from(event.dataTransfer?.files ?? []);
+              const files = Array.from(event.dataTransfer.files);
               if (files.some((file) => file.type.startsWith('image/'))) {
                 event.preventDefault();
                 void insertImageFiles(files);
               }
             }}
             onDragOver={(event) => {
-              if (
-                Array.from(event.dataTransfer?.types ?? []).includes('Files')
-              ) {
+              if (event.dataTransfer.types.includes('Files')) {
                 event.preventDefault();
               }
             }}
             spellCheck={false}
             className={`h-full resize-none bg-background px-3 py-3 font-mono text-sm leading-6 text-foreground outline-none ${
-              mode === 'split'
-                ? 'border-b border-border lg:border-b-0 lg:border-r'
-                : ''
+              mode === 'split' ? 'border-b border-border lg:border-b-0 lg:border-r' : ''
             }`}
             placeholder='在这里写下 Markdown 正文…'
           />
@@ -297,11 +273,7 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
               mode === 'split' ? 'hidden lg:block' : ''
             }`}
           >
-            {value.trim() ? (
-              <MarkdownView html={previewHtml} />
-            ) : (
-              <p className='opacity-40'>暂无内容可预览。</p>
-            )}
+            {value.trim() ? <MarkdownView html={previewHtml} /> : <p className='opacity-40'>暂无内容可预览。</p>}
           </div>
         ) : null}
       </div>
@@ -309,15 +281,7 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
   );
 }
 
-function ToolButton({
-  label,
-  onClick,
-  children,
-}: {
-  label: string;
-  onClick: () => void;
-  children: ReactNode;
-}) {
+function ToolButton({ label, onClick, children }: { label: string; onClick: () => void; children: ReactNode }) {
   return (
     <button
       type='button'
@@ -335,23 +299,13 @@ function Divider() {
   return <span className='mx-1 h-5 w-px bg-border' />;
 }
 
-function ModeButton({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: ReactNode;
-}) {
+function ModeButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: ReactNode }) {
   return (
     <button
       type='button'
       onClick={onClick}
       className={`rounded px-2 py-1 text-xs font-medium transition-colors ${
-        active
-          ? 'bg-primary text-primary-foreground'
-          : 'text-muted-foreground hover:text-primary'
+        active ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-primary'
       }`}
     >
       {children}

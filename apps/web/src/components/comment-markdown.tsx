@@ -36,12 +36,8 @@ export function CommentMarkdownBody({ content }: CommentMarkdownProps) {
         ),
         strong: ({ children }) => <b className='font-semibold'>{children}</b>,
         em: ({ children }) => <em>{children}</em>,
-        ul: ({ children }) => (
-          <ul className='mb-2 ml-4 list-disc'>{children}</ul>
-        ),
-        ol: ({ children }) => (
-          <ol className='mb-2 ml-4 list-decimal'>{children}</ol>
-        ),
+        ul: ({ children }) => <ul className='mb-2 ml-4 list-disc'>{children}</ul>,
+        ol: ({ children }) => <ol className='mb-2 ml-4 list-decimal'>{children}</ol>,
         blockquote: ({ children }) => (
           <blockquote className='mb-2 border-l-2 border-border pl-3 opacity-70 dark:border-border'>
             {children}
@@ -55,16 +51,12 @@ export function CommentMarkdownBody({ content }: CommentMarkdownProps) {
             return <code className={className}>{children}</code>;
           }
           return (
-            <code className='rounded bg-secondary px-1 py-0.5 font-mono text-[0.85em] dark:bg-muted'>
-              {children}
-            </code>
+            <code className='rounded bg-secondary px-1 py-0.5 font-mono text-[0.85em] dark:bg-muted'>{children}</code>
           );
         },
         pre: ({ children }) => (
-          <pre className='mb-2 overflow-x-auto rounded-md bg-secondary p-3 text-[0.85em] dark:bg-muted'>
-            {children}
-          </pre>
-        ),
+          <pre className='mb-2 overflow-x-auto rounded-md bg-secondary p-3 text-[0.85em] dark:bg-muted'>{children}</pre>
+        )
       }}
     >
       {content}

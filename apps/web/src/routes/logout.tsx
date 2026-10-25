@@ -8,12 +8,12 @@ import {
   LOGOUT_FAILED,
   LOGOUT_RETRY,
   LOGOUT_SETTLED,
-  LOGOUT_TITLE,
+  LOGOUT_TITLE
 } from '../lib/i18n/messages.js';
 import { useRefreshSession } from '../lib/session-user.js';
 
 export const Route = createFileRoute('/logout')({
-  component: LogoutPage,
+  component: LogoutPage
 });
 
 function LogoutPage() {
@@ -34,12 +34,14 @@ function LogoutPage() {
       }
 
       await refreshSession();
-      navigate({ to: '/blog', replace: true });
+      void navigate({ to: '/blog', replace: true });
     });
   }, [navigate, refreshSession, t]);
 
   useEffect(() => {
-    if (started.current) return;
+    if (started.current) {
+      return;
+    }
     started.current = true;
     signOut();
   }, [signOut]);
@@ -47,9 +49,7 @@ function LogoutPage() {
   return (
     <section className='mx-auto w-full max-w-[80ch] self-start px-4 pt-8 pb-12 sm:px-6'>
       <h1 className='mb-2 text-3xl font-black'>{t(LOGOUT_TITLE)}</h1>
-      <p className='mb-6 opacity-70'>
-        {isPending ? t(LOGGING_OUT) : t(LOGOUT_SETTLED)}
-      </p>
+      <p className='mb-6 opacity-70'>{isPending ? t(LOGGING_OUT) : t(LOGOUT_SETTLED)}</p>
       {error ? (
         <p className='mb-4 rounded-md bg-destructive/15 px-3 py-2 text-destructive dark:bg-destructive/20 dark:text-destructive'>
           {error}

@@ -5,9 +5,7 @@ import { getWebEnv } from './env.js';
 const env = getWebEnv();
 
 function sign(slug: string, expiresAt: number): string {
-  return createHmac('sha256', env.betterAuthSecret)
-    .update(`${slug}.${expiresAt}`)
-    .digest('base64url');
+  return createHmac('sha256', env.betterAuthSecret).update(`${slug}.${expiresAt}`).digest('base64url');
 }
 
 export function createUnlockCookieValue(slug: string, ttlMs: number): string {
@@ -16,16 +14,13 @@ export function createUnlockCookieValue(slug: string, ttlMs: number): string {
   return `${expiresAt}.${signature}`;
 }
 
-export function isUnlockCookieValid(
-  slug: string,
-  value?: string | null,
-): boolean {
+export function isUnlockCookieValid(slug: string, value?: string | null): boolean {
   if (!value) {
     return false;
   }
 
   const [rawExpiresAt, rawSignature] = value.split('.');
-  const expiresAt = Number.parseInt(rawExpiresAt ?? '', 10);
+  const expiresAt = Number.parseInt(rawExpiresAt, 10);
   if (!expiresAt || !rawSignature || Date.now() > expiresAt) {
     return false;
   }
@@ -40,9 +35,7 @@ export function isUnlockCookieValid(
   return timingSafeEqual(signatureBuffer, expectedBuffer);
 }
 
-export function parseCookies(
-  rawCookieHeader: string | null,
-): Record<string, string> {
+export function parseCookies(rawCookieHeader: string | null): Record<string, string> {
   if (!rawCookieHeader) {
     return {};
   }
@@ -72,7 +65,7 @@ export function buildUnlockCookieHeader(slug: string, value: string): string {
     `Max-Age=${maxAge}`,
     'Path=/',
     'HttpOnly',
-    'SameSite=Lax',
+    'SameSite=Lax'
   ];
 
   if (env.cookieDomain) {
@@ -88,13 +81,7 @@ export function buildUnlockCookieHeader(slug: string, value: string): string {
 
 export function buildUnlockClearCookieHeader(slug: string): string {
   const cookieName = getUnlockCookieName(slug);
-  const attributes = [
-    `${cookieName}=`,
-    'Max-Age=0',
-    'Path=/',
-    'HttpOnly',
-    'SameSite=Lax',
-  ];
+  const attributes = [`${cookieName}=`, 'Max-Age=0', 'Path=/', 'HttpOnly', 'SameSite=Lax'];
 
   if (env.cookieDomain) {
     attributes.push(`Domain=${env.cookieDomain}`);

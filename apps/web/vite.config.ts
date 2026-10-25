@@ -12,7 +12,7 @@ export default defineConfig({
   // Cache API namespace, so each deployment starts with an empty edge cache —
   // a cached page can never outlive the asset hashes it references.
   define: {
-    __ARTICLE_CACHE_BUILD_ID__: JSON.stringify(`b${Date.now().toString(36)}`),
+    __ARTICLE_CACHE_BUILD_ID__: JSON.stringify(`b${Date.now().toString(36)}`)
   },
   plugins: [
     tsConfigPaths(),
@@ -22,7 +22,7 @@ export default defineConfig({
     // babel option; `compiler: true` runs the oxc port instead of
     // babel-plugin-react-compiler).
     viteReact({ compiler: true }),
-    tailwindcss(),
+    tailwindcss()
   ],
   server: {
     warmup: {
@@ -41,8 +41,8 @@ export default defineConfig({
         'src/lib/blog-service.ts?tss-serverfn-split',
         'src/lib/comments-service.ts?tss-serverfn-split',
         'src/lib/locale-service.ts?tss-serverfn-split',
-        'src/lib/session-service.ts?tss-serverfn-split',
-      ],
-    },
-  },
+        'src/lib/session-service.ts?tss-serverfn-split'
+      ]
+    }
+  }
 });

@@ -9,7 +9,7 @@ export function getRouter() {
     // App scroll lives on <main>, not window — without this, TanStack carries
     // the previous route's main.scrollTop into the next page on PUSH.
     scrollToTopSelectors: ['main'],
-    defaultPreload: 'intent',
+    defaultPreload: 'intent'
   });
 }
 

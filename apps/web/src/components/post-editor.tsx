@@ -1,21 +1,11 @@
 import { POST_VISIBILITIES } from '@blog/shared';
 import { useHydrated, useRouter } from '@tanstack/react-router';
 import { useReducer, useState } from 'react';
-import {
-  type AdminPost,
-  deletePostServerFn,
-  upsertPostServerFn,
-} from '../lib/admin-service.js';
+import { type AdminPost, deletePostServerFn, upsertPostServerFn } from '../lib/admin-service.js';
 import { ConfirmDialog } from './confirm-dialog.js';
 import { MarkdownEditor } from './markdown-editor.js';
 import { TagInput } from './tag-input.js';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from './ui/select.js';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select.js';
 
 function todayIso(): string {
   return new Date().toISOString();
@@ -53,7 +43,7 @@ function toFormState(post: AdminPost): FormState {
     password: post.password,
     status: post.status,
     publishedAt: post.publishedAt.slice(0, 10),
-    body: post.body,
+    body: post.body
   };
 }
 
@@ -66,13 +56,13 @@ const EMPTY: AdminPost = {
   password: '',
   status: 'published',
   tags: [],
-  publishedAt: todayIso(),
+  publishedAt: todayIso()
 };
 
 export function PostEditor({
   initial,
   mode,
-  allTags = [],
+  allTags = []
 }: {
   initial?: AdminPost | null;
   mode: 'new' | 'edit';
@@ -80,11 +70,7 @@ export function PostEditor({
 }) {
   const router = useRouter();
   const hydrated = useHydrated();
-  const [fields, dispatch] = useReducer(
-    formReducer,
-    initial ?? EMPTY,
-    toFormState,
-  );
+  const [fields, dispatch] = useReducer(formReducer, initial ?? EMPTY, toFormState);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -108,8 +94,8 @@ export function PostEditor({
           password: fields.password,
           status: fields.status,
           tags: fields.tags,
-          publishedAt: new Date(fields.publishedAt).toISOString(),
-        },
+          publishedAt: new Date(fields.publishedAt).toISOString()
+        }
       });
       await router.navigate({ to: '/admin' });
     } catch (err) {
@@ -134,10 +120,7 @@ export function PostEditor({
     <form onSubmit={onSubmit}>
       {/* Before hydration, React can overwrite typed input and submission
           bypasses onSubmit as a native GET. */}
-      <fieldset
-        disabled={!hydrated}
-        className='m-0 grid min-w-0 gap-5 border-0 p-0'
-      >
+      <fieldset disabled={!hydrated} className='m-0 grid min-w-0 gap-5 border-0 p-0'>
         {error ? (
           <p role='alert' className='my-2.5 text-sm text-destructive'>
             {error}
@@ -183,9 +166,7 @@ export function PostEditor({
                 type='date'
                 className='w-full rounded-lg border border-border bg-background px-2.5 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground/60 focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_15%,transparent)]'
                 value={fields.publishedAt}
-                onChange={(event) =>
-                  setField('publishedAt', event.target.value)
-                }
+                onChange={(event) => setField('publishedAt', event.target.value)}
                 required
               />
             </label>
@@ -228,9 +209,7 @@ export function PostEditor({
               </span>
               <Select
                 value={fields.visibility}
-                onValueChange={(value) =>
-                  setField('visibility', value as FormState['visibility'])
-                }
+                onValueChange={(value) => setField('visibility', value as FormState['visibility'])}
               >
                 <SelectTrigger aria-label='可见性'>
                   <SelectValue />
@@ -249,12 +228,7 @@ export function PostEditor({
                 <span className='text-primary'>▸ </span>
                 状态
               </span>
-              <Select
-                value={fields.status}
-                onValueChange={(value) =>
-                  setField('status', value as FormState['status'])
-                }
-              >
+              <Select value={fields.status} onValueChange={(value) => setField('status', value as FormState['status'])}>
                 <SelectTrigger aria-label='状态'>
                   <SelectValue />
                 </SelectTrigger>
@@ -286,10 +260,7 @@ export function PostEditor({
             <span className='text-primary'>▸ </span>
             正文（Markdown）
           </span>
-          <MarkdownEditor
-            value={fields.body}
-            onChange={(body) => setField('body', body)}
-          />
+          <MarkdownEditor value={fields.body} onChange={(body) => setField('body', body)} />
         </section>
 
         <div className='flex items-center gap-3'>
@@ -322,7 +293,7 @@ export function PostEditor({
           confirmLabel='delete'
           onConfirm={() => {
             setConfirmDelete(false);
-            onDelete();
+            void onDelete();
           }}
         />
       </fieldset>

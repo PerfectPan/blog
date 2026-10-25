@@ -8,7 +8,9 @@ for (const path of ['/login', '/signup']) {
     });
     try {
       await page.route('**/*', async (route) => {
-        if (route.request().resourceType() === 'script') await released;
+        if (route.request().resourceType() === 'script') {
+          await released;
+        }
         return route.continue();
       });
       await page.goto(path, { waitUntil: 'commit' });
@@ -20,8 +22,9 @@ for (const path of ['/login', '/signup']) {
       await expect(password).toBeDisabled();
       await expect(submit).toBeDisabled();
       await expect(page.locator('form button[type="button"]')).toBeDisabled();
-      if (path === '/signup')
+      if (path === '/signup') {
         await expect(page.locator('#name')).toBeDisabled();
+      }
 
       releaseScripts();
       await expect(email).toBeEnabled({ timeout: 30000 });
@@ -38,15 +41,14 @@ function createUniqueEmail(): string {
   return `e2e-logout-${suffix}@example.com`;
 }
 
-test('signup and logout refresh session and route data with the service worker', async ({
-  page,
-}) => {
+test('signup and logout refresh session and route data with the service worker', async ({ page }) => {
   const email = createUniqueEmail();
   const sessionRequests: string[] = [];
   page.on('request', (request) => {
     const path = new URL(request.url()).pathname;
-    if (path === '/api/auth/get-session' || path.startsWith('/_serverFn/'))
+    if (path === '/api/auth/get-session' || path.startsWith('/_serverFn/')) {
       sessionRequests.push(request.url());
+    }
   });
   await page.goto('/signup', { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('html[data-hydrated]');
@@ -61,11 +63,7 @@ test('signup and logout refresh session and route data with the service worker',
     await navigator.serviceWorker.ready;
     if (!navigator.serviceWorker.controller) {
       await new Promise<void>((resolve) => {
-        navigator.serviceWorker.addEventListener(
-          'controllerchange',
-          () => resolve(),
-          { once: true },
-        );
+        navigator.serviceWorker.addEventListener('controllerchange', () => resolve(), { once: true });
       });
     }
     // Prime the guest response: the old worker served it again after signup.
@@ -98,17 +96,12 @@ test('signup and logout refresh session and route data with the service worker',
   expect(sessionRequests).toEqual([]);
 
   await page.getByRole('link', { name: '1:posts', exact: true }).click();
-  await expect(
-    page.getByText('当前身份：会员；可见范围：公开/会员'),
-  ).toBeVisible();
+  await expect(page.getByText('当前身份：会员；可见范围：公开/会员')).toBeVisible();
 
   await page.getByTestId('nav-logout').click();
 
   // The terminal theme asks for confirmation before signing out.
-  await page
-    .getByRole('dialog')
-    .getByRole('button', { name: 'logout' })
-    .click();
+  await page.getByRole('dialog').getByRole('button', { name: 'logout' }).click();
 
   await page.waitForURL('**/blog');
   await expect(page.getByTestId('nav-login')).toBeVisible();
@@ -126,17 +119,13 @@ test('signup and logout refresh session and route data with the service worker',
   await expect
     .poll(
       async () => {
-        await page.evaluate(() =>
-          document.dispatchEvent(new Event('visibilitychange')),
-        );
+        await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')));
         return page.getByTestId('nav-logout').count();
       },
-      { timeout: 10_000 },
+      { timeout: 10_000 }
     )
     .toBe(1);
-  await expect(
-    page.getByText('当前身份：会员；可见范围：公开/会员'),
-  ).toBeVisible();
+  await expect(page.getByText('当前身份：会员；可见范围：公开/会员')).toBeVisible();
   await loginTab.close();
   const cachedPaths = await page.evaluate(async () => {
     const names = await caches.keys();
@@ -144,30 +133,20 @@ test('signup and logout refresh session and route data with the service worker',
       await Promise.all(
         names.map(async (name) => {
           const cache = await caches.open(name);
-          return (await cache.keys()).map(
-            (request) => new URL(request.url).pathname,
-          );
-        }),
+          return (await cache.keys()).map((request) => new URL(request.url).pathname);
+        })
       )
     ).flat();
   });
   expect(
     cachedPaths.filter(
-      (path) =>
-        path.startsWith('/api/') ||
-        path.startsWith('/_server') ||
-        path === '/' ||
-        path === '/blog',
-    ),
+      (path) => path.startsWith('/api/') || path.startsWith('/_server') || path === '/' || path === '/blog'
+    )
   ).toEqual([]);
-  expect(await page.evaluate(() => caches.keys())).not.toContain(
-    'perfectpan-blog-v1',
-  );
+  expect(await page.evaluate(() => caches.keys())).not.toContain('perfectpan-blog-v1');
 });
 
-test('account fetch errors are visible and can be retried', async ({
-  page,
-}) => {
+test('account fetch errors are visible and can be retried', async ({ page }) => {
   const email = createUniqueEmail();
   await page.goto('/signup');
   await page.locator('#name').fill('Account Retry');
@@ -177,17 +156,13 @@ test('account fetch errors are visible and can be retried', async ({
     route.fulfill({
       status: 500,
       contentType: 'application/json',
-      body: JSON.stringify({ message: 'Account service unavailable' }),
-    }),
+      body: JSON.stringify({ message: 'Account service unavailable' })
+    })
   );
   await page.locator('form button[type="submit"]').click();
-  await expect(page.getByRole('alert')).toHaveText(
-    'Account service unavailable',
-  );
+  await expect(page.getByRole('alert')).toHaveText('Account service unavailable');
   await page.unroute('**/api/auth/list-accounts');
   await page.getByRole('button', { name: 'retry', exact: true }).click();
-  await expect(
-    page.getByRole('button', { name: 'link github', exact: true }),
-  ).toBeVisible();
+  await expect(page.getByRole('button', { name: 'link github', exact: true })).toBeVisible();
   await expect(page.locator('dl')).toContainText(email);
 });
