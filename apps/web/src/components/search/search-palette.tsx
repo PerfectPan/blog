@@ -1,11 +1,11 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
-import { searchPalette, useSearchPaletteOpen } from './search-palette-store.js';
+import { searchPalette, useSearchPaletteOpen } from './search-palette-store';
 
 // cmdk + radix-dialog (the panel, search-palette-panel.tsx) load in their own
 // chunk: it is fetched on first open (and warmed during browser idle below),
 // so the palette's weight never sits in every page's critical path.
 const SearchPalettePanel = lazy(() =>
-  import('./search-palette-panel.js').then((m) => ({
+  import('./search-palette-panel').then((m) => ({
     default: m.SearchPalettePanel
   }))
 );

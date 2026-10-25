@@ -1,7 +1,26 @@
-import { createFileRoute, Link, notFound } from '@tanstack/react-router';
-import { PostEditor } from '../../components/post-editor.js';
+import { createFileRoute, getRouteApi, Link, notFound } from '@tanstack/react-router';
+import { PostEditor } from '../../components/admin/post-editor';
 import { getAdminPostServerFn, listPostTagsServerFn } from '../../lib/admin-service.js';
 import { KATEX_CSS_HREF } from '../../lib/katex-css.js';
+
+const routeApi = getRouteApi('/admin/$slug');
+
+function EditPostPage() {
+  const { post, allTags } = routeApi.useLoaderData();
+  return (
+    <div className='mx-auto w-full self-start max-w-5xl px-4 pt-8 pb-12 sm:px-6'>
+      <div className='flex flex-wrap items-baseline gap-2.5 mb-2'>
+        <span className='text-primary'>~ %</span>{' '}
+        <span className='text-foreground hover:text-primary'>vi /posts/{post.slug}.md</span>
+      </div>
+      <Link to='/admin' className='text-muted-foreground hover:text-foreground mb-4 inline-block text-sm'>
+        ← 返回列表
+      </Link>
+      <h1 className='text-lg font-semibold text-foreground mb-6 truncate'>编辑 · {post.title || post.slug}</h1>
+      <PostEditor mode='edit' initial={post} allTags={allTags} />
+    </div>
+  );
+}
 
 export const Route = createFileRoute('/admin/$slug')({
   // Preview math: the katex stylesheet is linked here (admin-only page,
@@ -22,20 +41,3 @@ export const Route = createFileRoute('/admin/$slug')({
   },
   component: EditPostPage
 });
-
-function EditPostPage() {
-  const { post, allTags } = Route.useLoaderData();
-  return (
-    <div className='mx-auto w-full self-start max-w-5xl px-4 pt-8 pb-12 sm:px-6'>
-      <div className='flex flex-wrap items-baseline gap-2.5 mb-2'>
-        <span className='text-primary'>~ %</span>{' '}
-        <span className='text-foreground hover:text-primary'>vi /posts/{post.slug}.md</span>
-      </div>
-      <Link to='/admin' className='text-muted-foreground hover:text-foreground mb-4 inline-block text-sm'>
-        ← 返回列表
-      </Link>
-      <h1 className='text-lg font-semibold text-foreground mb-6 truncate'>编辑 · {post.title || post.slug}</h1>
-      <PostEditor mode='edit' initial={post} allTags={allTags} />
-    </div>
-  );
-}

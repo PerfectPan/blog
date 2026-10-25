@@ -12,10 +12,6 @@ import {
 } from '../lib/i18n/messages.js';
 import { useRefreshSession } from '../lib/session-user.js';
 
-export const Route = createFileRoute('/logout')({
-  component: LogoutPage
-});
-
 function LogoutPage() {
   const navigate = useNavigate();
   const t = useT();
@@ -68,3 +64,7 @@ function LogoutPage() {
     </section>
   );
 }
+
+export const Route = createFileRoute('/logout')({
+  component: LogoutPage
+});

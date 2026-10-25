@@ -1,6 +1,13 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, getRouteApi } from '@tanstack/react-router';
 import { z } from 'zod';
-import { SignupPage } from '../components/auth.js';
+import { SignupPage } from '../components/auth/signup-page';
+
+const routeApi = getRouteApi('/signup');
+
+function SignUpPage() {
+  const { error } = routeApi.useSearch();
+  return <SignupPage searchError={error} />;
+}
 
 export const Route = createFileRoute('/signup')({
   server: {
@@ -18,8 +25,3 @@ export const Route = createFileRoute('/signup')({
   validateSearch: z.object({ error: z.string().optional() }),
   component: SignUpPage
 });
-
-function SignUpPage() {
-  const { error } = Route.useSearch();
-  return <SignupPage searchError={error} />;
-}

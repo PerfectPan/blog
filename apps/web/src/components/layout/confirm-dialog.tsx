@@ -6,8 +6,8 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog';
-import { useT } from '../lib/i18n/context.js';
-import { CANCEL_DEFAULT, CONFIRM_DEFAULT } from '../lib/i18n/messages.js';
+import { useT } from '../../lib/i18n/context.js';
+import { CANCEL_DEFAULT, CONFIRM_DEFAULT } from '../../lib/i18n/messages.js';
 
 type ConfirmDialogProps = {
   open: boolean;

@@ -3,11 +3,6 @@ import { articleCacheKey, matchArticleCache, putArticleCache, toCacheablePair } 
 
 const handler = createStartHandler(defaultStreamHandler);
 
-// Canonical apex host, derived from APPS_WEB_URL at module load. A missing
-// value (e.g. misconfigured env) just disables the redirect below rather than
-// blocking every request.
-const apexHost = hostFromUrl(process.env.APPS_WEB_URL);
-
 function hostFromUrl(raw: string | undefined): string | undefined {
   if (!raw) {
     return undefined;
@@ -19,6 +14,11 @@ function hostFromUrl(raw: string | undefined): string | undefined {
     return undefined;
   }
 }
+
+// Canonical apex host, derived from APPS_WEB_URL at module load. A missing
+// value (e.g. misconfigured env) just disables the redirect below rather than
+// blocking every request.
+const apexHost = hostFromUrl(process.env.APPS_WEB_URL);
 
 // Cloudflare Workers expects the default export to be an object with a `fetch`
 // method (not the raw handler, which bundles as a class and trips workerd's
