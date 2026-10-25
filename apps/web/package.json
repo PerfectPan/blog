@@ -28,7 +28,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
-    "dotenv": "^17.4.2",
+    "dotenv": "^18.0.8",
     "intl-messageformat": "^12.1.4",
     "katex": "^0.18.2",
     "kysely": "^0.29.7",
