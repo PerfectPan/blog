@@ -3,10 +3,10 @@
 import type { CommentThread, SessionUser } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
-import { createCommentServerFn, deleteCommentServerFn, getCommentsServerFn } from '../lib/comments-service.js';
-import { Composer } from './comment-composer.js';
-import { CommentItem } from './comment-item.js';
-import { useT } from '../lib/i18n/context.js';
+import { createCommentServerFn, deleteCommentServerFn, getCommentsServerFn } from '../../lib/comments-service.js';
+import { Composer } from './comment-composer';
+import { CommentItem } from './comment-item';
+import { useT } from '../../lib/i18n/context.js';
 import {
   DELETE_FAILED,
   LOAD_MORE_FAILED,
@@ -16,8 +16,8 @@ import {
   NEW_COMMENT_PLACEHOLDER,
   NO_COMMENTS,
   SUBMIT_COMMENT
-} from '../lib/i18n/messages.js';
-import { Prompt } from './prompt.js';
+} from '../../lib/i18n/messages.js';
+import { Prompt } from '../layout/prompt';
 
 type CommentsProps = {
   slug: string;

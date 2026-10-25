@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useT } from '../lib/i18n/context.js';
 import { BACK_TO_BLOG_LIST, NOT_FOUND_COMMENT } from '../lib/i18n/messages.js';
-import { Page } from './page.js';
+import { Page } from './layout/page';
 
 export function NotFoundPage() {
   const t = useT();

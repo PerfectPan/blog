@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
-import { useT } from '../lib/i18n/context.js';
-import { SITE_WINDOWS_ARIA } from '../lib/i18n/messages.js';
-import { useSessionUser } from '../lib/session-user.js';
+import { useT } from '../../lib/i18n/context.js';
+import { SITE_WINDOWS_ARIA } from '../../lib/i18n/messages.js';
+import { useSessionUser } from '../../lib/session-user.js';
 
 /**
  * tmux-style status bar: session name + clickable windows on the left, site

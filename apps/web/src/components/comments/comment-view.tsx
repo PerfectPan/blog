@@ -1,7 +1,7 @@
 import type { Comment } from '@blog/shared';
-import { useT, type TFn } from '../lib/i18n/context.js';
-import { DAYS_AGO, DELETE_ACTION, HOURS_AGO, JUST_NOW, MINUTES_AGO, REPLY_ACTION } from '../lib/i18n/messages.js';
-import { CommentBody } from './comment-body.js';
+import { useT, type TFn } from '../../lib/i18n/context.js';
+import { DAYS_AGO, DELETE_ACTION, HOURS_AGO, JUST_NOW, MINUTES_AGO, REPLY_ACTION } from '../../lib/i18n/messages.js';
+import { CommentBody } from './comment-body';
 
 /** Shared class of the per-comment action row (reply / delete). */
 const ACTION_ROW =

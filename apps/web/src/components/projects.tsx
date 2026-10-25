@@ -1,7 +1,7 @@
 import { useLocale } from '../lib/i18n/context.js';
 import { PROJECTS, type Project } from '../lib/projects.js';
-import { Page } from './page.js';
-import { Prompt } from './prompt.js';
+import { Page } from './layout/page';
+import { Prompt } from './layout/prompt';
 
 function sortProjects(projects: Project[]): Project[] {
   return [...projects].sort((a, b) => {

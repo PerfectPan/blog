@@ -1,8 +1,8 @@
 import { createFileRoute, getRouteApi, Link } from '@tanstack/react-router';
-import { MarkdownView } from '../components/markdown-view.js';
-import { Page } from '../components/page.js';
-import { Prompt } from '../components/prompt.js';
-import { BODY_ENTER_DELAY_MS, ENTER, enterDelay } from '../components/term.js';
+import { MarkdownView } from '../components/markdown/markdown-view';
+import { Page } from '../components/layout/page';
+import { Prompt } from '../components/layout/prompt';
+import { BODY_ENTER_DELAY_MS, ENTER, enterDelay } from '../components/layout/term';
 import { getAboutHtmlServerFn } from '../lib/about-content.js';
 import { useLocale } from '../lib/i18n/context.js';
 

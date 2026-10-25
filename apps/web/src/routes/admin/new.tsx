@@ -1,5 +1,5 @@
 import { createFileRoute, getRouteApi, Link } from '@tanstack/react-router';
-import { PostEditor } from '../../components/post-editor.js';
+import { PostEditor } from '../../components/admin/post-editor';
 import { ensureAdminServerFn, listPostTagsServerFn } from '../../lib/admin-service.js';
 import { KATEX_CSS_HREF } from '../../lib/katex-css.js';
 

@@ -22,9 +22,9 @@ import {
   VERIFY_EMAIL_HINT
 } from '../lib/i18n/messages.js';
 import { useSessionUser } from '../lib/session-user.js';
-import { ConfirmDialog } from './confirm-dialog.js';
-import { Page } from './page.js';
-import { Prompt } from './prompt.js';
+import { ConfirmDialog } from './layout/confirm-dialog';
+import { Page } from './layout/page';
+import { Prompt } from './layout/prompt';
 
 type LinkedAccount = { providerId: string; accountId: string };
 

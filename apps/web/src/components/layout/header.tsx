@@ -1,9 +1,9 @@
 import { Link, useNavigate } from '@tanstack/react-router';
-import { GithubMark } from './github-mark.js';
+import { GithubMark } from './github-mark';
 import { LogOut, MoreHorizontal, Rss, Search, UserRound, UserRoundPlus, X } from 'lucide-react';
 import { lazy, useEffect, useRef, useState } from 'react';
-import { useT } from '../lib/i18n/context.js';
-import { LocaleSwitcher } from './locale-switcher.js';
+import { useT } from '../../lib/i18n/context.js';
+import { LocaleSwitcher } from './locale-switcher';
 import {
   CLOSE_TOOLS_MENU,
   GITHUB_ARIA,
@@ -18,17 +18,17 @@ import {
   RSS_LABEL,
   SEARCH_ARIA,
   SEARCH_TOOL
-} from '../lib/i18n/messages.js';
-import { useSessionUser } from '../lib/session-user.js';
-import { DarkMode } from './dark-mode.js';
-import { searchPalette } from './search-palette-store.js';
-import { SHEET_ROW, TOOL_BTN, TOOL_BTN_TOGGLE, TOOL_VIS } from './term.js';
+} from '../../lib/i18n/messages.js';
+import { useSessionUser } from '../../lib/session-user.js';
+import { DarkMode } from './dark-mode';
+import { searchPalette } from '../search/search-palette-store';
+import { SHEET_ROW, TOOL_BTN, TOOL_BTN_TOGGLE, TOOL_VIS } from './term';
 
 // The logout confirm dialog (radix Dialog) loads in its own chunk, mounted
 // on first use, so radix stays out of the logged-out pages' critical path.
-import { ConfirmDialogGate } from './confirm-dialog-gate.js';
+import { ConfirmDialogGate } from './confirm-dialog-gate';
 
-const ConfirmDialog = lazy(() => import('./confirm-dialog.js').then((m) => ({ default: m.ConfirmDialog })));
+const ConfirmDialog = lazy(() => import('./confirm-dialog').then((m) => ({ default: m.ConfirmDialog })));
 
 function getRoleLabel(role?: string | null): string {
   if (role === 'admin') {

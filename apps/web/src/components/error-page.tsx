@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useT } from '../lib/i18n/context.js';
 import { REQUEST_FAILED } from '../lib/i18n/messages.js';
-import { Page } from './page.js';
+import { Page } from './layout/page';
 
 export function ErrorPage({ error }: { error: unknown }) {
   const t = useT();

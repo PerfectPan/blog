@@ -1,7 +1,7 @@
 import type { Locale } from '@blog/shared';
 import { useEffect, useRef } from 'react';
-import { COPIED_LABEL, COPY_ARIA, COPY_LABEL, formatMsg } from '../lib/i18n/messages.js';
-import { highlightCode } from './markdown-highlight.js';
+import { COPIED_LABEL, COPY_ARIA, COPY_LABEL, formatMsg } from '../../lib/i18n/messages.js';
+import { highlightCode } from './markdown-highlight';
 
 type MarkdownViewProps = {
   /** Pre-rendered by lib/markdown-html.tsx on the worker. */

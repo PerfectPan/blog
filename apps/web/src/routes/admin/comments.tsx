@@ -1,9 +1,9 @@
 import type { Comment, CommentStatus } from '@blog/shared';
 import { createFileRoute, getRouteApi, Link } from '@tanstack/react-router';
 import { useMemo, useState } from 'react';
-import { CommentBody } from '../../components/comment-body.js';
-import { ConfirmDialog } from '../../components/confirm-dialog.js';
-import { Prompt } from '../../components/prompt.js';
+import { CommentBody } from '../../components/comments/comment-body';
+import { ConfirmDialog } from '../../components/layout/confirm-dialog';
+import { Prompt } from '../../components/layout/prompt';
 import { deleteCommentServerFn, listCommentsServerFn, setCommentStatusServerFn } from '../../lib/comments-service.js';
 
 const STATUS_FILTERS: StatusFilter[] = ['all', 'visible', 'hidden', 'spam'];

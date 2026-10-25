@@ -1,6 +1,6 @@
 import { useRouterState } from '@tanstack/react-router';
 import { useEffect, useRef } from 'react';
-import { createWave, DOT_PITCH } from './dot-wave.js';
+import { createWave, DOT_PITCH } from './dot-wave';
 
 /**
  * Site backdrop: branches that grow in from the viewport edges, after

@@ -11,11 +11,11 @@ import {
   Quote
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { previewPostServerFn } from '../lib/markdown-preview.js';
-import { MarkdownView } from './markdown-view.js';
-import { ModeButton } from './mode-button.js';
-import { ToolButton } from './tool-button.js';
-import { ToolbarDivider } from './toolbar-divider.js';
+import { previewPostServerFn } from '../../lib/markdown-preview.js';
+import { MarkdownView } from './markdown-view';
+import { ModeButton } from '../toolbar/mode-button';
+import { ToolButton } from '../toolbar/tool-button';
+import { ToolbarDivider } from '../toolbar/toolbar-divider';
 
 type MarkdownEditorProps = {
   value: string;

@@ -1,8 +1,8 @@
 import { useHydrated, useNavigate } from '@tanstack/react-router';
-import { useRefreshSession, useSessionUser } from '../lib/session-user.js';
+import { useRefreshSession, useSessionUser } from '../../lib/session-user.js';
 import { useEffect, useState, useTransition } from 'react';
-import { authClient } from '../lib/auth-client.js';
-import { useLocale, useT } from '../lib/i18n/context.js';
+import { authClient } from '../../lib/auth-client.js';
+import { useLocale, useT } from '../../lib/i18n/context.js';
 import {
   authErrorMessage,
   CHECKING_SESSION,
@@ -15,9 +15,9 @@ import {
   PASSWORD_LABEL,
   SIGN_UP_FAILED,
   SIGNUP_HINT
-} from '../lib/i18n/messages.js';
-import { Page } from './page.js';
-import { Prompt } from './prompt.js';
+} from '../../lib/i18n/messages.js';
+import { Page } from '../layout/page';
+import { Prompt } from '../layout/prompt';
 
 export function SignupPage({ searchError }: { searchError?: string }) {
   const navigate = useNavigate();

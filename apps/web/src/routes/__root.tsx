@@ -1,12 +1,12 @@
 import { DEFAULT_LOCALE } from '@blog/shared';
 import { createRootRoute, getRouteApi, Outlet } from '@tanstack/react-router';
 import { useEffect } from 'react';
-import { AppLayout } from '../components/layout.js';
+import { AppLayout } from '../components/layout/layout';
 import { ErrorPage } from '../components/error-page.js';
 import { NotFoundPage } from '../components/misc.js';
 import { RootDocument } from './root-document.js';
 import { SessionRevalidation } from './session-revalidation.js';
-import { SearchPalette } from '../components/search-palette.js';
+import { SearchPalette } from '../components/search/search-palette';
 import { LocaleProvider } from '../lib/i18n/context.js';
 import { getSessionUserServerFn } from '../lib/session-service.js';
 import '../styles.css';

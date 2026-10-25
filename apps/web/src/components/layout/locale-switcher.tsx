@@ -1,8 +1,8 @@
 import type { Locale } from '@blog/shared';
 import { Languages } from 'lucide-react';
-import { useLocale, useT } from '../lib/i18n/context.js';
-import { LANG_EN_NAME, LANG_ZH_NAME, SWITCH_LOCALE } from '../lib/i18n/messages.js';
-import { SHEET_ROW, TOOL_BTN, TOOL_VIS } from './term.js';
+import { useLocale, useT } from '../../lib/i18n/context.js';
+import { LANG_EN_NAME, LANG_ZH_NAME, SWITCH_LOCALE } from '../../lib/i18n/messages.js';
+import { SHEET_ROW, TOOL_BTN, TOOL_VIS } from './term';
 
 export function LocaleSwitcher({ variant }: { variant: 'bar' | 'sheet' }) {
   const { locale, setLocale } = useLocale();

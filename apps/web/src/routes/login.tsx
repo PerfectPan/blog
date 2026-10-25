@@ -1,6 +1,6 @@
 import { createFileRoute, getRouteApi } from '@tanstack/react-router';
 import { z } from 'zod';
-import { LoginPage } from '../components/auth.js';
+import { LoginPage } from '../components/auth/auth';
 
 const routeApi = getRouteApi('/login');
 

@@ -26,7 +26,7 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 it('reuses a worker and matches responses to their own code blocks', async () => {
-  const { highlightCode } = await import('../src/components/markdown-highlight.js');
+  const { highlightCode } = await import('../src/components/markdown/markdown-highlight');
   const signal = new AbortController().signal;
   const first = highlightCode('first', 'js', signal);
   const second = highlightCode('second', 'sh', signal);
@@ -39,7 +39,7 @@ it('reuses a worker and matches responses to their own code blocks', async () =>
 });
 
 it('releases cancelled work immediately and ignores late results after navigation', async () => {
-  const { highlightCode } = await import('../src/components/markdown-highlight.js');
+  const { highlightCode } = await import('../src/components/markdown/markdown-highlight');
   const oldPage = new AbortController();
   const oldResult = highlightCode('old', 'cpp', oldPage.signal);
   oldPage.abort();
@@ -52,7 +52,7 @@ it('releases cancelled work immediately and ignores late results after navigatio
 });
 
 it('leaves plain code on worker failure and can recover on the next request', async () => {
-  const { highlightCode } = await import('../src/components/markdown-highlight.js');
+  const { highlightCode } = await import('../src/components/markdown/markdown-highlight');
   const signal = new AbortController().signal;
   const result = highlightCode('first', 'js', signal);
   TestWorker.instances[0].onerror?.();
@@ -64,7 +64,7 @@ it('leaves plain code on worker failure and can recover on the next request', as
 });
 
 it('does not start a worker for an already cancelled request', async () => {
-  const { highlightCode } = await import('../src/components/markdown-highlight.js');
+  const { highlightCode } = await import('../src/components/markdown/markdown-highlight');
   const controller = new AbortController();
   controller.abort();
   expect(await highlightCode('old', 'js', controller.signal)).toBeNull();

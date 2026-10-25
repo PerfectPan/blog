@@ -1,8 +1,13 @@
 import type { CommentThread, SessionUser } from '@blog/shared';
-import { useT } from '../lib/i18n/context.js';
-import { DELETE_COMMENT_CONFIRM, DELETE_REPLY_CONFIRM, REPLY_ACTION, REPLY_PLACEHOLDER } from '../lib/i18n/messages.js';
-import { Composer } from './comment-composer.js';
-import { CommentView } from './comment-view.js';
+import { useT } from '../../lib/i18n/context.js';
+import {
+  DELETE_COMMENT_CONFIRM,
+  DELETE_REPLY_CONFIRM,
+  REPLY_ACTION,
+  REPLY_PLACEHOLDER
+} from '../../lib/i18n/messages.js';
+import { Composer } from './comment-composer';
+import { CommentView } from './comment-view';
 
 type CommentItemProps = {
   thread: CommentThread;

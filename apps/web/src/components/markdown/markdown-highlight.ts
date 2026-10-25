@@ -1,4 +1,4 @@
-import type { HighlightRequest, HighlightResponse } from './markdown-highlight.worker.js';
+import type { HighlightRequest, HighlightResponse } from './markdown-highlight.worker';
 
 let worker: Worker | undefined;
 let nextId = 0;

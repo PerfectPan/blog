@@ -1,11 +1,11 @@
 import { POST_VISIBILITIES } from '@blog/shared';
 import { useHydrated, useRouter } from '@tanstack/react-router';
 import { useReducer, useState } from 'react';
-import { type AdminPost, deletePostServerFn, upsertPostServerFn } from '../lib/admin-service.js';
-import { ConfirmDialog } from './confirm-dialog.js';
-import { MarkdownEditor } from './markdown-editor.js';
-import { TagInput } from './tag-input.js';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select.js';
+import { type AdminPost, deletePostServerFn, upsertPostServerFn } from '../../lib/admin-service.js';
+import { ConfirmDialog } from '../layout/confirm-dialog';
+import { MarkdownEditor } from '../markdown/markdown-editor';
+import { TagInput } from './tag-input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.././ui/select.js';
 
 function todayIso(): string {
   return new Date().toISOString();

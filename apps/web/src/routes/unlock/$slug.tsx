@@ -1,5 +1,5 @@
 import { createFileRoute, getRouteApi, useParams } from '@tanstack/react-router';
-import { UnlockPage } from '../../components/unlock-page.js';
+import { UnlockPage } from '../../components/auth/unlock-page';
 import { buildUnlockCookieHeader, createUnlockCookieValue } from '../../lib/unlock-cookie.js';
 import { clearUnlockFailures, isUnlockRateLimited, recordUnlockFailure } from '../../lib/unlock-rate-limit.js';
 

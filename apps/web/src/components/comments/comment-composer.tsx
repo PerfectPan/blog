@@ -16,17 +16,17 @@ import {
   TOOLBAR_LINK,
   TOOLBAR_LIST,
   TOOLBAR_QUOTE
-} from '../lib/i18n/messages.js';
+} from '../../lib/i18n/messages.js';
 
 /** Client mirror of the server-side comment body cap (comments-service). */
 const COMMENT_BODY_MAX = 2000;
-import { useT } from '../lib/i18n/context.js';
-import { previewCommentServerFn } from '../lib/markdown-preview.js';
-import { useSessionUser } from '../lib/session-user.js';
-import { CommentBody } from './comment-body.js';
-import { ModeButton } from './mode-button.js';
-import { ToolButton } from './tool-button.js';
-import { ToolbarDivider } from './toolbar-divider.js';
+import { useT } from '../../lib/i18n/context.js';
+import { previewCommentServerFn } from '../../lib/markdown-preview.js';
+import { useSessionUser } from '../../lib/session-user.js';
+import { CommentBody } from './comment-body';
+import { ModeButton } from '../toolbar/mode-button';
+import { ToolButton } from '../toolbar/tool-button';
+import { ToolbarDivider } from '../toolbar/toolbar-divider';
 
 type ComposerProps = {
   placeholder: string;

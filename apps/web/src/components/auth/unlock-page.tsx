@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { useT } from '../lib/i18n/context.js';
+import { useT } from '../../lib/i18n/context.js';
 import {
   BACK_TO_POST,
   SUDO_UNLOCK,
@@ -7,9 +7,9 @@ import {
   UNLOCK_ERROR_MISSING,
   UNLOCK_HINT,
   UNLOCK_PASSWORD_LABEL
-} from '../lib/i18n/messages.js';
-import { Page } from './page.js';
-import { Prompt } from './prompt.js';
+} from '../../lib/i18n/messages.js';
+import { Page } from '../layout/page';
+import { Prompt } from '../layout/prompt';
 
 export function UnlockPage({ slug, search }: { slug: string; search?: Record<string, string | undefined> }) {
   const t = useT();
