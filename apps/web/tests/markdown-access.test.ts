@@ -14,7 +14,7 @@ import { isUnlockCookieValid } from '../src/lib/unlock-cookie.js';
 // has the same access boundary as route loaders.
 vi.mock('@tanstack/react-start', () => ({
   createServerFn: () => ({
-    inputValidator() {
+    validator() {
       return this;
     },
     handler(fn: unknown) {
