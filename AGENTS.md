@@ -115,9 +115,9 @@ pnpm --filter @blog/web exec wrangler deploy -c dist/server/wrangler.json --dry-
 1. **合并前必须回归验证，尤其视觉/布局/交互改动。** CI 绿（typecheck/build/size）只证明能编译、体积没超，**不证明渲染或行为正确**。
    - 视觉/布局类：在 PR 的 **preview deploy**（或本地 `pnpm dev`）上**用浏览器逐页看实际渲染**——布局、对齐、max-width、响应式，逐项确认。不要凭「代码看起来对」就合并。
    - 逻辑/数据类：跑相关流程或测试确认行为。
-   - **preview 冒烟已自动化**：e2e.yml 的 `preview-smoke` job 会在每个非 fork PR 上等 Workers Builds 部署完成，
-     对 `https://<分支名>.preview.perfectpan.org` 跑只读冒烟（`tests/e2e/preview-smoke.spec.ts`：渲染/水合、KaTeX、
-     搜索、console 无错）。agent 需要更深的交互验证时走 `.claude/skills/preview-smoke`。
+   - **preview 冒烟由本地 agent 跑**（不进 CI）：推完 PR 后按 `.agents/skills/preview-smoke` 对
+     `https://<分支名>.preview.perfectpan.org` 跑只读冒烟（`tests/e2e/preview-smoke.spec.ts`：渲染/水合、KaTeX、
+     搜索、console 无错），把结果贴回 PR。仓库 skill 统一放 `.agents/skills/`，`.claude/skills/` 只留符号链接。
      **全套 e2e 绝不直接打 preview 站**——它会写共享的 `blog-preview` D1；全套只跑本地临时 D1。
 2. **默认不自动合并，等用户批准。** 完成 + 回归验证后，把结果（实测数据 / 截图 / preview URL）交给用户，**等明确批准**再 `gh pr merge`。一次「你都帮我做了」**不等于**永久授权自动合并。
 3. **合并后回归出问题，立刻回滚。** 优先 `git revert` 回到上一个已知可用状态，再重新修；不要在生产环境「一边坏一边猜」。
