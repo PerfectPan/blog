@@ -43,7 +43,7 @@ function withoutBody(post: PostDetail): PostDetail {
 }
 
 export const getBlogListServerFn = createServerFn({ method: 'GET' })
-  .inputValidator(z.object({ page: z.number().int().min(1).optional() }))
+  .validator(z.object({ page: z.number().int().min(1).optional() }))
   .handler(async ({ data }) => {
     const request = getRequest();
     const [sessionUser, allPosts] = await Promise.all([
@@ -69,7 +69,7 @@ export const getBlogListServerFn = createServerFn({ method: 'GET' })
  *  Visibility filtering + search both happen server-side so restricted posts
  *  never reach the client, even as search suggestions. */
 export const searchPostsServerFn = createServerFn({ method: 'GET' })
-  .inputValidator(z.object({ q: z.string() }))
+  .validator(z.object({ q: z.string() }))
   .handler(async ({ data }) => {
     const request = getRequest();
     const [sessionUser, allPosts] = await Promise.all([
@@ -83,7 +83,7 @@ export const searchPostsServerFn = createServerFn({ method: 'GET' })
   });
 
 export const getBlogPostServerFn = createServerFn({ method: 'GET' })
-  .inputValidator(z.object({ slug: z.string().min(1) }))
+  .validator(z.object({ slug: z.string().min(1) }))
   .handler(async ({ data }) => {
     const request = getRequest();
     const [sessionUser, post] = await Promise.all([
@@ -138,7 +138,7 @@ export const getBlogPostServerFn = createServerFn({ method: 'GET' })
   });
 
 export const verifyPostPasswordServerFn = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     z.object({
       slug: z.string().min(1),
       password: z.string().min(1),

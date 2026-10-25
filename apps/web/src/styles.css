@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 /* KaTeX is deliberately NOT imported here: only pages whose rendered HTML
    contains math link the emitted stylesheet (lib/katex-css.ts) from their
@@ -32,8 +32,8 @@
 
 @theme inline {
   --font-mono:
-    ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas,
-    "PingFang SC", "Microsoft YaHei", monospace;
+    ui-monospace, 'SF Mono', 'JetBrains Mono', 'Cascadia Code', Menlo, Consolas,
+    'PingFang SC', 'Microsoft YaHei', monospace;
 
   --color-border: var(--border);
   --color-input: var(--input);
@@ -320,7 +320,7 @@ html.dark ::-webkit-scrollbar-thumb:hover {
 :root .md li,
 :root .md blockquote {
   font-family:
-    Georgia, "Songti SC", "Noto Serif SC", "Source Han Serif SC", "SimSun",
+    Georgia, 'Songti SC', 'Noto Serif SC', 'Source Han Serif SC', 'SimSun',
     serif;
   font-size: 16.5px;
   line-height: 1.9;
@@ -333,7 +333,7 @@ html.dark ::-webkit-scrollbar-thumb:hover {
   scroll-margin-top: 20px;
 }
 :root .md h2::before {
-  content: "## ";
+  content: '## ';
   color: var(--muted-foreground);
   font-weight: 400;
 }

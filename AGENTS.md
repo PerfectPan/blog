@@ -9,6 +9,9 @@
 
 - 单人博客，**全量运行在 Cloudflare 上、$0/月**。
 - `apps/web`（TanStack Start）部署为 **Cloudflare Worker**；`packages/shared` 放共享类型。
+- 工具链统一 **Vite+（`vp`）**：dev/build = `vp`（Vite 8 / Rolldown）、test = `vp test`（Vitest 5）、
+  fmt+lint = `vp check`（Oxfmt + Oxlint）；git hooks 由 `vp hooks`（`.vite-hooks/`）管理。
+  根 `vite.config.ts` 汇总 test/fmt/lint/staged 配置，应用构建配置在 `apps/web/vite.config.ts`。
 - 文章存在 **D1 `post` 表**（由 `/admin` 管理；历史 markdown 已一次性迁入 D1，`content/blog` 源文件已删）。无 CMS、无外部内容数据库。
 - 登录与角色用 **Better Auth + Cloudflare D1**。
 - 旧架构已移除：Waku、Payload CMS、Postgres、Vercel adapter、构建期内联 markdown / `gray-matter` 都不再维护。
@@ -30,7 +33,7 @@
 pnpm install
 
 # 本地开发
-pnpm dev                              # vite dev
+pnpm dev                              # vp dev（Vite+ / Rolldown）
 pnpm --filter @blog/web preview       # wrangler dev（真实 worker 运行时）
 
 # D1 迁移
@@ -87,7 +90,7 @@ pnpm deploy
 
 ```bash
 pnpm typecheck
-pnpm lint   # = biome 格式检查 + vp lint（Vite+ 的 Oxlint，含 shadcn token 规则，与 CI lint job 一致）
+pnpm lint   # = vp check（Oxfmt 格式检查 + Oxlint lint，含 shadcn token 规则，与 CI lint job 一致）
 pnpm --filter @blog/web build
 pnpm --filter @blog/web exec wrangler deploy -c dist/server/wrangler.json --dry-run  # 守 3 MiB
 ```

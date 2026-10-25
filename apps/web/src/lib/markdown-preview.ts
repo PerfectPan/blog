@@ -29,7 +29,7 @@ async function requireSession() {
 /** Live preview for the admin post editor: renders through the same post
  *  pipeline so the preview matches the published page exactly. */
 export const previewPostServerFn = createServerFn({ method: 'POST' })
-  .inputValidator(previewInput)
+  .validator(previewInput)
   .handler(async ({ data }) => {
     const sessionUser = await requireSession();
     if (sessionUser.role !== 'admin') {
@@ -43,7 +43,7 @@ const commentPreviewInput = z.object({ body: z.string().max(2000) });
 
 /** Live preview for the comment composer (same pipeline as stored comments). */
 export const previewCommentServerFn = createServerFn({ method: 'POST' })
-  .inputValidator(commentPreviewInput)
+  .validator(commentPreviewInput)
   .handler(async ({ data }) => {
     await requireSession();
     return { html: renderCommentHtml(data.body) };

@@ -41,9 +41,8 @@ export const Route = createFileRoute('/unlock/$slug')({
           });
         }
 
-        const { verifyPostPassword } = await import(
-          '../../lib/content-service.js'
-        );
+        const { verifyPostPassword } =
+          await import('../../lib/content-service.js');
         const isValid = await verifyPostPassword(slug, password);
         if (!isValid) {
           recordUnlockFailure(slug, ip);

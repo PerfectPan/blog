@@ -1,5 +1,5 @@
 import type { PostDetail, SessionUser } from '@blog/shared';
-import { beforeEach, expect, it, vi } from 'vitest';
+import { beforeEach, expect, it, vi } from 'vite-plus/test';
 import { getBlogPostServerFn } from '../src/lib/blog-service.js';
 import { getPostBySlug } from '../src/lib/content-service.js';
 import { renderCommentHtml, renderPostHtml } from '../src/lib/markdown-html.js';

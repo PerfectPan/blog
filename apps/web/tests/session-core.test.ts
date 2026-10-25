@@ -1,4 +1,4 @@
-import { beforeEach, expect, it, vi } from 'vitest';
+import { beforeEach, expect, it, vi } from 'vite-plus/test';
 import { auth } from '../src/lib/auth.js';
 import { getD1 } from '../src/lib/db.js';
 import { getSessionUserFromRequest } from '../src/lib/session-core.js';

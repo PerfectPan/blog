@@ -1,11 +1,8 @@
 {
   "name": "blog",
   "version": "0.0.0",
-  "type": "module",
   "private": true,
-  "engines": {
-    "node": ">=24"
-  },
+  "type": "module",
   "scripts": {
     "dev": "pnpm --filter @blog/web dev",
     "build": "pnpm --filter @blog/web build",
@@ -13,34 +10,23 @@
     "db:migrate": "pnpm --filter @blog/web db:migrate",
     "db:migrate:local": "pnpm --filter @blog/web db:migrate:local",
     "cf-typegen": "pnpm --filter @blog/web cf-typegen",
-    "lint": "biome check ./apps ./packages && vp lint -c ./vite.config.ts apps packages",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "lint": "vp check",
+    "test": "vp test run",
+    "test:watch": "vp test",
     "size": "pnpm --filter @blog/web size",
     "test:e2e": "playwright test",
     "test:e2e:logout": "playwright test tests/e2e/auth-logout.spec.ts",
     "typecheck": "pnpm --recursive --filter @blog/web --filter @blog/shared typecheck",
-    "prepare": "husky"
+    "prepare": "vp config"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.3",
     "@playwright/test": "^1.61.1",
     "@shadcn/lint": "^0.1.1",
-    "husky": "^9.1.7",
-    "lint-staged": "^15.2.5",
     "typescript": "^5.7.3",
-    "vite-plus": "^1.4.0",
-    "vitest": "^4.1.11"
+    "vite-plus": "catalog:"
   },
-  "lint-staged": {
-    "*.{mjs,js,jsx,mts,ts,tsx,css,json}": "pnpm biome check --write"
+  "engines": {
+    "node": ">=24"
   },
-  "packageManager": "pnpm@10.34.5",
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "workerd",
-      "sharp"
-    ]
-  }
+  "packageManager": "pnpm@10.34.5"
 }

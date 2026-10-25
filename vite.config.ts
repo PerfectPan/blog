@@ -1,11 +1,44 @@
 import { defineConfig } from 'vite-plus';
 
-// Repo-wide lint config for `vp lint` (Vite+ / Oxlint). The web app keeps its
-// own build config in apps/web/vite.config.ts; this root config only carries
-// the lint block so `vp lint` from the workspace root covers apps/ and
-// packages/ with one tool. Biome stays as the formatter (`biome check --write`
-// in lint-staged), so its linter is disabled — linting is vp's job.
+// Workspace-root Vite+ config: one home for the repo-wide vp settings.
+// - test: node-mode unit tests for packages/ and apps/web/tests with mocked
+//   D1 bindings, run via `vp test` without loading the web app's Cloudflare
+//   Vite configuration.
+// - fmt: Oxfmt, tuned to keep the previous Biome style.
+// - lint: Oxlint with the @shadcn/lint token rules.
+// - staged: runs `vp check --fix` on staged files (replaces lint-staged).
+// The web app's build config stays in apps/web/vite.config.ts.
 export default defineConfig({
+  staged: {
+    '*': 'vp check --fix',
+  },
+  test: {
+    // Vitest v4 compatibility: preserve mock call history.
+    // Remove after tests no longer rely on calls from setup or earlier tests.
+    // https://viteplus.dev/guide/vitest-v5#remove-unneeded-compatibility-settings
+    // https://vitest.dev/guide/migration/#clearmocks-is-enabled-by-default
+    clearMocks: false,
+    include: ['packages/**/*.test.ts', 'apps/web/tests/**/*.test.ts'],
+    environment: 'node',
+  },
+  fmt: {
+    // Match the previous Biome style: single quotes in JS and JSX, 2-space
+    // indent, 80-col width (Oxfmt defaults already cover the rest).
+    singleQuote: true,
+    jsxSingleQuote: true,
+    printWidth: 80,
+    // Keep parity with the old Biome scope: code files only. Markdown docs
+    // (mostly Chinese prose), report HTML and CI YAML were never
+    // auto-formatted, and reflowing them would create unrelated churn.
+    ignorePatterns: [
+      '**/routeTree.gen.ts',
+      '**/*.md',
+      '**/*.html',
+      '**/*.yml',
+      '**/*.yaml',
+      'docs/reports/**',
+    ],
+  },
   lint: {
     jsPlugins: ['@shadcn/lint'],
     settings: {
