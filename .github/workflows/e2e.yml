@@ -87,3 +87,65 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
+
+  # Read-only smoke against the Workers Builds preview deployment at
+  # https://<branch>.preview.perfectpan.org. Workers Builds deploys every
+  # non-master branch on push, so this polls until that deployment is live,
+  # then runs preview-smoke.spec.ts (render/hydration, KaTeX, search — no
+  # writes: the preview D1 is shared by all PRs). Fork PRs get no preview
+  # build (no Cloudflare git integration), so they are skipped. Branch names
+  # longer than Cloudflare's subdomain limit would need truncation there
+  # first; the poll below then fails visibly instead of passing silently.
+  preview-smoke:
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Google Chrome for Playwright
+        run: pnpm exec playwright install --with-deps chrome
+
+      - name: Derive preview host from branch name
+        run: |
+          host="$(echo '${{ github.head_ref }}' | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g').preview.perfectpan.org"
+          echo "PREVIEW_HOST=$host" >> "$GITHUB_ENV"
+          echo "preview host: $host"
+
+      - name: Wait for preview deployment (Workers Builds)
+        run: |
+          url="https://$PREVIEW_HOST/"
+          for i in $(seq 1 60); do
+            code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "$url" || true)"
+            if [ "$code" = "200" ]; then echo "preview is live: $url"; exit 0; fi
+            echo "waiting for $url (attempt $i, last status: $code)"
+            sleep 10
+          done
+          echo "::error::preview deployment did not come up within 10 minutes (check the Workers Builds status on the PR)"
+          exit 1
+
+      - name: Run preview smoke (read-only)
+        run: E2E_BASE_URL="https://$PREVIEW_HOST" pnpm exec playwright test tests/e2e/preview-smoke.spec.ts
+
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: preview-smoke-report
+          path: playwright-report/
+          retention-days: 7
