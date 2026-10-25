@@ -225,10 +225,11 @@ export function AccountPage({ searchError }: { searchError?: string }) {
         confirmLabel='unlink'
         pending={isPending}
         onConfirm={() => {
+          if (!github) return;
           setError(null);
           startTransition(async () => {
             const result = await authClient.unlinkAccount({
-              providerId: 'github',
+              accountId: github.accountId,
             });
             setUnlinkOpen(false);
             if (result.error) {
