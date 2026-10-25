@@ -1,20 +1,10 @@
 import type { Comment, CommentStatus } from '@blog/shared';
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, getRouteApi, Link } from '@tanstack/react-router';
 import { useMemo, useState } from 'react';
 import { CommentBody } from '../../components/comment-body.js';
 import { ConfirmDialog } from '../../components/confirm-dialog.js';
-import { Prompt } from '../../components/page.js';
+import { Prompt } from '../../components/prompt.js';
 import { deleteCommentServerFn, listCommentsServerFn, setCommentStatusServerFn } from '../../lib/comments-service.js';
-
-export const Route = createFileRoute('/admin/comments')({
-  head: () => ({ meta: [{ title: 'Admin · 评论审核' }] }),
-  // listCommentsServerFn calls requireAdmin() internally, so non-admins are
-  // bounced away (to /login or /) before this page renders.
-  loader: async () => listCommentsServerFn({ data: {} }),
-  component: AdminCommentsPage
-});
-
-type StatusFilter = CommentStatus | 'all';
 
 const STATUS_FILTERS: StatusFilter[] = ['all', 'visible', 'hidden', 'spam'];
 const STATUS_LABEL: Record<StatusFilter, string> = {
@@ -32,8 +22,10 @@ const STATUS_BADGE: Record<CommentStatus, string> = {
   spam: 'inline-block rounded-sm border border-current px-1.5 text-xs leading-relaxed font-bold tracking-wide text-destructive'
 };
 
+const routeApi = getRouteApi('/admin/comments');
+
 function AdminCommentsPage() {
-  const { comments: initial } = Route.useLoaderData();
+  const { comments: initial } = routeApi.useLoaderData();
   const [comments, setComments] = useState<Comment[]>(initial);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [slugQuery, setSlugQuery] = useState('');
@@ -214,3 +206,13 @@ function AdminCommentsPage() {
     </div>
   );
 }
+
+export const Route = createFileRoute('/admin/comments')({
+  head: () => ({ meta: [{ title: 'Admin · 评论审核' }] }),
+  // listCommentsServerFn calls requireAdmin() internally, so non-admins are
+  // bounced away (to /login or /) before this page renders.
+  loader: async () => listCommentsServerFn({ data: {} }),
+  component: AdminCommentsPage
+});
+
+type StatusFilter = CommentStatus | 'all';

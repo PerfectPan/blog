@@ -31,6 +31,38 @@ function observeCodeBlocks(article: HTMLElement, signal: AbortSignal) {
       while (queue.length && !signal.aborted) {
         const pre = queue.shift();
         if (pre) {
+          async function upgradeCodeBlock(pre: HTMLPreElement, signal: AbortSignal) {
+            const code = pre.querySelector('code');
+            if (!code || code.dataset.highlighted || signal.aborted) {
+              return;
+            }
+            const lang = /language-([\w+#-]+)/.exec(code.className)?.[1] ?? 'text';
+            const html = await highlightCode(code.textContent, lang, signal);
+            // Abort during the await resolves highlightCode to null (!html); a reply
+            // that wins the race before abort is covered by !pre.isConnected (abort
+            // only fires on unmount/content change, which detaches this subtree) or
+            // by dataset.highlighted.
+            if (!html || !pre.isConnected || code.dataset.highlighted) {
+              return;
+            }
+
+            // Keep the server's code-block chrome and copy controls. Only the escaped
+            // Shiki code markup and dual-theme styles come back from the browser worker.
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            const shikiPre = doc.querySelector('pre');
+            const shikiCode = shikiPre?.querySelector('code');
+            if (!shikiPre || !shikiCode) {
+              return;
+            }
+            pre.classList.add(...shikiPre.classList);
+            const style = shikiPre.getAttribute('style');
+            if (style) {
+              pre.setAttribute('style', style);
+            }
+            code.innerHTML = shikiCode.innerHTML;
+            code.dataset.highlighted = 'true';
+          }
+
           await upgradeCodeBlock(pre, signal);
         }
       }
@@ -61,38 +93,6 @@ function observeCodeBlocks(article: HTMLElement, signal: AbortSignal) {
     observer.observe(pre);
   }
   return () => observer.disconnect();
-}
-
-async function upgradeCodeBlock(pre: HTMLPreElement, signal: AbortSignal) {
-  const code = pre.querySelector('code');
-  if (!code || code.dataset.highlighted || signal.aborted) {
-    return;
-  }
-  const lang = /language-([\w+#-]+)/.exec(code.className)?.[1] ?? 'text';
-  const html = await highlightCode(code.textContent, lang, signal);
-  // Abort during the await resolves highlightCode to null (!html); a reply
-  // that wins the race before abort is covered by !pre.isConnected (abort
-  // only fires on unmount/content change, which detaches this subtree) or
-  // by dataset.highlighted.
-  if (!html || !pre.isConnected || code.dataset.highlighted) {
-    return;
-  }
-
-  // Keep the server's code-block chrome and copy controls. Only the escaped
-  // Shiki code markup and dual-theme styles come back from the browser worker.
-  const doc = new DOMParser().parseFromString(html, 'text/html');
-  const shikiPre = doc.querySelector('pre');
-  const shikiCode = shikiPre?.querySelector('code');
-  if (!shikiPre || !shikiCode) {
-    return;
-  }
-  pre.classList.add(...shikiPre.classList);
-  const style = shikiPre.getAttribute('style');
-  if (style) {
-    pre.setAttribute('style', style);
-  }
-  code.innerHTML = shikiCode.innerHTML;
-  code.dataset.highlighted = 'true';
 }
 
 /** Copy buttons carry the server-rendered locale; when the UI language

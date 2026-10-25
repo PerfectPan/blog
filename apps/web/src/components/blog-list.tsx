@@ -3,7 +3,8 @@ import { Link } from '@tanstack/react-router';
 import { useLocale, useT } from '../lib/i18n/context.js';
 import { NEXT_PAGE, PAGE_INFO, PAGINATION_ARIA, PREV_PAGE } from '../lib/i18n/messages.js';
 import { cn } from '../lib/utils.js';
-import { Page, Prompt } from './page.js';
+import { Page } from './page.js';
+import { Prompt } from './prompt.js';
 import { ENTER_ROW, enterDelay } from './term.js';
 
 // Intro stagger: year headers and rows scroll in top-down after the prompt

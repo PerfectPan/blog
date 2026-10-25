@@ -3,7 +3,8 @@ import { Link } from '@tanstack/react-router';
 import { cn } from '../lib/utils.js';
 import { Comments } from './comments.js';
 import { MarkdownView } from './markdown-view.js';
-import { Page, Prompt } from './page.js';
+import { Page } from './page.js';
+import { Prompt } from './prompt.js';
 import { BODY_ENTER_DELAY_MS, ENTER, enterDelay } from './term.js';
 
 // The title block rises in just ahead of the body.

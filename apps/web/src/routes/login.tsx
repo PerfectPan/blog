@@ -1,6 +1,13 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, getRouteApi } from '@tanstack/react-router';
 import { z } from 'zod';
 import { LoginPage } from '../components/auth.js';
+
+const routeApi = getRouteApi('/login');
+
+function LoginRoute() {
+  const { error } = routeApi.useSearch();
+  return <LoginPage searchError={error} />;
+}
 
 export const Route = createFileRoute('/login')({
   server: {
@@ -18,8 +25,3 @@ export const Route = createFileRoute('/login')({
   validateSearch: z.object({ error: z.string().optional() }),
   component: LoginRoute
 });
-
-function LoginRoute() {
-  const { error } = Route.useSearch();
-  return <LoginPage searchError={error} />;
-}

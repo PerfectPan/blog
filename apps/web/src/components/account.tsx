@@ -23,7 +23,8 @@ import {
 } from '../lib/i18n/messages.js';
 import { useSessionUser } from '../lib/session-user.js';
 import { ConfirmDialog } from './confirm-dialog.js';
-import { Page, Prompt } from './page.js';
+import { Page } from './page.js';
+import { Prompt } from './prompt.js';
 
 type LinkedAccount = { providerId: string; accountId: string };
 

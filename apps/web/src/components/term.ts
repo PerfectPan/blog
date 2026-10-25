@@ -37,3 +37,5 @@ export const enterDelay = (ms: number) => ({ animationDelay: `${ms}ms` });
 // When a page body (article, about) starts rising in: while its prompt is
 // still typing, so the content never waits on the flourish.
 export const BODY_ENTER_DELAY_MS = 180;
+
+export const TOOL_VIS = 'max-[480px]:hidden';

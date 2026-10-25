@@ -46,10 +46,6 @@ export default defineConfig({
     },
     rules: {
       ...sharedLint.rules,
-      // Deferred organizational refactor: the blog keeps component-first
-      // files with helpers below their callers for now; re-enable after a
-      // dedicated restructuring PR.
-      'no-use-before-define': 'off',
       'shadcn/no-arbitrary-values': [
         'error',
         {
@@ -75,10 +71,17 @@ export default defineConfig({
       'shadcn/require-static-classes': 'error'
     },
     // The shared base enables react/no-multi-comp inside an override, which
-    // beats top-level rules; edit that override in place to disable it here.
-    // Deferred organizational refactor alongside no-use-before-define above.
+    // beats top-level rules; edit that override in place to keep it enabled
+    // except for the shadcn-generated ui primitives, which export a family
+    // of related components from one file by design.
     overrides: sharedLint.overrides.map((o) =>
-      'react/no-multi-comp' in o.rules ? { ...o, rules: { ...o.rules, 'react/no-multi-comp': 'off' } } : o
+      'react/no-multi-comp' in o.rules
+        ? {
+            ...o,
+            excludeFiles: [...(o.excludeFiles ?? []), '**/src/components/ui/**'],
+            rules: { ...o.rules, 'react/no-multi-comp': 'error' }
+          }
+        : o
     ),
     ignorePatterns: [
       '**/dist/**',

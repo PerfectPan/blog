@@ -1,12 +1,14 @@
-import { DEFAULT_LOCALE, type SessionUser } from '@blog/shared';
-import { createRootRoute, HeadContent, Outlet, Scripts, useRouter } from '@tanstack/react-router';
-import { type ReactNode, useEffect } from 'react';
+import { DEFAULT_LOCALE } from '@blog/shared';
+import { createRootRoute, getRouteApi, Outlet } from '@tanstack/react-router';
+import { useEffect } from 'react';
 import { AppLayout } from '../components/layout.js';
-import { ErrorPage, NotFoundPage } from '../components/misc.js';
+import { ErrorPage } from '../components/error-page.js';
+import { NotFoundPage } from '../components/misc.js';
+import { RootDocument } from './root-document.js';
+import { SessionRevalidation } from './session-revalidation.js';
 import { SearchPalette } from '../components/search-palette.js';
 import { LocaleProvider } from '../lib/i18n/context.js';
 import { getSessionUserServerFn } from '../lib/session-service.js';
-import { SESSION_CHANGED_KEY } from '../lib/session-user.js';
 import '../styles.css';
 
 /**
@@ -16,7 +18,38 @@ import '../styles.css';
  * a dark-mode visitor never sees the light theme flash first. DarkMode.tsx
  * re-asserts the same choice after hydration.
  */
-const THEME_BOOT_SCRIPT = `(function(){try{var t=null;try{t=localStorage.getItem('blog-theme')}catch(e){}var d=t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(d){document.documentElement.classList.add('dark');var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content','#0a0f14');}}catch(e){}})();`;
+
+function RootComponent() {
+  const routeApi = getRouteApi('__root__');
+  const { sessionUser } = routeApi.useLoaderData();
+
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      void import('react-grab');
+    }
+  }, []);
+
+  useEffect(() => {
+    // Register the service worker in production only (Bundle D / PWA).
+    if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {
+        // Best-effort; ignore registration failures.
+      });
+    }
+  }, []);
+
+  return (
+    <RootDocument>
+      <SessionRevalidation sessionUser={sessionUser} />
+      <LocaleProvider initialLocale={sessionUser?.locale ?? DEFAULT_LOCALE} isLoggedIn={sessionUser != null}>
+        <AppLayout>
+          <Outlet />
+        </AppLayout>
+        <SearchPalette />
+      </LocaleProvider>
+    </RootDocument>
+  );
+}
 
 export const Route = createRootRoute({
   // Hydrate only the UI user fields, never the session token. Guest locale
@@ -56,111 +89,3 @@ export const Route = createRootRoute({
   notFoundComponent: () => <NotFoundPage />,
   component: RootComponent
 });
-
-function RootComponent() {
-  const { sessionUser } = Route.useLoaderData();
-
-  useEffect(() => {
-    if (import.meta.env.DEV) {
-      void import('react-grab');
-    }
-  }, []);
-
-  useEffect(() => {
-    // Register the service worker in production only (Bundle D / PWA).
-    if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(() => {
-        // Best-effort; ignore registration failures.
-      });
-    }
-  }, []);
-
-  return (
-    <RootDocument>
-      <SessionRevalidation sessionUser={sessionUser} />
-      <LocaleProvider initialLocale={sessionUser?.locale ?? DEFAULT_LOCALE} isLoggedIn={sessionUser != null}>
-        <AppLayout>
-          <Outlet />
-        </AppLayout>
-        <SearchPalette />
-      </LocaleProvider>
-    </RootDocument>
-  );
-}
-
-function SessionRevalidation({ sessionUser }: { sessionUser: SessionUser | null }) {
-  const router = useRouter();
-  const identity = JSON.stringify(sessionUser);
-
-  useEffect(() => {
-    let cancelled = false;
-    let checking = false;
-    let refreshQueued = false;
-    let lastChecked = Date.now();
-    const check = async (force = false) => {
-      if (document.visibilityState !== 'visible' || !navigator.onLine) {
-        return;
-      }
-      if (checking) {
-        refreshQueued ||= force;
-        return;
-      }
-      if (!force && Date.now() - lastChecked < 5000) {
-        return;
-      }
-      lastChecked = Date.now();
-      checking = true;
-      try {
-        const next = await getSessionUserServerFn();
-        if (!cancelled && JSON.stringify(next) !== identity) {
-          router.clearCache();
-          await router.invalidate();
-        }
-      } catch (error) {
-        console.error('[web] session revalidation failed', error);
-      } finally {
-        checking = false;
-        if (refreshQueued && !cancelled) {
-          refreshQueued = false;
-          void check(true);
-        }
-      }
-    };
-    const onFocus = () => void check();
-    const onOnline = () => void check(true);
-    const onStorage = (event: StorageEvent) => {
-      if (event.key === SESSION_CHANGED_KEY) {
-        void check(true);
-      }
-    };
-    window.addEventListener('focus', onFocus);
-    document.addEventListener('visibilitychange', onFocus);
-    window.addEventListener('online', onOnline);
-    window.addEventListener('storage', onStorage);
-    return () => {
-      cancelled = true;
-      window.removeEventListener('focus', onFocus);
-      document.removeEventListener('visibilitychange', onFocus);
-      window.removeEventListener('online', onOnline);
-      window.removeEventListener('storage', onStorage);
-    };
-  }, [identity, router]);
-
-  return null;
-}
-
-function RootDocument({ children }: { children: ReactNode }) {
-  return (
-    <html lang='zh-CN'>
-      <head>
-        <HeadContent />
-        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static, code-reviewed boot script (no user input). */}
-        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
-      </head>
-      <body>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  );
-}

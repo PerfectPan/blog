@@ -3,7 +3,8 @@ import { Link } from '@tanstack/react-router';
 import { useT } from '../lib/i18n/context.js';
 import { NO_POSTS, POSTS_COUNT } from '../lib/i18n/messages.js';
 import { cn } from '../lib/utils.js';
-import { Page, Prompt } from './page.js';
+import { Page } from './page.js';
+import { Prompt } from './prompt.js';
 import { ENTER, ENTER_ROW, enterDelay } from './term.js';
 
 const FIGLET = `                  __           _

@@ -274,82 +274,82 @@ export function TraceBackground() {
       const left = column.left - CLEARANCE;
       const right = column.right + CLEARANCE;
       if (Math.min(left, w - right) / STEP >= MIN_GUTTER) {
+        const startTraces = (w: number, h: number, left: number, right: number) => {
+          // Fade toward the column; the few traces inside stay faint.
+          canvas.style.maskImage = `linear-gradient(90deg, #000, rgb(0 0 0 / ${MASK_EDGE}) ${left}px, rgb(0 0 0 / ${MASK_COLUMN}) ${left + MASK_FADE}px, rgb(0 0 0 / ${MASK_COLUMN}) ${right - MASK_FADE}px, rgb(0 0 0 / ${MASK_EDGE}) ${right}px, #000)`;
+          const grower = createGrower(Math.ceil(w / STEP), Math.ceil(h / STEP), {
+            // Cell x's trace point sits at x * STEP + STEP / 2.
+            lo: Math.floor(left / STEP),
+            hi: Math.ceil(right / STEP)
+          });
+          const { drawing } = grower;
+          let colors = readColors();
+          // Painting everything again also covers the not-yet-painted tail, so
+          // the loop's cursors staying behind only means a harmless re-stroke.
+          repaint = () => {
+            colors = readColors();
+            clear();
+            paint(ctx, drawing, colors, 0, 0);
+          };
+
+          if (reduceMotion) {
+            while (grower.tick()) {
+              // Grow to completion synchronously.
+            }
+            repaint();
+            return;
+          }
+
+          let count = 0;
+          let seg = 0;
+          let node = 0;
+          const loop = () => {
+            count += 1;
+            let alive = true;
+            if (count % FRAMES_PER_TICK === 0) {
+              alive = grower.tick();
+              paint(ctx, drawing, colors, seg, node);
+              seg = drawing.segments.length;
+              node = drawing.nodes.length;
+            }
+            if (alive) {
+              frame = requestAnimationFrame(loop);
+            }
+          };
+          frame = requestAnimationFrame(loop);
+        };
+
         startTraces(w, h, left, right);
       } else {
+        const startDots = (w: number, h: number) => {
+          const draw = createWave(Math.ceil(w / DOT_PITCH), Math.ceil(h / DOT_PITCH));
+          let color = readColors().line;
+          const t0 = performance.now();
+          let t = 0;
+          repaint = () => {
+            color = readColors().line;
+            draw(ctx, color, t);
+          };
+
+          if (reduceMotion) {
+            repaint();
+            return;
+          }
+
+          let last = -Infinity;
+          const loop = (now: number) => {
+            if (now - last >= DOT_FRAME_MS) {
+              last = now;
+              t = (now - t0) / 1000;
+              draw(ctx, color, t);
+            }
+            frame = requestAnimationFrame(loop);
+          };
+          frame = requestAnimationFrame(loop);
+        };
+
         startDots(w, h);
       }
-    };
-
-    const startTraces = (w: number, h: number, left: number, right: number) => {
-      // Fade toward the column; the few traces inside stay faint.
-      canvas.style.maskImage = `linear-gradient(90deg, #000, rgb(0 0 0 / ${MASK_EDGE}) ${left}px, rgb(0 0 0 / ${MASK_COLUMN}) ${left + MASK_FADE}px, rgb(0 0 0 / ${MASK_COLUMN}) ${right - MASK_FADE}px, rgb(0 0 0 / ${MASK_EDGE}) ${right}px, #000)`;
-      const grower = createGrower(Math.ceil(w / STEP), Math.ceil(h / STEP), {
-        // Cell x's trace point sits at x * STEP + STEP / 2.
-        lo: Math.floor(left / STEP),
-        hi: Math.ceil(right / STEP)
-      });
-      const { drawing } = grower;
-      let colors = readColors();
-      // Painting everything again also covers the not-yet-painted tail, so
-      // the loop's cursors staying behind only means a harmless re-stroke.
-      repaint = () => {
-        colors = readColors();
-        clear();
-        paint(ctx, drawing, colors, 0, 0);
-      };
-
-      if (reduceMotion) {
-        while (grower.tick()) {
-          // Grow to completion synchronously.
-        }
-        repaint();
-        return;
-      }
-
-      let count = 0;
-      let seg = 0;
-      let node = 0;
-      const loop = () => {
-        count += 1;
-        let alive = true;
-        if (count % FRAMES_PER_TICK === 0) {
-          alive = grower.tick();
-          paint(ctx, drawing, colors, seg, node);
-          seg = drawing.segments.length;
-          node = drawing.nodes.length;
-        }
-        if (alive) {
-          frame = requestAnimationFrame(loop);
-        }
-      };
-      frame = requestAnimationFrame(loop);
-    };
-
-    const startDots = (w: number, h: number) => {
-      const draw = createWave(Math.ceil(w / DOT_PITCH), Math.ceil(h / DOT_PITCH));
-      let color = readColors().line;
-      const t0 = performance.now();
-      let t = 0;
-      repaint = () => {
-        color = readColors().line;
-        draw(ctx, color, t);
-      };
-
-      if (reduceMotion) {
-        repaint();
-        return;
-      }
-
-      let last = -Infinity;
-      const loop = (now: number) => {
-        if (now - last >= DOT_FRAME_MS) {
-          last = now;
-          t = (now - t0) / 1000;
-          draw(ctx, color, t);
-        }
-        frame = requestAnimationFrame(loop);
-      };
-      frame = requestAnimationFrame(loop);
     };
 
     // The canvas is 100lvh tall — the viewport with mobile toolbars

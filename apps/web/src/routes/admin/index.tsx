@@ -1,12 +1,6 @@
 import type { PostVisibility } from '@blog/shared';
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, getRouteApi, Link } from '@tanstack/react-router';
 import { type AdminPost, listAdminPostsServerFn } from '../../lib/admin-service.js';
-
-export const Route = createFileRoute('/admin/')({
-  head: () => ({ meta: [{ title: 'Admin · 文章管理' }] }),
-  loader: async () => listAdminPostsServerFn(),
-  component: AdminListPage
-});
 
 const visibilityStyles: Record<PostVisibility, string> = {
   public:
@@ -20,8 +14,10 @@ const visibilityStyles: Record<PostVisibility, string> = {
     'inline-block rounded-sm border border-current px-1.5 text-xs leading-relaxed font-bold tracking-wide text-muted-foreground/60'
 };
 
+const routeApi = getRouteApi('/admin/');
+
 function AdminListPage() {
-  const { posts } = Route.useLoaderData();
+  const { posts } = routeApi.useLoaderData();
   const draftCount = posts.filter((post: AdminPost) => post.status === 'draft').length;
 
   return (
@@ -98,3 +94,9 @@ function AdminListPage() {
     </div>
   );
 }
+
+export const Route = createFileRoute('/admin/')({
+  head: () => ({ meta: [{ title: 'Admin · 文章管理' }] }),
+  loader: async () => listAdminPostsServerFn(),
+  component: AdminListPage
+});

@@ -10,9 +10,12 @@ import {
   Loader2,
   Quote
 } from 'lucide-react';
-import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { previewPostServerFn } from '../lib/markdown-preview.js';
 import { MarkdownView } from './markdown-view.js';
+import { ModeButton } from './mode-button.js';
+import { ToolButton } from './tool-button.js';
+import { ToolbarDivider } from './toolbar-divider.js';
 
 type MarkdownEditorProps = {
   value: string;
@@ -186,14 +189,14 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
         <ToolButton label='斜体' onClick={() => wrap('*', '*')}>
           <Italic size={16} />
         </ToolButton>
-        <Divider />
+        <ToolbarDivider />
         <ToolButton label='一级标题' onClick={() => prefixLines('# ')}>
           <Heading1 size={16} />
         </ToolButton>
         <ToolButton label='二级标题' onClick={() => prefixLines('## ')}>
           <Heading2 size={16} />
         </ToolButton>
-        <Divider />
+        <ToolbarDivider />
         <ToolButton label='引用' onClick={() => prefixLines('> ')}>
           <Quote size={16} />
         </ToolButton>
@@ -206,7 +209,7 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
         <ToolButton label='代码块' onClick={insertCodeBlock}>
           <span className='font-mono text-xs leading-none'>{'{ }'}</span>
         </ToolButton>
-        <Divider />
+        <ToolbarDivider />
         <ToolButton label='链接' onClick={() => wrap('[', '](https://)', '链接文字')}>
           <LinkIcon size={16} />
         </ToolButton>
@@ -278,37 +281,5 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
         ) : null}
       </div>
     </div>
-  );
-}
-
-function ToolButton({ label, onClick, children }: { label: string; onClick: () => void; children: ReactNode }) {
-  return (
-    <button
-      type='button'
-      title={label}
-      aria-label={label}
-      onClick={onClick}
-      className='flex h-7 w-7 items-center justify-center rounded text-muted-foreground transition-colors hover:text-primary'
-    >
-      {children}
-    </button>
-  );
-}
-
-function Divider() {
-  return <span className='mx-1 h-5 w-px bg-border' />;
-}
-
-function ModeButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: ReactNode }) {
-  return (
-    <button
-      type='button'
-      onClick={onClick}
-      className={`rounded px-2 py-1 text-xs font-medium transition-colors ${
-        active ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-primary'
-      }`}
-    >
-      {children}
-    </button>
   );
 }

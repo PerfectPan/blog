@@ -1,9 +1,39 @@
 import { type CommentThread, canAccessVisibility } from '@blog/shared';
-import { createFileRoute, notFound, redirect } from '@tanstack/react-router';
+import { createFileRoute, getRouteApi, notFound, redirect } from '@tanstack/react-router';
 import { ArticlePage } from '../../components/article.js';
 import { getBlogPostServerFn } from '../../lib/blog-service.js';
 import { getCommentsServerFn } from '../../lib/comments-service.js';
 import { KATEX_CSS_HREF } from '../../lib/katex-css.js';
+
+const routeApi = getRouteApi('/blog/$slug');
+
+function BlogDetailPage() {
+  const data = routeApi.useLoaderData();
+  const post = data.post;
+  // Defense-in-depth: loader data is any-typed here, so the type system
+  // cannot prove post non-null even though the loader throws notFound().
+  // oxlint-disable-next-line no-unnecessary-condition
+  if (!post) {
+    return null;
+  }
+
+  return (
+    <ArticlePage
+      post={{
+        slug: post.slug,
+        title: post.title,
+        contentHtml: data.contentHtml,
+        publishedAt: post.publishedAt,
+        visibility: post.visibility,
+        tags: post.tags
+      }}
+      comments={data.comments.comments}
+      hasMoreComments={data.comments.hasMore}
+      totalComments={data.comments.total}
+      sessionUser={data.sessionUser}
+    />
+  );
+}
 
 export const Route = createFileRoute('/blog/$slug')({
   loader: async ({ params }) => {
@@ -57,31 +87,3 @@ export const Route = createFileRoute('/blog/$slug')({
   }),
   component: BlogDetailPage
 });
-
-function BlogDetailPage() {
-  const data = Route.useLoaderData();
-  const post = data.post;
-  // Defense-in-depth: loader data is any-typed here, so the type system
-  // cannot prove post non-null even though the loader throws notFound().
-  // oxlint-disable-next-line no-unnecessary-condition
-  if (!post) {
-    return null;
-  }
-
-  return (
-    <ArticlePage
-      post={{
-        slug: post.slug,
-        title: post.title,
-        contentHtml: data.contentHtml,
-        publishedAt: post.publishedAt,
-        visibility: post.visibility,
-        tags: post.tags
-      }}
-      comments={data.comments.comments}
-      hasMoreComments={data.comments.hasMore}
-      totalComments={data.comments.total}
-      sessionUser={data.sessionUser}
-    />
-  );
-}

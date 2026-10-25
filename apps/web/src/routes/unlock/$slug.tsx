@@ -1,5 +1,5 @@
-import { createFileRoute, useParams } from '@tanstack/react-router';
-import { UnlockPage } from '../../components/auth.js';
+import { createFileRoute, getRouteApi, useParams } from '@tanstack/react-router';
+import { UnlockPage } from '../../components/unlock-page.js';
 import { buildUnlockCookieHeader, createUnlockCookieValue } from '../../lib/unlock-cookie.js';
 import { clearUnlockFailures, isUnlockRateLimited, recordUnlockFailure } from '../../lib/unlock-rate-limit.js';
 
@@ -10,6 +10,14 @@ function getClientIp(request: Request): string | null {
   }
 
   return request.headers.get('x-real-ip');
+}
+
+const routeApi = getRouteApi('/unlock/$slug');
+
+function UnlockRoute() {
+  const { slug } = useParams({ from: '/unlock/$slug' });
+  const search = routeApi.useSearch() as Record<string, string | undefined>;
+  return <UnlockPage slug={slug} search={search} />;
 }
 
 export const Route = createFileRoute('/unlock/$slug')({
@@ -54,9 +62,3 @@ export const Route = createFileRoute('/unlock/$slug')({
   },
   component: UnlockRoute
 });
-
-function UnlockRoute() {
-  const { slug } = useParams({ from: '/unlock/$slug' });
-  const search = Route.useSearch() as Record<string, string | undefined>;
-  return <UnlockPage slug={slug} search={search} />;
-}
