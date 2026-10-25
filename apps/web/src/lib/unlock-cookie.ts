@@ -20,6 +20,9 @@ export function isUnlockCookieValid(slug: string, value?: string | null): boolea
   }
 
   const [rawExpiresAt, rawSignature] = value.split('.');
+  if (rawExpiresAt === undefined || rawSignature === undefined) {
+    return false;
+  }
   const expiresAt = Number.parseInt(rawExpiresAt, 10);
   if (!expiresAt || !rawSignature || Date.now() > expiresAt) {
     return false;

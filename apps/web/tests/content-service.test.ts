@@ -21,12 +21,13 @@ beforeEach(() => {
   const insert = db.prepare(`INSERT INTO post
     (slug, title, body, visibility, password, status, tags, publishedAt, createdAt, updatedAt)
     VALUES (?, ?, ?, ?, ?, ?, ?, '2026-01-01', '2026-01-01', '2026-01-01')`);
-  for (const [slug, visibility, status, tags] of [
+  const rows: Array<[string, string, string, string]> = [
     ['public-post', 'public', 'published', '["code",123]'],
     ['private-post', 'password', 'published', '[]'],
     ['draft-post', 'password', 'draft', '[]'],
     ['bad-tags', 'member', 'published', 'invalid-json']
-  ]) {
+  ];
+  for (const [slug, visibility, status, tags] of rows) {
     insert.run(slug, slug, `${slug} body`, visibility, 'test-only-password', status, tags);
   }
   returnedRows = [];

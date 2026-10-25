@@ -79,7 +79,7 @@ export function DarkMode() {
   };
 
   const onTrigger = () => {
-    const next = PREFS[(PREFS.indexOf(pref) + 1) % PREFS.length];
+    const next = PREFS[(PREFS.indexOf(pref) + 1) % PREFS.length] as ThemePref;
     const doc = document as ViewTransitionDocument;
 
     if (!ref.current || !doc.startViewTransition || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -129,7 +129,7 @@ export function DarkMode() {
     transition.finished.catch(() => {}).finally(() => document.documentElement.classList.remove('vt-dark-reveal'));
   };
 
-  const next = PREFS[(PREFS.indexOf(pref) + 1) % PREFS.length];
+  const next = PREFS[(PREFS.indexOf(pref) + 1) % PREFS.length] as ThemePref;
 
   return (
     <button

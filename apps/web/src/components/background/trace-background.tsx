@@ -124,7 +124,8 @@ function createGrower(cols: number, rows: number, wall: Wall) {
     const mayEnter = inWall(t.x) || Math.random() < ENTER_COLUMN;
     for (const turn of [0, side, 8 - side, side * 2, 16 - side * 2]) {
       const dir = (t.dir + turn) % 8;
-      const [dx, dy] = DIRS[dir];
+      // dir is always (t.dir + turn) % 8, and DIRS has 8 entries.
+      const [dx, dy] = DIRS[dir]!;
       if (open(t.x + dx, t.y + dy, mayEnter)) {
         return dir;
       }
@@ -144,7 +145,7 @@ function createGrower(cols: number, rows: number, wall: Wall) {
         }
         continue;
       }
-      const [dx, dy] = DIRS[heading];
+      const [dx, dy] = DIRS[heading]!;
       const nx = t.x + dx;
       const ny = t.y + dy;
       occupied[ny * cols + nx] = 1;
@@ -166,7 +167,7 @@ function createGrower(cols: number, rows: number, wall: Wall) {
       }
       if (!inside && Math.random() < FORK) {
         // Forks leave at 45° or 90° to the parent.
-        const offset = [1, 2, 6, 7][Math.floor(Math.random() * 4)];
+        const offset = [1, 2, 6, 7][Math.floor(Math.random() * 4)] as number;
         next.push({ x: nx, y: ny, dir: (heading + offset) % 8, depth });
         spawned = true;
       }
@@ -204,15 +205,22 @@ function paint(
   ctx.lineWidth = 1;
   ctx.beginPath();
   for (let i = fromSegment; i < segments.length; i += 4) {
-    ctx.moveTo(segments[i] * STEP + half, segments[i + 1] * STEP + half);
-    ctx.lineTo(segments[i + 2] * STEP + half, segments[i + 3] * STEP + half);
+    // Segments are always appended in groups of 4; the step keeps i aligned.
+    const x0 = segments[i]!;
+    const y0 = segments[i + 1]!;
+    const x1 = segments[i + 2]!;
+    const y1 = segments[i + 3]!;
+    ctx.moveTo(x0 * STEP + half, y0 * STEP + half);
+    ctx.lineTo(x1 * STEP + half, y1 * STEP + half);
   }
   ctx.stroke();
 
   ctx.fillStyle = colors.node;
   ctx.globalAlpha = 0.7;
   for (let i = fromNode; i < nodes.length; i += 2) {
-    ctx.fillRect(nodes[i] * STEP + half - 1.5, nodes[i + 1] * STEP + half - 1.5, 3, 3);
+    const x = nodes[i]!;
+    const y = nodes[i + 1]!;
+    ctx.fillRect(x * STEP + half - 1.5, y * STEP + half - 1.5, 3, 3);
   }
 }
 
