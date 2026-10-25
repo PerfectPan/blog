@@ -1,14 +1,9 @@
-import type {
-  CommentStatus,
-  PostVisibility,
-  Role,
-  SessionUser,
-} from './types.js';
+import type { CommentStatus, PostVisibility, Role, SessionUser } from './types.js';
 
 const ROLE_WEIGHT: Record<Role, number> = {
   member: 10,
   vip: 20,
-  admin: 30,
+  admin: 30
 };
 
 export const PASSWORD_UNLOCK_COOKIE_PREFIX = 'blog_unlock_';
@@ -16,17 +11,14 @@ export const PASSWORD_UNLOCK_COOKIE_PREFIX = 'blog_unlock_';
 export const VISIBILITY_TO_MIN_ROLE: Partial<Record<PostVisibility, Role>> = {
   member: 'member',
   vip: 'vip',
-  admin: 'admin',
+  admin: 'admin'
 };
 
 export function isRoleAtLeast(currentRole: Role, requiredRole: Role): boolean {
   return ROLE_WEIGHT[currentRole] >= ROLE_WEIGHT[requiredRole];
 }
 
-export function canAccessVisibility(
-  visibility: PostVisibility,
-  role?: Role | null,
-): boolean {
+export function canAccessVisibility(visibility: PostVisibility, role?: Role | null): boolean {
   if (visibility === 'public') {
     return true;
   }
@@ -65,7 +57,7 @@ export function getUnlockCookieName(slug: string): string {
 export function canAccessComments(
   visibility: PostVisibility,
   role: Role | null | undefined,
-  unlocked: boolean,
+  unlocked: boolean
 ): boolean {
   if (visibility === 'public') {
     return true;
@@ -77,10 +69,7 @@ export function canAccessComments(
 }
 
 /** Only `visible` comments are shown to non-admins; admins see all statuses. */
-export function isCommentVisibleTo(
-  status: CommentStatus,
-  role: Role | null | undefined,
-): boolean {
+export function isCommentVisibleTo(status: CommentStatus, role: Role | null | undefined): boolean {
   if (role === 'admin') {
     return true;
   }
@@ -92,10 +81,7 @@ export function isCommentVisibleTo(
  * admins can act on anyone's. Used by `deleteCommentServerFn` (author|admin)
  * and `setCommentStatusServerFn` (admin only, checked separately via requireAdmin).
  */
-export function canManageComment(
-  commentUserId: string,
-  sessionUser: SessionUser | null | undefined,
-): boolean {
+export function canManageComment(commentUserId: string, sessionUser: SessionUser | null | undefined): boolean {
   if (!sessionUser) {
     return false;
   }

@@ -9,7 +9,7 @@ function post(partial: Partial<PostSummary>): PostSummary {
     description: partial.description ?? '',
     publishedAt: partial.publishedAt ?? '2026-01-01',
     visibility: partial.visibility ?? 'public',
-    tags: partial.tags ?? [],
+    tags: partial.tags ?? []
   };
 }
 
@@ -18,15 +18,15 @@ const POSTS: PostSummary[] = [
     slug: 'a',
     title: 'React Hooks',
     description: 'Deep dive',
-    tags: ['react'],
+    tags: ['react']
   }),
   post({
     slug: 'b',
     title: 'CSS Tricks',
     description: 'Layouts',
-    tags: ['css'],
+    tags: ['css']
   }),
-  post({ slug: 'c', title: '理解 React', description: '入门', tags: ['前端'] }),
+  post({ slug: 'c', title: '理解 React', description: '入门', tags: ['前端'] })
 ];
 
 describe('filterByQuery', () => {
@@ -36,10 +36,7 @@ describe('filterByQuery', () => {
   });
 
   it('matches titles case-insensitively', () => {
-    expect(filterByQuery(POSTS, 'react').map((p) => p.slug)).toEqual([
-      'a',
-      'c',
-    ]);
+    expect(filterByQuery(POSTS, 'react').map((p) => p.slug)).toEqual(['a', 'c']);
   });
 
   it('matches descriptions', () => {
@@ -63,8 +60,8 @@ describe('paginate', () => {
   const many = Array.from({ length: 45 }, (_, i) =>
     post({
       slug: `p${i}`,
-      publishedAt: `2026-01-${String(i + 1).padStart(2, '0')}`,
-    }),
+      publishedAt: `2026-01-${String(i + 1).padStart(2, '0')}`
+    })
   );
 
   it('slices the requested page', () => {

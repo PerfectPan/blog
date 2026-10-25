@@ -6,8 +6,7 @@ import { expect, test } from '@playwright/test';
 // Everything here must stay read-only: the preview D1 (blog-preview) is
 // shared by all PRs, so signup / post-creation flows must never run here.
 const base = process.env.E2E_BASE_URL ?? '';
-const isRemote =
-  /^https?:\/\//.test(base) && !/(localhost|127\.0\.0\.1)/.test(base);
+const isRemote = /^https?:\/\//.test(base) && !/(localhost|127\.0\.0\.1)/.test(base);
 test.skip(!isRemote, 'only runs against a deployed E2E_BASE_URL');
 
 // A long-lived public math post. If it ever 404s (content drift), the test
@@ -17,21 +16,21 @@ const MATH_POST = '/blog/2019ICPC-NanchangG';
 function collectErrors(page: import('@playwright/test').Page): string[] {
   const errors: string[] = [];
   page.on('console', (m) => {
-    if (m.type() === 'error') errors.push(`console: ${m.text()}`);
+    if (m.type() === 'error') {
+      errors.push(`console: ${m.text()}`);
+    }
   });
   page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`));
   return errors;
 }
 
-test('key pages render and hydrate without console errors', async ({
-  page,
-}) => {
+test('key pages render and hydrate without console errors', async ({ page }) => {
   const errors = collectErrors(page);
   const pages: Array<[string, RegExp]> = [
     ['/', /Home \| PerfectPan/],
     ['/blog', /Blog \| PerfectPan/],
     ['/projects', /Projects \| PerfectPan/],
-    ['/about', /About \| PerfectPan/],
+    ['/about', /About \| PerfectPan/]
   ];
   for (const [path, title] of pages) {
     await page.goto(base + path, { waitUntil: 'load' });
@@ -69,7 +68,7 @@ test('search palette streams server-side results', async ({ page }) => {
   await expect(page.locator('[data-slot="dialog-content"]')).toBeVisible();
   await page.locator('[data-slot="command-input"]').fill('Codeforces');
   await expect(page.locator('[data-slot="command-item"]').first()).toBeVisible({
-    timeout: 10_000,
+    timeout: 10_000
   });
   expect(errors).toEqual([]);
 });

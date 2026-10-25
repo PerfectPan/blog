@@ -18,7 +18,7 @@ self.addEventListener('install', (event) => {
       .then((cache) => cache.addAll(APP_SHELL))
       .catch(() => {
         // Don't fail install if a precache target 404s.
-      }),
+      })
   );
   self.skipWaiting();
 });
@@ -29,14 +29,10 @@ self.addEventListener('activate', (event) => {
       .keys()
       .then((keys) =>
         Promise.all(
-          keys
-            .filter(
-              (key) => key.startsWith('perfectpan-blog-') && key !== CACHE,
-            )
-            .map((key) => caches.delete(key)),
-        ),
+          keys.filter((key) => key.startsWith('perfectpan-blog-') && key !== CACHE).map((key) => caches.delete(key))
+        )
       )
-      .then(() => self.clients.claim()),
+      .then(() => self.clients.claim())
   );
 });
 
@@ -58,9 +54,9 @@ self.addEventListener('fetch', (event) => {
         () =>
           new Response('You are offline. Reconnect and reload this page.', {
             status: 503,
-            headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-          }),
-      ),
+            headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+          })
+      )
     );
     return;
   }
@@ -78,11 +74,7 @@ self.addEventListener('fetch', (event) => {
     caches.match(request).then((cached) => {
       const network = fetch(request)
         .then((response) => {
-          if (
-            response &&
-            response.status === 200 &&
-            response.type === 'basic'
-          ) {
+          if (response && response.status === 200 && response.type === 'basic') {
             const copy = response.clone();
             caches.open(CACHE).then((cache) => cache.put(request, copy));
           }
@@ -90,6 +82,6 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(() => cached);
       return cached || network;
-    }),
+    })
   );
 });

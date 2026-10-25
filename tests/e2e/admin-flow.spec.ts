@@ -44,9 +44,7 @@ test('admin can create a post that appears on the blog', async ({ page }) => {
   await page.getByPlaceholder('my-post').fill(slug);
   // The body field is the MarkdownEditor textarea (no <label> association, so
   // locate it by its placeholder rather than by role/label).
-  await page
-    .getByPlaceholder(/Markdown/)
-    .fill('# E2E body\n\nWritten by the Playwright admin smoke test.');
+  await page.getByPlaceholder(/Markdown/).fill('# E2E body\n\nWritten by the Playwright admin smoke test.');
   await page.getByRole('button', { name: '保存' }).click();
 
   // 4. Back on the admin list, the post is there.

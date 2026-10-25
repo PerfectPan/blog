@@ -4,7 +4,7 @@ import { getBlogListServerFn } from '../lib/blog-service.js';
 
 export const Route = createFileRoute('/')({
   head: () => ({
-    meta: [{ title: "Home | PerfectPan's Blog" }],
+    meta: [{ title: "Home | PerfectPan's Blog" }]
   }),
   loader: async () => {
     // Guest-visible first page powers the home "latest posts" panel (same
@@ -12,7 +12,7 @@ export const Route = createFileRoute('/')({
     const data = await getBlogListServerFn({ data: { page: 1 } });
     return { posts: data.posts, total: data.total };
   },
-  component: HomeRoute,
+  component: HomeRoute
 });
 
 function HomeRoute() {

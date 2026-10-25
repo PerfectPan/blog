@@ -9,8 +9,8 @@ async function handleAuthRequest({ request }: { request: Request }) {
 export const Route = createFileRoute('/api/auth/$')({
   server: {
     handlers: {
-      ANY: handleAuthRequest,
-    },
+      ANY: handleAuthRequest
+    }
   },
-  component: () => null,
+  component: () => null
 });

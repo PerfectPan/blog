@@ -11,7 +11,7 @@ const EXT_BY_TYPE: Record<string, string> = {
   'image/png': 'png',
   'image/jpeg': 'jpg',
   'image/gif': 'gif',
-  'image/webp': 'webp',
+  'image/webp': 'webp'
 };
 
 export function isAllowedImageType(contentType: string): boolean {

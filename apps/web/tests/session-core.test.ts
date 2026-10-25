@@ -1,24 +1,25 @@
+import type { getRequest } from '@tanstack/react-start/server';
 import { beforeEach, expect, it, vi } from 'vite-plus/test';
 import { auth } from '../src/lib/auth.js';
 import { getD1 } from '../src/lib/db.js';
 import { getSessionUserFromRequest } from '../src/lib/session-core.js';
 
-vi.mock('@tanstack/react-start/server', () => ({ getRequest: vi.fn() }));
+vi.mock('@tanstack/react-start/server', () => ({ getRequest: vi.fn<typeof getRequest>() }));
 vi.mock('../src/lib/auth.js', () => ({
-  auth: { api: { getSession: vi.fn() } },
+  auth: { api: { getSession: vi.fn<typeof auth.api.getSession>() } }
 }));
-vi.mock('../src/lib/db.js', () => ({ getD1: vi.fn() }));
+vi.mock('../src/lib/db.js', () => ({ getD1: vi.fn<typeof getD1>() }));
 vi.mock('../src/lib/env.js', () => ({
-  getWebEnv: () => ({ adminEmailAllowlist: [] }),
+  getWebEnv: () => ({ adminEmailAllowlist: [] })
 }));
 
-const localeRead = vi.fn();
+const localeRead = vi.fn<() => Promise<{ locale: string } | null>>();
 const getSession = vi.mocked(auth.api.getSession);
 
 beforeEach(() => {
   vi.clearAllMocks();
   vi.mocked(getD1).mockReturnValue({
-    prepare: () => ({ bind: () => ({ first: localeRead }) }),
+    prepare: () => ({ bind: () => ({ first: localeRead }) })
   } as unknown as D1Database);
   localeRead.mockResolvedValue({ locale: 'en' });
 });
@@ -26,17 +27,14 @@ beforeEach(() => {
 function session(id: string) {
   return {
     user: { id, email: `${id}@example.test`, name: id, emailVerified: true },
-    session: { token: 'server-only-token', ipAddress: 'server-only-address' },
+    session: { token: 'server-only-token', ipAddress: 'server-only-address' }
   } as unknown as Awaited<ReturnType<typeof auth.api.getSession>>;
 }
 
 it('shares one lookup between concurrent loaders on the same Request', async () => {
   getSession.mockResolvedValue(session('alice'));
   const request = new Request('https://blog.test/blog');
-  const [root, child] = await Promise.all([
-    getSessionUserFromRequest(request),
-    getSessionUserFromRequest(request),
-  ]);
+  const [root, child] = await Promise.all([getSessionUserFromRequest(request), getSessionUserFromRequest(request)]);
   expect(root).toBe(child);
   expect(getSession).toHaveBeenCalledTimes(1);
   expect(localeRead).toHaveBeenCalledTimes(1);
@@ -46,17 +44,15 @@ it('shares one lookup between concurrent loaders on the same Request', async () 
     name: 'alice',
     emailVerified: true,
     role: 'member',
-    locale: 'en',
+    locale: 'en'
   });
 });
 
 it('never reuses identity across separate Requests, even with identical URLs', async () => {
-  getSession
-    .mockResolvedValueOnce(session('alice'))
-    .mockResolvedValueOnce(session('bob'));
+  getSession.mockResolvedValueOnce(session('alice')).mockResolvedValueOnce(session('bob'));
   const users = await Promise.all([
     getSessionUserFromRequest(new Request('https://blog.test/')),
-    getSessionUserFromRequest(new Request('https://blog.test/')),
+    getSessionUserFromRequest(new Request('https://blog.test/'))
   ]);
   expect(users.map((user) => user?.id)).toEqual(['alice', 'bob']);
   expect(getSession).toHaveBeenCalledTimes(2);
@@ -74,15 +70,9 @@ it('keeps guests anonymous without querying user metadata', async () => {
 it('fails closed on an auth error without poisoning later requests', async () => {
   const log = vi.spyOn(console, 'error').mockImplementation(() => {});
   try {
-    getSession
-      .mockRejectedValueOnce(new Error('unavailable'))
-      .mockResolvedValueOnce(session('alice'));
-    expect(
-      await getSessionUserFromRequest(new Request('https://blog.test/')),
-    ).toBeNull();
-    expect(
-      await getSessionUserFromRequest(new Request('https://blog.test/')),
-    ).toMatchObject({ id: 'alice' });
+    getSession.mockRejectedValueOnce(new Error('unavailable')).mockResolvedValueOnce(session('alice'));
+    expect(await getSessionUserFromRequest(new Request('https://blog.test/'))).toBeNull();
+    expect(await getSessionUserFromRequest(new Request('https://blog.test/'))).toMatchObject({ id: 'alice' });
   } finally {
     log.mockRestore();
   }

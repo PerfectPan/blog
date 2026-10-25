@@ -7,15 +7,12 @@ import { useLocale } from '../lib/i18n/context.js';
 
 export const Route = createFileRoute('/about')({
   head: () => ({
-    meta: [
-      { title: "About | PerfectPan's Blog" },
-      { name: 'description', content: '关于 PerfectPan 与这个博客' },
-    ],
+    meta: [{ title: "About | PerfectPan's Blog" }, { name: 'description', content: '关于 PerfectPan 与这个博客' }]
   }),
   // Both locales are pre-rendered on the worker; the component picks by UI
   // locale. The copy itself lives in lib/about-content.ts (single edit point).
   loader: () => getAboutHtmlServerFn(),
-  component: AboutPage,
+  component: AboutPage
 });
 
 function AboutPage() {

@@ -6,7 +6,7 @@ export function useSessionUser() {
   return useLoaderData({
     from: '__root__',
     select: (data) => data.sessionUser,
-    structuralSharing: true,
+    structuralSharing: true
   });
 }
 

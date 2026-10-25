@@ -7,16 +7,12 @@ import {
   type PostSummary,
   paginate,
   type Role,
-  SEARCH_LIMIT,
+  SEARCH_LIMIT
 } from '@blog/shared';
 import { createServerFn } from '@tanstack/react-start';
 import { getRequest } from '@tanstack/react-start/server';
 import { z } from 'zod';
-import {
-  getAllPublishedPosts,
-  getPostBySlug,
-  verifyPostPassword,
-} from './content-service.js';
+import { getAllPublishedPosts, getPostBySlug, verifyPostPassword } from './content-service.js';
 import { htmlHasKatex, renderPostHtml } from './markdown-html.js';
 import { getSessionUserFromRequest } from './session-core.js';
 import { isUnlockCookieValid, parseCookies } from './unlock-cookie.js';
@@ -46,14 +42,9 @@ export const getBlogListServerFn = createServerFn({ method: 'GET' })
   .validator(z.object({ page: z.number().int().min(1).optional() }))
   .handler(async ({ data }) => {
     const request = getRequest();
-    const [sessionUser, allPosts] = await Promise.all([
-      getSessionUserFromRequest(request),
-      getAllPublishedPosts(),
-    ]);
-    const visible = sortByPublishedDateDesc(
-      allPosts.filter((post) => isListedFor(post, sessionUser?.role)),
-    );
-    const result = paginate(visible, data?.page ?? 1);
+    const [sessionUser, allPosts] = await Promise.all([getSessionUserFromRequest(request), getAllPublishedPosts()]);
+    const visible = sortByPublishedDateDesc(allPosts.filter((post) => isListedFor(post, sessionUser?.role)));
+    const result = paginate(visible, data.page ?? 1);
 
     return {
       sessionUser,
@@ -61,7 +52,7 @@ export const getBlogListServerFn = createServerFn({ method: 'GET' })
       total: result.total,
       page: result.page,
       pageSize: result.pageSize,
-      totalPages: result.totalPages,
+      totalPages: result.totalPages
     };
   });
 
@@ -72,13 +63,8 @@ export const searchPostsServerFn = createServerFn({ method: 'GET' })
   .validator(z.object({ q: z.string() }))
   .handler(async ({ data }) => {
     const request = getRequest();
-    const [sessionUser, allPosts] = await Promise.all([
-      getSessionUserFromRequest(request),
-      getAllPublishedPosts(),
-    ]);
-    const visible = sortByPublishedDateDesc(
-      allPosts.filter((post) => isListedFor(post, sessionUser?.role)),
-    );
+    const [sessionUser, allPosts] = await Promise.all([getSessionUserFromRequest(request), getAllPublishedPosts()]);
+    const visible = sortByPublishedDateDesc(allPosts.filter((post) => isListedFor(post, sessionUser?.role)));
     return filterByQuery(visible, data.q).slice(0, SEARCH_LIMIT);
   });
 
@@ -86,10 +72,7 @@ export const getBlogPostServerFn = createServerFn({ method: 'GET' })
   .validator(z.object({ slug: z.string().min(1) }))
   .handler(async ({ data }) => {
     const request = getRequest();
-    const [sessionUser, post] = await Promise.all([
-      getSessionUserFromRequest(request),
-      getPostBySlug(data.slug),
-    ]);
+    const [sessionUser, post] = await Promise.all([getSessionUserFromRequest(request), getPostBySlug(data.slug)]);
 
     if (!post) {
       return { sessionUser, post: null, unlocked: false, contentHtml: '' };
@@ -100,26 +83,23 @@ export const getBlogPostServerFn = createServerFn({ method: 'GET' })
     // returned to a caller who isn't allowed to read it.
     let unlocked = false;
     if (post.visibility === 'password') {
-      const cookies = parseCookies(request?.headers.get('cookie') ?? null);
+      const cookies = parseCookies(request.headers.get('cookie'));
       unlocked =
-        sessionUser?.role === 'admin' ||
-        isUnlockCookieValid(data.slug, cookies[getUnlockCookieName(data.slug)]);
+        sessionUser?.role === 'admin' || isUnlockCookieValid(data.slug, cookies[getUnlockCookieName(data.slug)]);
       if (!unlocked) {
         return {
           sessionUser,
           post: withoutBody(post),
           unlocked,
-          contentHtml: '',
+          contentHtml: ''
         };
       }
-    } else if (
-      !canAccessVisibility(post.visibility, sessionUser?.role ?? null)
-    ) {
+    } else if (!canAccessVisibility(post.visibility, sessionUser?.role ?? null)) {
       return {
         sessionUser,
         post: withoutBody(post),
         unlocked: false,
-        contentHtml: '',
+        contentHtml: ''
       };
     }
 
@@ -133,7 +113,7 @@ export const getBlogPostServerFn = createServerFn({ method: 'GET' })
       post: withoutBody(post),
       unlocked,
       contentHtml,
-      hasKatex: htmlHasKatex(contentHtml),
+      hasKatex: htmlHasKatex(contentHtml)
     };
   });
 
@@ -141,8 +121,8 @@ export const verifyPostPasswordServerFn = createServerFn({ method: 'POST' })
   .validator(
     z.object({
       slug: z.string().min(1),
-      password: z.string().min(1),
-    }),
+      password: z.string().min(1)
+    })
   )
   .handler(async ({ data }) => {
     return await verifyPostPassword(data.slug, data.password);

@@ -1,9 +1,4 @@
-import {
-  isLocale,
-  type Locale,
-  type Role,
-  type SessionUser,
-} from '@blog/shared';
+import { isLocale, type Locale, type Role, type SessionUser } from '@blog/shared';
 import { getRequest } from '@tanstack/react-start/server';
 import { auth } from './auth.js';
 import { getD1 } from './db.js';
@@ -21,9 +16,7 @@ type BetterAuthSession = {
 
 const env = getWebEnv();
 
-async function maybePromoteFirstAdmin(
-  sessionUser: SessionUser,
-): Promise<SessionUser> {
+async function maybePromoteFirstAdmin(sessionUser: SessionUser): Promise<SessionUser> {
   const allowlist = env.adminEmailAllowlist;
   if (!allowlist.includes(sessionUser.email.toLowerCase())) {
     return sessionUser;
@@ -41,10 +34,7 @@ async function maybePromoteFirstAdmin(
       return sessionUser;
     }
 
-    await db
-      .prepare('UPDATE "user" SET "role" = ? WHERE "id" = ?')
-      .bind('admin', sessionUser.id)
-      .run();
+    await db.prepare('UPDATE "user" SET "role" = ? WHERE "id" = ?').bind('admin', sessionUser.id).run();
 
     return { ...sessionUser, role: 'admin' };
   } catch (error) {
@@ -72,9 +62,7 @@ async function readUserLocale(userId: string): Promise<Locale | null> {
   }
 }
 
-async function readSessionUser(
-  request?: Request | null,
-): Promise<SessionUser | null> {
+async function readSessionUser(request?: Request | null): Promise<SessionUser | null> {
   if (!request) {
     return null;
   }
@@ -82,7 +70,7 @@ async function readSessionUser(
   let session: BetterAuthSession = null;
   try {
     session = (await auth.api.getSession({
-      headers: request.headers,
+      headers: request.headers
     })) as BetterAuthSession;
   } catch (error) {
     // If auth storage is unavailable, keep request flow alive as guest.
@@ -101,7 +89,7 @@ async function readSessionUser(
     name: user.name ?? '',
     emailVerified: user.emailVerified ?? false,
     role: user.role ?? 'member',
-    locale: await readUserLocale(user.id),
+    locale: await readUserLocale(user.id)
   };
 
   return maybePromoteFirstAdmin(sessionUser);
@@ -111,10 +99,10 @@ async function readSessionUser(
 // Request object. Weak keys cannot reuse a user's identity on another request.
 const sessions = new WeakMap<Request, Promise<SessionUser | null>>();
 
-export function getSessionUserFromRequest(
-  request?: Request | null,
-): Promise<SessionUser | null> {
-  if (!request) return Promise.resolve(null);
+export function getSessionUserFromRequest(request?: Request | null): Promise<SessionUser | null> {
+  if (!request) {
+    return Promise.resolve(null);
+  }
   let session = sessions.get(request);
   if (!session) {
     session = readSessionUser(request);

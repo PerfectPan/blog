@@ -39,14 +39,12 @@ export const searchPalette = {
   },
   getSnapshot() {
     return isOpen;
-  },
+  }
 };
 
 /** Hook form for components that just want to read open state. */
 export function useSearchPaletteOpen() {
-  return useSyncExternalStore(
-    searchPalette.subscribe,
-    searchPalette.getSnapshot,
-    searchPalette.getSnapshot,
-  );
+  const subscribe = (onStoreChange: () => void) => searchPalette.subscribe(onStoreChange);
+  const getSnapshot = () => searchPalette.getSnapshot();
+  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 }

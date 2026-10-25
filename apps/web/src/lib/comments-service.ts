@@ -9,7 +9,7 @@ import {
   isCommentVisibleTo,
   ROLES,
   type Role,
-  type SessionUser,
+  type SessionUser
 } from '@blog/shared';
 import { redirect } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
@@ -62,10 +62,7 @@ async function requireAdmin(): Promise<SessionUser> {
  * for missing or unpublished posts, so callers can silently return an empty
  * result without leaking that comments exist.
  */
-async function canViewerAccessPostSlug(
-  slug: string,
-  sessionUser: SessionUser | null,
-): Promise<boolean> {
+async function canViewerAccessPostSlug(slug: string, sessionUser: SessionUser | null): Promise<boolean> {
   const visibility = await getPostVisibilityBySlug(slug);
   if (!visibility) {
     return false;
@@ -74,10 +71,8 @@ async function canViewerAccessPostSlug(
   let unlocked = false;
   if (visibility === 'password') {
     const request = getRequest();
-    const cookies = parseCookies(request?.headers.get('cookie') ?? null);
-    unlocked =
-      sessionUser?.role === 'admin' ||
-      isUnlockCookieValid(slug, cookies[getUnlockCookieName(slug)]);
+    const cookies = parseCookies(request.headers.get('cookie'));
+    unlocked = sessionUser?.role === 'admin' || isUnlockCookieValid(slug, cookies[getUnlockCookieName(slug)]);
   }
 
   return canAccessComments(visibility, sessionUser?.role ?? null, unlocked);
@@ -97,15 +92,11 @@ type CommentRow = {
 };
 
 function normalizeStatus(value: string): CommentStatus {
-  return (COMMENT_STATUSES as readonly string[]).includes(value)
-    ? (value as CommentStatus)
-    : 'visible';
+  return (COMMENT_STATUSES as readonly string[]).includes(value) ? (value as CommentStatus) : 'visible';
 }
 
 function normalizeRole(value: string | null): Role {
-  return (ROLES as readonly string[]).includes(value ?? '')
-    ? (value as Role)
-    : 'member';
+  return (ROLES as readonly string[]).includes(value ?? '') ? (value as Role) : 'member';
 }
 
 function toComment(row: CommentRow, sessionUser: SessionUser | null): Comment {
@@ -122,9 +113,9 @@ function toComment(row: CommentRow, sessionUser: SessionUser | null): Comment {
     author: {
       name: row.authorName ?? '匿名',
       image: row.authorImage ?? null,
-      role: normalizeRole(row.authorRole),
+      role: normalizeRole(row.authorRole)
     },
-    isOwn: sessionUser != null && row.userId === sessionUser.id,
+    isOwn: sessionUser != null && row.userId === sessionUser.id
   };
 }
 
@@ -153,7 +144,7 @@ const COUNT_ADMIN_SQL = `SELECT COUNT(*) AS "total" FROM "comment" WHERE "slug" 
 const getCommentsInput = z.object({
   slug: z.string().min(1).max(120),
   offset: z.number().int().min(0).default(0),
-  limit: z.number().int().min(1).max(PAGE_SIZE_MAX).default(PAGE_SIZE_DEFAULT),
+  limit: z.number().int().min(1).max(PAGE_SIZE_MAX).default(PAGE_SIZE_DEFAULT)
 });
 
 /** First page (or a deeper page) of threaded comments for a post. */
@@ -174,7 +165,7 @@ export const getCommentsServerFn = createServerFn({ method: 'GET' })
       .prepare(isAdmin ? TOP_LEVEL_ADMIN_SQL : TOP_LEVEL_PUBLIC_SQL)
       .bind(data.slug, data.limit, data.offset)
       .all<CommentRow>();
-    const topRows = topResult.results ?? [];
+    const topRows = topResult.results;
 
     const countRow = await db
       .prepare(isAdmin ? COUNT_ADMIN_SQL : COUNT_PUBLIC_SQL)
@@ -199,7 +190,7 @@ export const getCommentsServerFn = createServerFn({ method: 'GET' })
         .prepare(replySql)
         .bind(...ids)
         .all<CommentRow>();
-      for (const row of replyResult.results ?? []) {
+      for (const row of replyResult.results) {
         const list = repliesByParent.get(row.parentId ?? '');
         if (list) {
           list.push(row);
@@ -212,9 +203,7 @@ export const getCommentsServerFn = createServerFn({ method: 'GET' })
     const comments: CommentThread[] = topRows.map((row) => {
       const comment = toComment(row, sessionUser);
       const replies = (repliesByParent.get(comment.id) ?? [])
-        .filter((r) =>
-          isCommentVisibleTo(normalizeStatus(r.status), sessionUser?.role),
-        )
+        .filter((r) => isCommentVisibleTo(normalizeStatus(r.status), sessionUser?.role))
         .map((r) => toComment(r, sessionUser));
       return { ...comment, replies };
     });
@@ -229,7 +218,7 @@ const createCommentInput = z.object({
   body: z
     .string()
     .max(COMMENT_BODY_MAX)
-    .refine((s) => s.trim().length >= 1, { message: '评论不能为空' }),
+    .refine((s) => s.trim().length >= 1, { message: '评论不能为空' })
 });
 
 /** Post a comment (top-level if no parentId, else a one-level reply). */
@@ -249,17 +238,10 @@ export const createCommentServerFn = createServerFn({ method: 'POST' })
     // visible parents, so a hidden/spam parent can't gain fresh replies.
     if (data.parentId) {
       const parent = await db
-        .prepare(
-          'SELECT "slug", "parentId", "status" FROM "comment" WHERE "id" = ?',
-        )
+        .prepare('SELECT "slug", "parentId", "status" FROM "comment" WHERE "id" = ?')
         .bind(data.parentId)
         .first<{ slug: string; parentId: string | null; status: string }>();
-      if (
-        !parent ||
-        parent.slug !== data.slug ||
-        parent.parentId !== null ||
-        parent.status !== 'visible'
-      ) {
+      if (!parent || parent.slug !== data.slug || parent.parentId !== null || parent.status !== 'visible') {
         throw new Error('回复目标无效');
       }
     }
@@ -278,7 +260,7 @@ export const createCommentServerFn = createServerFn({ method: 'POST' })
          SELECT ?, ?, ?, ?, ?, ?, ?, ?
          WHERE NOT EXISTS (
            SELECT 1 FROM "comment" WHERE "userId" = ? AND "createdAt" > ?
-         )`,
+         )`
       )
       .bind(
         id,
@@ -290,7 +272,7 @@ export const createCommentServerFn = createServerFn({ method: 'POST' })
         now,
         now,
         sessionUser.id,
-        cutoff,
+        cutoff
       )
       .run();
 
@@ -314,9 +296,9 @@ export const createCommentServerFn = createServerFn({ method: 'POST' })
       author: {
         name: userRow?.name ?? '匿名',
         image: userRow?.image ?? null,
-        role: sessionUser.role,
+        role: sessionUser.role
       },
-      isOwn: true,
+      isOwn: true
     };
     return { comment };
   });
@@ -350,16 +332,13 @@ export const deleteCommentServerFn = createServerFn({ method: 'POST' })
 
     // Cascade: deleting a top-level comment also removes its replies, so they
     // don't linger as orphans (D1 ships with foreign_keys=OFF, so no FK cascade).
-    await db
-      .prepare('DELETE FROM "comment" WHERE "id" = ? OR "parentId" = ?')
-      .bind(data.id, data.id)
-      .run();
+    await db.prepare('DELETE FROM "comment" WHERE "id" = ? OR "parentId" = ?').bind(data.id, data.id).run();
     return { ok: true };
   });
 
 const setCommentStatusInput = z.object({
   id: z.string().min(1),
-  status: z.enum(COMMENT_STATUSES),
+  status: z.enum(COMMENT_STATUSES)
 });
 
 /** Soft-moderate a comment (hide / mark spam / restore). Admin only. */
@@ -369,9 +348,7 @@ export const setCommentStatusServerFn = createServerFn({ method: 'POST' })
     await requireAdmin();
     const now = new Date().toISOString();
     await getD1()
-      .prepare(
-        'UPDATE "comment" SET "status" = ?, "updatedAt" = ? WHERE "id" = ?',
-      )
+      .prepare('UPDATE "comment" SET "status" = ?, "updatedAt" = ? WHERE "id" = ?')
       .bind(data.status, now, data.id)
       .run();
     return { ok: true };
@@ -379,7 +356,7 @@ export const setCommentStatusServerFn = createServerFn({ method: 'POST' })
 
 const listCommentsInput = z.object({
   status: z.enum(COMMENT_STATUSES).optional(),
-  slug: z.string().optional(),
+  slug: z.string().optional()
 });
 
 /** Every comment (newest-first) for the admin moderation view. Admin only. */
@@ -393,13 +370,11 @@ export const listCommentsServerFn = createServerFn({ method: 'GET' })
       .prepare(
         `SELECT ${COMMENT_COLUMNS}
          FROM "comment" c LEFT JOIN "user" u ON u."id" = c."userId"
-         ORDER BY c."createdAt" DESC`,
+         ORDER BY c."createdAt" DESC`
       )
       .all<CommentRow>();
 
-    let comments = (result.results ?? []).map((row) =>
-      toComment(row, sessionUser),
-    );
+    let comments = result.results.map((row) => toComment(row, sessionUser));
     if (data.status) {
       comments = comments.filter((c) => c.status === data.status);
     }

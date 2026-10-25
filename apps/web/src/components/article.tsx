@@ -25,17 +25,11 @@ type ArticlePageProps = {
   sessionUser: SessionUser | null;
 };
 
-export function ArticlePage({
-  post,
-  comments,
-  hasMoreComments,
-  totalComments,
-  sessionUser,
-}: ArticlePageProps) {
+export function ArticlePage({ post, comments, hasMoreComments, totalComments, sessionUser }: ArticlePageProps) {
   const date = new Date(post.publishedAt).toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
-    year: 'numeric',
+    year: 'numeric'
   });
 
   return (
@@ -44,10 +38,7 @@ export function ArticlePage({
         cat {new Date(post.publishedAt).getFullYear()}/{post.slug}.md
       </Prompt>
 
-      <div
-        className={cn('mt-4 mb-6.5', ENTER)}
-        style={enterDelay(TITLE_DELAY_MS)}
-      >
+      <div className={cn('mt-4 mb-6.5', ENTER)} style={enterDelay(TITLE_DELAY_MS)}>
         <h1 className='text-3xl font-bold text-foreground'>{post.title}</h1>
         <div className='mt-1.5 flex flex-wrap gap-4 text-xs text-muted-foreground'>
           <span>{date}</span>
@@ -65,11 +56,7 @@ export function ArticlePage({
         <MarkdownView html={post.contentHtml} />
       </div>
       <Prompt cwd='~/posts %' className='mt-6'>
-        <Link
-          to='/blog'
-          activeOptions={{ exact: true }}
-          className='text-muted-foreground hover:text-primary'
-        >
+        <Link to='/blog' activeOptions={{ exact: true }} className='text-muted-foreground hover:text-primary'>
           cd ..
         </Link>
       </Prompt>

@@ -1,8 +1,4 @@
-import {
-  POST_VISIBILITIES,
-  type PostVisibility,
-  type SessionUser,
-} from '@blog/shared';
+import { POST_VISIBILITIES, type PostVisibility, type SessionUser } from '@blog/shared';
 import { redirect } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import { getRequest } from '@tanstack/react-start/server';
@@ -56,9 +52,7 @@ function rowToAdminPost(row: AdminRow): AdminPost {
   } catch {
     tags = [];
   }
-  const visibility = (POST_VISIBILITIES as readonly string[]).includes(
-    row.visibility,
-  )
+  const visibility = (POST_VISIBILITIES as readonly string[]).includes(row.visibility)
     ? (row.visibility as PostVisibility)
     : 'public';
 
@@ -71,63 +65,49 @@ function rowToAdminPost(row: AdminRow): AdminPost {
     password: row.password ?? '',
     status: row.status === 'draft' ? 'draft' : 'published',
     tags,
-    publishedAt: row.publishedAt,
+    publishedAt: row.publishedAt
   };
 }
 
 /** Throws 401/403 if the caller is not an admin; used to guard admin routes. */
-export const ensureAdminServerFn = createServerFn({ method: 'GET' }).handler(
-  async () => {
-    const sessionUser = await requireAdmin();
-    return { sessionUser };
-  },
-);
+export const ensureAdminServerFn = createServerFn({ method: 'GET' }).handler(async () => {
+  const sessionUser = await requireAdmin();
+  return { sessionUser };
+});
 
 /** List every post (including drafts) for the admin table. */
-export const listAdminPostsServerFn = createServerFn({ method: 'GET' }).handler(
-  async () => {
-    await requireAdmin();
-    const result = await getD1()
-      .prepare(
-        'SELECT slug, title, description, body, visibility, password, status, tags, publishedAt FROM "post"',
-      )
-      .all<AdminRow>();
-    const posts = (result.results ?? [])
-      .map(rowToAdminPost)
-      .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
-    return { posts };
-  },
-);
+export const listAdminPostsServerFn = createServerFn({ method: 'GET' }).handler(async () => {
+  await requireAdmin();
+  const result = await getD1()
+    .prepare('SELECT slug, title, description, body, visibility, password, status, tags, publishedAt FROM "post"')
+    .all<AdminRow>();
+  const posts = result.results.map(rowToAdminPost).sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+  return { posts };
+});
 
 /** Distinct tags across all posts, most-used first (for tag suggestions). */
-export const listPostTagsServerFn = createServerFn({ method: 'GET' }).handler(
-  async () => {
-    await requireAdmin();
-    const result = await getD1()
-      .prepare('SELECT tags FROM "post"')
-      .all<{ tags: string }>();
-    const counts = new Map<string, number>();
-    for (const row of result.results ?? []) {
-      try {
-        const parsed = JSON.parse(row.tags) as unknown;
-        if (Array.isArray(parsed)) {
-          for (const tag of parsed.map(String)) {
-            if (tag) {
-              counts.set(tag, (counts.get(tag) ?? 0) + 1);
-            }
+export const listPostTagsServerFn = createServerFn({ method: 'GET' }).handler(async () => {
+  await requireAdmin();
+  const result = await getD1().prepare('SELECT tags FROM "post"').all<{ tags: string }>();
+  const counts = new Map<string, number>();
+  for (const row of result.results) {
+    try {
+      const parsed = JSON.parse(row.tags) as unknown;
+      if (Array.isArray(parsed)) {
+        for (const tag of parsed.map(String)) {
+          if (tag) {
+            counts.set(tag, (counts.get(tag) ?? 0) + 1);
           }
         }
-      } catch {
-        // Malformed tags JSON on one row should not break the listing.
       }
+    } catch {
+      // Malformed tags JSON on one row should not break the listing.
     }
-    return {
-      tags: [...counts.entries()]
-        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-        .map(([tag]) => tag),
-    };
-  },
-);
+  }
+  return {
+    tags: [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([tag]) => tag)
+  };
+});
 
 export const getAdminPostServerFn = createServerFn({ method: 'GET' })
   .validator(z.object({ slug: z.string().min(1) }))
@@ -135,7 +115,7 @@ export const getAdminPostServerFn = createServerFn({ method: 'GET' })
     await requireAdmin();
     const row = await getD1()
       .prepare(
-        'SELECT slug, title, description, body, visibility, password, status, tags, publishedAt FROM "post" WHERE "slug" = ?',
+        'SELECT slug, title, description, body, visibility, password, status, tags, publishedAt FROM "post" WHERE "slug" = ?'
       )
       .bind(data.slug)
       .first<AdminRow>();
@@ -155,7 +135,7 @@ const upsertSchema = z.object({
   password: z.string().max(200).default(''),
   status: z.enum(['draft', 'published']),
   tags: z.array(z.string()).default([]),
-  publishedAt: z.string().min(1),
+  publishedAt: z.string().min(1)
 });
 
 export const upsertPostServerFn = createServerFn({ method: 'POST' })
@@ -179,7 +159,7 @@ export const upsertPostServerFn = createServerFn({ method: 'POST' })
            "status"=excluded."status",
            "tags"=excluded."tags",
            "publishedAt"=excluded."publishedAt",
-           "updatedAt"=excluded."updatedAt"`,
+           "updatedAt"=excluded."updatedAt"`
       )
       .bind(
         data.slug,
@@ -192,7 +172,7 @@ export const upsertPostServerFn = createServerFn({ method: 'POST' })
         JSON.stringify(data.tags),
         data.publishedAt,
         now,
-        now,
+        now
       )
       .run();
 
@@ -207,10 +187,7 @@ export const deletePostServerFn = createServerFn({ method: 'POST' })
   .validator(z.object({ slug: z.string().min(1) }))
   .handler(async ({ data }) => {
     await requireAdmin();
-    await getD1()
-      .prepare('DELETE FROM "post" WHERE "slug" = ?')
-      .bind(data.slug)
-      .run();
+    await getD1().prepare('DELETE FROM "post" WHERE "slug" = ?').bind(data.slug).run();
     await purgeArticleCache(data.slug);
     return { ok: true };
   });

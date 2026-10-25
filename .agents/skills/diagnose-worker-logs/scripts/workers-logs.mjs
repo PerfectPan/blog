@@ -21,10 +21,7 @@ function loadEnvFile() {
   let dir = dirname(fileURLToPath(import.meta.url));
   for (let i = 0; i < 8; i++) {
     try {
-      for (const line of readFileSync(
-        join(dir, '.cloudflare', 'env'),
-        'utf8',
-      ).split('\n')) {
+      for (const line of readFileSync(join(dir, '.cloudflare', 'env'), 'utf8').split('\n')) {
         const m = line.match(/^\s*([A-Z_][A-Z0-9_]*)\s*=\s*(.*)\s*$/);
         if (m && !process.env[m[1]]) {
           process.env[m[1]] = m[2].replace(/^["']|["']$/g, '');
@@ -41,9 +38,7 @@ loadEnvFile();
 
 const TOKEN = process.env.CLOUDFLARE_API_TOKEN;
 if (!TOKEN) {
-  console.error(
-    'No CLOUDFLARE_API_TOKEN. Copy .cloudflare/env.example -> .cloudflare/env and fill it.',
-  );
+  console.error('No CLOUDFLARE_API_TOKEN. Copy .cloudflare/env.example -> .cloudflare/env and fill it.');
   process.exit(1);
 }
 
@@ -59,9 +54,7 @@ const grep = flag('grep', null);
 const worker = flag('worker', 'blog-web');
 const acct = flag('account', null) ?? process.env.CLOUDFLARE_ACCOUNT_ID;
 if (!acct) {
-  console.error(
-    'No CLOUDFLARE_ACCOUNT_ID (in .cloudflare/env or --account <id>).',
-  );
+  console.error('No CLOUDFLARE_ACCOUNT_ID (in .cloudflare/env or --account <id>).');
   process.exit(1);
 }
 
@@ -77,28 +70,25 @@ const body = {
         key: '$metadata.service',
         operation: 'eq',
         type: 'string',
-        value: worker,
-      },
+        value: worker
+      }
     ],
     calculations: [],
     groupBys: [],
-    havings: [],
+    havings: []
   },
   view: 'events',
-  limit,
+  limit
 };
 
-const r = await fetch(
-  `https://api.cloudflare.com/client/v4/accounts/${acct}/workers/observability/telemetry/query`,
-  {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${TOKEN}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
+const r = await fetch(`https://api.cloudflare.com/client/v4/accounts/${acct}/workers/observability/telemetry/query`, {
+  method: 'POST',
+  headers: {
+    Authorization: `Bearer ${TOKEN}`,
+    'Content-Type': 'application/json'
   },
-);
+  body: JSON.stringify(body)
+});
 const j = await r.json();
 if (!j.success) {
   console.error('API error:', JSON.stringify(j.errors));
@@ -106,7 +96,9 @@ if (!j.success) {
 }
 
 let evs = j.result?.events?.events ?? [];
-if (errorsOnly) evs = evs.filter((e) => e.source?.level === 'error');
+if (errorsOnly) {
+  evs = evs.filter((e) => e.source?.level === 'error');
+}
 if (grep) {
   evs = evs.filter((e) => {
     const w = e.$workers?.event;
@@ -114,17 +106,17 @@ if (grep) {
   });
 }
 console.log(
-  `${evs.length} events | worker=${worker} last ${sinceMin}min | rows_read=${j.result?.run?.statistics?.rows_read ?? '?'}`,
+  `${evs.length} events | worker=${worker} last ${sinceMin}min | rows_read=${j.result?.run?.statistics?.rows_read ?? '?'}`
 );
 for (const e of evs) {
   const w = e.$workers?.event;
   const ts = new Date(e.timestamp).toISOString().slice(11, 19);
   const lvl = (e.source?.level ?? '?').padEnd(5);
   const st = w?.response?.status ?? '';
-  const url = (w?.request?.url ?? '')
-    .replace(/https?:\/\/[^/]+/, '')
-    .slice(0, 64);
+  const url = (w?.request?.url ?? '').replace(/https?:\/\/[^/]+/, '').slice(0, 64);
   console.log(`${ts} ${lvl} ${String(st).padEnd(4)} ${url}`);
   const msg = (e.source?.message ?? '').split('\n')[0].slice(0, 160);
-  if (msg) console.log(`         ${msg}`);
+  if (msg) {
+    console.log(`         ${msg}`);
+  }
 }

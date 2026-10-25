@@ -18,9 +18,7 @@ const BENIGN_COOKIES = new Set(['blog-dark', 'blog-skin']);
 // every deploy gets a fresh edge cache, so a cached response can never
 // reference asset hashes from a previous deployment's bundle.
 const cachePromise: Promise<Cache> | null =
-  'caches' in globalThis
-    ? caches.open(`article-page-${__ARTICLE_CACHE_BUILD_ID__}`)
-    : null;
+  'caches' in globalThis ? caches.open(`article-page-${__ARTICLE_CACHE_BUILD_ID__}`) : null;
 
 async function getCache(): Promise<Cache | undefined> {
   return (await cachePromise) ?? undefined;
@@ -32,20 +30,26 @@ export function isArticlePath(url: URL): boolean {
 }
 
 /** Returns the cache key request, or null when this request must bypass. */
-export async function articleCacheKey(
-  request: Request,
-): Promise<Request | null> {
-  if (request.method !== 'GET') return null;
+export async function articleCacheKey(request: Request): Promise<Request | null> {
+  if (request.method !== 'GET') {
+    return null;
+  }
   const url = new URL(request.url);
-  if (!isArticlePath(url)) return null;
+  if (!isArticlePath(url)) {
+    return null;
+  }
   const cookieHeader = request.headers.get('cookie');
   if (cookieHeader) {
     for (const [name] of Object.entries(parseCookies(cookieHeader))) {
-      if (!BENIGN_COOKIES.has(name)) return null;
+      if (!BENIGN_COOKIES.has(name)) {
+        return null;
+      }
     }
   }
   const cache = await getCache();
-  if (!cache) return null;
+  if (!cache) {
+    return null;
+  }
   return new Request(url.toString());
 }
 
@@ -58,30 +62,29 @@ export async function toCacheablePair(res: Response): Promise<{
   store: Response;
 } | null> {
   const contentType = res.headers.get('content-type') ?? '';
-  if (res.status !== 200 || !contentType.includes('text/html')) return null;
+  if (res.status !== 200 || !contentType.includes('text/html')) {
+    return null;
+  }
   const body = await res.arrayBuffer();
   const headers = new Headers(res.headers);
   headers.set('cache-control', 'public, max-age=604800');
   return {
     serve: new Response(body, { status: res.status, headers: res.headers }),
-    store: new Response(body, { status: res.status, headers }),
+    store: new Response(body, { status: res.status, headers })
   };
 }
 
-export async function putArticleCache(
-  key: Request,
-  store: Response,
-): Promise<void> {
+export async function putArticleCache(key: Request, store: Response): Promise<void> {
   const cache = await getCache();
   await cache?.put(key, store);
 }
 
-export async function matchArticleCache(
-  key: Request,
-): Promise<Response | undefined> {
+export async function matchArticleCache(key: Request): Promise<Response | undefined> {
   const cache = await getCache();
   const hit = await cache?.match(key);
-  if (!hit) return undefined;
+  if (!hit) {
+    return undefined;
+  }
   // The edge copy keeps a 7-day TTL, but browsers must NOT hold their own
   // private copy — otherwise a redeploy leaves visitors on stale HTML until
   // the TTL expires. `no-cache` = revalidate with the worker on every load;
@@ -94,7 +97,9 @@ export async function matchArticleCache(
 /** Purge after an admin write so readers never see stale content. */
 export async function purgeArticleCache(slug: string): Promise<void> {
   const cache = await getCache();
-  if (!cache) return;
+  if (!cache) {
+    return;
+  }
   // Purge the host being edited, including a dynamically named Preview.
   const target = new URL(`/blog/${slug}`, getRequest().url);
   await cache.delete(new Request(target));

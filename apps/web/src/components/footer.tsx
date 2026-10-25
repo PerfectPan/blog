@@ -12,8 +12,7 @@ import { useSessionUser } from '../lib/session-user.js';
 // tmux window: 8px/1px padding + 3px radius; the bar text is a deliberate
 // 12.5px — the pre-migration th-tmux size, so the bar keeps its height
 // (text-xs would shrink it and its 1.333 line-height would flatten the row).
-const WIN =
-  'rounded-sm px-2 py-px text-muted-foreground hover:text-foreground hover:no-underline max-[430px]:px-1.5';
+const WIN = 'rounded-sm px-2 py-px text-muted-foreground hover:text-foreground hover:no-underline max-[430px]:px-1.5';
 
 export function Footer() {
   const sessionUser = useSessionUser();
@@ -25,10 +24,7 @@ export function Footer() {
       <span className='mr-2 rounded-sm bg-chart-2 px-2 py-px font-bold text-chart-4 max-[430px]:mr-0 max-[430px]:hidden'>
         blog
       </span>
-      <nav
-        aria-label={t(SITE_WINDOWS_ARIA)}
-        className='flex flex-wrap items-center gap-1'
-      >
+      <nav aria-label={t(SITE_WINDOWS_ARIA)} className='flex flex-wrap items-center gap-1'>
         <Link to='/' className={WIN}>
           0:home
         </Link>

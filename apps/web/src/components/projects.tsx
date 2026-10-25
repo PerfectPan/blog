@@ -21,14 +21,9 @@ export function ProjectsPage() {
 
       <div className='mt-3'>
         {projects.map((project) => (
-          <div
-            key={project.name}
-            className='border-b border-dashed border-border py-4 last:border-b-0'
-          >
+          <div key={project.name} className='border-b border-dashed border-border py-4 last:border-b-0'>
             <div className='flex items-baseline justify-between gap-3'>
-              <span className='text-base font-semibold text-foreground'>
-                {project.name}
-              </span>
+              <span className='text-base font-semibold text-foreground'>{project.name}</span>
               <span className='flex shrink-0 gap-3 [&_a]:text-xs [&_a]:text-primary [&_a:hover]:underline'>
                 <a href={project.repo} target='_blank' rel='noreferrer'>
                   code ↗
@@ -40,12 +35,8 @@ export function ProjectsPage() {
                 ) : null}
               </span>
             </div>
-            <p className='mt-1 text-sm leading-relaxed text-muted-foreground'>
-              {project.description[locale]}
-            </p>
-            <div className='mt-1.5 text-xs text-muted-foreground/60'>
-              {project.tags.join(' · ')}
-            </div>
+            <p className='mt-1 text-sm leading-relaxed text-muted-foreground'>{project.description[locale]}</p>
+            <div className='mt-1.5 text-xs text-muted-foreground/60'>{project.tags.join(' · ')}</div>
           </div>
         ))}
       </div>

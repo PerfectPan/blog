@@ -23,10 +23,7 @@ export function filterByQuery(posts: PostSummary[], q: string): PostSummary[] {
     return posts;
   }
   return posts.filter((post) =>
-    [post.title, post.description, post.tags.join(' ')]
-      .join(' ')
-      .toLowerCase()
-      .includes(needle),
+    [post.title, post.description, post.tags.join(' ')].join(' ').toLowerCase().includes(needle)
   );
 }
 
@@ -34,11 +31,7 @@ export function filterByQuery(posts: PostSummary[], q: string): PostSummary[] {
  * Offset-paginate an already-sorted list, clamping `page` into [1, totalPages].
  * Returns counts so the UI can render "page X / Y" and disable prev/next.
  */
-export function paginate<T>(
-  items: T[],
-  page: number,
-  pageSize: number = PAGE_SIZE,
-): Paginated<T> {
+export function paginate<T>(items: T[], page: number, pageSize: number = PAGE_SIZE): Paginated<T> {
   const total = items.length;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const clamped = Math.min(Math.max(1, page), totalPages);
@@ -48,6 +41,6 @@ export function paginate<T>(
     total,
     page: clamped,
     pageSize,
-    totalPages,
+    totalPages
   };
 }

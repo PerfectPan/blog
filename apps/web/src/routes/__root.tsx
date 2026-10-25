@@ -1,11 +1,5 @@
 import { DEFAULT_LOCALE, type SessionUser } from '@blog/shared';
-import {
-  createRootRoute,
-  HeadContent,
-  Outlet,
-  Scripts,
-  useRouter,
-} from '@tanstack/react-router';
+import { createRootRoute, HeadContent, Outlet, Scripts, useRouter } from '@tanstack/react-router';
 import { type ReactNode, useEffect } from 'react';
 import { AppLayout } from '../components/layout.js';
 import { ErrorPage, NotFoundPage } from '../components/misc.js';
@@ -33,26 +27,26 @@ export const Route = createRootRoute({
   head: () => ({
     meta: [
       {
-        title: "PerfectPan's Blog",
+        title: "PerfectPan's Blog"
       },
       {
         name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
+        content: 'width=device-width, initial-scale=1'
       },
       {
         name: 'description',
-        content: "PerfectPan's Blog",
+        content: "PerfectPan's Blog"
       },
       {
         name: 'theme-color',
-        content: '#ffffff',
-      },
+        content: '#ffffff'
+      }
     ],
     links: [
       { rel: 'icon', href: '/images/favicon.png', type: 'image/png' },
       { rel: 'apple-touch-icon', href: '/icon-192.png' },
-      { rel: 'manifest', href: '/manifest.webmanifest' },
-    ],
+      { rel: 'manifest', href: '/manifest.webmanifest' }
+    ]
   }),
   // notFound/error render INSIDE RootComponent's tree — the root document
   // and app layout chrome are already there. Wrapping them again nests a
@@ -60,7 +54,7 @@ export const Route = createRootRoute({
   // silently disappears (the 404 body rendered empty because of this).
   errorComponent: ({ error }) => <ErrorPage error={error} />,
   notFoundComponent: () => <NotFoundPage />,
-  component: RootComponent,
+  component: RootComponent
 });
 
 function RootComponent() {
@@ -84,10 +78,7 @@ function RootComponent() {
   return (
     <RootDocument>
       <SessionRevalidation sessionUser={sessionUser} />
-      <LocaleProvider
-        initialLocale={sessionUser?.locale ?? DEFAULT_LOCALE}
-        isLoggedIn={sessionUser != null}
-      >
+      <LocaleProvider initialLocale={sessionUser?.locale ?? DEFAULT_LOCALE} isLoggedIn={sessionUser != null}>
         <AppLayout>
           <Outlet />
         </AppLayout>
@@ -97,11 +88,7 @@ function RootComponent() {
   );
 }
 
-function SessionRevalidation({
-  sessionUser,
-}: {
-  sessionUser: SessionUser | null;
-}) {
+function SessionRevalidation({ sessionUser }: { sessionUser: SessionUser | null }) {
   const router = useRouter();
   const identity = JSON.stringify(sessionUser);
 
@@ -111,12 +98,16 @@ function SessionRevalidation({
     let refreshQueued = false;
     let lastChecked = Date.now();
     const check = async (force = false) => {
-      if (document.visibilityState !== 'visible' || !navigator.onLine) return;
+      if (document.visibilityState !== 'visible' || !navigator.onLine) {
+        return;
+      }
       if (checking) {
         refreshQueued ||= force;
         return;
       }
-      if (!force && Date.now() - lastChecked < 5000) return;
+      if (!force && Date.now() - lastChecked < 5000) {
+        return;
+      }
       lastChecked = Date.now();
       checking = true;
       try {
@@ -138,7 +129,9 @@ function SessionRevalidation({
     const onFocus = () => void check();
     const onOnline = () => void check(true);
     const onStorage = (event: StorageEvent) => {
-      if (event.key === SESSION_CHANGED_KEY) void check(true);
+      if (event.key === SESSION_CHANGED_KEY) {
+        void check(true);
+      }
     };
     window.addEventListener('focus', onFocus);
     document.addEventListener('visibilitychange', onFocus);

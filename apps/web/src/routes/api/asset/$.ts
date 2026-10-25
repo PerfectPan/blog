@@ -8,11 +8,7 @@ import { getMediaBucket } from '../../../lib/storage.js';
  * bodies), so this route is intentionally unauthenticated; keys are
  * unguessable UUIDs under images/<YYYY>/<MM>/.
  */
-async function handleAsset({
-  request,
-}: {
-  request: Request;
-}): Promise<Response> {
+async function handleAsset({ request }: { request: Request }): Promise<Response> {
   const { pathname } = new URL(request.url);
   const key = decodeURIComponent(pathname.replace(/^\/api\/asset\//, ''));
   // Guard against path traversal — keys are flat under images/ (an empty key
@@ -37,5 +33,5 @@ async function handleAsset({
 
 export const Route = createFileRoute('/api/asset/$')({
   server: { handlers: { GET: handleAsset } },
-  component: () => null,
+  component: () => null
 });

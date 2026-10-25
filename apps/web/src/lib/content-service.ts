@@ -1,9 +1,4 @@
-import {
-  POST_VISIBILITIES,
-  type PostDetail,
-  type PostSummary,
-  type PostVisibility,
-} from '@blog/shared';
+import { POST_VISIBILITIES, type PostDetail, type PostSummary, type PostVisibility } from '@blog/shared';
 import { getD1 } from './db.js';
 
 /**
@@ -14,10 +9,7 @@ import { getD1 } from './db.js';
  */
 
 function normalizeVisibility(value: unknown): PostVisibility {
-  if (
-    typeof value === 'string' &&
-    (POST_VISIBILITIES as readonly string[]).includes(value)
-  ) {
+  if (typeof value === 'string' && (POST_VISIBILITIES as readonly string[]).includes(value)) {
     return value as PostVisibility;
   }
   return 'public';
@@ -34,8 +26,7 @@ type PostSummaryRow = {
 
 type PostDetailRow = PostSummaryRow & { body: string };
 
-const SUMMARY_COLUMNS =
-  'slug, title, description, visibility, tags, publishedAt';
+const SUMMARY_COLUMNS = 'slug, title, description, visibility, tags, publishedAt';
 
 function toSummary(row: PostSummaryRow): PostSummary {
   let tags: string[] = [];
@@ -52,7 +43,7 @@ function toSummary(row: PostSummaryRow): PostSummary {
     description: row.description,
     publishedAt: row.publishedAt,
     visibility: normalizeVisibility(row.visibility),
-    tags,
+    tags
   };
 }
 
@@ -62,7 +53,7 @@ function toDetail(row: PostDetailRow): PostDetail {
     ...summary,
     contentMdx: row.body,
     status: 'published',
-    passwordEnabled: summary.visibility === 'password',
+    passwordEnabled: summary.visibility === 'password'
   };
 }
 
@@ -70,9 +61,7 @@ function toDetail(row: PostDetailRow): PostDetail {
 export async function getAllPublishedPosts(): Promise<PostSummary[]> {
   try {
     const result = await getD1()
-      .prepare(
-        `SELECT ${SUMMARY_COLUMNS} FROM "post" WHERE status = 'published'`,
-      )
+      .prepare(`SELECT ${SUMMARY_COLUMNS} FROM "post" WHERE status = 'published'`)
       .all<PostSummaryRow>();
     return result.results.map(toSummary);
   } catch (error) {
@@ -85,9 +74,7 @@ export async function getAllPublishedPosts(): Promise<PostSummary[]> {
 export async function getAllPublishedPostDetails(): Promise<PostDetail[]> {
   try {
     const result = await getD1()
-      .prepare(
-        `SELECT ${SUMMARY_COLUMNS}, body FROM "post" WHERE status = 'published'`,
-      )
+      .prepare(`SELECT ${SUMMARY_COLUMNS}, body FROM "post" WHERE status = 'published'`)
       .all<PostDetailRow>();
     return result.results.map(toDetail);
   } catch (error) {
@@ -100,9 +87,7 @@ export async function getAllPublishedPostDetails(): Promise<PostDetail[]> {
 export async function getPostBySlug(slug: string): Promise<PostDetail | null> {
   try {
     const row = await getD1()
-      .prepare(
-        `SELECT ${SUMMARY_COLUMNS}, body FROM "post" WHERE slug = ? AND status = 'published'`,
-      )
+      .prepare(`SELECT ${SUMMARY_COLUMNS}, body FROM "post" WHERE slug = ? AND status = 'published'`)
       .bind(slug)
       .first<PostDetailRow>();
     return row ? toDetail(row) : null;
@@ -116,9 +101,7 @@ export async function getPostBySlug(slug: string): Promise<PostDetail | null> {
  * A published post's visibility by slug, or null. Hits the slug primary key
  * (one row), without reading the body, for callers that only need visibility to make an access decision (e.g. the comment gate).
  */
-export async function getPostVisibilityBySlug(
-  slug: string,
-): Promise<PostVisibility | null> {
+export async function getPostVisibilityBySlug(slug: string): Promise<PostVisibility | null> {
   try {
     const row = await getD1()
       .prepare('SELECT "visibility", "status" FROM "post" WHERE "slug" = ?')
@@ -135,15 +118,10 @@ export async function getPostVisibilityBySlug(
 }
 
 /** Plaintext password check for `visibility: password` posts. */
-export async function verifyPostPassword(
-  slug: string,
-  password: string,
-): Promise<boolean> {
+export async function verifyPostPassword(slug: string, password: string): Promise<boolean> {
   try {
     const row = await getD1()
-      .prepare(
-        `SELECT password FROM "post" WHERE slug = ? AND status = 'published' AND visibility = 'password'`,
-      )
+      .prepare(`SELECT password FROM "post" WHERE slug = ? AND status = 'published' AND visibility = 'password'`)
       .bind(slug)
       .first<{ password: string | null }>();
     return Boolean(row?.password) && row?.password === password;

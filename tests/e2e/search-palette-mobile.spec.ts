@@ -25,9 +25,7 @@ async function settle(page: import('@playwright/test').Page) {
   });
 }
 
-test('mobile search sheet opens from the ⋯ menu and fills the viewport', async ({
-  page,
-}) => {
+test('mobile search sheet opens from the ⋯ menu and fills the viewport', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 900 });
   await page.goto('/', { waitUntil: 'load' });
   await page.waitForSelector('html[data-hydrated]');
@@ -36,9 +34,7 @@ test('mobile search sheet opens from the ⋯ menu and fills the viewport', async
   // name to "关闭工具菜单" is the hydration proof.
   const menu = page.getByRole('button', { name: '打开工具菜单' });
   await menu.click();
-  await expect(
-    page.getByRole('button', { name: '关闭工具菜单' }),
-  ).toBeVisible();
+  await expect(page.getByRole('button', { name: '关闭工具菜单' })).toBeVisible();
 
   // The bar's own search button is hidden ≤480px (and carries a different
   // accessible name), so this resolves to the sheet row alone.
@@ -49,27 +45,25 @@ test('mobile search sheet opens from the ⋯ menu and fills the viewport', async
   await settle(page);
 
   const box = await panel.boundingBox();
-  const clientW = await page.evaluate(
-    () => document.documentElement.clientWidth,
-  );
-  if (!box) throw new Error('panel box missing');
+  const clientW = await page.evaluate(() => document.documentElement.clientWidth);
+  if (!box) {
+    throw new Error('panel box missing');
+  }
   // Full-bleed sheet: flush with the layout viewport on both edges.
   expect(box.x).toBeGreaterThanOrEqual(-0.5);
   expect(box.x + box.width).toBeLessThanOrEqual(clientW + 0.5);
   expect(box.width).toBeGreaterThanOrEqual(clientW - 1);
 
   // The input sits fully inside the sheet…
-  const inputBox = await page
-    .locator('[data-slot="command-input"]')
-    .boundingBox();
-  if (!inputBox) throw new Error('input box missing');
+  const inputBox = await page.locator('[data-slot="command-input"]').boundingBox();
+  if (!inputBox) {
+    throw new Error('input box missing');
+  }
   expect(inputBox.x).toBeGreaterThanOrEqual(box.x);
 
   // …typing returns real results (server-side search)…
   await page.locator('[data-slot="command-input"]').fill('blocks');
-  await expect(
-    page.locator('[data-slot="command-item"]').first(),
-  ).toBeVisible();
+  await expect(page.locator('[data-slot="command-item"]').first()).toBeVisible();
 
   // …and the ✕ closes the sheet — touch has no esc.
   await page.locator('[data-slot="dialog-close"]').click();
@@ -92,10 +86,10 @@ test('search sheet stays contained at the 640px boundary', async ({ page }) => {
   await settle(page);
 
   const box = await panel.boundingBox();
-  const clientW = await page.evaluate(
-    () => document.documentElement.clientWidth,
-  );
-  if (!box) throw new Error('panel box missing');
+  const clientW = await page.evaluate(() => document.documentElement.clientWidth);
+  if (!box) {
+    throw new Error('panel box missing');
+  }
   expect(box.x).toBeGreaterThanOrEqual(-0.5);
   expect(box.x + box.width).toBeLessThanOrEqual(clientW + 0.5);
 });

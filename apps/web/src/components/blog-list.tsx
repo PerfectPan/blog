@@ -1,12 +1,7 @@
 import type { PostSummary } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
 import { useLocale, useT } from '../lib/i18n/context.js';
-import {
-  NEXT_PAGE,
-  PAGE_INFO,
-  PAGINATION_ARIA,
-  PREV_PAGE,
-} from '../lib/i18n/messages.js';
+import { NEXT_PAGE, PAGE_INFO, PAGINATION_ARIA, PREV_PAGE } from '../lib/i18n/messages.js';
 import { cn } from '../lib/utils.js';
 import { Page, Prompt } from './page.js';
 import { ENTER_ROW, enterDelay } from './term.js';
@@ -17,10 +12,7 @@ import { ENTER_ROW, enterDelay } from './term.js';
 const LIST_DELAY_MS = 120;
 const LIST_STAGGER_MS = 25;
 const LIST_STAGGER_CAP = 18;
-const lineDelay = (line: number) =>
-  enterDelay(
-    LIST_DELAY_MS + Math.min(line, LIST_STAGGER_CAP) * LIST_STAGGER_MS,
-  );
+const lineDelay = (line: number) => enterDelay(LIST_DELAY_MS + Math.min(line, LIST_STAGGER_CAP) * LIST_STAGGER_MS);
 
 const ROW =
   'grid items-baseline gap-x-3.5 rounded px-2 py-1.25 text-foreground no-underline hover:bg-accent max-[720px]:grid-cols-[7ch_1fr]';
@@ -32,9 +24,7 @@ export type BlogListData = {
   totalPages: number;
 };
 
-function groupByYear(
-  posts: PostSummary[],
-): { year: string; blogs: PostSummary[] }[] {
+function groupByYear(posts: PostSummary[]): { year: string; blogs: PostSummary[] }[] {
   const groups = new Map<string, PostSummary[]>();
   for (const post of posts) {
     const year = new Date(post.publishedAt).getFullYear().toString();
@@ -49,9 +39,7 @@ function groupByYear(
     .sort((a, b) => Number(b[0]) - Number(a[0]))
     .map(([year, blogs]) => ({
       year,
-      blogs: [...blogs].sort((a, b) =>
-        b.publishedAt.localeCompare(a.publishedAt),
-      ),
+      blogs: [...blogs].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
     }));
 }
 
@@ -59,7 +47,7 @@ export function BlogList({
   data,
   showDevHint,
   devScopeHint,
-  showVisibility,
+  showVisibility
 }: {
   data: BlogListData;
   showDevHint: boolean;
@@ -89,16 +77,8 @@ export function BlogList({
       <div className='mt-3'>
         {blogGroups.map((group) => (
           <div key={group.year}>
-            <div
-              className={cn(
-                'mt-5 px-2 py-1.25 font-bold text-primary',
-                ENTER_ROW,
-              )}
-              style={lineDelay(line++)}
-            >
-              <span className='font-normal text-muted-foreground/60'>
-                {'# '}
-              </span>
+            <div className={cn('mt-5 px-2 py-1.25 font-bold text-primary', ENTER_ROW)} style={lineDelay(line++)}>
+              <span className='font-normal text-muted-foreground/60'>{'# '}</span>
               {group.year}
             </div>
             {group.blogs.map((blog: PostSummary) => (
@@ -108,10 +88,8 @@ export function BlogList({
                 params={{ slug: blog.slug }}
                 className={cn(
                   ROW,
-                  showVisibility
-                    ? 'grid-cols-[7ch_8ch_1fr_auto]'
-                    : 'grid-cols-[7ch_1fr_auto]',
-                  ENTER_ROW,
+                  showVisibility ? 'grid-cols-[7ch_8ch_1fr_auto]' : 'grid-cols-[7ch_1fr_auto]',
+                  ENTER_ROW
                 )}
                 style={lineDelay(line++)}
               >
@@ -120,22 +98,15 @@ export function BlogList({
                     long-form article date would overflow the 7ch track.
                     zh-CN and en-US both render MM/DD here, matching the
                     pre-i18n list. */}
-                  {new Date(blog.publishedAt).toLocaleDateString(
-                    locale === 'en' ? 'en-US' : 'zh-CN',
-                    {
-                      month: '2-digit',
-                      day: '2-digit',
-                    },
-                  )}
+                  {new Date(blog.publishedAt).toLocaleDateString(locale === 'en' ? 'en-US' : 'zh-CN', {
+                    month: '2-digit',
+                    day: '2-digit'
+                  })}
                 </span>
                 {showVisibility ? (
-                  <span className='text-xs text-muted-foreground/60 max-[720px]:hidden'>
-                    {blog.visibility}
-                  </span>
+                  <span className='text-xs text-muted-foreground/60 max-[720px]:hidden'>{blog.visibility}</span>
                 ) : null}
-                <span className='overflow-hidden text-ellipsis whitespace-nowrap'>
-                  {blog.title}
-                </span>
+                <span className='overflow-hidden text-ellipsis whitespace-nowrap'>{blog.title}</span>
                 <span className='text-right text-xs text-muted-foreground/60 max-[720px]:hidden'>
                   {blog.tags.join(' · ')}
                 </span>
@@ -155,21 +126,15 @@ export function BlogList({
               {t(PREV_PAGE)}
             </Link>
           ) : (
-            <span className='text-muted-foreground/60 opacity-60'>
-              {t(PREV_PAGE)}
-            </span>
+            <span className='text-muted-foreground/60 opacity-60'>{t(PREV_PAGE)}</span>
           )}
-          <span>
-            {t(PAGE_INFO, { page: data.page, total: data.totalPages })}
-          </span>
+          <span>{t(PAGE_INFO, { page: data.page, total: data.totalPages })}</span>
           {data.page < data.totalPages ? (
             <Link to='/blog' search={{ page: data.page + 1 }}>
               {t(NEXT_PAGE)}
             </Link>
           ) : (
-            <span className='text-muted-foreground/60 opacity-60'>
-              {t(NEXT_PAGE)}
-            </span>
+            <span className='text-muted-foreground/60 opacity-60'>{t(NEXT_PAGE)}</span>
           )}
         </nav>
       ) : null}

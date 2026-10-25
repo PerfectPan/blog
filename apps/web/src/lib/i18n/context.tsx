@@ -1,12 +1,5 @@
 import { DEFAULT_LOCALE, isLocale, type Locale } from '@blog/shared';
-import {
-  createContext,
-  type ReactNode,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { createContext, type ReactNode, useContext, useEffect, useRef, useState } from 'react';
 import { setLocaleServerFn } from '../locale-service.js';
 import { formatMsg, type IcuMsg, type Msg } from './messages.js';
 
@@ -37,7 +30,7 @@ const LocaleContext = createContext<LocaleContextValue | null>(null);
 // to zh; switching there is a silent no-op so nothing crashes.
 const FALLBACK: LocaleContextValue = {
   locale: DEFAULT_LOCALE,
-  setLocale: () => {},
+  setLocale: () => {}
 };
 
 function readStoredLocale(): Locale | null {
@@ -59,11 +52,7 @@ type LocaleProviderProps = {
   isLoggedIn?: boolean;
 };
 
-export function LocaleProvider({
-  children,
-  initialLocale = DEFAULT_LOCALE,
-  isLoggedIn = false,
-}: LocaleProviderProps) {
+export function LocaleProvider({ children, initialLocale = DEFAULT_LOCALE, isLoggedIn = false }: LocaleProviderProps) {
   const [locale, setLocaleState] = useState<Locale>(initialLocale);
   // Server value the state was last synced from. Guards against a stale
   // cached loader prop (from before a local switch) clobbering the UI.
@@ -130,9 +119,7 @@ export function LocaleProvider({
 
   const value = { locale, setLocale };
 
-  return (
-    <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>
-  );
+  return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;
 }
 
 export function useLocale(): LocaleContextValue {
@@ -143,14 +130,10 @@ export function useLocale(): LocaleContextValue {
  *  a named-args object: `t(POSTS_COUNT, { count: 5 })`. */
 export type TFn = {
   (entry: Msg & { __args?: never }): string;
-  <A extends Record<string, string | number>>(
-    entry: IcuMsg<A>,
-    args: A,
-  ): string;
+  <A extends Record<string, string | number>>(entry: IcuMsg<A>, args: A): string;
 };
 
 export function useT(): TFn {
   const { locale } = useLocale();
-  return ((entry: Msg, args?: Record<string, string | number>): string =>
-    formatMsg(locale, entry, args)) as TFn;
+  return ((entry: Msg, args?: Record<string, string | number>): string => formatMsg(locale, entry, args)) as TFn;
 }

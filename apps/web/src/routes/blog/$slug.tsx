@@ -17,7 +17,7 @@ export const Route = createFileRoute('/blog/$slug')({
     if (post.visibility === 'password' && !data.unlocked) {
       throw redirect({
         to: '/unlock/$slug',
-        params: { slug: params.slug },
+        params: { slug: params.slug }
       });
     }
 
@@ -37,17 +37,14 @@ export const Route = createFileRoute('/blog/$slug')({
     let comments = {
       comments: [] as CommentThread[],
       total: 0,
-      hasMore: false,
+      hasMore: false
     };
     try {
       comments = await getCommentsServerFn({
-        data: { slug: params.slug, offset: 0, limit: 20 },
+        data: { slug: params.slug, offset: 0, limit: 20 }
       });
     } catch (error) {
-      console.error(
-        '[web] comments SSR failed, rendering without comments',
-        error,
-      );
+      console.error('[web] comments SSR failed, rendering without comments', error);
     }
 
     return { ...data, comments };
@@ -56,16 +53,17 @@ export const Route = createFileRoute('/blog/$slug')({
   // so code-only posts don't pay for it.
   head: ({ loaderData }) => ({
     meta: [{ title: "Blog | PerfectPan's Blog" }],
-    links: loaderData?.hasKatex
-      ? [{ rel: 'stylesheet', href: KATEX_CSS_HREF }]
-      : [],
+    links: loaderData?.hasKatex ? [{ rel: 'stylesheet', href: KATEX_CSS_HREF }] : []
   }),
-  component: BlogDetailPage,
+  component: BlogDetailPage
 });
 
 function BlogDetailPage() {
   const data = Route.useLoaderData();
   const post = data.post;
+  // Defense-in-depth: loader data is any-typed here, so the type system
+  // cannot prove post non-null even though the loader throws notFound().
+  // oxlint-disable-next-line no-unnecessary-condition
   if (!post) {
     return null;
   }
@@ -78,7 +76,7 @@ function BlogDetailPage() {
         contentHtml: data.contentHtml,
         publishedAt: post.publishedAt,
         visibility: post.visibility,
-        tags: post.tags,
+        tags: post.tags
       }}
       comments={data.comments.comments}
       hasMoreComments={data.comments.hasMore}

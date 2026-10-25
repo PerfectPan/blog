@@ -1,9 +1,4 @@
-import {
-  buildObjectKey,
-  extensionFor,
-  isAllowedImageType,
-  MAX_UPLOAD_BYTES,
-} from '@blog/shared';
+import { buildObjectKey, extensionFor, isAllowedImageType, MAX_UPLOAD_BYTES } from '@blog/shared';
 import { createFileRoute } from '@tanstack/react-router';
 import { getSessionUserFromRequest } from '../../lib/session-core.js';
 import { getMediaBucket, mediaUrl } from '../../lib/storage.js';
@@ -11,16 +6,12 @@ import { getMediaBucket, mediaUrl } from '../../lib/storage.js';
 function json(body: unknown, status: number): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { 'content-type': 'application/json; charset=utf-8' },
+    headers: { 'content-type': 'application/json; charset=utf-8' }
   });
 }
 
 /** Admin-only image upload -> R2. Used by the markdown editor's paste/drop. */
-async function handleUpload({
-  request,
-}: {
-  request: Request;
-}): Promise<Response> {
+async function handleUpload({ request }: { request: Request }): Promise<Response> {
   // Server fns are reachable over RPC, so enforce admin at the data layer (the
   // admin editor is the only intended caller).
   const sessionUser = await getSessionUserFromRequest(request);
@@ -50,7 +41,7 @@ async function handleUpload({
   const key = buildObjectKey(ext);
   try {
     await getMediaBucket().put(key, file.stream(), {
-      httpMetadata: { contentType: file.type },
+      httpMetadata: { contentType: file.type }
     });
   } catch (error) {
     console.error('[web] R2 upload failed', error);
@@ -62,5 +53,5 @@ async function handleUpload({
 
 export const Route = createFileRoute('/api/upload')({
   server: { handlers: { POST: handleUpload } },
-  component: () => null,
+  component: () => null
 });

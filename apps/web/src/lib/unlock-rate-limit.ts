@@ -35,14 +35,14 @@ export function recordUnlockFailure(slug: string, ip: string | null): void {
   if (!current || now - current.windowStartAt > WINDOW_MS) {
     store.set(key, {
       count: 1,
-      windowStartAt: now,
+      windowStartAt: now
     });
     return;
   }
 
   store.set(key, {
     count: current.count + 1,
-    windowStartAt: current.windowStartAt,
+    windowStartAt: current.windowStartAt
   });
 }
 

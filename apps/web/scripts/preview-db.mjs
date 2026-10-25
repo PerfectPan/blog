@@ -27,19 +27,15 @@ const POST_COLUMNS = [
   'tags',
   'publishedAt',
   'createdAt',
-  'updatedAt',
+  'updatedAt'
 ];
 
 const config = unstable_readConfig({ config: 'wrangler.jsonc' });
 const production = config.d1_databases.find((d) => d.binding === 'DB');
 const preview = config.previews?.d1_databases?.find((d) => d.binding === 'DB');
-const previewBucket = config.previews?.r2_buckets?.find(
-  (b) => b.binding === 'MEDIA_BUCKET',
-);
+const previewBucket = config.previews?.r2_buckets?.find((b) => b.binding === 'MEDIA_BUCKET');
 if (!production || !preview || !previewBucket) {
-  throw new Error(
-    'wrangler.jsonc needs DB and MEDIA_BUCKET bindings at the top level and in previews',
-  );
+  throw new Error('wrangler.jsonc needs DB and MEDIA_BUCKET bindings at the top level and in previews');
 }
 
 // Post bodies reference media as /api/asset/<key> (routes/api/asset/$.ts).
@@ -51,11 +47,10 @@ const wrangler = (args, options = {}) =>
   execFileSync('pnpm', ['exec', 'wrangler', ...args], {
     encoding: 'utf8',
     stdio: options.capture ? ['ignore', 'pipe', 'inherit'] : 'inherit',
-    env: { ...process.env, CI: '1' },
+    env: { ...process.env, CI: '1' }
   });
 
-const sqlString = (value) =>
-  value == null ? 'NULL' : `'${String(value).replaceAll("'", "''")}'`;
+const sqlString = (value) => (value == null ? 'NULL' : `'${String(value).replaceAll("'", "''")}'`);
 
 function syncPosts() {
   const out = wrangler(
@@ -66,17 +61,17 @@ function syncPosts() {
       '--remote',
       '--json',
       '--command',
-      `SELECT ${POST_COLUMNS.map((c) => `"${c}"`).join(', ')} FROM "post" WHERE "visibility" = 'public' AND "status" = 'published'`,
+      `SELECT ${POST_COLUMNS.map((c) => `"${c}"`).join(', ')} FROM "post" WHERE "visibility" = 'public' AND "status" = 'published'`
     ],
-    { capture: true },
+    { capture: true }
   );
   const rows = JSON.parse(out)[0].results;
   const statements = [
     'DELETE FROM "post";',
     ...rows.map(
       (row) =>
-        `INSERT INTO "post" (${POST_COLUMNS.map((c) => `"${c}"`).join(', ')}) VALUES (${POST_COLUMNS.map((c) => sqlString(row[c])).join(', ')});`,
-    ),
+        `INSERT INTO "post" (${POST_COLUMNS.map((c) => `"${c}"`).join(', ')}) VALUES (${POST_COLUMNS.map((c) => sqlString(row[c])).join(', ')});`
+    )
   ];
   const file = join(work, 'posts.sql');
   writeFileSync(file, `${statements.join('\n')}\n`);
@@ -88,27 +83,19 @@ function syncPosts() {
     '--file',
     file,
     '-c',
-    'wrangler.preview-migrations.jsonc',
+    'wrangler.preview-migrations.jsonc'
   ]);
-  console.log(
-    `Copied ${rows.length} public posts into ${preview.database_name}.`,
-  );
+  console.log(`Copied ${rows.length} public posts into ${preview.database_name}.`);
   return rows;
 }
 
 // Media of public posts is public, so it is read through the production
 // site, which also reports each object's content type.
 async function syncMedia(rows) {
-  const keys = new Set(
-    rows.flatMap((row) =>
-      [...String(row.body).matchAll(ASSET_REF)].map((match) => match[1]),
-    ),
-  );
+  const keys = new Set(rows.flatMap((row) => [...String(row.body).matchAll(ASSET_REF)].map((match) => match[1])));
   let copied = 0;
   for (const key of keys) {
-    const response = await fetch(
-      new URL(`/api/asset/${key}`, config.vars.APPS_WEB_URL),
-    );
+    const response = await fetch(new URL(`/api/asset/${key}`, config.vars.APPS_WEB_URL));
     if (!response.ok) {
       console.warn(`skip ${key}: production returned ${response.status}`);
       continue;
@@ -124,13 +111,11 @@ async function syncMedia(rows) {
       '--file',
       file,
       '--content-type',
-      response.headers.get('content-type') ?? 'application/octet-stream',
+      response.headers.get('content-type') ?? 'application/octet-stream'
     ]);
     copied += 1;
   }
-  console.log(
-    `Copied ${copied} of ${keys.size} media objects into ${previewBucket.bucket_name}.`,
-  );
+  console.log(`Copied ${copied} of ${keys.size} media objects into ${previewBucket.bucket_name}.`);
 }
 
 try {
