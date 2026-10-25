@@ -82,10 +82,10 @@ export function createWave(cols: number, rows: number) {
         // Slope facing the light, in [0, 1]; scaled because gradients are small.
         const lit = Math.min(1, Math.max(0, -(s.gx * LIGHT_X + s.gy * LIGHT_Y) * 3 + 0.5));
         const tone = height * 0.65 + lit * 0.35;
-        const alpha = (ALPHA_MIN + (ALPHA_MAX - ALPHA_MIN) * tone) * dim[y * cols + x];
+        const alpha = (ALPHA_MIN + (ALPHA_MAX - ALPHA_MIN) * tone) * (dim[y * cols + x] as number);
         const bucket = Math.min(BUCKETS - 1, Math.floor((alpha / ALPHA_MAX) * BUCKETS));
         const size = SIZE_MIN + (SIZE_MAX - SIZE_MIN) * height;
-        paths[bucket].rect(
+        paths[bucket]!.rect(
           x * DOT_PITCH + half - s.gx * SHIFT * DOT_PITCH - size / 2,
           y * DOT_PITCH + half - s.gy * SHIFT * DOT_PITCH - size / 2,
           size,
@@ -98,7 +98,7 @@ export function createWave(cols: number, rows: number) {
     ctx.fillStyle = color;
     for (let b = 0; b < BUCKETS; b++) {
       ctx.globalAlpha = (ALPHA_MAX * (b + 0.5)) / BUCKETS;
-      ctx.fill(paths[b]);
+      ctx.fill(paths[b]!);
     }
   };
 }
