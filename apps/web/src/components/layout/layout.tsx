@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 import { useEffect } from 'react';
-import { Footer } from './footer.js';
-import { Header } from './header.js';
-import { TraceBackground } from './trace-background.js';
+import { Footer } from './footer';
+import { Header } from './header';
+import { TraceBackground } from '../background/trace-background';
 
 type AppLayoutProps = {
   children: ReactNode;

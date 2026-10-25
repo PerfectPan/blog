@@ -1,23 +1,16 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
-import { MarkdownView } from '../components/markdown-view.js';
-import { Page, Prompt } from '../components/page.js';
-import { BODY_ENTER_DELAY_MS, ENTER, enterDelay } from '../components/term.js';
+import { createFileRoute, getRouteApi, Link } from '@tanstack/react-router';
+import { MarkdownView } from '../components/markdown/markdown-view';
+import { Page } from '../components/layout/page';
+import { Prompt } from '../components/layout/prompt';
+import { BODY_ENTER_DELAY_MS, ENTER, enterDelay } from '../components/layout/term';
 import { getAboutHtmlServerFn } from '../lib/about-content.js';
 import { useLocale } from '../lib/i18n/context.js';
 
-export const Route = createFileRoute('/about')({
-  head: () => ({
-    meta: [{ title: "About | PerfectPan's Blog" }, { name: 'description', content: '关于 PerfectPan 与这个博客' }]
-  }),
-  // Both locales are pre-rendered on the worker; the component picks by UI
-  // locale. The copy itself lives in lib/about-content.ts (single edit point).
-  loader: () => getAboutHtmlServerFn(),
-  component: AboutPage
-});
+const routeApi = getRouteApi('/about');
 
 function AboutPage() {
   const { locale } = useLocale();
-  const { htmlZh, htmlEn } = Route.useLoaderData();
+  const { htmlZh, htmlEn } = routeApi.useLoaderData();
   return (
     <Page>
       <Prompt user='perfectpan' host='blog' cwd='~ %' typed>
@@ -34,3 +27,13 @@ function AboutPage() {
     </Page>
   );
 }
+
+export const Route = createFileRoute('/about')({
+  head: () => ({
+    meta: [{ title: "About | PerfectPan's Blog" }, { name: 'description', content: '关于 PerfectPan 与这个博客' }]
+  }),
+  // Both locales are pre-rendered on the worker; the component picks by UI
+  // locale. The copy itself lives in lib/about-content.ts (single edit point).
+  loader: () => getAboutHtmlServerFn(),
+  component: AboutPage
+});

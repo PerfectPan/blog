@@ -1,4 +1,4 @@
-import type { HighlightRequest, HighlightResponse } from './markdown-highlight.worker.js';
+import type { HighlightRequest, HighlightResponse } from './markdown-highlight.worker';
 
 let worker: Worker | undefined;
 let nextId = 0;
@@ -35,12 +35,15 @@ export function highlightCode(code: string, lang: string, signal: AbortSignal): 
   }
   return new Promise((resolve) => {
     const id = nextId++;
+    // finish and abort reference each other by design: removeEventListener
+    // needs abort, abort needs finish.
+    // oxlint-disable-next-line no-use-before-define
+    const abort = () => finish(null);
     const finish = (html: string | null) => {
       pending.delete(id);
       signal.removeEventListener('abort', abort);
       resolve(html);
     };
-    const abort = () => finish(null);
     pending.set(id, finish);
     signal.addEventListener('abort', abort, { once: true });
     try {

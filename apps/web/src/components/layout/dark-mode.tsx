@@ -3,9 +3,9 @@
 import { Monitor, Moon, Sun } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
-import { useT } from '../lib/i18n/context.js';
-import { SWITCH_MODE_ARIA, THEME_LABEL } from '../lib/i18n/messages.js';
-import { TOOL_BTN } from './term.js';
+import { useT } from '../../lib/i18n/context.js';
+import { SWITCH_MODE_ARIA, THEME_LABEL } from '../../lib/i18n/messages.js';
+import { TOOL_BTN } from './term';
 
 type ViewTransitionLike = {
   finished: Promise<void>;

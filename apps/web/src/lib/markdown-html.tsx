@@ -1,8 +1,8 @@
 import type { Locale } from '@blog/shared';
 import type { ReactElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { CommentMarkdownBody } from '../components/comment-markdown.js';
-import { Markdown } from '../components/markdown.js';
+import { CommentMarkdownBody } from '../components/comments/comment-markdown';
+import { Markdown } from '../components/markdown/markdown';
 import { LocaleProvider } from './i18n/context.js';
 
 /**

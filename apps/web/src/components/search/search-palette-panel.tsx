@@ -3,10 +3,10 @@ import { useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { searchPostsServerFn } from '../lib/blog-service.js';
-import { useT } from '../lib/i18n/context.js';
-import { SEARCH_HINTS, SEARCH_IDLE_HINT, SEARCH_NO_MATCHES, SEARCH_PLACEHOLDER } from '../lib/i18n/messages.js';
-import { searchPalette, useSearchPaletteOpen } from './search-palette-store.js';
+import { searchPostsServerFn } from '../../lib/blog-service.js';
+import { useT } from '../../lib/i18n/context.js';
+import { SEARCH_HINTS, SEARCH_IDLE_HINT, SEARCH_NO_MATCHES, SEARCH_PLACEHOLDER } from '../../lib/i18n/messages.js';
+import { searchPalette, useSearchPaletteOpen } from './search-palette-store';
 
 /* Terminal grep palette: a shadcn Dialog + cmdk reskinned with utilities —
    drops from the top like a terminal window, `~ %` prompt instead of a

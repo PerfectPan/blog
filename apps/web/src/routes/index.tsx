@@ -1,6 +1,13 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, getRouteApi } from '@tanstack/react-router';
 import { HomePage } from '../components/home.js';
 import { getBlogListServerFn } from '../lib/blog-service.js';
+
+const routeApi = getRouteApi('/');
+
+function HomeRoute() {
+  const { posts, total } = routeApi.useLoaderData();
+  return <HomePage posts={posts} total={total} />;
+}
 
 export const Route = createFileRoute('/')({
   head: () => ({
@@ -14,8 +21,3 @@ export const Route = createFileRoute('/')({
   },
   component: HomeRoute
 });
-
-function HomeRoute() {
-  const { posts, total } = Route.useLoaderData();
-  return <HomePage posts={posts} total={total} />;
-}

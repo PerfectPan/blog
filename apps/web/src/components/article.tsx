@@ -1,10 +1,11 @@
 import type { CommentThread, SessionUser } from '@blog/shared';
 import { Link } from '@tanstack/react-router';
 import { cn } from '../lib/utils.js';
-import { Comments } from './comments.js';
-import { MarkdownView } from './markdown-view.js';
-import { Page, Prompt } from './page.js';
-import { BODY_ENTER_DELAY_MS, ENTER, enterDelay } from './term.js';
+import { Comments } from './comments/comments';
+import { MarkdownView } from './markdown/markdown-view';
+import { Page } from './layout/page';
+import { Prompt } from './layout/prompt';
+import { BODY_ENTER_DELAY_MS, ENTER, enterDelay } from './layout/term';
 
 // The title block rises in just ahead of the body.
 const TITLE_DELAY_MS = 100;

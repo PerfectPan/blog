@@ -1,14 +1,13 @@
-import type { Locale } from '@blog/shared';
 import { Link, useNavigate } from '@tanstack/react-router';
-import { Languages, LogOut, MoreHorizontal, Rss, Search, UserRound, UserRoundPlus, X } from 'lucide-react';
-import { lazy, type ReactNode, Suspense, useEffect, useRef, useState } from 'react';
-import { useLocale, useT } from '../lib/i18n/context.js';
+import { GithubMark } from './github-mark';
+import { LogOut, MoreHorizontal, Rss, Search, UserRound, UserRoundPlus, X } from 'lucide-react';
+import { lazy, useEffect, useRef, useState } from 'react';
+import { useT } from '../../lib/i18n/context.js';
+import { LocaleSwitcher } from './locale-switcher';
 import {
   CLOSE_TOOLS_MENU,
   GITHUB_ARIA,
   GITHUB_LABEL,
-  LANG_EN_NAME,
-  LANG_ZH_NAME,
   LOGOUT_ARIA,
   LOGOUT_CONFIRM_DESCRIPTION,
   NAV_LOGIN,
@@ -18,26 +17,18 @@ import {
   RSS_ARIA,
   RSS_LABEL,
   SEARCH_ARIA,
-  SEARCH_TOOL,
-  SWITCH_LOCALE
-} from '../lib/i18n/messages.js';
-import { useSessionUser } from '../lib/session-user.js';
-import { DarkMode } from './dark-mode.js';
-import { searchPalette } from './search-palette-store.js';
-import { SHEET_ROW, TOOL_BTN, TOOL_BTN_TOGGLE } from './term.js';
+  SEARCH_TOOL
+} from '../../lib/i18n/messages.js';
+import { useSessionUser } from '../../lib/session-user.js';
+import { DarkMode } from './dark-mode';
+import { searchPalette } from '../search/search-palette-store';
+import { SHEET_ROW, TOOL_BTN, TOOL_BTN_TOGGLE, TOOL_VIS } from './term';
 
 // The logout confirm dialog (radix Dialog) loads in its own chunk, mounted
 // on first use, so radix stays out of the logged-out pages' critical path.
-const ConfirmDialog = lazy(() => import('./confirm-dialog.js').then((m) => ({ default: m.ConfirmDialog })));
+import { ConfirmDialogGate } from './confirm-dialog-gate';
 
-// lucide-react 1.x dropped brand icons; render the GitHub mark directly.
-function GithubMark({ size }: { size: number }) {
-  return (
-    <svg width={size} height={size} viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'>
-      <path d='M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12' />
-    </svg>
-  );
-}
+const ConfirmDialog = lazy(() => import('./confirm-dialog').then((m) => ({ default: m.ConfirmDialog })));
 
 function getRoleLabel(role?: string | null): string {
   if (role === 'admin') {
@@ -57,33 +48,9 @@ function getRoleLabel(role?: string | null): string {
  * convention for language switchers. Same control in the desktop bar and
  * the ≤480px sheet.
  */
-function LocaleSwitcher({ variant }: { variant: 'bar' | 'sheet' }) {
-  const { locale, setLocale } = useLocale();
-  const t = useT();
-  const next: Locale = locale === 'zh' ? 'en' : 'zh';
-  const label = next === 'zh' ? t(LANG_ZH_NAME) : t(LANG_EN_NAME);
-  const ariaLabel = t(SWITCH_LOCALE, { name: label });
-
-  if (variant === 'sheet') {
-    return (
-      <button type='button' aria-label={ariaLabel} onClick={() => setLocale(next)} className={SHEET_ROW}>
-        <Languages size={14} aria-hidden='true' /> {label}
-      </button>
-    );
-  }
-
-  return (
-    <button type='button' aria-label={ariaLabel} onClick={() => setLocale(next)} className={`${TOOL_BTN} ${TOOL_VIS}`}>
-      <Languages size={15} aria-hidden='true' />
-      <span className='hidden md:inline'>{label}</span>
-    </button>
-  );
-}
 
 // Tools collapse behind the ⋯ toggle on ≤480px; the user chip, theme toggle
 // and the ⋯ itself stay visible.
-const TOOL_VIS = 'max-[480px]:hidden';
-
 /** Terminal title bar: window dots + session name + right-aligned tools.
  *  ≤480px the tool buttons collapse behind a ⋯ toggle that expands a flat
  *  text sheet under the bar (no drawer, no animation — terminals don't slide). */
@@ -305,16 +272,4 @@ export function Header() {
       </ConfirmDialogGate>
     </header>
   );
-}
-
-/** Keeps the lazy ConfirmDialog mounted after its first opening so radix can
- *  animate the close; renders nothing before that. */
-function ConfirmDialogGate({ open, children }: { open: boolean; children: ReactNode }) {
-  const [armed, setArmed] = useState(false);
-  useEffect(() => {
-    if (open) {
-      setArmed(true);
-    }
-  }, [open]);
-  return armed ? <Suspense fallback={null}>{children}</Suspense> : null;
 }

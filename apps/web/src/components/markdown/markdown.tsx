@@ -4,8 +4,8 @@ import ReactMarkdown from 'react-markdown';
 import rehypeKatex from 'rehype-katex';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
-import { useT } from '../lib/i18n/context.js';
-import { COPIED_LABEL, COPY_ARIA, COPY_LABEL } from '../lib/i18n/messages.js';
+import { useT } from '../../lib/i18n/context.js';
+import { COPIED_LABEL, COPY_ARIA, COPY_LABEL } from '../../lib/i18n/messages.js';
 
 type MarkdownProps = {
   content: string;
