@@ -54,7 +54,7 @@ test('math article renders KaTeX without errors', async ({ page }) => {
   test.skip(response?.status() === 404, 'math post no longer present');
   await page.waitForSelector('html[data-hydrated]', { timeout: 20_000 });
   await page.waitForSelector('.katex', { timeout: 10_000 });
-  // KaTeX is forced to 0.18.x via a pnpm override (rehype-katex declares
+  // KaTeX is forced to 0.19.x via a pnpm override (rehype-katex declares
   // ^0.16); a broken render shows up as .katex-error nodes.
   expect(await page.locator('.katex-error').count()).toBe(0);
   expect(errors).toEqual([]);

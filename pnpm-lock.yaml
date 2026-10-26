@@ -174,7 +174,7 @@ catalogs:
 overrides:
   vite@*: npm:@voidzero-dev/vite-plus-core@1.4.0
   undici: ^7.30.1
-  katex: ^0.18.2
+  katex: ^0.19.0
   better-auth>vitest: 5.0.5
 
 importers:
@@ -236,8 +236,8 @@ importers:
         specifier: ^12.1.4
         version: 12.1.4
       katex:
-        specifier: ^0.18.2
-        version: 0.18.10
+        specifier: ^0.19.0
+        version: 0.19.1
       kysely:
         specifier: ^0.29.7
         version: 0.29.7
@@ -2870,8 +2870,8 @@ packages:
   jsonc-parser@3.3.1:
     resolution: {integrity: sha512-HUgH65KyejrUFPvHFPbqOY0rsFip3Bo5wb4ngvdi1EpCYWUQDC5V+Y7mZws+DLkr4M//zQJoanu1SP+87Dv1oQ==}
 
-  katex@0.18.10:
-    resolution: {integrity: sha512-/B6p9eY9DX7aHBfpkHdpirDTZ5QH9xTwL9y837PWuzuv41O5jFdqNQwVQEQsimY0/iVNkwBY4+4hMfhQ7d4Dbw==}
+  katex@0.19.1:
+    resolution: {integrity: sha512-jG8uKntjSEcm2EpQOh0XturpPuuC9r3Sq5HLHdsFdWZT27E672SF19QEi+of0/YeOy15lDgRhKvr5614uRrEfA==}
     hasBin: true
 
   kleur@3.0.3:
@@ -5876,7 +5876,7 @@ snapshots:
 
   jsonc-parser@3.3.1: {}
 
-  katex@0.18.10:
+  katex@0.19.1:
     dependencies:
       commander: 15.0.0
 
@@ -6266,7 +6266,7 @@ snapshots:
     dependencies:
       '@types/katex': 0.16.8
       devlop: 1.1.0
-      katex: 0.18.10
+      katex: 0.19.1
       micromark-factory-space: 2.1.0
       micromark-util-character: 2.1.1
       micromark-util-symbol: 2.0.1
@@ -6660,7 +6660,7 @@ snapshots:
       '@types/katex': 0.16.8
       hast-util-from-html-isomorphic: 2.0.0
       hast-util-to-text: 4.0.2
-      katex: 0.18.10
+      katex: 0.19.1
       unist-util-visit-parents: 6.0.2
       vfile: 6.0.3
 
