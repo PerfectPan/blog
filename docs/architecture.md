@@ -191,9 +191,7 @@ pnpm --filter @blog/web dev                            # vp dev（Vite+）
 
 ## 12. 部署
 
-- **生产**：Cloudflare Workers Builds 监听 `master`，root dir 为 `apps/web`，build 命令为
-  `pnpm install --frozen-lockfile && pnpm build`，deploy 命令为
-  `npx wrangler deploy -c dist/server/wrangler.json`。
+- **生产**：Cloudflare Workers Builds 监听 `master`，在 `apps/web` 下按分支声明的 Node 版本安装、构建，再执行 `npx wrangler deploy -c dist/server/wrangler.json`。构建变量和命令见[构建与认证](./preview-deployments.md#构建与认证)。
 - **预览**：原生 Preview Builds 执行 `pnpm preview:deploy`，先迁移 preview D1，再运行
   `wrangler preview -c dist/server/wrangler.json`。地址和 PR 评论由 Cloudflare 原生处理。
 - **预览资源**：`wrangler.jsonc.previews` 指向共享的 `blog-preview` D1 和 `blog-assets-preview` R2，
