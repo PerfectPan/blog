@@ -6,7 +6,7 @@ document is the human-facing equivalent.
 
 ## Development Setup
 
-Node.js 24+ and pnpm 12 (the version in `packageManager`; the pnpm shim
+Node.js 26.13.1 (the exact version in `.nvmrc`) and pnpm 12 (the version in `packageManager`; the pnpm shim
 picks it up automatically). Toolchain is Vite+ (`vp`): dev/build/test/lint
 all run through it — see `AGENTS.md` §1.
 
