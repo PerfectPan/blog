@@ -6,10 +6,18 @@ Cloudflare 已启用 Worker Previews，生产继续监听 `master`。所有预�
 
 ## 构建与认证
 
-控制台 root directory 为 `apps/web`，Build command 为
-`pnpm install --frozen-lockfile && pnpm build`，Preview command 为 `pnpm preview:deploy`。
-该命令只按顺序执行 preview D1 迁移和原生 `wrangler preview`。分支名、域名和 PR 链接由
-Cloudflare 处理，不再自定义名称、拼接 URL 或解析部署结果。
+Workers Builds 的工作目录为 `apps/web`。构建变量 `SKIP_DEPENDENCY_INSTALL=1` 关闭镜像的自动安装，依赖由下面的构建命令按原锁文件安装。镜像自带的 Node 只负责启动 npm，项目命令使用各分支声明的 Node。生产和预览的 Build command 相同：
+
+```sh
+range=$(node -p 'require("../../package.json").devEngines?.runtime?.version || require("node:fs").readFileSync("../../.nvmrc","utf8").trim()') &&
+  test -n "$range" &&
+  npm exec --yes --package="node@$range" -- sh -ec 'node --version && pnpm --version && pnpm install --frozen-lockfile && pnpm build'
+```
+
+声明了 `devEngines.runtime.version` 的分支使用该范围；其他分支沿用根目录 `.nvmrc`。核对实际运行时应看 Build command 输出的 `node --version`。GitHub Actions 直接从 `^26.13.1` 范围选择版本。
+
+Deploy command 使用相同的版本选择及 npm 启动方式。生产执行 `npx wrangler deploy -c dist/server/wrangler.json`，预览执行 `pnpm preview:deploy`。常规预览先迁移 preview D1，再运行原生 `wrangler preview`。分支名、域名和 PR 链接由 Cloudflare 处理。
+
 迁移使用原生 D1 CLI 和 `wrangler.preview-migrations.jsonc`，其数据库 ID 必须与运行时
 `previews.d1_databases` 一致；该配置只选择现有数据库，不创建数据库或 Worker。
 

@@ -6,8 +6,10 @@ document is the human-facing equivalent.
 
 ## Development Setup
 
-Node.js 24+ and pnpm 12 (the version in `packageManager`; the pnpm shim
-picks it up automatically). Toolchain is Vite+ (`vp`): dev/build/test/lint
+Node.js `^26.13.1` (`>=26.13.1 <27`) and pnpm 12 (the version in `packageManager`; the pnpm shim
+picks it up automatically). `.nvmrc` selects major 26; install its latest release. `devEngines.runtime`
+rejects development installs outside the allowed range. CI resolves the latest matching release with
+`check-latest: true`. Toolchain is Vite+ (`vp`): dev/build/test/lint
 all run through it — see `AGENTS.md` §1.
 
 ```bash
