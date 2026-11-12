@@ -8,7 +8,7 @@ Cloudflare 已启用 Worker Previews，生产继续监听 `master`。所有预�
 
 控制台 root directory 为 `apps/web`，Build command 为
 `pnpm install --frozen-lockfile && pnpm build`，Preview command 为 `pnpm preview:deploy`。
-Workers Builds 从 `apps/web/.node-version` 读取 `^26.13.1`。版本文件只写选择器，避免安装器把行尾换行读入版本号。仓库根目录的 `devEngines.runtime` 和 GitHub Actions 使用同一范围；本地 nvm 仍通过根目录的 `.nvmrc` 选择 26 系列。
+Workers Builds 从 `apps/web/.node-version` 读取精确版本 `26.13.1`。该安装器按主版本选择时曾取到低于安全下限的补丁，直接传入 caret 范围也会安装失败。升级云端构建版本时，请将此文件更新为满足根目录 `devEngines.runtime` 的具体版本，文件末尾不加换行。本地开发和 GitHub Actions 继续使用 `^26.13.1`。
 `chore/node-26-13-1` 分支仅验证 Node.js 升级：当 Cloudflare 的 `WORKERS_CI_BRANCH` 精确匹配该分支时，Preview command 跳过 D1 迁移和预览发布；其他分支保持原有顺序。
 该命令只按顺序执行 preview D1 迁移和原生 `wrangler preview`。分支名、域名和 PR 链接由
 Cloudflare 处理，不再自定义名称、拼接 URL 或解析部署结果。
