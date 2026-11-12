@@ -18,8 +18,6 @@ range=$(node -p 'require("../../package.json").devEngines?.runtime?.version || r
 
 Deploy command 使用相同的版本选择及 npm 启动方式。生产执行 `npx wrangler deploy -c dist/server/wrangler.json`，预览执行 `pnpm preview:deploy`。常规预览先迁移 preview D1，再运行原生 `wrangler preview`。分支名、域名和 PR 链接由 Cloudflare 处理。
 
-`chore/node-26-13-1` 的专属构建先核对 `WORKERS_CI_BRANCH`。该分支的 `preview:deploy` 跳过 D1 迁移和发布，可通过构建日志核验。
-
 迁移使用原生 D1 CLI 和 `wrangler.preview-migrations.jsonc`，其数据库 ID 必须与运行时
 `previews.d1_databases` 一致；该配置只选择现有数据库，不创建数据库或 Worker。
 
