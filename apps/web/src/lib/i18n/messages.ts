@@ -23,7 +23,7 @@ export type IcuMsg<A extends Record<string, string | number>> = Msg & {
   readonly __args?: A;
 };
 
-export const icu = <A extends Record<string, string | number>>(zh: string, en: string): IcuMsg<A> => ({ zh, en });
+const icu = <A extends Record<string, string | number>>(zh: string, en: string): IcuMsg<A> => ({ zh, en });
 
 const formatCache = new Map<string, IntlMessageFormat>();
 const LOCALE_TAGS: Record<Locale, string> = { zh: 'zh-CN', en: 'en' };

@@ -78,7 +78,3 @@ function unlockCookieAttributes(slug: string, cookieValue: string, maxAge: numbe
 export function buildUnlockCookieHeader(slug: string, value: string): string {
   return unlockCookieAttributes(slug, encodeURIComponent(value), 24 * 60 * 60).join('; ');
 }
-
-export function buildUnlockClearCookieHeader(slug: string): string {
-  return unlockCookieAttributes(slug, '', 0).join('; ');
-}

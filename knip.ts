@@ -6,7 +6,6 @@ import type { KnipConfig } from 'knip';
 // specs, and content/ holds markdown that no TypeScript import reaches.
 const config: KnipConfig = {
   ...knip,
-  exclude: ['exports', 'types'],
   workspaces: {
     '.': {
       project: ['tests/e2e/**/*.ts']

@@ -1,7 +1,7 @@
 import type { Locale } from '@blog/shared';
 
 /** Copy that exists in both UI languages; the page picks a side by locale. */
-export type LocalizedText = Record<Locale, string>;
+type LocalizedText = Record<Locale, string>;
 
 export type Project = {
   /** Display name of the project. */

@@ -12,7 +12,7 @@ import {
 import { createServerFn } from '@tanstack/react-start';
 import { getRequest } from '@tanstack/react-start/server';
 import { z } from 'zod';
-import { getAllPublishedPosts, getPostBySlug, verifyPostPassword } from './content-service.js';
+import { getAllPublishedPosts, getPostBySlug } from './content-service.js';
 import { htmlHasKatex, renderPostHtml } from './markdown-html.js';
 import { getSessionUserFromRequest } from './session-core.js';
 import { isUnlockCookieValid, parseCookies } from './unlock-cookie.js';
@@ -115,15 +115,4 @@ export const getBlogPostServerFn = createServerFn({ method: 'GET' })
       contentHtml,
       hasKatex: htmlHasKatex(contentHtml)
     };
-  });
-
-export const verifyPostPasswordServerFn = createServerFn({ method: 'POST' })
-  .validator(
-    z.object({
-      slug: z.string().min(1),
-      password: z.string().min(1)
-    })
-  )
-  .handler(async ({ data }) => {
-    return await verifyPostPassword(data.slug, data.password);
   });
