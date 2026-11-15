@@ -4,6 +4,7 @@ import { createServerFn } from '@tanstack/react-start';
 import { getRequest } from '@tanstack/react-start/server';
 import { z } from 'zod';
 import { getD1 } from './db.js';
+import { parseTagsColumn } from './tags.js';
 import { purgeArticleCache } from './page-cache.js';
 import { getSessionUserFromRequest } from './session-core.js';
 
@@ -45,13 +46,7 @@ type AdminRow = {
 };
 
 function rowToAdminPost(row: AdminRow): AdminPost {
-  let tags: string[] = [];
-  try {
-    const parsed = JSON.parse(row.tags) as unknown;
-    tags = Array.isArray(parsed) ? parsed.map(String) : [];
-  } catch {
-    tags = [];
-  }
+  const tags = parseTagsColumn(row.tags);
   const visibility = (POST_VISIBILITIES as readonly string[]).includes(row.visibility)
     ? (row.visibility as PostVisibility)
     : 'public';

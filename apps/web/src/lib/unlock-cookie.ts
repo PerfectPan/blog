@@ -60,16 +60,9 @@ export function parseCookies(rawCookieHeader: string | null): Record<string, str
     }, {});
 }
 
-export function buildUnlockCookieHeader(slug: string, value: string): string {
+function unlockCookieAttributes(slug: string, cookieValue: string, maxAge: number): string[] {
   const cookieName = getUnlockCookieName(slug);
-  const maxAge = 24 * 60 * 60;
-  const attributes = [
-    `${cookieName}=${encodeURIComponent(value)}`,
-    `Max-Age=${maxAge}`,
-    'Path=/',
-    'HttpOnly',
-    'SameSite=Lax'
-  ];
+  const attributes = [`${cookieName}=${cookieValue}`, `Max-Age=${maxAge}`, 'Path=/', 'HttpOnly', 'SameSite=Lax'];
 
   if (env.cookieDomain) {
     attributes.push(`Domain=${env.cookieDomain}`);
@@ -79,20 +72,13 @@ export function buildUnlockCookieHeader(slug: string, value: string): string {
     attributes.push('Secure');
   }
 
-  return attributes.join('; ');
+  return attributes;
+}
+
+export function buildUnlockCookieHeader(slug: string, value: string): string {
+  return unlockCookieAttributes(slug, encodeURIComponent(value), 24 * 60 * 60).join('; ');
 }
 
 export function buildUnlockClearCookieHeader(slug: string): string {
-  const cookieName = getUnlockCookieName(slug);
-  const attributes = [`${cookieName}=`, 'Max-Age=0', 'Path=/', 'HttpOnly', 'SameSite=Lax'];
-
-  if (env.cookieDomain) {
-    attributes.push(`Domain=${env.cookieDomain}`);
-  }
-
-  if (env.appsWebUrl.startsWith('https://')) {
-    attributes.push('Secure');
-  }
-
-  return attributes.join('; ');
+  return unlockCookieAttributes(slug, '', 0).join('; ');
 }
