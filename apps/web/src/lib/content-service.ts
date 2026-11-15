@@ -1,5 +1,6 @@
 import { POST_VISIBILITIES, type PostDetail, type PostSummary, type PostVisibility } from '@blog/shared';
 import { getD1 } from './db.js';
+import { parseTagsColumn } from './tags.js';
 
 /**
  * Content source: posts in the D1 `post` table (created/edited via /admin, plus
@@ -29,13 +30,7 @@ type PostDetailRow = PostSummaryRow & { body: string };
 const SUMMARY_COLUMNS = 'slug, title, description, visibility, tags, publishedAt';
 
 function toSummary(row: PostSummaryRow): PostSummary {
-  let tags: string[] = [];
-  try {
-    const parsed = JSON.parse(row.tags) as unknown;
-    tags = Array.isArray(parsed) ? parsed.map(String) : [];
-  } catch {
-    tags = [];
-  }
+  const tags = parseTagsColumn(row.tags);
 
   return {
     slug: row.slug,

@@ -4,27 +4,33 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "pnpm --filter @blog/web dev",
     "build": "pnpm --filter @blog/web build",
-    "deploy": "pnpm --filter @blog/web deploy",
+    "cf-typegen": "pnpm --filter @blog/web cf-typegen",
     "db:migrate": "pnpm --filter @blog/web db:migrate",
     "db:migrate:local": "pnpm --filter @blog/web db:migrate:local",
-    "cf-typegen": "pnpm --filter @blog/web cf-typegen",
+    "deploy": "pnpm --filter @blog/web deploy",
+    "dev": "pnpm --filter @blog/web dev",
+    "duplicates": "jscpd --config node_modules/@perfectpan/lint-config/jscpd.json packages apps/web/src apps/web/tests --ignore '**/*.test.ts,**/*.json,**/routeTree.gen.ts' --format 'typescript'",
+    "duplicates:audit": "jscpd --config node_modules/@perfectpan/lint-config/jscpd-audit.json packages apps/web/src apps/web/tests --absolute --output tmp/duplicates-audit --ignore '**/node_modules/**,**/dist/**,**/.next/**,**/.wrangler/**' --format 'typescript'",
+    "knip": "knip",
+    "knip:production": "knip --production",
     "lint": "vp check",
-    "test": "vp test run",
-    "test:watch": "vp test",
+    "prepare": "vp config",
     "size": "pnpm --filter @blog/web size",
+    "test": "vp test run",
     "test:e2e": "playwright test",
     "test:e2e:logout": "playwright test tests/e2e/auth-logout.spec.ts",
-    "typecheck": "pnpm --recursive --filter @blog/web --filter @blog/shared typecheck",
-    "prepare": "vp config"
+    "test:watch": "vp test",
+    "typecheck": "pnpm --recursive --filter @blog/web --filter @blog/shared typecheck"
   },
   "devDependencies": {
-    "@perfectpan/lint-config": "github:PerfectPan/lint-config#v0.7.1",
+    "@perfectpan/lint-config": "github:PerfectPan/lint-config#v0.8.0",
     "@playwright/test": "^1.64.1",
     "@shadcn/lint": "^0.2.3",
     "typescript": "^7.0.2",
-    "vite-plus": "catalog:"
+    "vite-plus": "catalog:",
+    "jscpd": "5.4.2",
+    "knip": "6.45.1"
   },
   "engines": {
     "node": ">=24"
