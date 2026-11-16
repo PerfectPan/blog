@@ -1,5 +1,4 @@
 import { isLocale, type Locale, type Role, type SessionUser } from '@blog/shared';
-import { getRequest } from '@tanstack/react-start/server';
 import { auth } from './auth.js';
 import { getD1 } from './db.js';
 import { getWebEnv } from './env.js';
@@ -109,8 +108,4 @@ export function getSessionUserFromRequest(request?: Request | null): Promise<Ses
     sessions.set(request, session);
   }
   return session;
-}
-
-export async function getSessionUser(): Promise<SessionUser | null> {
-  return getSessionUserFromRequest(getRequest());
 }

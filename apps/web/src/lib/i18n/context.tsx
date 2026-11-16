@@ -14,7 +14,7 @@ import { formatMsg, type IcuMsg, type Msg } from './messages.js';
  */
 
 /** Guest preference key; signed-in users persist via setLocaleServerFn. */
-export const LOCALE_STORAGE_KEY = 'blog-locale';
+const LOCALE_STORAGE_KEY = 'blog-locale';
 
 /** BCP-47 tag for <html lang> per UI locale. */
 const LANG_TAGS: Record<Locale, string> = { zh: 'zh-CN', en: 'en' };

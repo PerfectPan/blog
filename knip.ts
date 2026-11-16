@@ -6,12 +6,14 @@ import type { KnipConfig } from 'knip';
 // specs, and content/ holds markdown that no TypeScript import reaches.
 const config: KnipConfig = {
   ...knip,
-  exclude: ['exports', 'types'],
   workspaces: {
     '.': {
       project: ['tests/e2e/**/*.ts']
     },
     'apps/web': {
+      // src/components/ui is the shadcn/ui copy: a curated full set whose unused exports stay, so the
+      // components are entries and unused-export checking does not chase them.
+      entry: ['src/components/ui/**/*.tsx!'],
       // CSS is in project so knip follows @import for tailwindcss and tw-animate-css.
       project: ['src/**/*.{ts,tsx,css}!', 'scripts/**/*', 'tests/**/*.ts']
     }

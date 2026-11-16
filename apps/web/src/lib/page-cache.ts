@@ -24,7 +24,7 @@ async function getCache(): Promise<Cache | undefined> {
   return (await cachePromise) ?? undefined;
 }
 
-export function isArticlePath(url: URL): boolean {
+function isArticlePath(url: URL): boolean {
   // /blog/<slug> only — never the list, feeds, APIs or admin.
   return /^\/blog\/[^/]+$/.test(url.pathname);
 }
