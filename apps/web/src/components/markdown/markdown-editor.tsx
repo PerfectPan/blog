@@ -11,6 +11,13 @@ import {
   Quote
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import {
+  markdownPrefixLines,
+  markdownWrap,
+  useCaretRestore,
+  useDebouncedPreview,
+  type PendingSelection
+} from './markdown-actions';
 import { previewPostServerFn } from '../../lib/markdown-preview.js';
 import { MarkdownView } from './markdown-view';
 import { ModeButton } from '../toolbar/mode-button';
@@ -34,88 +41,26 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
   // Preview HTML is rendered on the worker (same pipeline as the published
   // page); debounced so typing stays snappy and the RPC stays quiet.
   const [previewHtml, setPreviewHtml] = useState('');
-  const pendingSelection = useRef<{ start: number; end: number } | null>(null);
+  const pendingSelection = useRef<PendingSelection | null>(null);
 
+  // Preview HTML is rendered on the worker; debounced so typing stays snappy.
   useEffect(() => {
-    if (!previewVisible) {
-      return;
-    }
-    if (!value.trim()) {
+    if (!previewVisible || !value.trim()) {
       setPreviewHtml('');
-      return;
     }
-    let cancelled = false;
-    const handle = setTimeout(() => {
-      previewPostServerFn({ data: { body: value } })
-        .then(({ html }) => {
-          if (!cancelled) {
-            setPreviewHtml(html);
-          }
-        })
-        .catch(() => {
-          if (!cancelled) {
-            setPreviewHtml('');
-          }
-        });
-    }, 250);
-    return () => {
-      cancelled = true;
-      clearTimeout(handle);
-    };
-  }, [value, previewVisible]);
+  }, [previewVisible, value]);
+  useDebouncedPreview(previewPostServerFn, value, previewVisible && value.trim() !== '', 250, setPreviewHtml);
 
-  // Restore the caret/selection after a toolbar action mutates the value.
-  useEffect(() => {
-    const el = ref.current;
-    const next = pendingSelection.current;
-    if (!el || !next) {
-      return;
-    }
-    el.focus();
-    el.setSelectionRange(next.start, next.end);
-    pendingSelection.current = null;
-  });
+  useCaretRestore(ref, pendingSelection);
 
-  /** Wrap the current selection with `before`/`after`, inserting a placeholder
-   * when nothing is selected. */
+  const editor = { value, setValue: onChange, ref, pendingSelection };
+
   function wrap(before: string, after: string, placeholder = 'text') {
-    const el = ref.current;
-    if (!el) {
-      return;
-    }
-    const start = el.selectionStart;
-    const end = el.selectionEnd;
-    const selected = value.slice(start, end) || placeholder;
-    const next = value.slice(0, start) + before + selected + after + value.slice(end);
-    onChange(next);
-    const selStart = start + before.length;
-    pendingSelection.current = {
-      start: selStart,
-      end: selStart + selected.length
-    };
+    markdownWrap(editor, before, after, placeholder);
   }
 
-  /** Prefix every line touched by the current selection (toggles the prefix). */
   function prefixLines(prefix: string) {
-    const el = ref.current;
-    if (!el) {
-      return;
-    }
-    const start = el.selectionStart;
-    const end = el.selectionEnd;
-    const lineStart = value.lastIndexOf('\n', start - 1) + 1;
-    const block = value.slice(lineStart, end);
-    const allPrefixed = block.split('\n').every((line) => line.startsWith(prefix) || line === '');
-    const newBlock = block
-      .split('\n')
-      .map((line) => (allPrefixed ? line.slice(prefix.length) : line.startsWith(prefix) ? line : prefix + line))
-      .join('\n');
-    const next = value.slice(0, lineStart) + newBlock + value.slice(end);
-    onChange(next);
-    pendingSelection.current = {
-      start: lineStart,
-      end: lineStart + newBlock.length
-    };
+    markdownPrefixLines(editor, prefix);
   }
 
   function insertCodeBlock() {
