@@ -22,6 +22,13 @@ import {
 const COMMENT_BODY_MAX = 2000;
 import { useT } from '../../lib/i18n/context.js';
 import { previewCommentServerFn } from '../../lib/markdown-preview.js';
+import {
+  markdownPrefixLines,
+  markdownWrap,
+  useCaretRestore,
+  useDebouncedPreview,
+  type PendingSelection
+} from '../markdown/markdown-actions';
 import { useSessionUser } from '../../lib/session-user.js';
 import { CommentBody } from './comment-body';
 import { ModeButton } from '../toolbar/mode-button';
@@ -51,85 +58,35 @@ export function Composer({ placeholder, submitLabel, submitting, onSubmit, compa
   // Re-rendering markdown per keystroke is wasteful — keep the preview a tick
   // behind the typed text (same as the admin editor).
   const previewContent = useDeferredValue(body);
-  const pendingSelection = useRef<{ start: number; end: number } | null>(null);
+  const pendingSelection = useRef<PendingSelection | null>(null);
 
-  // Debounced server render while the preview tab is open.
+  // Debounced server render while the preview tab is open; hiding it clears what it showed.
   useEffect(() => {
     if (!preview || !previewContent.trim()) {
       setPreviewHtml('');
-      return;
     }
-    let cancelled = false;
-    const handle = setTimeout(() => {
-      previewCommentServerFn({ data: { body: previewContent } })
-        .then(({ html }) => {
-          if (!cancelled) {
-            setPreviewHtml(html);
-          }
-        })
-        .catch(() => {
-          if (!cancelled) {
-            setPreviewHtml('');
-          }
-        });
-    }, 200);
-    return () => {
-      cancelled = true;
-      clearTimeout(handle);
-    };
   }, [preview, previewContent]);
+  useDebouncedPreview(
+    previewCommentServerFn,
+    previewContent,
+    preview && previewContent.trim() !== '',
+    200,
+    setPreviewHtml
+  );
 
-  // Restore the caret/selection after a toolbar action mutates the value.
-  useEffect(() => {
-    const el = textareaRef.current;
-    const next = pendingSelection.current;
-    if (!el || !next) {
-      return;
-    }
-    el.focus();
-    el.setSelectionRange(next.start, next.end);
-    pendingSelection.current = null;
-  });
+  useCaretRestore(textareaRef, pendingSelection);
+
+  const editor = { value: body, setValue: setBody, ref: textareaRef, pendingSelection };
 
   /** Wrap the current selection with `before`/`after`, inserting `emptyText`
    *  when nothing is selected. */
   function wrap(before: string, after: string, emptyText: string) {
-    const el = textareaRef.current;
-    if (!el) {
-      return;
-    }
-    const start = el.selectionStart;
-    const end = el.selectionEnd;
-    const selected = body.slice(start, end) || emptyText;
-    const next = body.slice(0, start) + before + selected + after + body.slice(end);
-    setBody(next);
-    const selStart = start + before.length;
-    pendingSelection.current = {
-      start: selStart,
-      end: selStart + selected.length
-    };
+    markdownWrap(editor, before, after, emptyText);
   }
 
   /** Prefix every line touched by the current selection (toggles the prefix). */
   function prefixLines(prefix: string) {
-    const el = textareaRef.current;
-    if (!el) {
-      return;
-    }
-    const start = el.selectionStart;
-    const end = el.selectionEnd;
-    const lineStart = body.lastIndexOf('\n', start - 1) + 1;
-    const block = body.slice(lineStart, end);
-    const allPrefixed = block.split('\n').every((line) => line.startsWith(prefix) || line === '');
-    const newBlock = block
-      .split('\n')
-      .map((line) => (allPrefixed ? line.slice(prefix.length) : line.startsWith(prefix) ? line : prefix + line))
-      .join('\n');
-    setBody(body.slice(0, lineStart) + newBlock + body.slice(end));
-    pendingSelection.current = {
-      start: lineStart,
-      end: lineStart + newBlock.length
-    };
+    markdownPrefixLines(editor, prefix);
   }
 
   async function handleSubmit(event: React.FormEvent) {
