@@ -123,5 +123,5 @@ export function markdownPrefixLines(
     .map((line) => (allPrefixed ? line.slice(prefix.length) : line.startsWith(prefix) ? line : prefix + line))
     .join('\n');
   const next = args.value.slice(0, lineStart) + newBlock + args.value.slice(end);
-  applySelectionEdit(args.setValue, args.pendingSelection, next, start, 0);
+  applySelectionEdit(args.setValue, args.pendingSelection, next, lineStart, newBlock.length);
 }
