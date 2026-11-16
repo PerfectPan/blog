@@ -11,6 +11,9 @@ const config: KnipConfig = {
       project: ['tests/e2e/**/*.ts']
     },
     'apps/web': {
+      // src/components/ui is the shadcn/ui copy: a curated full set whose unused exports stay, so the
+      // components are entries and unused-export checking does not chase them.
+      entry: ['src/components/ui/**/*.tsx!'],
       // CSS is in project so knip follows @import for tailwindcss and tw-animate-css.
       project: ['src/**/*.{ts,tsx,css}!', 'scripts/**/*', 'tests/**/*.ts']
     }
