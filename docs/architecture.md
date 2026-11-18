@@ -225,7 +225,7 @@ pnpm --filter @blog/web dev                            # vp dev（Vite+）
 - **改表结构**：加 `apps/web/migrations/000N_*.sql`；deploy 时自动应用到远端、本地用 `--local`。
 - **改可见性逻辑**：`packages/shared/src/access.ts`（`canAccessVisibility`）+ 在数据层 fn 里强制。
 - **提交前最低验证**：`pnpm typecheck`；`pnpm lint`（`vp check`：Oxfmt 格式检查 + Oxlint）；
-  `pnpm knip` 和 `pnpm knip:production` 分别检查全项目和生产代码。检出未使用的文件、导出、依赖或配置、标签提示时，CI 失败。
+  `pnpm knip` 和 `pnpm knip:production`（分别检查全项目和生产代码，检出未使用的文件、导出、依赖或配置、标签提示即失败）；
   `pnpm duplicates` 检出任何一处重复即失败（`pnpm duplicates:audit` 只生成报告）；
   `pnpm --filter @blog/web build`；`pnpm --filter @blog/web exec wrangler deploy -c
   apps/web/dist/server/wrangler.json --dry-run`（体积守门）。
