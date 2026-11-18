@@ -35,6 +35,9 @@ jobs:
       - name: Lint (vp check)
         run: pnpm lint
 
+      - name: Check for duplicate code
+        run: pnpm duplicates
+
       - name: Unit Tests
         run: pnpm test
 

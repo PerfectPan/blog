@@ -91,6 +91,7 @@ pnpm deploy
 ```bash
 pnpm typecheck
 pnpm lint   # = vp check（Oxfmt 格式检查 + Oxlint lint，含 shadcn token 规则，与 CI lint job 一致）
+pnpm duplicates  # 检出任何一处重复即失败。`pnpm duplicates:audit` 只生成报告。
 pnpm --filter @blog/web build
 pnpm --filter @blog/web exec wrangler deploy -c dist/server/wrangler.json --dry-run  # 守 3 MiB
 ```
