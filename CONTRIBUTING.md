@@ -64,6 +64,9 @@ Specs and Plans in the delivery PR.
 ```bash
 pnpm lint         # vp check — Oxfmt format check + Oxlint across the repo
 pnpm typecheck    # tsc (TypeScript 7 native)
+# Both Knip checks fail CI on unused files, exports, dependencies, or configuration and tag hints.
+pnpm knip
+pnpm knip:production  # Check production code separately.
 pnpm duplicates   # Fails on any reported clone. `pnpm duplicates:audit` only reports findings.
 pnpm test         # vp test (Vitest 5) — unit tests
 pnpm --filter @blog/web build
