@@ -26,6 +26,9 @@ broken or over-budget deploy.
 ```bash
 pnpm typecheck
 pnpm lint
+# Unused files, exports, dependencies, or configuration and tag hints fail these checks.
+pnpm knip
+pnpm knip:production
 ```
 
 ## 2. Build

@@ -35,6 +35,12 @@ jobs:
       - name: Lint (vp check)
         run: pnpm lint
 
+      - name: Check for unused files, exports, and dependencies
+        run: pnpm knip
+
+      - name: Check production code with Knip
+        run: pnpm knip:production
+
       - name: Check for duplicate code
         run: pnpm duplicates
 

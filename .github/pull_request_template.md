@@ -11,6 +11,7 @@
 <!-- Commands you ran and their results; screenshots for visual claims. Name skipped checks and why. -->
 
 - [ ] `pnpm lint` (vp check) and `pnpm typecheck`
+- [ ] Run `pnpm knip` and `pnpm knip:production`. Unused files, exports, dependencies, or configuration and tag hints fail CI.
 - [ ] `pnpm duplicates` (fails on any reported clone, while `pnpm duplicates:audit` only reports findings)
 - [ ] `pnpm test` — unit tests
 - [ ] `pnpm --filter @blog/web build` + size gate (`wrangler deploy --dry-run`, < 3 MiB gzip)
