@@ -64,6 +64,7 @@ Specs and Plans in the delivery PR.
 ```bash
 pnpm lint         # vp check — Oxfmt format check + Oxlint across the repo
 pnpm typecheck    # tsc (TypeScript 7 native)
+pnpm duplicates   # Fails on any reported clone. `pnpm duplicates:audit` only reports findings.
 pnpm test         # vp test (Vitest 5) — unit tests
 pnpm --filter @blog/web build
 pnpm --filter @blog/web exec wrangler deploy -c dist/server/wrangler.json --dry-run
