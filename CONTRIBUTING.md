@@ -42,22 +42,14 @@ PR bodies are English too; the repo validates titles with
 
 ## Change Design Gate
 
-Every change needs a requirement record; use the smallest set of artifacts
-that makes behavior and implementation reviewable.
+Most changes need only a clear PR description (`## Summary` and `## Validation`), not a separate document.
 
-| Change type | Required artifact |
+| Change scope | Required artifact |
 | --- | --- |
-| Product behavior | One Spec plus one detailed Plan for the same deliverable |
-| Technical refactor without changed user behavior | Detailed Plan with compatibility and acceptance conditions |
-| Narrow maintenance, tests, or documentation | Requirement in the PR description; a separate Plan only when useful |
+| Bugfix, localized feature/refactor, tests, dependencies, or docs | PR description explaining what changed, why, and how it was verified |
+| New subsystem, schema/auth/routing contract change, major design tradeoffs, or multi-PR/multi-session work | One Plan in [`docs/plans/`](docs/plans/) |
 
-A Spec (`docs/specs/`) defines observable interactions, scope, failure
-behavior, and acceptance examples — stable scenario IDs, Given/When/Then
-where useful, linked to tests; it does not prescribe implementation. A
-Plan (`docs/plans/`) records technical decisions and the execution plan.
-A small change may keep both sections in the PR description. Move lasting
-constraints into `docs/architecture.md` or tests before deleting completed
-Specs and Plans in the delivery PR.
+A Plan (`docs/plans/`) records the problem, goals, outline, detailed design, verification, and (when useful) execution steps. Retire the plan as soon as its code lands on `master`: move any remaining manual checks or follow-ups to issues, migrate lasting non-code constraints (invariants, tradeoffs, operational limits) into `docs/architecture.md` or local `Why:` comments, and delete the completed plan in the final delivery PR. Git history and the delivery PR keep the full plan.
 
 ## Required Checks
 
