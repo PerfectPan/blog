@@ -47,7 +47,7 @@ export function getUnlockCookieName(slug: string): string {
  * Can this viewer read (and therefore comment on) a post's comments?
  *
  * Comments are gated by the *post's* visibility, exactly like the post body is
- * (see docs/architecture.md §6). `getCommentsServerFn` is reachable over RPC, so
+ * (see docs/architecture/overview.md §6). `getCommentsServerFn` is reachable over RPC, so
  * this gate is enforced inside the server fn — not only in the route loader.
  *
  * `unlocked` for a `password` post is computed upstream as

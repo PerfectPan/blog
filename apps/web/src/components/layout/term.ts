@@ -24,7 +24,7 @@ export const SHEET_ROW =
 
 // Page-intro enter recipe (tw-animate-css): fade + rise, held invisible
 // through its delay. Backwards fill and animation-only durations are
-// required; see docs/motion.md §3. Pair with enterDelay() to stagger.
+// required; see docs/architecture/motion.md §3. Pair with enterDelay() to stagger.
 export const ENTER =
   'motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:animation-duration-400 motion-safe:ease-out motion-safe:fill-mode-backwards';
 

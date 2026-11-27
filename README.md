@@ -12,7 +12,7 @@ entirely on Cloudflare.
 
 The repo is a pnpm workspace: `apps/web` is the site, `packages/shared` holds
 shared types. Design notes and internal docs live in
-[docs/architecture.md](docs/architecture.md).
+[docs/architecture/overview.md](docs/architecture/overview.md).
 
 ## Development
 

@@ -14,7 +14,7 @@ type CommentMarkdownProps = {
  * code/links/lists, so this runs react-markdown + remark-gfm with no heavy
  * rehype plugins.
  *
- * XSS posture matches docs/architecture.md §8: no `rehype-raw` (raw HTML is
+ * XSS posture matches docs/architecture/overview.md §8: no `rehype-raw` (raw HTML is
  * escaped), and react-markdown's default `urlTransform` strips dangerous URL
  * protocols (`javascript:`, `data:`, `vbscript:`) from links.
  */

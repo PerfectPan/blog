@@ -35,7 +35,7 @@ high number means busy traffic (often bots); always filter with `--errors` /
 
 | Stack / message | Means | Direction |
 |---|---|---|
-| `WebAssembly.instantiate` → `createOnigurumaEngine` → `createHighlighterCore`, on `/blog/<slug>` SSR | shiki's WASM engine failed to instantiate on the Worker (memory/CPU pressure) → article 500s | the engine should be the **JS regex engine** (`createJavaScriptRegexEngine`), not oniguruma (fix PR #88, 2026-07-26). If this returns, `markdown.tsx` regressed back to oniguruma WASM. |
+| `WebAssembly.instantiate` → highlighter / shiki on `/blog/<slug>` SSR | WASM syntax highlighting ran on the Worker and failed under memory/CPU pressure → article 500s | Syntax highlighting runs client-side in a browser Web Worker (`@pierre/highlights` in `markdown-highlight.worker.ts`), not on the Worker. If this returns, check `markdown-html.tsx` / `markdown.tsx` for a regression that pulled WASM highlighting back into SSR. |
 | `throwRouteHandlerError` … `getFinalResponse`, on `/_serverFn/…` | a route loader / server-fn threw → 500 | URL-decode the `payload=` query to find which fn + slug (e.g. `{"slug":"record-2019"}`), then read that loader. |
 | `Error in renderToReadableStream` (+ `componentStack`) | SSR-time render crash | the component in `componentStack` threw during server render. |
 | `GET /wp-admin`, `/wp-login.php` flooding | bot WordPress-exploit scans — cheap 404s | **noise, not the bug.** Ignore (or block at the CF WAF later). |

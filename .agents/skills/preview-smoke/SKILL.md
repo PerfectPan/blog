@@ -5,9 +5,9 @@ description: Read-only browser smoke of a PR's Cloudflare preview deployment (ht
 
 # Preview-deploy smoke (read-only)
 
-CI already runs this automatically on every PR (the `preview-smoke` job in
-`.github/workflows/e2e.yml`). Run it manually when you want local confirmation,
-when the CI job is red, or for the deeper interactive pass described in step 3.
+Run this read-only smoke spec locally after pushing a PR (it is not run in CI —
+`.github/workflows/e2e.yml` runs the full Playwright suite against an ephemeral local D1).
+Use it before asking for merge approval, or for the deeper interactive pass in step 3.
 
 **Never run the full e2e suite against the preview URL.** The full suite signs
 up users and creates posts — the preview D1 (`blog-preview`) is shared by every
