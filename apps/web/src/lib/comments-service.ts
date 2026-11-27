@@ -22,12 +22,11 @@ import { getSessionUserFromRequest } from './session-core.js';
 import { isUnlockCookieValid, parseCookies } from './unlock-cookie.js';
 
 /**
- * Self-hosted comments (replaces utteranc.es). See
- * docs/superpowers/specs/2026-07-14-self-hosted-comments-design.md.
+ * Self-hosted comments (see docs/architecture/overview.md §4).
  *
  * Every fn resolves the session and re-checks post access *inside the handler*,
  * because server fns are reachable over RPC — the route loader's gate is not
- * enough on its own (docs/architecture.md §6).
+ * enough on its own (docs/architecture/overview.md §6).
  */
 
 /** Min gap between two comments from the same user. */

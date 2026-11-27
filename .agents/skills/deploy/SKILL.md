@@ -6,7 +6,7 @@ description: Deploy the blog to Cloudflare Workers safely. Use when the user ask
 # Deploy the blog to Cloudflare Workers
 
 This blog runs entirely on Cloudflare: the `@blog/web` TanStack Start app is a
-Worker, content is git-backed markdown, users/roles live in **D1**, and the
+Worker, posts/comments/users live in **D1** (media in **R2**), and the
 worker must stay under the **3 MiB gzip free-tier limit**.
 
 Run these steps **in order**. Do not skip the gates — they exist to prevent a

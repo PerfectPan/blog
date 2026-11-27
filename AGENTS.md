@@ -2,7 +2,7 @@
 
 本文件给在本仓库工作的 agent / 工程师使用，目标是减少误操作并统一交付标准。
 
-> **架构单点真相 = `docs/architecture.md`**（含数据模型 / 两层权限 / 安全 / 备份 / agent 速查 §13）。
+> **架构单点真相 = `docs/architecture/overview.md`**（含数据模型 / 两层权限 / 安全 / 备份 / agent 速查 §13）。
 > 本文件侧重流程与约束；架构细节以那份文档为准。
 > 写非代码知识（新增/修改 `docs/`、选文档还是 `Why:` 注释、或退役 Plan）前先读 [`docs/AGENTS.md`](docs/AGENTS.md) 与 [`docs/README.md`](docs/README.md)。
 
@@ -21,7 +21,7 @@
 
 1. 路由兼容性不可破坏：`/blog`、`/blog/:slug`。
 2. 权限裁决必须在**两层**服务端做：route loader（UX/状态码）+ 数据层 server fn。
-   server fn 可被直接 RPC 调用，**鉴权必须在 handler 内部**，不能只靠 loader（见 `docs/architecture.md` §6）。前端只做展示。
+   server fn 可被直接 RPC 调用，**鉴权必须在 handler 内部**，不能只靠 loader（见 `docs/architecture/overview.md` §6）。前端只做展示。
 3. `BETTER_AUTH_SECRET` 绝不能进客户端包，只走 `wrangler secret` / `.dev.vars`。
 4. worker 体积必须守住 Workers 免费版 **3 MiB gzip** 上限——这是 $0 的命根子。
    每次改动后用 `wrangler deploy -c dist/server/wrangler.json --dry-run` 看 gzip 数。
@@ -82,7 +82,7 @@ pnpm deploy
    `wrangler deploy` 用它。
 3. **主部署通道是 Cloudflare Workers Builds**（CF Git 集成）：push `master` 自动 build + 部署，
    非生产分支启用 Preview Builds 后执行 `pnpm preview:deploy`，先迁移独立 preview D1，再原生发布。
-   `.github/workflows/preview.yml` 仅清理关闭 PR 的预览；控制台切换与验收见 `docs/preview-deployments.md`。
+   `.github/workflows/preview.yml` 仅清理关闭 PR 的预览；控制台切换与验收见 `docs/development/preview-deployments.md`。
    **生产 D1 迁移**由 `.github/workflows/migrate.yml`（push `master` 触发）
    单独跑（仅 `migrations/` 有变化时触发，另可手动 `workflow_dispatch`；与生产构建独立执行）。
    手动 `/deploy` 后务必 push，否则和 Workers Builds 分叉。

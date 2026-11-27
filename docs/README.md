@@ -5,11 +5,13 @@ Contribution workflow and Change Design Gate: [`CONTRIBUTING.md`](../CONTRIBUTIN
 
 ## Index
 
-- [`architecture.md`](architecture.md) — current architecture single source of truth (data model, two-layer auth, security, backups, agent quick reference).
-- [`request-flow.md`](request-flow.md) — request lifecycle and routing boundaries.
-- [`selection.md`](selection.md) — stack selection rationale.
-- [`motion.md`](motion.md) — motion and animation guidelines.
-- [`preview-deployments.md`](preview-deployments.md) — Cloudflare Worker Preview deployment setup and verification.
-- [`deploy-vercel-railway.md`](deploy-vercel-railway.md) — legacy pre-Cloudflare deployment reference.
-- [`plans/`](plans/) — active design/implementation plans; each is retired in its final delivery PR (historical migration notes referenced by `architecture.md` remain until superseded).
-- [`retrospectives/`](retrospectives/) — dated post-incident and milestone retrospectives.
+- [`architecture/overview.md`](architecture/overview.md) — current architecture single source of truth (data model, two-layer auth, comments, security, backups, agent quick reference).
+- [`architecture/request-flow.md`](architecture/request-flow.md) — request lifecycle, D1 content/comment queries, and unlock flow.
+- [`architecture/motion.md`](architecture/motion.md) — background canvas and page-intro motion guidelines and constraints.
+- [`development/preview-deployments.md`](development/preview-deployments.md) — Cloudflare Worker Preview deployment setup and maintenance.
+- [`plans/`](plans/) — active design/implementation plans; each is retired in its final delivery PR.
+
+## Repository-Specific Surfaces
+
+- Internal architecture docs and plans under `docs/` are written in Chinese (while `docs/AGENTS.md`, `docs/plans/README.md`, and `docs/plans/0000-template.md` stay English verbatim from `project-template`).
+- Operational agent skills (manual deploy, preview smoke, Worker log diagnosis) live in [`.agents/skills/`](../.agents/skills/).

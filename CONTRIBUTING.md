@@ -28,7 +28,7 @@ pnpm --filter @blog/web preview   # wrangler dev (real workerd runtime)
    requires before implementing.
 5. Add or update tests for behavior changes (`packages/**/*.test.ts`,
    `apps/web/tests`, Playwright specs under `tests/e2e`).
-6. Update `docs/architecture.md` when architecture, data flow, or
+6. Update `docs/architecture/overview.md` when architecture, data flow, or
    project policy changes.
 7. Run the required checks below.
 8. Open a pull request. `master` is protected by a ruleset — every change

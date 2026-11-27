@@ -1,8 +1,6 @@
-# 项目架构（全 Cloudflare，D1 驱动 · 2026-06）
+# 项目架构（全 Cloudflare，D1 驱动）
 
-> 本文是「当前架构」的**单点真相**，面向人和 agent。快速概览见 `README.md`，迁移决策见
-> `docs/plans/2026-06-22-cloudflare-migration-design.md`。旧 Vercel+Payload+Railway 架构
-> （2026-02）已废弃，归档文档见文末。
+> 本文是「当前架构」的**单点真相**，面向人和 agent。快速概览见 [`README.md`](../../README.md)，文档目录见 [`docs/README.md`](../README.md)。
 >
 > 给 agent 的速查直接跳 **§13**。改东西前先读 **§6（权限）** 和 **§8（安全）**。
 
@@ -28,13 +26,13 @@
 | 公开博客 | `routes/blog/{index,$slug}.tsx`、`lib/blog-service.ts`、`lib/content-service.ts` |
 | 认证 | `lib/auth.ts`、`lib/auth-client.ts`、`lib/session-core.ts`、`lib/mail.ts`（Resend 发信）、`routes/api/auth/$.ts`、`routes/{login,signup,logout,account}.tsx`、`components/{auth,account}.tsx` |
 | Admin 后台 | `routes/admin/{index,new,$slug}.tsx`、`lib/admin-service.ts`、`components/{post-editor,markdown-editor,tag-input,markdown}.tsx` |
-| 评论（自建，登录 + 后置审核） | `lib/comments-service.ts`、`components/{comments,comment-markdown}.tsx`、`routes/admin/comments.tsx`；共享类型/权限纯函数 `packages/shared`（`Comment`、`canAccessComments`、`canManageComment`）。设计见 `docs/superpowers/specs/2026-07-14-self-hosted-comments-design.md` |
+| 评论（自建，登录 + 后置审核） | `lib/comments-service.ts`、`components/comments/{comments,comment-markdown}.tsx`、`routes/admin/comments.tsx`；共享类型/权限纯函数 `packages/shared`（`Comment`、`canAccessComments`、`canManageComment`） |
 | 密码文章解锁 | `routes/unlock/$slug.tsx`、`lib/unlock-cookie.ts`、`lib/unlock-rate-limit.ts` |
 | Markdown 渲染 | 服务端：`lib/markdown-html.tsx`（react-markdown + rehype-katex，经 `renderToStaticMarkup` 输出 HTML 字符串）+ `components/markdown.tsx`（渲染组件本体）；客户端：`components/markdown-view.tsx`（单节点注入、按可见区域增强）+ `components/markdown-highlight{,.worker}.ts`（复用一个浏览器 Web Worker 执行 @pierre/highlights） |
 | 界面 i18n（zh/en） | `lib/i18n/{messages,context}.ts`、`lib/locale-service.ts`（`user.locale`） |
 | D1 访问 / 迁移 | `lib/db.ts`、`apps/web/migrations/` |
 | 共享类型 / 权限纯函数 | `packages/shared/src/{types,access,index}.ts` |
-| CI / 部署 / 备份 | `.github/workflows/{deploy,pull-request,backup-d1}.yml` |
+| CI / 迁移 / 预览清理 / 备份 | `.github/workflows/{pull-request,e2e,migrate,preview,backup-d1,pr-title}.yml` |
 | Worker 配置 | `apps/web/wrangler.jsonc` |
 
 ## 3. 部署拓扑
@@ -71,10 +69,10 @@ www → 301 apex ─┘        ├─ ASSETS  = dist/client 静态资源
   `ON CONFLICT DO NOTHING`，**不带事务包裹**——75 行的 `BEGIN…COMMIT` 会触发远端
   `SQLITE_TOOBIG`）。这条迁移本身就是「上线内容快照」。
 - **`comment` 表**（迁移 `0004`）：`id`(PK, `crypto.randomUUID`)、`slug`、`userId`、
-  `parentId`（NULL=顶层；非空=一层回复，深度 ≤ 1，代码强制）、`body`（限制 markdown）、
-  `status`（`visible|hidden|spam`）、`createdAt`、`updatedAt`。**登录才能评论**（Better Auth）；
-  **后置审核**（默认 `visible`，admin 可隐藏/标垃圾/硬删除）；限流为原子
-  `INSERT…WHERE NOT EXISTS`（每用户 60s）。替换了原 utteranc.es。
+  `parentId`（NULL=顶层；非空=一层回复，深度 ≤ 1，写入时应用层强制）、`body`（限制 markdown，服务端经 `renderCommentHtml` 渲染 HTML，无 `rehype-raw`，不把解析器打进客户端）、
+  `status`（`visible|hidden|spam`）、`createdAt`、`updatedAt`。不加 FK 约束（D1/SQLite 默认 `foreign_keys=OFF`），写入时校验 `slug` 存在与可见性；作者昵称/头像/角色读取时 `JOIN "user"`，服务端计算 `isOwn`（不暴露 `author.id`）。全部读写走 `lib/comments-service.ts` server fn（不增 REST 路由），每个 fn 内部独立校验会话与文章可见性；**登录才能评论**（Better Auth）；
+  **后置审核**（默认 `visible`，admin 可隐藏/标垃圾/恢复/硬删除，作者可硬删除自己评论）；限流为原子
+  `INSERT…WHERE NOT EXISTS`（每用户 60s，跨 isolate 有效）。
 - better-auth 的自动建表依赖 Drizzle 驱动，D1 环境不可用；表结构手动写成 D1 迁移文件，统一走
   wrangler migrations 管道，版本可审计、不在请求期建表。
 - 迁移由 `migrate.yml` 在部署时 `wrangler d1 migrations apply blog --remote` 应用（Workers Builds
@@ -191,13 +189,13 @@ pnpm --filter @blog/web dev                            # vp dev（Vite+）
 
 ## 12. 部署
 
-- **生产**：Cloudflare Workers Builds 监听 `master`，在 `apps/web` 下按分支声明的 Node 版本安装、构建，再执行 `npx wrangler deploy -c dist/server/wrangler.json`。构建变量和命令见[构建与认证](./preview-deployments.md#构建与认证)。
+- **生产**：Cloudflare Workers Builds 监听 `master`，在 `apps/web` 下按分支声明的 Node 版本安装、构建，再执行 `npx wrangler deploy -c dist/server/wrangler.json`。构建变量和命令见[构建与认证](../development/preview-deployments.md#构建与认证)。
 - **预览**：原生 Preview Builds 执行 `pnpm preview:deploy`，先迁移 preview D1，再运行
   `wrangler preview -c dist/server/wrangler.json`。地址和 PR 评论由 Cloudflare 原生处理。
 - **预览资源**：`wrangler.jsonc.previews` 指向共享的 `blog-preview` D1 和 `blog-assets-preview` R2，
   与生产分开。Better Auth 通过 `AUTH_ALLOWED_HOSTS` 使用原生动态域名配置；登录密钥由
   Previews Base 独立设置。关闭 PR 时，Action 按分支名删除预览，不删除共享存储。
-  配置与维护说明见 [预览部署说明](preview-deployments.md)。
+  配置与维护说明见 [预览部署说明](../development/preview-deployments.md)。
 - **生产 D1 迁移**：`.github/workflows/migrate.yml` 在 push `master` 且迁移文件变化时执行，
   另支持手动触发。它与生产 Builds 并行，不保证先于代码部署；新增 schema 的发布应兼容
   旧结构或显式协调顺序。原生预览使用的 Builds token 需要 D1 Edit 权限。
@@ -205,8 +203,7 @@ pnpm --filter @blog/web dev                            # vp dev（Vite+）
   build 和体积检查；E2E 由独立 workflow 执行。
 - **手动生产部署**：使用 `pnpm --filter @blog/web exec wrangler deploy -c dist/server/wrangler.json`。
   手动部署代码必须经 PR 合入 `master`，避免后续 Builds 覆盖为不同代码。
-- **Custom Domain**：由 `wrangler.jsonc.routes` 管理。绑定主机名不能有冲突 DNS 记录；
-  更换域名前先核验 DNS 与所用 token 的权限。
+- **Custom Domain**：由 `wrangler.jsonc.routes` 管理。绑定主机名下不能有冲突 DNS 记录（否则报 `409 / code 100117`；`wrangler login` 的 OAuth token 无 `dns:edit` / `rulesets:write` 权限，需先在控制台清掉旧记录再部署）。
 
 ## 13. 给 Agent 的速查（常见改动）
 
@@ -227,15 +224,12 @@ pnpm --filter @blog/web dev                            # vp dev（Vite+）
 - **提交前最低验证**：`pnpm typecheck`；`pnpm lint`（`vp check`：Oxfmt 格式检查 + Oxlint）；
   `pnpm knip` 和 `pnpm knip:production`（分别检查全项目和生产代码，检出未使用的文件、导出、依赖或配置、标签提示即失败）；
   `pnpm duplicates` 检出任何一处重复即失败（`pnpm duplicates:audit` 只生成报告）；
-  `pnpm --filter @blog/web build`；`pnpm --filter @blog/web exec wrangler deploy -c
-  apps/web/dist/server/wrangler.json --dry-run`（体积守门）。
+  `pnpm --filter @blog/web build`；`pnpm size`（即 `pnpm --filter @blog/web exec wrangler deploy -c dist/server/wrangler.json --dry-run`，体积守门）。
 - **密钥**：`wrangler secret put <NAME>`（绝不进 git）；非密钥配置走 `wrangler.jsonc` 的 `vars`。
 - **备份相关**：手动触发备份——Actions → `Weekly D1 backup` → Run workflow；恢复见 §9。
 
 ## 14. 相关文档
 
-- 迁移决策与取舍：`docs/plans/2026-06-22-cloudflare-migration-design.md`
-- 页面访问调用链：`docs/request-flow.md`
-- 动效（背景走线 / 点阵波面、入场动画）的名称、约束与调参：`docs/motion.md`
-- 复盘记录：`docs/retrospectives/`
-- **已归档（2026-02 旧栈，仅供参考）**：`docs/deploy-vercel-railway.md`、`docs/selection.md`
+- 页面访问调用链：[`request-flow.md`](request-flow.md)
+- 动效（背景走线 / 点阵波面、入场动画）的名称、约束与调参：[`motion.md`](motion.md)
+- 原生预览部署与维护：[`../development/preview-deployments.md`](../development/preview-deployments.md)

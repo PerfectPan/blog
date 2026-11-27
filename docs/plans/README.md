@@ -4,4 +4,4 @@ Write a plan only when upfront alignment with a human is needed before implement
 
 Start from [`0000-template.md`](0000-template.md). Number new plans sequentially (`0001-…`) and keep only the sections that apply. Plans are written in Chinese (the shipped template is English; write in Chinese following its structure).
 
-Retire the plan in its final delivery PR following [`docs/AGENTS.md` §4](../AGENTS.md#4-retiring-a-plan). Historical migration notes referenced by `docs/architecture.md` remain until superseded.
+Retire the plan in its final delivery PR following [`docs/AGENTS.md` §4](../AGENTS.md#4-retiring-a-plan).

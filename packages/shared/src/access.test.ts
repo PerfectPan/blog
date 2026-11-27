@@ -12,7 +12,7 @@ import type { PostVisibility, Role, SessionUser } from './types.js';
 
 /**
  * These are the security-critical rules behind the two-layer visibility model
- * (see docs/architecture.md §6). `canAccessVisibility` is invoked from server
+ * (see docs/architecture/overview.md §6). `canAccessVisibility` is invoked from server
  * fns that are reachable over RPC, so a regression here is an authorization
  * bypass — these tests lock the ladder in.
  */

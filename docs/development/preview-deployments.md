@@ -40,8 +40,7 @@ Fork PR 不获得部署凭据，使用本地回归。
 改表过渡与所有写入方的兼容要求见 `AGENTS.md` 的“表结构演进与预览数据”。现有手动同步
 仍使用固定文章字段和覆盖写入，执行前必须确认它适用于当前 schema；尚未启用月度自动同步。
 
-控制台已完成切换，仓库变更仍待本 PR 合入。旧分支需要同步迁移后的 master，避免继续
-运行旧的 Actions 部署流程。迁移期间创建的自定义名称预览不会被新的分支名清理命令匹配。
+`.github/workflows/preview.yml` 只按分支名匹配原生预览并删除；历史上手动创建的自定义名称预览需手工清理。
 
 参考：[Cloudflare Preview Builds](https://developers.cloudflare.com/workers/ci-cd/builds/build-branches/)、
 [Better Auth 动态域名](https://better-auth.com/docs/guides/dynamic-base-url)。
