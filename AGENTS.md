@@ -4,6 +4,7 @@
 
 > **架构单点真相 = `docs/architecture.md`**（含数据模型 / 两层权限 / 安全 / 备份 / agent 速查 §13）。
 > 本文件侧重流程与约束；架构细节以那份文档为准。
+> 写非代码知识（新增/修改 `docs/`、选文档还是 `Why:` 注释、或退役 Plan）前先读 [`docs/AGENTS.md`](docs/AGENTS.md) 与 [`docs/README.md`](docs/README.md)。
 
 ## 1. 项目定位
 

@@ -4,4 +4,4 @@ Plans record the design and execution steps for one non-trivial deliverable. Bug
 
 Start from [`0000-template.md`](0000-template.md). Number new plans sequentially (`0001-…`) and keep only the sections that apply. Plans are written in Chinese (the shipped template is English; write in Chinese following its structure).
 
-Once the code lands on `master`, retire the plan in the final delivery PR: move remaining follow-ups to issues, migrate lasting non-code constraints into `docs/architecture.md` (or local `Why:` comments), and delete the plan file. Historical migration notes referenced by `docs/architecture.md` remain until superseded.
+Retire the plan in its final delivery PR following [`docs/AGENTS.md` §4](../AGENTS.md#4-retiring-a-plan). Historical migration notes referenced by `docs/architecture.md` remain until superseded.

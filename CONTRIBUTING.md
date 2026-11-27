@@ -49,7 +49,7 @@ Most changes need only a clear PR description (`## Summary` and `## Validation`)
 | Bugfix, localized feature/refactor, tests, dependencies, or docs | PR description explaining what changed, why, and how it was verified |
 | New subsystem, schema/auth/routing contract change, major design tradeoffs, or multi-PR/multi-session work | One Plan in [`docs/plans/`](docs/plans/) |
 
-A Plan (`docs/plans/`) records the problem, goals, outline, detailed design, verification, and (when useful) execution steps. Retire the plan as soon as its code lands on `master`: move any remaining manual checks or follow-ups to issues, migrate lasting non-code constraints (invariants, tradeoffs, operational limits) into `docs/architecture.md` or local `Why:` comments, and delete the completed plan in the final delivery PR. Git history and the delivery PR keep the full plan.
+A Plan (`docs/plans/`) records the problem, goals, outline, detailed design, verification, and (when useful) execution steps. Retire the plan in its final delivery PR following [`docs/AGENTS.md` §4](docs/AGENTS.md#4-retiring-a-plan); list durable docs in [`docs/README.md`](docs/README.md).
 
 ## Required Checks
 
