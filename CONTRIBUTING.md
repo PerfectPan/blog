@@ -42,7 +42,7 @@ PR bodies are English too; the repo validates titles with
 
 ## Change Design Gate
 
-Most changes need only a clear PR description (`## Summary` and `## Validation`), not a separate document.
+Most changes need only a clear PR description (`## Summary` and `## Validation`), not a separate document. Write a Plan only when upfront alignment with a human is needed before implementing. Do not write a Plan for adjustments requested during implementation or review—reflect those directly in code, durable docs, and the PR description.
 
 | Change scope | Required artifact |
 | --- | --- |
